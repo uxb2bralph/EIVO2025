@@ -1,0 +1,18 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+<script>
+    $(function () {
+        alert('發票已註銷!');
+        $inquiryAgent.initQuery = true;
+        $inquiryAgent.inquire();
+    });
+</script>

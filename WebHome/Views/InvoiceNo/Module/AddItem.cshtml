@@ -1,0 +1,39 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@{
+    InquireNoIntervalViewModel _viewModel;
+
+    _viewModel = (InquireNoIntervalViewModel)ViewBag.ViewModel;
+}
+
+<tr>
+    <td></td>
+    <td>@(_viewModel.Year)</td>
+    <td>@(String.Format("{0:00}-{1:00}月", _viewModel.PeriodNo * 2 - 1, _viewModel.PeriodNo * 2))</td>
+    <td>
+        @{ await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/TrackCodeSelector.cshtml");}
+
+        <input name="SellerID" type="hidden" value="@(_viewModel.SellerID)" />
+    </td>
+    <td>
+        <input type="text" name="StartNo" class="form-control" placeholder="請輸入配號區間起始號碼" value="" data-role="add" />
+    </td>
+    <td>
+        <input type="text" name="EndNo" class="form-control" placeholder="請輸入配號區間結尾號碼" value="" data-role="add" />
+    </td>
+    <td>
+        <input type="text" name="DeviceName" class="form-control" data-role="add" placeholder="POS機號碼" />
+    </td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>
+        <a class="btn" onclick="uiTrackCodeNo.commitItem();">新增配號區間</a>
+    </td>
+</tr>
+

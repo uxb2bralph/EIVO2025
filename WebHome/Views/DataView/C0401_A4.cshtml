@@ -1,0 +1,67 @@
+﻿
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.InvoiceManagement.InvoiceProcess
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/DataView/C0401A4Template.cshtml";
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    RenderStyleViewModel _viewModel;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = (RenderStyleViewModel)ViewBag.ViewModel;
+
+    if (_viewModel == null)
+    {
+        _viewModel = this.TempData["viewModel"] as RenderStyleViewModel;
+        if (_viewModel != null)
+        {
+            ViewBag.ViewModel = _viewModel;
+        }
+    }
+}
+@{
+    String invoicePrintView;
+}
+@if (_viewModel?.UseCustomView == true && (invoicePrintView = _model.Organization.OrganizationStatus.InvoicePrintView.GetEfficientString()) != null)
+{
+    if(_model.Organization.DisableC0401Template() == true)
+    {
+        Layout = null;
+    }
+    await Html.RenderPartialAsync(invoicePrintView, _model);
+}
+else
+{
+    if (_viewModel.PrintCuttingLine == true)
+    {
+        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4_Print.cshtml", _model);
+    }
+    else
+    {
+        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4.cshtml", _model);
+    }
+}
+
+
+

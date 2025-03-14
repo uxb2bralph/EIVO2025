@@ -1,0 +1,92 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    ProcessRequestQueryViewModel _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
+}
+@{
+    Naming.FieldDisplayType? displayType = (Naming.FieldDisplayType?)ViewBag.DisplayType;
+}
+@switch (displayType)
+{
+    case Naming.FieldDisplayType.Header:
+        <a href="javascript:void(0);" onclick="$inquiryAgent.sort('SubmitDate',this);">提交時間</a>
+        break;
+    case Naming.FieldDisplayType.DataItem:
+        ProcessRequest item = this.Model as ProcessRequest;
+        <text>@($"{item.SubmitDate:yyyy/MM/dd HH:mm:ss}")</text>
+        break;
+    case Naming.FieldDisplayType.SortBy:
+        ProcessRequestQueryViewModel viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
+        if (viewModel.SortName != null)
+        {
+            int idx = System.Array.IndexOf(viewModel.SortName, "SubmitDate");
+            if (idx >= 0)
+            {
+                if (viewModel.SortType[idx] == (int)Naming.SortType.ASC)
+                {
+                    if (TempData["SortedItems"] != null)
+                    {
+                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenBy(p => p.SubmitDate);
+                    }
+                    else
+                    {
+                        TempData["SortedItems"] = ((IQueryable<ProcessRequest>)this.Model).OrderBy(p => p.SubmitDate);
+                    }
+                }
+                else if (viewModel.SortType[idx] == (int)Naming.SortType.DESC)
+                {
+                    if (TempData["SortedItems"] != null)
+                    {
+                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p => p.SubmitDate);
+                    }
+                    else
+                    {
+                        TempData["SortedItems"] = ((IQueryable<ProcessRequest>)this.Model).OrderByDescending(p => p.SubmitDate);
+                    }
+                }
+            }
+        }
+        break;
+    case Naming.FieldDisplayType.Query:
+<tr>
+    <th>
+        日期區間
+    </th>
+    <td class="tdleft">
+        自&nbsp;<input name="SubmitDateFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.SubmitDateFrom:yyyy/MM/dd}")" />
+        &nbsp;至&nbsp;
+        <input name="SubmitDateTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.SubmitDateTo:yyyy/MM/dd}")" />
+    </td>
+</tr>
+        break;
+    default:
+        break;
+}
+
+

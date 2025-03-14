@@ -1,0 +1,57 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _profile = Context.GetUser();
+
+}
+@{
+    await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/InquireOrganization.cshtml");
+}
+
+@if (!models.InquiryHasError)
+{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+
+    <div class="border_gray">
+        @{ await Html.RenderPartialAsync("~/Views/Module/OrganizationList.ascx", models);}
+
+        <!--按鈕-->
+    </div>
+    @if (models.Items.Count() <= 10000)
+    {
+        <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td class="Bargain_btn">
+                    @{ await Html.RenderPartialAsync("~/Views/Module/PrintData.ascx");}
+
+                    <input type="button" value="CSV下載" name="btnCsv" class="btn" onclick="$('form').prop('action', '@(Url.Action("DownloadCSV"))    ').submit();" />
+                    <input type="button" value="Excel下載" name="btnXlsx" class="btn" onclick="$('form').prop('action', '@(Url.Action("CreateXlsx"))    ').submit();" />
+                </td>
+            </tr>
+        </table>
+    }
+}

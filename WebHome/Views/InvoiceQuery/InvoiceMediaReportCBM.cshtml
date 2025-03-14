@@ -1,0 +1,97 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    TaxMediaQueryViewModel _viewModel;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (TaxMediaQueryViewModel)ViewBag.ViewModel;
+
+    var Response = ViewContext.HttpContext.Response;
+    Response.Clear();
+
+    Response.Headers.Clear();
+    Response.Headers.Append("Cache-control", "max-age=1");
+    Response.ContentType = "application/octet-stream";
+    Response.Headers.Append("Content-Disposition", $"attachment;filename={DateTime.Today:yyyy-MM-dd}.csv");
+
+    DateTime dateFrom = new DateTime(_viewModel.Year.Value, _viewModel.PeriodNo.Value * 2 - 1, 1);
+
+<text>格式代號,資料所屬期別(年月),幣別,銷售總計金額,匯率,換算後銷售總計金額,銷售額,銷項稅額,交易筆數,統一發票字軌,發票起號,發票迄號,發票開立年月</text>
+
+    for (int idx = 0; idx < 2; idx++)
+    {
+        var invoiceItems = models.DataContext.GetInvoiceReport(_viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
+        var allowanceItems = models.DataContext.GetAllowanceReport(_viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
+
+        foreach (var g in invoiceItems)
+        {
+            decimal? exchangeRate;
+            if (g.CurrencyID == 0)
+            {
+                exchangeRate = 1;
+            }
+            else
+            {
+                exchangeRate = models.GetTable<InvoicePeriodExchangeRate>()
+                    .Where(v => v.PeriodID == g.PeriodID && v.CurrencyID == g.CurrencyID)
+                    .FirstOrDefault()?.ExchangeRate;
+            }
+            decimal? twTotalAmt = g.TotalAmount * exchangeRate;
+            decimal? twTaxAmt = null;
+            if (twTotalAmt.HasValue)
+            {
+                twTotalAmt = Math.Round(twTotalAmt.Value);
+                twTaxAmt = Math.Round(twTotalAmt.Value / 1.05M);
+            }
+
+<text>35,@(dateFrom.Year - 1911)@($"{dateFrom.Month:00}"),@(g.CurrencyID == 0 ? "NTD" : g.AbbrevName ),@(g.TotalAmount),@($"{exchangeRate:.#####}"),@(twTotalAmt),@(twTotalAmt-twTaxAmt),@(twTaxAmt),@(g.RecordCount),@(g.TrackCode),@($"{g.StartNo:00000000}"),@($"{g.EndNo:00000000}"),</text>
+        }
+
+        foreach (var g in allowanceItems)
+        {
+            decimal? exchangeRate;
+            if (g.CurrencyID == 0)
+            {
+                exchangeRate = 1;
+            }
+            else
+            {
+                exchangeRate = models.GetTable<InvoicePeriodExchangeRate>()
+                    .Where(v => v.PeriodID == g.PeriodID && v.CurrencyID == g.CurrencyID)
+                    .FirstOrDefault()?.ExchangeRate;
+            }
+            decimal? twTotalAmt = g.TotalAmount * exchangeRate;
+            decimal? twTaxAmt = g.TotalTaxAmount * exchangeRate;
+            if (twTotalAmt.HasValue)
+            {
+                twTotalAmt = Math.Round(twTotalAmt.Value);
+            }
+            if (twTaxAmt.HasValue)
+            {
+                twTaxAmt = Math.Round(twTaxAmt.Value);
+            }
+<text>33,@(dateFrom.Year - 1911)@($"{dateFrom.Month:00}"),@(g.CurrencyID == 0 ? "NTD" : g.AbbrevName ),@(g.TotalAmount),@($"{exchangeRate:.#####}"),,,,@(g.RecordCount),@(g.TrackCode),@($"{g.StartNo:00000000}"),@($"{g.EndNo:00000000}"),@($"{g.Year-1911:000}{g.Month:00}")</text>
+        }
+
+        dateFrom = dateFrom.AddMonths(1);
+    }
+}

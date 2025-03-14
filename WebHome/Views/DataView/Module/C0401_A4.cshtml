@@ -1,0 +1,307 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    RenderStyleViewModel _viewModel;
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    InvoiceProductItem[] _productItem;
+    InvoiceBuyer _buyer;
+    Organization _buyerOrg;
+    bool _isDuplicatedPrint = false;
+    const int _FirstCheckCount = 6;
+    const int _SecondCheckCount = 16;
+    const int _ItemPagingCount = 10;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+
+    _productItem = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
+        .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+        .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, i => i.ProductID, (p, i) => i).ToArray();
+
+    _buyer = _model.InvoiceBuyer;
+    if (_buyer != null && _buyer.BuyerID.HasValue)
+    {
+        _buyerOrg = _buyer.Organization;
+    }
+
+    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Organization.OrganizationStatus.EntrustToPrint != true;
+
+}
+@functions
+{
+    void WrapSellerName(String sellerName)
+    {
+        if (sellerName?.Length > 11)
+        {
+            var idx = sellerName.IndexOf("股份有限公司");
+            if (idx < 0)
+            {
+                idx = sellerName.IndexOf("有限公司");
+            }
+            if (idx < 0)
+            {
+                idx = sellerName.IndexOf("公司");
+            }
+            if (idx >= 0)
+            {
+                @Html.Raw(sellerName.Substring(0, idx))
+                <br />
+                @Html.Raw(sellerName.Substring(idx))
+            }
+        }
+        else
+        {
+            @Html.Raw(sellerName)
+        }
+    }
+}
+@if (_model != null)
+{
+    <div style="page-break-after: always">
+        <div class="fspace">
+            <div class="company" style="padding-top: 0.5cm;">
+                <span class="title">@(_model.InvoiceSeller.CustomerName)</span><br />
+                <p>
+                    @(_model.InvoiceSeller.Address)<br />
+                    @*@(_model.Organization.OrganizationStatus.SetToOutsourcingCS == true ? "委外客服電話：0800-010-626" : "")*@
+                </p>
+            </div>
+            <div class="customer">
+                <p>
+                    @(_buyer.PostCode)<br />
+                    @(_buyer.Address)<br />
+                    @(_model.InvoiceSeller.ReceiptNo == "27934855" && _buyer.CustomerName != _buyer.ContactName
+                        ? _buyer.CustomerName + "  " + _buyer.ContactName
+                        : _buyer.ContactName)@*@(_buyer.ContactName)*@
+                        鈞啟
+                    </p>
+                </div>
+            </div>
+            <div class="container">
+                <div style="width: 7.2cm; height: 9cm; display: block; overflow: hidden; float: left;"></div>
+                <div class="cutfield">
+                    @if (_model.Organization.LogoURL != null)
+                    {
+                        <div style="text-align:center;">
+                            <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Organization.LogoURL))' />
+                        </div>
+                    }
+                    else
+                    {
+                        <h3 style="width:@(_model.InvoiceSeller.CustomerName?.Length > 16 ? "5.2cm" : "5.2cm");" class="title-small">
+                            @{
+                                WrapSellerName(_model.InvoiceSeller.CustomerName);
+                            }
+                        </h3>
+                    }
+                    @if (_isDuplicatedPrint)
+                    {
+                        <h2 style="font-size: larger;">電子發票證明聯補印</h2>
+                    }
+                    else
+                    {
+                        <h2>電子發票證明聯</h2>
+                    }
+                    <h2>@(_model.InvoiceDate.Value.Year-1911)年@((_model.InvoiceDate.Value.Month % 2).Equals(0) ? String.Format("{0:00}-{1:00}", _model.InvoiceDate.Value.Month - 1, _model.InvoiceDate.Value.Month) : String.Format("{0:00}-{1:00}", _model.InvoiceDate.Value.Month, _model.InvoiceDate.Value.Month+1))月 </h2>
+                    <h2>@(_model.TrackCode + "-" + _model.No)</h2>
+                    <p>
+                        @(String.Format("{0:yyyy-MM-dd HH:mm:ss}", _model.InvoiceDate.Value)) @(_buyer.IsB2C()
+                                                                                                ? ""
+                                                                                                : _model.InvoiceBuyer.BuyerMark==3 || _model.InvoiceBuyer.BuyerMark==4
+                                                                                                    ? "不得扣抵"
+                                                                                                    : String.Format("格式 {0}", ((int)_model.InvoiceType.Value).InvoiceTypeToFormat()))<br />
+                        隨機碼 @(_model.RandomNo)&nbsp;&nbsp;&nbsp;&nbsp;總計 @(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.TotalAmount))<br />
+                        賣方@(_model.Organization.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
+                    </p>
+                    <div class="code1">
+                        @{
+                            String data = $"{_model.InvoiceDate.Value.Year - 1911:000}{(_model.InvoiceDate.Value.Month + 1) / 2 * 2:00}{_model.TrackCode}{_model.No}{_model.RandomNo}";
+                        }
+                        <img id="barcode" alt="" style="max-width:5.4cm;" src="@(data.GetBarcode39ImageSrc(margin:10,height:40,wide:3,narrow:1))" />
+                    </div>
+                    <div class="code2" style="padding-left:0.1cm;text-align: center;">
+                        <img style="margin-right: 0.3cm;width:2.5cm;" alt="" src="@(_model.GetLeftQRCodeImageSrc(width:180,height:180,qrVersion:10))" />
+                        <img style="width: 2.5cm;margin-left: -0.2cm" alt="" src="@("**".CreateQRCodeImageSrc(width:180,height:180,qrVersion:10))" />
+                    </div>
+                </div>
+            </div>
+            <div class="listfield">
+                <div class="content_box">
+                    <p class="productname">品名</p>
+                    <p class="quantity">數量</p>
+                    <p class="price">單價</p>
+                    <p class="totalPrice">金額</p>
+                </div>
+                @{ int _itemIdx;}
+                @for (_itemIdx = 0; _productItem != null && _itemIdx < Math.Min(_productItem.Length, _ItemPagingCount); _itemIdx++)
+                {
+                    var item = _productItem[_itemIdx];
+                    <div class="content_box">
+                        <p class="productname">@(item.InvoiceProduct.Brief)</p>
+                        <p class="quantity">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</p>
+                        <p class="price">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</p>
+                        <p class="totalPrice">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</p>
+                    </div>
+                }
+                @if (_productItem != null && _productItem.Length <= _FirstCheckCount)
+                {
+                    <div class="content_box">
+                        <p style="border-top: 1px dotted #808080;">
+                            <span style="font-size: 12pt; font-weight: bold;">
+                                總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;
+                                金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))
+                            </span><br />
+                            課稅別：@(_model.InvoiceAmountType.TaxTypeString)&nbsp;&nbsp;
+                            @if (!_buyer.IsB2C())
+                            {
+                                <text>
+                                    應稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == 1 || _model.InvoiceAmountType.TaxType == 9
+                                                                      ? _model.InvoiceAmountType.SalesAmount
+                                                                      : _model.InvoiceAmountType.TaxType == 4
+                                                                          ? _model.InvoiceAmountType.TotalAmount
+                                                                          : 0)) &nbsp;&nbsp;
+                                    零稅率銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)2 ? _model.InvoiceAmountType.SalesAmount : 0)) &nbsp;&nbsp;
+                                    免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)3 ? _model.InvoiceAmountType.SalesAmount : 0)) &nbsp;&nbsp;
+                                    稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4 ? 0 : _model.InvoiceAmountType.TaxAmount)) &nbsp;&nbsp;
+                                </text>
+                            }
+                            備註：@(String.Join(";", _model.InvoiceDetails.Select(d => d.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
+                            退貨請憑電子發票證明聯辦理
+                            @if (_model.InvoiceWinningNumber != null && _model.InvoiceCarrier != null && _model.InvoiceCarrier.CarrierType == "3J0002")
+                            {
+                                <text>(貴用戶如已使用手機條碼設定為自動匯款，請勿重複領獎)</text>
+                            }
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+        @*<p runat="server" style="page-break-after: always" visible="@(printBack ? true : (!IsFinal ? true : false))"></p>*@
+        if (_viewModel?.PrintBack == true || (_productItem != null && _productItem.Length > _FirstCheckCount))
+        {
+            <div class="br" id="backPage" style="page-break-after: always">
+                <div class="bspace listfield">
+                    @for (; _itemIdx < Math.Min(_productItem.Length, _ItemPagingCount * 2); _itemIdx++)
+                    {
+                        var item = _productItem[_itemIdx];
+                        <div class="content_box">
+                            <p class="productname">@(item.InvoiceProduct.Brief)</p>
+                            <p class="quantity">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</p>
+                            <p class="price">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</p>
+                            <p class="totalPrice">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</p>
+                        </div>
+                    }
+                    @if (_productItem.Length > _FirstCheckCount && _productItem.Length <= _SecondCheckCount)
+                    {
+                        <div class="content_box">
+                            <p style="border-top: 1px dotted #808080;">
+                                <span style="font-size: 12pt; font-weight: bold;">總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
+                                課稅別：@(_model.InvoiceAmountType.TaxTypeString)&nbsp;&nbsp;
+                                @if (!_buyer.IsB2C())
+                                {
+                                    <text>
+                                        應稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == 1 || _model.InvoiceAmountType.TaxType == 9
+                                                                      ? _model.InvoiceAmountType.SalesAmount
+                                                                      : _model.InvoiceAmountType.TaxType == 4
+                                                                          ? _model.InvoiceAmountType.TotalAmount
+                                                                          : 0)) &nbsp;&nbsp;
+                                        零稅率銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)2 ? _model.InvoiceAmountType.SalesAmount : 0)) &nbsp;&nbsp;
+                                        免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)3 ? _model.InvoiceAmountType.SalesAmount : 0)) &nbsp;&nbsp;
+                                        稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4 ? 0 : _model.InvoiceAmountType.TaxAmount)) &nbsp;&nbsp;
+                                    </text>
+                                }
+                                備註：@(String.Join(";", _model.InvoiceDetails.Select(d => d.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
+                                退貨請憑電子發票證明聯辦理
+                            </p>
+                        </div>
+                    }
+                </div>
+                @if (_viewModel?.PrintBack == true)
+                {
+                    <div class="container">
+                        <div style="width: 7.2cm; height: 9cm; display: block; overflow: hidden; float: right;"></div>
+                        <div class="cutfield" style="float: right;">
+                            <h3 class="notop">領獎收據</h3>
+                            <p class="sign" style="font-size:8pt; ">
+                                一、金額(新臺幣)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;元整<br>
+                                二、中獎人簽名(正楷)或蓋章<br>
+                                <br>
+                                三、電話<br>
+                                四、兌獎若有疑義，
+                                請洽客服專線：<br>
+                                <img id="qrcode3" alt="" width="80" height="80" src="../images/invoiceqrcode.png" style="float: right;margin-left: 15px;">
+                                4128282；<br>
+                                或請至下列網址查詢
+                                http://invoice.etax.nat.gov.tw/
+                            </p>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        if (_productItem != null && _productItem.Length > _SecondCheckCount)
+        {
+            <div class="br" style="page-break-after: always">
+                <div class="listfield">
+                    @for (; _itemIdx < _productItem.Length; _itemIdx++)
+                    {
+                        var item = _productItem[_itemIdx];
+                        <div class="content_box">
+                            <p class="productname">@(item.InvoiceProduct.Brief)</p>
+                            <p class="quantity">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</p>
+                            <p class="price">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</p>
+                            <p class="totalPrice">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</p>
+                        </div>
+                    }
+                    <div class="content_box" style="width:100%;">
+                        <p style="border-top: 1px dotted #808080;">
+                            <span style="font-size: 12pt; font-weight: bold;">總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
+                            課稅別：@(_model.InvoiceAmountType.TaxTypeString)&nbsp;&nbsp;
+                            @if (!_buyer.IsB2C())
+                            {
+                                <text>
+                                    應稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == 1 || _model.InvoiceAmountType.TaxType == 9
+                                                                      ? _model.InvoiceAmountType.SalesAmount
+                                                                      : _model.InvoiceAmountType.TaxType == 4
+                                                                          ? _model.InvoiceAmountType.TotalAmount
+                                                                          : 0)) &nbsp;&nbsp;
+                                    零稅率銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)2 ? _model.InvoiceAmountType.SalesAmount : 0)) &nbsp;&nbsp;
+                                    免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)3 ? _model.InvoiceAmountType.SalesAmount : 0)) &nbsp;&nbsp;
+                                    稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4 ? 0 : _model.InvoiceAmountType.TaxAmount)) &nbsp;&nbsp;
+                                </text>
+                            }
+                            <br />
+                            備註：@(String.Join(";", _model.InvoiceDetails.Select(d => d.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
+                            退貨請憑電子發票證明聯辦理
+                        </p>
+                    </div>
+                </div>
+            </div>
+            if ((_productItem.Length - _SecondCheckCount) / 43 % 2 == 0)
+            {
+                <div class="br" style="page-break-after: always">&nbsp;</div>
+            }
+        }
+    }
+    @*<p runat="server" style="page-break-after: always" visible="@(printBack && !IsFinal)"></p>*@
+

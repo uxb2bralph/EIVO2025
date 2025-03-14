@@ -1,0 +1,49 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@{
+
+    TrackCodeQueryViewModel _viewModel;
+
+    _viewModel = (TrackCodeQueryViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <td>@(_viewModel.Year-1911)<input name="Year" type="hidden" value="@(_viewModel.Year)" /></td>
+    <td>
+        <select name="PeriodNo" class="addNew">
+            <option value="1">01-02月</option>
+            <option value="2">03-04月</option>
+            <option value="3">05-06月</option>
+            <option value="4">07-08月</option>
+            <option value="5">09-10月</option>
+            <option value="6">11-12月</option>
+        </select>
+        <script>
+                        $(function () {
+                            $('select[name="PeriodNo"].addNew').val(@((DateTime.Now.Month+1)/2));
+                        });
+        </script>
+    </td>
+    <td>
+        <input type="text" name="TrackCode" class="form-control" placeholder="請輸入字軌" value="" data-role="add" />
+    </td>
+    <td>
+        <select name="InvoiceType">
+            <option value="7">@(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)</option>
+            <option value="8">@(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)</option>
+        </select>
+    </td>
+    <td>
+        <a class="btn" onclick="uiTrackCodeQuery.commitItem();">新增字軌</a>
+    </td>
+</tr>
+
+
+
+
+

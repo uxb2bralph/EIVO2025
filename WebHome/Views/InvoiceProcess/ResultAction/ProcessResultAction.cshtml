@@ -1,0 +1,58 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    InquireInvoiceViewModel _viewModel;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+@{ 
+    switch (_viewModel.ResultAction)
+    {
+        case "Print":
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/DoPrint.ascx");
+            break;
+        case "Notify":
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/DoNotify.cshtml");
+            break; 
+        case "IssueAllowance":
+        case "CancelInvoice":
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/DoAction.cshtml");
+            break; 
+        case "CreateMIG":
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/DownloadMIG.cshtml");
+            break; 
+        case "Authorize":
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/DoAuthorize.cshtml");
+            break; 
+        case "Incoming":
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/B2CQueryAction.cshtml");
+            break; 
+        case "Void":
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/DoVoid.cshtml");
+            break; 
+        case "Allow":
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/AllowToVoid.cshtml");
+            break; 
+        default:
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/MainQueryAction.cshtml");
+            break;
+    }
+}
+
+
+
+

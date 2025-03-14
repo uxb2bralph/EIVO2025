@@ -1,0 +1,60 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+    DocumentQueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+    _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
+
+    String notificationView = _model?.InvoiceAllowanceSeller?.Organization?.OrganizationStatus.CustomNotificationView;
+
+}
+
+@if (_viewModel.ForTest == true)
+{
+    await Html.RenderPartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedAllowance.cshtml", _model);
+}
+else if (_model.InvoiceAllowanceSeller.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.IssuingAllowance))
+{
+    String pdfFile = models.PrepareToDownload(_model);
+
+    System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(pdfFile, System.Net.Mime.MediaTypeNames.Application.Octet);
+    ///修改附件檔名為發票號碼
+    ///
+    attachment.Name = String.Format("{0}.pdf", _model.AllowanceNumber);
+
+    var mailing = models.GetUserListByCompanyID(_model.InvoiceAllowanceBuyer.BuyerID)
+            .Select(u => u.EMail).ToList();
+
+    mailing.Add(_model.InvoiceAllowanceBuyer.EMail);
+    var mailTo = String.Join(",",
+        mailing.Where(m => m != null)).GetEfficientString() ??  ModelExtension.Properties.AppSettings.Default.WebMaster;
+
+    var enterprise = _model.InvoiceAllowanceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
+    var smtpSettings = _model.InvoiceAllowanceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+
+    String Subject = $"{(enterprise?.EnterpriseGroup.EnterpriseName)} 折讓證明開立通知(折讓證明單號碼:{_model.AllowanceNumber})";
+    String body = Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedAllowance.cshtml", _model).ToString();
+
+    body.SendMailMessage(mailTo, Subject, new System.Net.Mail.Attachment[] { attachment }, smtpSettings);
+}

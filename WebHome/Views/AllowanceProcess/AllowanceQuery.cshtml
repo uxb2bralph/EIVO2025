@@ -1,0 +1,260 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    InquireInvoiceViewModel _viewModel;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+    _viewModel.UrlAction = Url.Action("Inquire", "AllowanceProcess");
+
+}
+<!--交易畫面標題-->
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "折讓證明查詢／列印／匯出");}
+
+<div id="queryArea" class="border_gray">
+    <!--表格 開始-->
+    <table class="table table-striped">
+        <tr>
+            <th colspan="2" class="Head_style_a">
+                查詢條件
+            </th>
+        </tr>
+        @{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/QueryDirective.cshtml", 1);}
+
+        <tr>
+            <th>
+                發票類別
+            </th>
+            <td class="tdleft">
+                <select name="ProcessType">
+                    <option value="">查詢全部</option>
+                    <option value="@((int)Naming.InvoiceProcessType.D0401)">查詢QR Code證明聯類型</option>
+                    <option value="@((int)Naming.InvoiceProcessType.B0401)">查詢營業人交易類型</option>
+                </select>
+                @if (_viewModel?.ProcessType.HasValue == true)
+                {
+                    <script>
+                    $(function () {
+                        $('select[name="ProcessType"]').val('@((int)_viewModel.ProcessType)');
+                    });
+                    </script>
+                }
+            </td>
+        </tr>
+        @{ 
+            @(await Component.InvokeAsync<WebHome.Components.InquireInvoiceSellerViewComponent>(new { fieldName = "CompanyID" }));
+        }
+        <tr>
+            <th>
+                發票／折讓單號碼
+            </th>
+            <td class="tdleft">
+                <input class="form-control" name="DataNo" type="text" />
+            </td>
+        </tr>
+        <tr>
+            <th>
+                買受人統編
+            </th>
+            <td class="tdleft">
+                <input class="form-control" name="BuyerReceiptNo" type="text" />
+            </td>
+        </tr>
+        <tr>
+            <th>
+                買受人名稱
+            </th>
+            <td class="tdleft">
+                <input class="form-control" name="BuyerName" type="text" />
+            </td>
+        </tr>
+        <tr>
+            <th width="20%">
+                日期區間
+            </th>
+            <td class="tdleft">
+                自&nbsp;<input id="DateFrom" name="DateFrom" type="text" size="10" readonly="readonly" value="" />
+                &nbsp;至&nbsp;
+                <input id="DateTo" name="DateTo" type="text" size="10" readonly="readonly" value="" />
+                <script>
+                    $(function () {
+                        $('#DateFrom').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '2012:+1' });
+                        $('#DateTo').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '2012:+1' });
+                    });
+                </script>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                單據狀態
+            </th>
+            <td class="tdleft">
+                <select name="Status">
+                    <option value="Normal">未作廢</option>
+                    <option value="Voided">已作廢</option>
+                    <option value="ReadyToMIG">待傳送</option>
+                    <option value="">全部</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                <input name="CurrencySummary" value="True" type="checkbox" /> 顯示幣別統計，
+                <input name="MIG" value="True" type="checkbox" /> 顯示大平台處理狀態(C:完成,E:失敗,P:處理中)
+            </th>
+        </tr>
+    </table>
+    <!--表格 結束-->
+    <!--按鈕-->
+    <table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
+        <tbody>
+            <tr>
+                <td class="Bargain_btn">
+                    <button type="button" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">查詢</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <script>
+    var uiAllowanceQuery;
+    $(function () {
+        var $postForm;
+        uiAllowanceQuery = {
+            inquire: function (pageNum, onPaging) {
+
+                var $this = uiAllowanceQuery;
+                var $placement = $('button:contains("查詢")').closest('table');
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+
+                if (isNaN(pageNum)) {
+                    $formData.startQuery = true;
+                    uiAllowanceQuery.pageIndex = 1;
+                }
+                else {
+                    $formData.pageIndex = pageNum;
+                    $this.pageIndex = pageNum;
+                }
+
+                if ($this.sort) {
+                    $formData.Sort = $this.sort.getSort();
+                }
+
+                showLoading();
+                $.post('@Html.Raw(Url.Action("Inquire","AllowanceProcess",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        if ($this.initQuery) {
+
+                            if (uiAllowanceQuery.$result)
+                                uiAllowanceQuery.$result.remove();
+                            uiAllowanceQuery.$result = $(data).insertAfter($placement);
+                            $this.initQuery = false;
+                            //$this.showHeader();
+                            //$this.checkColumns();
+                        } else {
+                            $this.paging(data);
+                            //$this.checkColumns();
+                        }
+                    }
+                });
+
+            },
+            print: function (style) {
+                if (!$('input[name="chkItem"]').is(':checked')) {
+                    alert('請選擇列印資料!!');
+                    return false;
+                }
+
+                var $formData = $('input[name="chkItem"]:checked').serializeObject();
+                $formData.paperStyle = style;
+                $formData.processType = $('select[name="ProcessType"]').val();
+
+                showLoading();
+                $.post('@Html.Raw(Url.Action("Print","AllowanceProcess"))', $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        if (data) {
+                            var $data = $(data);
+                            $data.dialog();
+                            $data.find('a').on('click', function (evt) {
+                                $data.dialog('close');
+                            });
+                        }
+                    }
+                });
+            },
+
+            notify: function () {
+                if (!$('input[name="chkItem"]').is(':checked')) {
+                    alert('請選擇待重送資料!!');
+                    return false;
+                }
+
+                var $formData = $('input[name="chkItem"]:checked').serializeObject();
+                $formData.cancellation = $('#queryArea select[name="Cancelled"]').val();
+
+                showLoading();
+                $.post('@Html.Raw(Url.Action("IssueAllowanceNotice", "AllowanceProcess"))', $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        $(data).appendTo($('body')).remove();
+                    }
+                });
+
+            },
+            download: function () {
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                $('').launchDownload('@Html.Raw(Url.Action("CreateXlsx","AllowanceProcess"))', $formData, '_blank');
+            },
+            download2021: function () {
+
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                showLoading();
+                $.post('@(Url.Action("CreateXlsx2021","AllowanceProcess"))', $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        if (data.message != undefined) {
+                            alert(data.message);
+                        }
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+
+            },
+            downloadItems: function () {
+                if ($postForm) {
+                    $postForm.remove();
+                }
+
+                var $formData = $('input[name="chkItem"]:checked').serializeObject();
+                $('').launchDownload('@Html.Raw(Url.Action("CreateXlsx","AllowanceProcess"))', $formData);
+                //showLoading();
+            },
+        };
+    });
+    </script>
+</div>
+
+
+
+

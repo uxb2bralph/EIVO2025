@@ -1,0 +1,414 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    Object[] _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (Object[])this.Model;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    Organization orgItem = (Organization)_model[0];
+    IQueryable<InvoiceItem> invoiceItems = (IQueryable<InvoiceItem>)_model[1];
+    IQueryable<InvoiceItem> cancelInvoices = (IQueryable<InvoiceItem>)_model[2];
+    IQueryable<InvoiceAllowance> allowanceItems = (IQueryable<InvoiceAllowance>)_model[3];
+    IQueryable<InvoiceAllowance> cancelAllowances = (IQueryable<InvoiceAllowance>)_model[4];
+    List<Organization> orgList = (List<Organization>)_model[5];
+    List<CDS_Document> errorItems = (List<CDS_Document>)_model[6];
+    List<CDS_Document> pendingItems = (List<CDS_Document>)_model[7];
+}
+
+<html>
+<head>
+    <style type="text/css">
+        body {
+            margin: 10px;
+            padding: 0px;
+            font-family: Arial, Helvetica, sans-serif, 標楷體;
+            font-size: 14px;
+        }
+
+        p {
+            margin: 5px;
+            padding: 0px;
+            font-family: 標楷體,Arial, Helvetica, sans-serif;
+            font-size: 16px;
+        }
+
+        a:link {
+            margin-left: 5px;
+            margin-right: 5px;
+            font-size: 16px; /*color:#0C419A;*/
+            color: #FF6600;
+            text-decoration: none;
+            border-bottom: 1px dotted #666666;
+        }
+
+        a:hover {
+            color: #0066CC;
+            text-decoration: none;
+            border-bottom: 1px solid #666666;
+        }
+
+        div.border_gray {
+            border: 4px solid #DDD;
+            background: #FFFFFF;
+            margin: 10px 10px;
+            padding: 10px;
+        }
+
+        .left_title {
+            font-family: sans-serif,Geneva,Arial,Helvetica;
+            border-top: 1px solid #DEB887;
+            border-left: 1px solid #F5DEB3;
+            border-bottom: 1px solid #F5DEB3;
+            margin: 0px;
+            color: #666666;
+        }
+
+            .left_title th {
+                padding: 3px 5px;
+                border-top: 1px solid #FFFFFF;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 160%;
+                color: #A0522D;
+                background-color: #F5DEB3;
+                text-align: right;
+            }
+
+                .left_title th.bordertop {
+                    border-top-width: 0px;
+                }
+
+            .left_title td {
+                padding: 3px 5px;
+                border-right: 1px solid #F5DEB3;
+                border-top: 1px solid #F5DEB3;
+                font-size: 12px;
+                line-height: 160%;
+            }
+
+                .left_title td.tdright {
+                    text-align: right;
+                }
+
+                .left_title td.tdleft {
+                    text-align: left;
+                }
+        /*--明細列視窗--*/
+        .table01 {
+            font-family: sans-serif,Geneva,Arial,Helvetica;
+            border-top: 1px solid #DEB887;
+            border-right: 1px solid #DDDDDD;
+            margin: 0px;
+            color: #666666;
+        }
+
+            .table01 th {
+                padding: 3px 5px;
+                border-left: 1px solid #FFF;
+                border-bottom: 1px solid #FFF;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 160%;
+                color: #FFFFFF;
+                background-color: #c99040;
+            }
+
+                .table01 th.borderleft {
+                    padding: 3px 5px;
+                    border-left: 1px solid #DEB887;
+                    font-size: 12px;
+                    font-weight: normal;
+                    line-height: 160%;
+                    color: #FFFFFF;
+                    background-color: #c99040;
+                }
+
+            .table01 td {
+                padding: 3px 5px;
+                border-left: 1px solid #DDDDDD;
+                border-bottom: 1px solid #DDDDDD;
+                font-size: 12px;
+                line-height: 160%;
+            }
+
+                .table01 td.tdright {
+                    text-align: right;
+                }
+
+                .table01 td.tdleft {
+                    text-align: left;
+                }
+
+        .OldLace {
+            background-color: #FDF5E6;
+        }
+
+        .Head_style_a {
+            font-size: 15px;
+            color: #A0522D;
+            padding-top: 5px 2px 5px 2px;
+            letter-spacing: 1px;
+        }
+
+        .blue {
+            color: #0066CC;
+        }
+
+        .red {
+            color: #e60012;
+        }
+
+        .printBtn a {
+            display: block;
+            letter-spacing: 1px;
+            width: 200px;
+            height: 30px;
+            line-height: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+            color: #447691;
+            border-radius: 5px;
+            background-color: #8ad3f3;
+            text-decoration: none;
+            border-left: 1px solid #489c9e;
+            border-bottom: 1px solid #489c9e;
+            border-top: 1px solid #b8f1f8;
+            border-right: 1px solid #b8f1f8;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+            .printBtn a:hover {
+                color: #084259;
+                background-color: #8cd6f3;
+                text-decoration: none;
+                border-top: 1px solid #489c9e;
+                border-right: 1px solid #489c9e;
+                border-left: 1px solid #b8f1f8;
+                border-bottom: 1px solid #b8f1f8;
+                box-shadow: -1px 1px 2px #888888;
+            }
+    </style>
+    <title>電子發票系統</title>
+</head>
+<body>
+    <p>親愛的客戶您好：</p>
+    <p>&nbsp;</p>
+    <p>
+        本中心收到貴用戶於[@($"{_viewModel.DateFrom:yyyy/MM/dd}")]上傳的各項開立資料如下：
+    </p>
+    <p>
+        @{
+            bool hasPending = false;
+            int recordCount;
+        }
+        <table style="border:1px;">
+            <tr>
+                <th></th>
+                <th>已傳送筆數</th>
+                <th>大平台已確認</th>
+                <th>大平台傳送失敗</th>
+                <th>傳送大平台處理中</th>
+            </tr>
+            <tr>
+                <td>開立發票</td>
+                <td>
+                    @{
+                        var docItems = invoiceItems.Select(i => i.CDS_Document);
+                    }
+                    @(invoiceItems.Count())
+                </td>
+                <td>
+                    @{
+                        recordCount = docItems.Where(i => i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C)).Count();
+                    }
+                    @(recordCount)
+                </td>
+                <td>
+                    @{
+                        var errorDocs = docItems.Where(i => i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E));
+                        recordCount = errorDocs.Count();
+                        if (recordCount > 0)
+                        {
+                            hasPending = true;
+                            errorItems.AddRange(errorDocs);
+                        }
+                    }
+                    @(recordCount)
+                </td>
+                <td>
+                    @{
+                        var pendingDocs = docItems.Where(i => !i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C || l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E));
+                        recordCount = pendingDocs.Count();
+                        if (recordCount > 0)
+                        {
+                            hasPending = true;
+                            pendingItems.AddRange(pendingDocs);
+                        }
+                    }
+                    @(recordCount)
+                </td>
+            </tr>
+            <tr>
+                @{
+                    docItems = cancelInvoices
+                        .SelectMany(c => c.CDS_Document.ChildDocument.Select(d => d.CDS_Document));
+                }
+                <td>作廢發票</td>
+                <td>@(cancelInvoices.Count())</td>
+                <td>
+                    @{
+                        recordCount = docItems.Where(i => i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C)).Count();
+                    }
+                    @(recordCount)
+                </td>
+                <td>
+                    @{
+                        errorDocs = docItems.Where(i => i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E));
+                        recordCount = errorDocs.Count();
+                        if (recordCount > 0)
+                        {
+                            hasPending = true;
+                            errorItems.AddRange(errorDocs);
+                        }
+                    }
+                    @(recordCount)
+                </td>
+                <td>
+                    @{
+                        pendingDocs = docItems.Where(i => !i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C || l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E));
+                        recordCount = pendingDocs.Count();
+                        if (recordCount > 0)
+                        {
+                            hasPending = true;
+                            pendingItems.AddRange(pendingDocs);
+                        }
+                    }
+                    @(recordCount)
+                </td>
+            </tr>
+            <tr>
+                <td>開立折讓證明</td>
+                <td>
+                    @{
+                        docItems = allowanceItems.Select(i => i.CDS_Document);
+                    }
+                    @(allowanceItems.Count())
+                </td>
+                <td>
+                    @{
+                        recordCount = docItems.Where(i => i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C)).Count();
+                    }
+                    @(recordCount)
+                </td>
+                <td>
+                    @{
+                        errorDocs = docItems.Where(i => i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E));
+                        recordCount = errorDocs.Count();
+                        if (recordCount > 0)
+                        {
+                            hasPending = true;
+                            errorItems.AddRange(errorDocs);
+                        }
+                    }
+                    @(recordCount)
+                </td>
+                <td>
+                    @{
+                        pendingDocs = docItems.Where(i => !i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C || l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E));
+                        recordCount = pendingDocs.Count();
+                        if (recordCount > 0)
+                        {
+                            hasPending = true;
+                            pendingItems.AddRange(pendingDocs);
+                        }
+                    }
+                    @(recordCount)
+                </td>
+            </tr>
+            <tr>
+                @{
+                    docItems = cancelAllowances
+                        .SelectMany(c => c.CDS_Document.ChildDocument.Select(d => d.CDS_Document));
+                }
+                <td>作廢折讓證明</td>
+                <td>@(cancelAllowances.Count())</td>
+                <td>
+                    @{
+                        recordCount = docItems.Where(i => i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C)).Count();
+                    }
+                    @(recordCount)
+                </td>
+                <td>
+                    @{
+                        errorDocs = docItems.Where(i => i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E));
+                        recordCount = errorDocs.Count();
+                        if (recordCount > 0)
+                        {
+                            hasPending = true;
+                            errorItems.AddRange(errorDocs);
+                        }
+                    }
+                    @(recordCount)
+                </td>
+                <td>
+                    @{
+                        pendingDocs = docItems.Where(i => !i.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C || l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E));
+                        recordCount = pendingDocs.Count();
+                        if (recordCount > 0)
+                        {
+                            hasPending = true;
+                            pendingItems.AddRange(pendingDocs);
+                        }
+                    }
+                    @(recordCount)
+                </td>
+            </tr>
+        </table>
+        @if (hasPending)
+        {
+            orgList.Add(orgItem);
+        }
+        </p>
+        <p><a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/IndividualProcess/LoginToProcess")}?KeyID={System.Web.HttpUtility.UrlEncode(_viewModel.JsonStringify().EncryptData())}")">點此下載資料明細</a></p>
+        <p>&nbsp;</p>
+        <p class="red">
+            ※此信件為系統發出信件，請勿直接回覆。
+        </p>
+        <p>
+            網際優勢－電子發票服務平台感謝您。
+            <br />
+            <br />
+            信件寄送時間：@(DateTime.Now)
+        </p>
+    </body>
+</html>

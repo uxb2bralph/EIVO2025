@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Resource\QREncrypter.cs" />
+    <Compile Remove="Resource\Resource.cs" />
+    <Compile Remove="Resource\ResourceConfig.cs" />
+    <Compile Remove="Resource\ResourceConfigHandler.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CommonLib.Core\CommonLib.Core.csproj" />
+    <ProjectReference Include="..\CommonLib.Utility\CommonLib.Utility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="DataEntity\EIVOEntity.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>EIVOEntity.designer.cs</LastGenOutput>
+    </None>
+    <None Update="DataEntity\TurnKey2.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>TurnKey2.designer.cs</LastGenOutput>
+    </None>
+    <None Update="DocumentFlowManagement\FlowEntity.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>FlowEntity.designer.cs</LastGenOutput>
+    </None>
+    <None Update="Schema\dsUserProfile.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>dsUserProfile.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{3259aa49-8aa1-44d3-9025-a0b520596a8c}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DataEntity\EIVOEntity.designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EIVOEntity.dbml</DependentUpon>
+    </Compile>
+    <Compile Update="DataEntity\TurnKey2.designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TurnKey2.dbml</DependentUpon>
+    </Compile>
+    <Compile Update="DocumentFlowManagement\FlowEntity.designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>FlowEntity.dbml</DependentUpon>
+    </Compile>
+    <Compile Update="Schema\dsUserProfile.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>dsUserProfile.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

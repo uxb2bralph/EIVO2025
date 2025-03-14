@@ -1,0 +1,55 @@
+@using System.IO
+@using System.Linq.Expressions
+@using System.Linq.Dynamic.Core
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using CommonLib.DataAccess
+
+@using Newtonsoft.Json
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IQueryable<dynamic> _model;
+    QueryViewModel _viewModel;
+}
+@{
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+
+    _model = (IQueryable<dynamic>)this.Model;
+
+    TempData["SortedItems"] = null;
+
+    if (_viewModel.SortName != null && _viewModel.SortName.Length > 0)
+    {
+        IQueryable items = _model;
+        for (int i = 0; i < _viewModel.SortName.Length; i++)
+        {
+            if (_viewModel.SortType[i] > 0)
+            {
+                items = items.OrderBy(_viewModel.SortName[i]);
+            }
+            else if (_viewModel.SortType[i] < 0)
+            {
+                items = items.OrderBy($"{_viewModel.SortName[i]} desc");
+            }
+        }
+        TempData["SortedItems"] = items;
+    }
+}

@@ -1,0 +1,169 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+
+}
+
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <th style="white-space:nowrap;">
+                開立人名稱
+            </th>
+            <td class="tdleft" style="white-space:nowrap;">
+                @(_model.InvoiceSeller.CustomerName)
+            </td>
+            <th style="white-space:nowrap;">
+                開立人統一編號
+            </th>
+            <td class="tdleft">
+                @(_model.InvoiceSeller.ReceiptNo)
+            </td>
+        </tr>
+        <tr>
+            <th style="white-space:nowrap;">
+                發票號碼
+            </th>
+            <td class="tdleft">
+                @(_model.TrackCode + _model.No)
+            </td>
+            <th style="white-space:nowrap;">
+                發票日期
+            </th>
+            <td class="tdleft">
+                @(ValidityAgent.ConvertChineseDateString(_model.InvoiceDate.Value))
+            </td>
+        </tr>
+        <tr>
+            <th style="white-space:nowrap;">
+                隨機碼
+            </th>
+            <td class="tdleft">
+                @(_model.RandomNo)
+            </td>
+            <th style="white-space:nowrap;">
+                含稅金額
+            </th>
+            <td class="tdleft">
+                @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))
+            </td>
+        </tr>
+        <tr>
+            <th style="white-space:nowrap;">
+                未稅金額
+            </th>
+            <td class="tdleft">
+                @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.SalesAmount))
+            </td>
+            <th style="white-space:nowrap;">
+                稅 額
+            </th>
+            <td class="tdleft">
+                @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxAmount))
+            </td>
+        </tr>
+        @if (!_model.InvoiceBuyer.IsB2C())
+        {
+            <tr>
+                <th style="white-space:nowrap;">
+                    買方名稱
+                </th>
+                <td class="tdleft" style="white-space:nowrap;">
+                    @(_model.InvoiceBuyer.CustomerName)
+                </td>
+                <th style="white-space:nowrap;">
+                    買方統一編號
+                </th>
+                <td class="tdleft">
+                    @(_model.InvoiceBuyer.IsB2C() ? "*" : _model.InvoiceBuyer.ReceiptNo)
+                </td>
+            </tr>
+            <tr>
+                <th style="white-space:nowrap;">
+                    地 址
+                </th>
+                <td colspan="3" class="tdleft">
+                    @(_model.InvoiceBuyer.IsB2C() ? "*" : _model.InvoiceBuyer.Address)
+                </td>
+            </tr>
+        }
+        <tr>
+            <th style="white-space:nowrap;">
+                總 備 註
+            </th>
+            <td colspan="3" class="tdleft">
+                @(_model.Remark)
+            </td>
+        </tr>
+    </tbody>
+</table>
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table table-striped" style="margin-top: 5px">
+    <tbody>
+        <tr>
+            <th style="white-space:nowrap;">
+                品名
+            </th>
+            <th style="white-space:nowrap;">
+                數量
+            </th>
+            <th style="white-space:nowrap;">
+                單價
+            </th>
+            <th style="white-space:nowrap;">
+                金額
+            </th>
+            <th style="white-space:nowrap;">
+                備註
+            </th>
+        </tr>
+        @foreach (var p in _model.InvoiceDetails)
+        {
+            foreach (var d in p.InvoiceProduct.InvoiceProductItem)
+            {
+                <tr>
+                    <td valign="top">
+                        @(d.No).@(p.InvoiceProduct.Brief)
+                    </td>
+                    <td align="right" valign="top">
+                        @(String.Format("{0:##,###,###,##0.##}", d.Piece))
+                    </td>
+                    <td align="right" valign="top">
+                        @(String.Format("{0:##,###,###,##0.##}", d.UnitCost))
+                    </td>
+                    <td align="right" valign="top">
+                        @(String.Format("{0:##,###,###,##0.##}", d.CostAmount))
+                    </td>
+                    <td>
+                        @(d.Remark)
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+

@@ -1,0 +1,30 @@
+
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+
+@{
+    Layout = "~/Views/Template/MvcMainPage.cshtml";
+    ViewBag.ActionName = "首頁 > 發票作業";
+
+}
+@section headContent {
+
+}
+
+@section formContent 
+{ 
+    @{
+        await Html.RenderPartialAsync("~/Views/InvoiceQuery/Module/InvoiceMediaReport.cshtml");
+    }
+}
+
+

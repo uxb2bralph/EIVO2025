@@ -1,0 +1,89 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+@{
+
+  ModelSource<InvoiceItem> models;
+  InvoiceItem _model;
+  RenderStyleViewModel _viewModel;
+
+
+  models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+  _model = (InvoiceItem)this.Model;
+  _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+
+  if (_viewModel == null)
+  {
+    _viewModel = this.TempData["viewModel"] as RenderStyleViewModel;
+    if (_viewModel != null)
+    {
+      ViewBag.ViewModel = _viewModel;
+    }
+  }
+}
+<!DOCTYPE html>
+<html>
+
+<head runat="server">
+  <title>電子發票系統</title>
+  <link href="../App_Themes/POSPrint/POS_eivo.css" rel="stylesheet" type="text/css" />
+  <link href="../App_Themes/POSPrint/POS_eivo_v1.css" rel="stylesheet" type="text/css" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <style type="text/css">
+    div.fspace {
+      height: 8.8cm;
+    }
+
+    div.bspace {
+      height: 8.9cm;
+    }
+
+    td,
+    th {
+      font-family: Verdana, Arial, Helvetica, sans-serif, "細明體", "新細明體";
+    }
+  </style>
+</head>
+
+<body style="margin:0px;">
+  <form id="theForm" runat="server">
+    @{
+      String invoicePrintView;
+    }
+    @if (_viewModel?.UseCustomView == true && (invoicePrintView =
+    _model.Organization.OrganizationCustomSetting?.Settings?.C0401POSView.GetEfficientString()) != null)
+    {
+      await Html.RenderPartialAsync(invoicePrintView, _model);
+    }
+    else
+    {
+      await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_POS.cshtml", _model);
+    }
+  </form>
+</body>
+
+</html>
+
+<script>
+  window.onload = function () {
+    window.print();
+  };
+</script>

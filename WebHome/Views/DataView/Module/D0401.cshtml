@@ -1,0 +1,105 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+}
+
+@if (_model != null)
+{
+    var details = _model.InvoiceAllowanceDetails.Select(d => d.InvoiceAllowanceItem).First();
+    <div class="page__break--after">
+        <div class="allowances__wrapper">
+            <div class="allowances__cutfield">
+                @if (_model.InvoiceAllowanceSeller.Organization.LogoURL != null)
+                {
+                    <img class="allowances__logo"
+                         src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.InvoiceAllowanceSeller.Organization.LogoURL))' />
+                }
+                else
+                {
+                    <div class="allowances__name">@(_model.InvoiceAllowanceSeller.CustomerName)</div>
+                }
+                <div class="allowances__title">營業人銷貨退回、進貨退出或折讓證明單</div>
+                <div class="allowances__date">@(String.Format("{0:yyyy-MM-dd}", _model.AllowanceDate))</div>
+                <div class="allowances__detail">
+                    <div>賣方統編：@(_model.InvoiceAllowanceSeller.ReceiptNo)</div>
+                    <div class="allowances__detail--rows">
+                        <div class="text-nowrap">賣方名稱：</div>
+                        <div>@(_model.InvoiceAllowanceSeller.CustomerName)</div>
+                    </div>
+                    <div>發票開立日期：@(String.Format("{0:yyyy-MM-dd}", details.InvoiceDate))</div>
+                    <div>發票號碼：@(details?.InvoiceNo?.Substring(0, 2))-@(details?.InvoiceNo?.Substring(2))</div>
+                    <div>買方統編：@(!_model.InvoiceAllowanceBuyer.IsB2C() ? _model.InvoiceAllowanceBuyer.ReceiptNo : null)</div>
+                    <div>買方名稱：@(!_model.InvoiceAllowanceBuyer.IsB2C() ? _model.InvoiceAllowanceBuyer.CustomerName : null)</div>
+                </div>
+            </div>
+            <div class="allowances__listfield">
+                @{
+                    var items = _model.InvoiceAllowanceDetails.Select(d => d.InvoiceAllowanceItem);
+                    bool specialTaxType = false;
+                }
+                @foreach (var d in items)
+                {
+                    bool withTax = d.TaxType == (byte)Naming.TaxTypeDefinition.特種稅率;
+                    if (withTax)
+                    {
+                        specialTaxType = withTax;
+                    }
+                    <div class="itemGroup__wrapper">
+                        <div>品名：@(d.OriginalDescription)</div>
+                        <div>數量：@(String.Format("{0:##,###,###,##0.##}", d.Piece)) </div>
+                        <div>單價：@(String.Format("{0:##,###,###,##0.##}", d.UnitCost))</div>
+                        <div class="itemGroup__wrapper--border">
+                            @if (withTax)
+                            {
+                                <span>金額(含稅)：</span>
+                            }
+                            else
+                            {
+                                <span>金額(不含稅之進貨額)：</span>
+                            }
+                            @(String.Format("{0:##,###,###,##0.##}", d.Amount))
+                            <div>課稅別：@(d.TaxTypeString)</div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="allowances__detail allowances__detail--paddingBottom">
+                營業稅額合計：@(String.Format("{0:##,###,###,##0.##}", _model.TaxAmount))<br />
+                @if (specialTaxType)
+                {
+                    <span>金額(含稅)合計：</span>
+                }
+                else
+                {
+                    <span>金額(不含稅之進貨額)合計：</span>
+                }
+                @(String.Format("{0:##,###,###,##0.##}", _model.TotalAmount))
+            </div>
+            <div class="allowances__detail allowances__detail--input">
+                簽收人：
+            </div>
+        </div>
+    </div>
+}

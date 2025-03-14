@@ -1,0 +1,52 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    IQueryable<DocumentPrintQueue> _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<DocumentPrintQueue>)this.Model;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>電子發票系統</title>
+    <link href="../App_Themes/Ver2016/allowance.css?1.2" rel="stylesheet" type="text/css" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+</head>
+<body style="font-family:KaiTi;">
+    @{
+        var profile = Context.GetUser();
+        DocumentPrintQueue item;
+    }
+    @while ((item = _model.FirstOrDefault()) != null)
+    {
+        await Html.RenderPartialAsync("~/Views/DataView/Module/B0401.cshtml", item.CDS_Document.InvoiceAllowance);
+        models.MarkPrintedLog(item.CDS_Document.InvoiceAllowance, profile);
+    }
+</body>
+</html>
+<script>
+    window.onload = function () {
+        window.print();
+    };
+</script>

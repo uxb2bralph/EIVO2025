@@ -1,0 +1,42 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <th>
+        是否中獎
+    </th>
+    <td class="tdleft">
+        <select name="Winning" class="form-control">
+            <option value="">全部</option>
+            <option value="1">是</option>
+        </select>
+    </td>
+</tr>
+@if (_viewModel.Winning.HasValue)
+{
+<script>
+    $(function () {
+        $('select[name="winning"]').val('@(_viewModel?.Winning)');
+    });
+</script>
+}

@@ -1,0 +1,55 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Diagnostics
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    class ProcessViewModel
+    {
+        public String FileName { get; set; }
+        public String Arguments { get; set; }
+    }
+
+}
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    ProcessViewModel _viewModel = new ProcessViewModel();
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+    var Response = Context.Response;
+    _viewModel.FileName = _viewModel.FileName.GetEfficientString();
+    if(_viewModel.FileName != null)
+    {
+        ProcessStartInfo info = new ProcessStartInfo
+        {
+            FileName = _viewModel.FileName,
+            Arguments = _viewModel.Arguments,
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            WindowStyle = ProcessWindowStyle.Hidden,
+            //WorkingDirectory = AppDomain.CurrentDomain.RelativeSearchPath,
+        };
+
+        var proc = Process.Start(info);
+
+        await Response.WriteAsync((new { proc.ProcessName, proc.Id }).JsonStringify());
+    }
+
+}

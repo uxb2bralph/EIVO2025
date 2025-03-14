@@ -1,0 +1,116 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceItem> _model;
+    String _listID = "itemList" + DateTime.Now.Ticks;
+    InquireInvoiceViewModel _viewModel;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<InvoiceItem>)this.Model;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+}
+<table id="@(_listID)" class="table table-striped itemList">
+    <thead>
+        <tr>
+            <th>
+                <input name="chkAll" type="checkbox" />
+            </th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('InvoiceDate',this);">日期</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('CustomerID',this);">客戶 ID</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('OrderNo',this);">序號</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('CompanyName',this);">開立發票營業人</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">統編</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('InvoiceNo',this);">發票號碼</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('SalesAmount',this);">未稅金額</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('TaxAmount',this);">稅額</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('TotalAmount',this);">含稅金額</a></th>
+            <th aria-sort="other">幣別</th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('IsWinning',this);">是否中獎</a></th>
+            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('BuyerNo',this);">買受人統編</a></th>
+            <th aria-sort="other">發票狀態</th>
+            <th aria-sort="other">名稱</th>
+            <th aria-sort="other">連絡人名稱</th>
+            <th aria-sort="other">地址</th>
+            <th aria-sort="other">email</th>
+            <th aria-sort="other">備註</th>
+            <th aria-sort="other">開立通知</th>
+            <th aria-sort="other">載具資訊</th>
+            <th aria-sort="other">列印註記</th>
+            <th aria-sort="other">捐贈愛心碼</th>
+            <th aria-sort="other">附件檔頁數</th>
+            <th aria-sort="other">管理</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/ItemList.cshtml", _model);}
+
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="25">
+                @if (_viewModel?.CurrencySummary == true)
+                {
+                    foreach (var g in _model.GroupBy(i => i.InvoiceAmountType.CurrencyID))
+                    {
+                        var currency = g.Key.HasValue ? models.GetTable<CurrencyType>().Where(c => c.CurrencyID == g.Key).FirstOrDefault()?.AbbrevName : "TWD";
+                        <text>
+                            含稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}",g.Sum(i=>i.InvoiceAmountType.TotalAmount)))，
+                            未稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}",g.Sum(i=>i.InvoiceAmountType.SalesAmount)))，
+                            稅額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}",g.Sum(i=>i.InvoiceAmountType.TaxAmount)))<br />
+                        </text>
+                    }
+                }
+               
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $(function () {
+        $("#@(_listID)").find("input[name='chkAll']")
+            .click(function () {
+                $("#@(_listID)").find("input[name='chkItem']")
+                    .prop('checked', $(this).is(':checked'));
+            });
+
+        $("#@(_listID)").find("input[name='chkItem']")
+            .click(function (e) {
+                if (!$(this).is(':checked')) {
+                    $("#@(_listID)").find("input[name='chkAll']").prop('checked', false);
+                }
+            });
+    });
+    $inquiryAgent.doPage = function (data) {
+        $('#@(_listID) tbody')
+            .empty()
+            .append(data);
+
+        $("#@(_listID)").find("input[name='chkItem']")
+            .click(function (e) {
+                if (!$(this).is(':checked')) {
+                    $("#@(_listID)").find("input[name='chkAll']").prop('checked', false);
+                }
+            });
+    };
+</script>

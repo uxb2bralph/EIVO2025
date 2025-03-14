@@ -1,0 +1,63 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using WebHome.Components
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+<!--路徑名稱-->
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "捐贈統計表");
+}
+<!--交易畫面標題-->
+<div class="border_gray">
+    <!--表格 開始-->
+    <table class="table table-striped">
+        <tr>
+            <th colspan="2" class="Head_style_a">
+                查詢條件
+            </th>
+        </tr>
+        @{
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/QueryDirective.cshtml", 0);
+            ViewBag.QueryAll = true;
+            @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>());
+            @(await Component.InvokeAsync<InquireCustomerIDViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>());
+        }
+
+        @{
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByAttachment.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByWinningNumber.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCancellation.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByPrintMark.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByPrintStatus.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierType.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierNo.cshtml");
+        }
+
+    </table>
+    <!--表格 結束-->
+</div>
+
+<!--按鈕-->
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td class="Bargain_btn">
+            <input type="button" value="查詢" name="btnQuery" class="btn" onclick="$('form').prop('action', '@(Url.Action("InquireReport"))').submit();" />
+        </td>
+    </tr>
+</table>

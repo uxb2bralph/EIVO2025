@@ -1,0 +1,70 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+    //Layout = "~/Views/DataView/PrintInvoiceContent.cshtml";
+
+  ModelSource<InvoiceItem> models;
+  IQueryable<DocumentPrintQueue> _model;
+  RenderStyleViewModel _viewModel;
+
+
+  models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+  _model = (IQueryable<DocumentPrintQueue>)this.Model;
+  _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+  if (_viewModel == null)
+  {
+    _viewModel = this.TempData["viewModel"] as RenderStyleViewModel;
+    if (_viewModel != null)
+    {
+      ViewBag.ViewModel = _viewModel;
+    }
+  }
+}
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title>電子發票系統</title>
+  <link href="../App_Themes/POSPrint/POS_eivo_v1.css" rel="stylesheet" type="text/css" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+</head>
+<body style="margin:0px;">
+    <form id="theForm" runat="server">
+        @{ 
+            var profile = Context.GetUser();
+            String invoicePrintView;
+            foreach (var item in _model.OrderBy(d => d.SubmitID).ToList())
+            {
+                invoicePrintView = _viewModel.UseCustomView == true
+                    ? item.CDS_Document.InvoiceItem.Organization.OrganizationCustomSetting?.Settings?.C0401POSView
+                    : null;
+                await Html.RenderPartialAsync(invoicePrintView ?? "~/Views/DataView/Module/C0401_POS.cshtml", item.CDS_Document.InvoiceItem);
+                models.MarkPrintedLog(item.CDS_Document.InvoiceItem, profile);
+            }
+        }
+    </form>
+</body>
+</html>
+
+@*<script>
+    window.onload = function () {
+        window.print();
+    };
+</script>*@

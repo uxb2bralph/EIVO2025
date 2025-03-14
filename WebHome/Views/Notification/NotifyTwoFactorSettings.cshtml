@@ -1,0 +1,47 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    UserProfile _model;
+    UserProfileViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (UserProfile)this.Model;
+    _viewModel = (UserProfileViewModel)ViewBag.ViewModel;
+}
+@{
+    var mailTo = _model.MailID;
+}
+@if (!String.IsNullOrEmpty(mailTo))
+{
+    String Subject = $"網際優勢電子發票加值中心 設定兩步驟驗證";
+    String body = Html.Partial("~/Views/Account/Module/TwoFactorSettings.cshtml", _model).ToString();
+    body.SendMailMessage(mailTo, Subject);
+}
+ @{ 
+     await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml", model: "兩步驟驗證設定已送出至您的信箱!!");
+ }
+
+
+
+

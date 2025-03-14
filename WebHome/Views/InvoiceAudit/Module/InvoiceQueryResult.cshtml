@@ -1,0 +1,47 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    IQueryable<InvoiceItem> _model = (IQueryable<InvoiceItem>)this.Model;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果"); }
+
+<div class="border_gray">
+    @{
+        var recordCount = _model.Count();
+        if (recordCount > 0)
+        {
+            await Html.RenderPartialAsync("~/Views/InvoiceAudit/Module/InvoiceQueryPaging.cshtml", _model);
+        }
+        else
+        {
+            <font color="red">查無資料!!</font>
+        }
+    }
+</div>
+

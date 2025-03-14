@@ -1,0 +1,108 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using ModelCore.Helper
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _profile = Context.GetUser();
+
+}
+
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "相對營業人管理-新增或編輯相對營業人資料");}
+
+<div id="queryArea" class="border_gray">
+    <!--表格 開始-->
+    <table class="table table-striped">
+        <tbody>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    匯入檔案範本
+                </th>
+                <td class="tdleft">
+                    <a href="@(Url.Action("GetCounterpartBusinessSample","BusinessRelationship"))">
+                        <img border="0" src="../images/icon_ca.gif" width="27" height="28" />
+                    </a>
+                    <font color="blue">請依據檔案中各欄位名稱填入相對應內容，每一列代表唯一家相對營業人資料，若匯入資料已存在系統，系統會以編輯方式修改原存在資料</font>
+                </td>
+            </tr>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    所屬集團成員
+                </th>
+                <td class="tdleft">
+                    <select name="CompanyID">
+                        @if (_profile.IsSystemAdmin())
+                        {
+                            <option value="">請選擇...</option>
+                        }
+                        @{ await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/GroupMemberOptions.cshtml");}
+
+                    </select>
+                </td>
+            </tr>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    相對營業人類別
+                </th>
+                <td class="tdleft">
+                    <select name="BusinessType">
+                        <option value="@((int)Naming.InvoiceCenterBusinessType.銷項)">@(Naming.InvoiceCenterBusinessType.銷項)</option>
+                        <option value="@((int)Naming.InvoiceCenterBusinessType.進項)">@(Naming.InvoiceCenterBusinessType.進項)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    相對營業人資料匯入
+                </th>
+                <td class="tdleft">
+                    <input type="file" id="theFile" name="theFile" style="display:none;" />
+                    <button type="button" name="btnUpload" class="btn">傳送檔案</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!--表格 結束-->
+</div>
+<script>
+    $(function () {
+        var $file = $('#theFile');
+        var $btn = $('button[name="btnUpload"]');
+
+        $btn.click(function () {
+            $file.val('');
+            $file.click();
+        });
+
+        $file.on('change', function (event) {
+            clearErrors();
+            $('.tblAction').remove();
+            uploadFile($file, $('#queryArea input,select,textarea').serializeObject(),
+                '@(Url.Action("ImportXml","BusinessRelationship"))',
+                function (data) {
+                    $btn.before($file);
+                    $('#queryArea').after($(data));
+                },
+                function () {
+                    $btn.before($file);
+                })
+        });
+    });
+</script>
+
+

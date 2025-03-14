@@ -1,0 +1,61 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    IQueryable<InvoiceItem> _model = (IQueryable<InvoiceItem>)this.Model;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+@{
+    String currentID = $"table{DateTime.Now.Ticks}";
+    ViewBag.TableColumns = new string[]
+    {
+            "~/Views/InvoiceAudit/DataField/InvoiceDate.cshtml",
+            "~/Views/InvoiceAudit/DataField/InvoiceNo.cshtml",
+            "~/Views/InvoiceAudit/DataField/IssuerReceiptNo.cshtml",
+            "~/Views/InvoiceAudit/DataField/IssuerName.cshtml",
+            "~/Views/InvoiceAudit/DataField/SaleAmount.cshtml",
+            "~/Views/InvoiceAudit/DataField/TaxAmount.cshtml",
+            "~/Views/InvoiceAudit/DataField/TotalAmount.cshtml",
+            "~/Views/InvoiceAudit/DataField/BuyerReceiptNo.cshtml",
+            "~/Views/InvoiceAudit/DataField/CustomerName.cshtml",
+            "~/Views/InvoiceAudit/DataField/CustomerID.cshtml",
+            "~/Views/InvoiceAudit/DataField/WinningInvoice.cshtml",
+            "~/Views/InvoiceAudit/DataField/Cancellation.cshtml",
+            "~/Views/InvoiceAudit/DataField/PrintMark.cshtml",
+            "~/Views/InvoiceAudit/DataField/CarrierType.cshtml",
+            "~/Views/InvoiceAudit/DataField/CarrierNo.cshtml",
+            };
+}
+@if (_viewModel.PageIndex.HasValue)
+{
+    await Html.RenderPartialAsync("~/Views/InvoiceAudit/Module/InvoiceTableBody.cshtml", _model);
+}
+else
+{
+    ViewBag.TableFooter = "~/Views/InvoiceAudit/Module/InvoiceTableFooter.cshtml";
+    await Html.RenderPartialAsync("~/Views/InvoiceAudit/Module/InvoiceTableSkeleton.cshtml", _model);
+}
+

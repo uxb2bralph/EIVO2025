@@ -1,0 +1,33 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+    ViewBag.ActionName = "首頁 > 全民稽核";
+    InvoiceItem _model = this.Model as InvoiceItem;
+}
+
+@section headContent {
+
+}
+@section formContent {
+    @{
+        await Html.RenderPartialAsync("~/Views/IndividualProcess/DataQuery/InvoiceQuery.cshtml");
+        if (_model != null)
+        {
+            await Html.RenderPartialAsync("~/Views/IndividualProcess/DataQuery/InvoiceQueryResult.cshtml", _model);
+        }
+    }
+
+}

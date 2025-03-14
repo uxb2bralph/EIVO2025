@@ -1,0 +1,312 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    RenderStyleViewModel _viewModel;
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+    <title>Beyond Fitness</title>
+
+    <meta name="author" content="beyond-fitness.com.tw" />
+
+    <!-- Web Fonts  -->
+    <link id="googleFonts" href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap"
+          rel="stylesheet" type="text/css">
+    <style>
+        * {
+            font-family: var(--primary-font-family);
+            color: #454545
+        }
+
+        .class30 {
+            font-size: 30px;
+            line-height: 30px;
+            font-weight: bold;
+        }
+
+        .class15 {
+            font-size: 15px;
+            line-height: 15px;
+        }
+
+        .class12 {
+            font-size: 12px;
+            line-height: 15px;
+        }
+
+        .detailArea th {
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 15px;
+            border-bottom: 2px solid #000000;
+            white-space: nowrap
+        }
+
+        .detailArea td {
+            font-size: 12px;
+            line-height: 15px;
+            padding: 3px
+        }
+
+        .noteArea td {
+            font-size: 12px;
+            color: #404040;
+            line-height: 16px
+        }
+
+            .noteArea td.redtxt {
+                color: #F00
+            }
+
+        #invoiceTable a {
+            font-size: 12px;
+            color: #3366FF;
+            line-height: 18px;
+            white-space: nowrap
+        }
+
+        /**20170912_索取發票**/
+        .btnStyle {
+            display: inline-block;
+            margin: 0px;
+            padding: 6px 26px;
+            background: #EDEDED;
+            border: 0;
+            border-radius: 18px;
+            color: #454545;
+            font: 17px/24px Helvetica;
+            cursor: pointer
+        }
+
+            .btnStyle:disabled {
+                color: #888888;
+            }
+
+            .btnStyle.receiptBtn {
+                margin-right: 9px;
+            }
+
+        .downloadBtn {
+            text-decoration: none;
+        }
+
+        .receiptText {
+            display: inline-block;
+            margin: 0px 0px 0px 20px;
+            padding: 0px;
+            font: bold 15px/20px Helvetica;
+            color: #666666;
+            vertical-align: middle
+        }
+
+            .receiptText span {
+                display: inline-block;
+                margin: 0px;
+                padding: 0px;
+                color: #E40480;
+                font: bold 15px/20px Helvetica;
+            }
+
+        .receiptItem {
+            display: block;
+            width: 1000px;
+            margin: 15px auto
+        }
+
+            .receiptItem .receiptAdd {
+                margin: 15px 0px;
+                padding: 0px;
+                display: none;
+            }
+
+                .receiptItem .receiptAdd table {
+                    margin: 10px auto 0px auto;
+                    padding: 15px;
+                    font: 15px/24px Helvetica;
+                    border: 1px solid #D7D7D7;
+                    width: 1000px;
+                    border-radius: 8px;
+                }
+
+                    .receiptItem .receiptAdd table tr td,
+                    .receiptItem .receiptAdd table tr th {
+                        float: left;
+                        font: 15px/20px Helvetica;
+                        margin: 0px 0px 10px 0px;
+                        color: #454545;
+                    }
+
+                    .receiptItem .receiptAdd table tr th {
+                        text-align: left
+                    }
+
+                        .receiptItem .receiptAdd table tr th a {
+                            color: #3366FF;
+                            cursor: pointer
+                        }
+
+                        .receiptItem .receiptAdd table tr th.bill-area {
+                            margin-bottom: 0;
+                        }
+
+                        .receiptItem .receiptAdd table tr th .bill-add {
+                            font-size: 13px;
+                            margin-top: 8px;
+                            display: inline-block;
+                        }
+
+                        .receiptItem .receiptAdd table tr th.message-title {
+                            margin-left: 1em;
+                        }
+
+                    .receiptItem .receiptAdd table tr .tipitem {
+                        margin: 0px 0px 7px 1em;
+                    }
+
+                    .receiptItem .receiptAdd table tr .btnitem {
+                        margin: 5px 0px 0px 0px;
+                        float: right
+                    }
+
+                        .receiptItem .receiptAdd table tr .btnitem button {
+                            margin: 0 8px;
+                            padding: 6px 42px;
+                            background-color: #ffffff;
+                            font: 17px/22px Helvetica;
+                            color: #D62872;
+                            border: 1px solid #D62872;
+                            border-radius: 18px;
+                            cursor: pointer
+                        }
+
+                            .receiptItem .receiptAdd table tr .btnitem button.confirm {
+                                color: #ffffff;
+                                background-color: #D62872;
+                            }
+
+                    .receiptItem .receiptAdd table tr td select {
+                        font: 15px/24px Helvetica;
+                        border-radius: 4px;
+                        border: 1px solid #D7D7D7;
+                        margin-right: 4px;
+                        padding-right: 3px;
+                    }
+
+                    .receiptItem .receiptAdd table tr input {
+                        font-size: 15px;
+                        border-radius: 4px;
+                        border: 1px solid #D7D7D7;
+                        box-sizing: border-box;
+                        padding: 0 5px;
+                    }
+
+                        .receiptItem .receiptAdd table tr input:disabled {
+                            color: #888888;
+                            background: #EDEDED;
+                            border: 1px solid #D7D7D7;
+                        }
+
+                    .receiptItem .receiptAdd table tr td select:disabled {
+                        color: #888888;
+                        background: #EDEDED;
+                        opacity: 1;
+                    }
+
+        .receipt-box {
+            position: relative;
+        }
+
+            .receipt-box::before {
+                content: "非正式發票";
+                display: block;
+                position: absolute;
+                font-size: 180px;
+                color: rgba(69, 69, 69, 0.2);
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-weight: bold;
+                white-space: nowrap;
+                z-index: 10;
+            }
+
+        .radio-box {
+            display: flex;
+            flex-direction: row;
+        }
+
+        .btn-box {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+            .btn-box tr {
+                display: inline-block;
+            }
+
+        .receiptItem .receiptDate {
+            display: inline-block;
+            margin: 0px 5px;
+            padding: 0px;
+            font: bold 15px/15px helvetica
+        }
+
+        .invalid {
+            border: 2px solid #FF0000;
+            text-align: center;
+            padding: 0px;
+            margin: 0px;
+            display: none;
+        }
+
+            .invalid span {
+                font: bold 48px/56px helvetica;
+                color: #FF0000;
+            }
+
+        .paddingTop,
+        .paddingBottom {
+            display: none;
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body style="background-color: #fff; font-family: 'Poppins', '微軟正黑體', '新細明體', sans-serif; font-size: 15px;">
+    @{ 
+        await Html.RenderPartialAsync("~/Views/Notification/Custom/24928211/C0401Content.cshtml");
+    }
+</body>
+</html>
+
+

@@ -1,0 +1,75 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    OrganizationViewModel _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+}
+
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "Join UXB2B eGUI");
+}
+
+<form id="editItem">
+    @{ await Html.RenderPartialAsync("~/Views/Organization/CBE/ItemForm.cshtml", _model);}
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <td class="Bargain_btn" align="center">
+                            <button type="button" onclick="$global.commitOrganization();" name="UpdateButton" class="btn">Confirm</button>
+                            &nbsp;
+                            <input name="Reset" type="reset" class="btn" value="Refill" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        $global.commitOrganization = function () {
+            $form = $('#editItem');
+            showLoading();
+            clearErrors();
+            $.post('@Html.Raw(Url.Action("CommitCBESignUp","Account",new { _viewModel.KeyID }))', $form.serializeObject(), function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        alert('Sign up successfully. We\'ll send the confirmation to you soon. Thank you !!');
+                        window.location.href = '@(VirtualPathUtility.ToAbsolute("~/Published/Promotion/Pricing.html"))';
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body'));
+                }
+            });
+        };
+    });
+</script>
+

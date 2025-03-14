@@ -1,0 +1,37 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    Organization _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (Organization)this.Model;
+
+}
+<p>
+    此信件為系統發出信件，請勿直接回覆。
+</p>
+<p>
+    如有疑問，請聯絡｢荷蘭商聯邦快遞國際股份有限公司台灣分公司｣帳單調整部：
+</p>
+<p>
+    電子郵件信箱 : fsctw@fedex.com
+</p>
+

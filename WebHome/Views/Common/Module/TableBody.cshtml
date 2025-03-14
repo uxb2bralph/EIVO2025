@@ -1,0 +1,117 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    QueryViewModel _viewModel;
+    IQueryable<dynamic> _model;
+}
+
+@functions
+{
+    async Task showDataRowAsync(Object item)
+    {
+        TempData["RowNo"] = (int)TempData["RowNo"] + 1;
+        <tr>
+            @if (_viewModel.RowNumber == true)
+            {
+                <td align="center">@(TempData["RowNo"])</td>
+            }
+            @{
+                await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", (object)item);
+            }
+        </tr>
+    }
+}
+
+@{
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+    _model = (IQueryable<dynamic>)this.Model;
+    TempData["RowNo"] = 0;
+}
+@{
+    String currentID = $"table{DateTime.Now.Ticks}";
+    int pageIndex = _viewModel.PageIndex ?? 0;
+    int pageSize = _viewModel.PageSize ?? 10;
+    IQueryable<dynamic> items;
+    String[] columns = (string[])ViewBag.TableColumns;
+
+    TempData["SortedItems"] = null;
+
+    //if (_viewModel.SortName != null && _viewModel.SortName.Length > 0)    //comment this for default sort
+    {
+        ViewBag.DisplayType = Naming.FieldDisplayType.SortBy;
+        foreach (var c in columns)
+        {
+            await Html.RenderPartialAsync(c, _model);
+        }
+    }
+}
+
+@if (TempData["SortedItems"] == null)
+{
+    if (_viewModel.Paging == false)
+    {
+        items = _model;
+    }
+    else
+    {
+        items = _model
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
+
+    }
+}
+else
+{
+    if (_viewModel.Paging == false)
+    {
+        items = ((IQueryable<dynamic>)TempData["SortedItems"]);
+    }
+    else
+    {
+        items = ((IQueryable<dynamic>)TempData["SortedItems"])
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
+    }
+}
+@{
+    ViewBag.DisplayType = Naming.FieldDisplayType.DataItem;
+}
+@foreach (var item in items)
+{
+    Write(await showDataRowAsync(item));
+}
+@if (ViewBag.CreateNew != null)
+{
+    ViewBag.DisplayType = Naming.FieldDisplayType.Create;
+    <tr>
+        <td></td>
+        @{
+            await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", (object)ViewBag.CreateNew);
+        }
+    </tr>
+}
+@*<script>
+        $(function () {
+            $inquiryAgent.onBodyLoad();
+        });
+    </script>*@
+

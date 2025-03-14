@@ -1,0 +1,154 @@
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    OrganizationViewModel _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        營業人
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <div class="form-group">
+                <label for="companyId">公司統一編號</label>
+                <input type="text" class="form-control" name="ReceiptNo" value='@(_model?.ReceiptNo)' />
+            </div>
+            <div class="form-group">
+                <label for="name">名稱</label>
+                <input type="text" class="form-control" name="CompanyName" value='@(_model?.CompanyName)' />
+            </div>
+            <div class="form-group">
+                <label for="address">地址</label>
+                <input type="text" class="form-control" name="Addr" maxlength="68" value='@(_model?.Addr)' />
+            </div>
+            <div class="form-group">
+                <label for="phone">電話</label>
+                <input type="text" class="form-control" name="Phone" value='@(_model?.Phone)' />
+            </div>
+            <div class="form-group">
+                <label for="fax">傳真</label>
+                <input type="text" class="form-control" name="Fax" value='@(_model?.Fax)' />
+            </div>
+            <div class="form-group">
+                <label for="responsiblePerson">公司負責人</label>
+                <input type="text" class="form-control" name="UndertakerName" value='@(_model?.UndertakerName)' />
+            </div>
+            <div class="form-group">
+                <label for="alias">營業人店號／別名</label>
+                <input type="text" class="form-control" maxlength="16" name="CustomerNo" value='@(_model?.OrganizationExtension?.CustomerNo)' />
+            </div>
+            <div class="form-group">
+                <label for="contactName">聯絡人姓名</label>
+                <input type="text" class="form-control" name="ContactName" value='@(_model?.ContactName)' />
+            </div>
+            <div class="form-group">
+                <label for="contactTitle">聯絡人職稱</label>
+                <input type="text" class="form-control" name="ContactTitle" value='@(_model?.ContactTitle)' />
+            </div>
+            <div class="form-group">
+                <label for="contactPhone">聯絡人電話</label>
+                <input type="text" class="form-control" name="ContactPhone" value='@(_model?.ContactPhone)' />
+            </div>
+            <div class="form-group">
+                <label for="contactMobile">聯絡人行動電話</label>
+                <input type="text" class="form-control" name="ContactMobilePhone" value='@(_model?.ContactMobilePhone)' />
+            </div>
+            <div class="form-group">
+                <label for="contactEmail">聯絡人電子郵件</label>
+                <input type="text" class="form-control" name="ContactEmail" maxlength="512" value='@(_model?.ContactEmail)' />
+            </div>
+            <div class="form-group">
+                <label for="authStart">授權期間(起)</label>
+                <input type="text" class="form_date form-control" name="AuthorizationNotBefore" value='@($"{_model?.OrganizationExtension?.AuthorizationNotBefore:yyyy/MM/dd}")' />
+                <script>
+                    $(function () {
+                        $('input[name="AuthorizationNotBefore"]').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '-1:+10' });
+                    });
+                </script>
+            </div>
+            <div class="form-group">
+                <label for="authEnd">授權期間(迄)</label>
+                <input type="text" class="form_date form-control" name="AuthorizationNotAfter" value='@($"{_model?.OrganizationExtension?.AuthorizationNotAfter:yyyy/MM/dd}")' />
+                <script>
+                    $(function () {
+                        $('input[name="AuthorizationNotAfter"]').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '-1:+10' });
+                    });
+                </script>
+            </div>
+            <div class="form-group">
+                <label for="invoiceStart">發票期間(起)</label>
+                <input type="text" class="form_date form-control" name="InvoiceRequestNotBefore" value='@($"{_model?.OrganizationExtension?.InvoiceRequestNotBefore:yyyy/MM/dd}")' />
+                <script>
+                    $(function () {
+                        $('input[name="InvoiceRequestNotBefore"]').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '-1:+10' });
+                    });
+                </script>
+            </div>
+            <div class="form-group">
+                <label for="invoiceEnd">發票期間(迄)</label>
+                <input type="text" class="form_date form-control" name="InvoiceRequestNotAfter" value='@($"{_model?.OrganizationExtension?.InvoiceRequestNotAfter:yyyy/MM/dd}")' />
+                <script>
+                    $(function () {
+                        $('input[name="InvoiceRequestNotAfter"]').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '-1:+10' });
+                    });
+                </script>
+            </div>
+            <div class="form-group">
+                <label for="taxId">稅籍編號</label>
+                <input type="text" class="form-control" name="TaxNo" value='@(_model?.OrganizationExtension?.TaxNo)' />
+            </div>
+            @if (_model != null)
+            {
+                <div class="form-group">
+                    <button type="button" class="btn" onclick="applyE0501();">E0501取號設定</button>
+                    <script>
+                            function applyE0501() {
+                                doPost('@Html.Raw(Url.Action("ApplyE0501Settings", "Organization"))', { 'KeyID': '@Html.Raw(_model.CompanyID.EncryptKey())' }, function (data) {
+                                    var $data = $(data);
+                                    $('body').append($data);
+                                });
+                            }
+                    </script>
+                </div>
+            }
+            <button type="button" class="btn btn-primary" onclick="commitBusiness();">提交</button>
+            <button type="reset" class="btn btn-default">重填</button>
+            <script>
+                    function commitBusiness() {
+                        var $form = $('#theForm');
+                        var $formData = $form.serializeObject();
+                        $formData.KeyID = '@Html.Raw(_model.CompanyID.EncryptKey())';
+                        doPost('@Html.Raw(Url.Action("CommitBusiness", "Organization"))', $formData, function (data) {
+                            if ($.isPlainObject(data)) {
+                                if (data.result) {
+                                    alertModal('資料已儲存');
+                                }
+                            } else {
+                                $(data).appendTo($('body'));
+                            }
+                        });
+                    }
+            </script>
+        </div>
+    </div>
+</div>

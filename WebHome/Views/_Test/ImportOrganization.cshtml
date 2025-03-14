@@ -1,0 +1,83 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Reflection
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Newtonsoft.Json
+
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    PropertyInfo[] propOrganization = typeof(Organization).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+    PropertyInfo[] propExtension = typeof(OrganizationExtension).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+    PropertyInfo[] propStatus = typeof(OrganizationStatus).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+    void UpdateDbItem(PropertyInfo[] properties, object dbItem, object dataItem)
+    {
+        if (dataItem != null)
+        {
+            foreach (var p in properties)
+            {
+                var dataValue = p.GetValue(dataItem);
+                if (dataValue != null)
+                {
+                    p.SetValue(dbItem, dataValue);
+                }
+            }
+
+        }
+    }
+}
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    List<Organization> _viewModel = new List<Organization>();
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+
+    if (_viewModel.Count > 0)
+    {
+        foreach (var item in _viewModel)
+        {
+            item.ReceiptNo = item.ReceiptNo.GetEfficientString();
+            if (item.ReceiptNo != null)
+            {
+                var dbItem = models.GetTable<Organization>().Where(o => o.ReceiptNo == item.ReceiptNo).FirstOrDefault();
+                if (dbItem == null)
+                {
+                    models.GetTable<Organization>().InsertOnSubmit(item);
+                    item.OrganizationExtension = new OrganizationExtension();
+                    item.OrganizationStatus = new OrganizationStatus { };
+                }
+                else
+                {
+                    UpdateDbItem(propOrganization, dbItem, item);
+                    if (dbItem.OrganizationStatus == null)
+                    {
+                        dbItem.OrganizationStatus = new OrganizationStatus { };
+                    }
+                    if (dbItem.OrganizationExtension == null)
+                    {
+                        dbItem.OrganizationExtension = new OrganizationExtension { };
+                    }
+                    UpdateDbItem(propStatus, dbItem.OrganizationStatus, item.OrganizationStatus);
+                    UpdateDbItem(propExtension, dbItem.OrganizationExtension, item.OrganizationExtension);
+                }
+                models.SubmitChanges();
+            }
+        }
+    }
+
+    Write("OK!!");
+}

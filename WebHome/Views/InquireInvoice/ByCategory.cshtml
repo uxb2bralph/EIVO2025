@@ -1,0 +1,41 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@{
+
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    InquireInvoiceViewModel? _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+}
+<tr>
+    <th>
+        單據類型
+    </th>
+    <td class="tdleft">
+        <select name="Category">
+            <option value="10">發票</option>
+            <option value="11">折讓證明</option>
+        </select>
+        <script>
+            $(function () {
+                $('select[name="Category"]').val('10');
+            });
+        </script>
+    </td>
+</tr>

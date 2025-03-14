@@ -1,0 +1,67 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    DocumentQueryViewModel _viewModel = new DocumentQueryViewModel();
+    await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<DocumentQueryViewModel>(_viewModel);
+    ViewBag.ViewModel = _viewModel;
+
+}
+@{
+    var items = models.GetTable<InvoiceItem>().Where(i => i.SellerID == 8231)
+                    .Where(i => i.InvoiceDate >= new DateTime(2024, 6, 4))
+                    .Where(i => models.GetTable<IssuingNotice>().Any(n => n.DocID == i.InvoiceID));
+
+    foreach (var item in items)
+    {
+        String Subject = $"荷蘭商聯邦快遞國際股份有限公司台灣分公司 電子發票開立通知#錯誤發送請忽略#(發票號碼:{item.TrackCode}{item.No})";
+        String body = $"{await Html.PartialAsync("~/Views/_Test/NotifyAll_BuildTitle")}{await Html.PartialAsync("~/Views/Notification/Module/IssuedC0401.cshtml", item)}";
+
+        var mailing = models.GetUserListByCompanyID(item.InvoiceBuyer.BuyerID)
+                .Select(u => u.EMail).ToList();
+        mailing.Add(item.InvoiceBuyer.EMail);
+        mailing.Add(_viewModel.MailTo.GetEfficientString());
+        var mailTo = String.Join(",",
+                mailing.Where(m => m != null));
+
+        if (!String.IsNullOrEmpty(mailTo))
+        {
+            try
+            {
+                body.SendMailMessage(mailTo, Subject);
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"error mailTo: {mailTo}");
+                Logger.Error(ex);
+            }
+        }
+    }
+}
+OK!!
+
+
+

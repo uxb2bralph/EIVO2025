@@ -1,0 +1,53 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    List<Organization> _model;
+    InquireInvoiceViewModel _viewModel;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (List<Organization>)this.Model;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+
+@{
+
+    var mailTo = ModelExtension.Properties.AppSettings.Default.WebMaster;
+
+    if (!String.IsNullOrEmpty(mailTo))
+    {
+        String subject = $"({_viewModel.DateFrom:yyyy/MM/dd})發票資料未傳送大平台警告";
+        String body = (await Html.PartialAsync("~/Views/Notification/Module/DailyPendingAlert.cshtml", _model)).ToString();
+        try
+        {
+            body.SendMailMessage(mailTo, subject);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex);
+            Logger.Warn($"{ex.Message}:\r\nSubject:{subject}\r\nMail To:{mailTo}");
+        }
+    }
+
+}
+
+

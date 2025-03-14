@@ -1,0 +1,31 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@{
+
+    UnassignedInvoiceNo _model;
+    IQueryable<UnassignedInvoiceNo> _items;
+
+    _model = (UnassignedInvoiceNo)this.Model;
+    _items = (IQueryable<UnassignedInvoiceNo>)ViewBag.DataItems;
+}
+<tr>
+    <td>
+        @(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo)
+        @if (_model.InvoiceTrackCodeAssignment.Organization.OrganizationExtension.ExpirationDate.HasValue)
+        {
+            <text>(註記停用：@($"{_model.InvoiceTrackCodeAssignment.Organization.OrganizationExtension.ExpirationDate:yyyy/MM/dd}"))</text>
+        }
+    </td>
+    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)</td>
+    <td>@(String.Format("{0:00}-{1:00}月",_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo*2-1,_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo*2))</td>
+    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)</td>
+    <td>@(String.Format("{0:00000000}",_model.InvoiceBeginNo))</td>
+    <td>@(String.Format("{0:00000000}",_model.InvoiceEndNo))</td>
+    <td>@(_model.InvoiceEndNo - _model.InvoiceBeginNo + 1)</td>
+</tr>
+
+

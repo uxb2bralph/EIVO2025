@@ -1,0 +1,82 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+@{
+    ModelSource<InvoiceItem> models;
+    ModelStateDictionary _modelState;
+    IQueryable<InvoiceItem> _model;
+    String _tabID = $"tab{DateTime.Now.Ticks}";
+    AllowanceViewModel _viewModel = null;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    _model = (IQueryable<InvoiceItem>)this.Model;
+
+    if (_model.Count() > 0)
+    {
+        var item = _model.First();
+        var prodItem = _model.SelectMany(i => i.InvoiceDetails)
+                .SelectMany(d => d.InvoiceProduct.InvoiceProductItem).ToArray();
+
+        _viewModel = new AllowanceViewModel
+        {
+            SellerID = item.SellerID,
+            BuyerReceiptNo = item.InvoiceBuyer.ReceiptNo,
+            BuyerName = item.InvoiceBuyer.Name,
+            AllowanceDate = DateTime.Now,
+            AllowanceType = Naming.AllowanceTypeDefinition.賣方開立,
+            TaxAmount = _model.Sum(i => i.InvoiceAmountType.TaxAmount),
+            TotalAmount = _model.Sum(i => i.InvoiceAmountType.SalesAmount),
+            ProcessType = item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.C0401
+                ? Naming.InvoiceProcessType.D0401
+                : Naming.InvoiceProcessType.B0401,
+            No = Enumerable.Range(1, prodItem.Length).Select(n => (short)n).ToArray(),
+            InvoiceDate = prodItem.Select(p => p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceDate.Value).ToArray(),
+            InvoiceNo = prodItem.Select(p => p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceNo()).ToArray(),
+            OriginalDescription = prodItem.Select(p => p.InvoiceProduct.Brief).ToArray(),
+            OriginalSequenceNo = prodItem.Select(p => p.No).ToArray(),
+            Piece = prodItem.Select(p => p.Piece).ToArray(),
+            PieceUnit = prodItem.Select(p => p.PieceUnit).ToArray(),
+            UnitCost = prodItem.Select(p => p.UnitCost).ToArray(),
+            Amount = prodItem.Select(p => p.CostAmount).ToArray(),
+            Tax = prodItem.Select(p => Math.Round(p.CostAmount.Value * 0.05m)).ToArray(),
+            TaxType = prodItem.Select(p => (Naming.TaxTypeDefinition)p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceAmountType.TaxType).ToArray(),
+        };
+    }
+}
+@if (_viewModel != null)
+{
+    <div id="@(_tabID)">
+        @{
+            ViewBag.ViewModel = _viewModel;
+            await Html.RenderPartialAsync("~/Views/Forms/SimpleAllowance.cshtml");
+        }
+    </div>
+    <script>
+    $(function () {
+        $global.createTab('issueAllowance', '開立折讓證明單', $('#@(_tabID)'), true);
+    });
+    </script>
+}
+
+

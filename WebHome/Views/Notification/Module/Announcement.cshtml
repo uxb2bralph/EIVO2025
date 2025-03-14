@@ -1,0 +1,64 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+@{
+
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        【電子發票加值中心系統升級停機公告】
+    </title>
+</head>
+<body>
+    <form>
+        <p>
+        親愛的電子發票夥伴您好,
+        </p>
+        <p>&nbsp;</p>
+        <p>
+            為了提供更優質的服務，本中心將進行系統升級作業，預計於 2025年2月7日（五）上午8:00至上午10:00 進行系統維護。
+        </p>
+        <p>
+            維護期間將影響以下服務：<br />
+            電子發票取號：請通知營業人務必於停機前預先完成POS取號，以免影響業務運作。<br />
+            發票檔案上傳與收檔：停機期間將 暫停收檔，請營業人待系統維護完成後再行上傳。<br />
+            請您提前做好相關準備，造成不便，敬請見諒！如有任何問題，請聯繫客服。<br />
+        </p>
+        <p>&nbsp;</p>
+        <p>
+            感謝您的理解與配合！
+        </p>
+        <p>
+            客服電話：<span class="blue">0800-010-626</span>
+        </p>
+        <p>
+            網際優勢加值服務中心
+        </p>
+    </form>
+</body>
+</html>
+

@@ -1,0 +1,45 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    IQueryable<ProductCatalog> _model = (IQueryable<ProductCatalog>)this.Model;
+    ProductCatalogQueryViewModel _viewModel = (ProductCatalogQueryViewModel)ViewBag.ViewModel;
+}
+@{
+    String[] columns = (string[])ViewBag.TableColumns;
+}
+@{ 
+//var item = _model.FirstOrDefault();
+//if (item == null)
+//{
+//    item = new ProductCatalog { };
+//}
+//ViewBag.DisplayType = Naming.FieldDisplayType.Create;
+//await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", item);
+}
+<tr>
+    <td colspan="@(columns.Length)"></td>
+</tr>

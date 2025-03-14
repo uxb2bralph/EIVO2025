@@ -1,0 +1,37 @@
+@using System.IO
+@using System.Net
+@using System.Net.Mail
+@using System.Linq
+@using System.Linq.Expressions
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    DocumentQueryViewModel _viewModel = new DocumentQueryViewModel();
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+
+}
+@{
+    <div>PdfUtility:@(CommonLib.Core.Helper.PlugInHelper.GetPdfUtility()?.GetType().FullName)</div>
+    @*<div>Model Settings:@Html.Raw(global::ModelExtension.Properties.AppSettings.Default.JsonStringify())</div>*@
+    if (_viewModel?.DocID.HasValue == true)
+    {
+        <div>KeyID:@(_viewModel.DocID.Value.EncryptKey())</div>
+    }
+}
+

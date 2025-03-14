@@ -1,0 +1,75 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using ModelCore.Helper
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InputViewModel _model;
+    IEnumerable<Organization> _items;
+    UserProfile _profile;
+
+
+    _model = (InputViewModel)this.Model;
+    if (_model == null)
+    {
+        _model = new InputViewModel
+        {
+            Name = "CompanyID",
+            Id = "CompanyID_" + DateTime.Now.Ticks
+        };
+    }
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _profile = Context.GetUser();
+
+    if (_profile.IsSystemAdmin())
+    {
+        _items = models.GetTable<EnterpriseGroupMember>().Select(o => o.CompanyID)
+                .Distinct().Join(models.GetTable<Organization>(), d => d, o => o.CompanyID, (d, o) => o).OrderBy(o => o.ReceiptNo);
+
+    }
+    else
+    {
+        _items = models.GetTable<EnterpriseGroupMember>()
+                .Where(o => o.CompanyID == _profile.CurrentUserRole.OrganizationCategory.CompanyID)
+                .Select(o => o.CompanyID)
+                .Join(models.GetTable<Organization>(), d => d, o => o.CompanyID, (d, o) => o).OrderBy(o => o.ReceiptNo);
+    }
+}
+
+<select name="@(_model.Name)" id="@(_model.Id)">
+    @if (ViewBag.SelectAll == true)
+    {
+        <option value="">全部</option>
+    }
+    @if (ViewBag.SelectIndication != null)
+    {
+        Output.WriteLine(ViewBag.SelectIndication);
+    }
+    @foreach (var item in _items)
+    {
+        <option value="@(item.CompanyID)">@(String.Format("{0} {1}", item.ReceiptNo, item.CompanyName))</option>
+    }
+</select>
+@if (_model.DefaultValue != null)
+{
+    <script>
+            $(function () {
+                $('select[name="@(_model.Name)"]').val('@(_model.DefaultValue)');
+            });
+    </script>
+}
+
+
+

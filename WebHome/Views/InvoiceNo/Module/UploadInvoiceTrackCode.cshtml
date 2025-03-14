@@ -1,0 +1,74 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+
+@using ModelCore.Helper
+@using WebHome.Controllers
+@{
+    UserProfile _profile = Context.GetUser();
+    int? _idx = (TempData["ImportData"] as int?) ?? 0;
+    TempData["ImportData"] = _idx + 1;
+}
+
+    <tr>
+        <th>
+            發票字軌號碼
+        </th>
+        <td class="tdleft">
+            <input type="button" id="@($"btnGetSample{_idx}")" value="下載範本" class="mr-2" />
+            <input type="button" id="@($"btnImportData{_idx}")" value="立即傳送" />
+            <script>
+                        $(function () {
+
+                            $('#@($"btnGetSample{_idx}")').on('click', function (event) {
+                                $('').launchDownload('@Html.Raw(Url.Action("GetUploadInvoiceTrackCodeSample", "InvoiceNo"))', {});
+                            });
+
+                            var $btn = $('#@($"btnImportData{_idx}")');
+                            var $file = $('<input name="excelFile" type="file" style="display: none;" />');
+                            $btn.before($file);
+
+                            $btn.click(function () {
+                                $file.val('');
+                                $file.click();
+                            });
+
+                            var $result;
+
+                            $file.on('change', function (event) {
+                                clearErrors();
+                                var $formData = $('form').find('input,select,textArea').serializeObject();
+                                uploadFile($file, $formData, '@Html.Raw(Url.Action("UploadToPreview","InvoiceNo"))',
+                                    function (data) {
+                                        $btn.before($file);
+                                        if ($.isPlainObject(data)) {
+                                            if (data.result) {
+
+                                            } else {
+                                                alert(data.message);
+                                            }
+                                        } else {
+                                            if ($result) {
+                                                $result.remove();
+                                            }
+                                            $result = $(data);
+                                            $('#queryArea').after($result);
+                                        }
+                                    },
+                                    function () {
+                                        $btn.before($file);
+                                    });
+                            });
+                        });
+            </script>
+        </td>
+    </tr>
+

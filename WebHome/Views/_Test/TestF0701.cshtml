@@ -1,0 +1,190 @@
+@using System.IO
+@using System.Linq.Expressions
+@using System.Web
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    doTask();
+}
+
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title></title>
+</head>
+<body>
+    <form method="post">
+        <div>F0401:@(ModelExtension.Properties.AppSettings.Default.C0401Outbound)</div>
+        <div>F0701:@(ModelExtension.Properties.AppSettings.Default.C0701Outbound)</div>
+        <div>
+            Invoice No:
+            <textarea cols="80" rows="10" name="invoiceNo">@(_viewModel?.InvoiceNo)</textarea><br />
+            EndNo No: <input type="text" name="endNo" value="@(_viewModel?.EndNo)" />
+            <button ID="btnCreate" type="submit">OK!!</button>
+        </div>
+        <br />
+        F0401:
+        <textarea cols="80" rows="10">@(_item!=null ? _item.ConvertToXml().OuterXml : null)</textarea>
+        <br />
+        F0701:
+        <textarea cols="80" rows="10">@(_voidItem!=null ? _voidItem.ConvertToXml().OuterXml : null)</textarea>
+    </form>
+</body>
+</html>
+@functions
+{
+
+    protected ModelCore.Schema.TurnKey.F0401.Invoice _item;
+    protected ModelCore.Schema.TurnKey.F0701.VoidInvoice _voidItem;
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+
+    void doTask()
+    {
+        models = new ModelSource<InvoiceItem>();
+
+        _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+        if (_viewModel == null)
+        {
+            _viewModel = new InquireInvoiceViewModel();
+            var t = ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<InquireInvoiceViewModel>(_viewModel);
+            t.Wait();
+        }
+
+        String invoiceNo = _viewModel.InvoiceNo.GetEfficientString();
+        String endNo = _viewModel.EndNo.GetEfficientString();
+
+        String storedPath = ModelExtension.Properties.AppSettings.Default.C0401Outbound;
+        storedPath.CheckStoredPath();
+
+        IQueryable<InvoiceItem> invoiceItems = models.GetTable<InvoiceItem>();
+
+        if (_viewModel.DateFrom.HasValue)
+        {
+            invoiceItems = invoiceItems.Where(i => i.InvoiceDate >= _viewModel.DateFrom);
+        }
+
+        if (_viewModel.DateTo.HasValue)
+        {
+            invoiceItems = invoiceItems.Where(i => i.InvoiceDate < _viewModel.DateTo.Value.AddDays(1));
+        }
+
+        if (endNo == null)
+        {
+            if (invoiceNo?.Length == 10)
+            {
+                var item = invoiceItems.Where(i => i.TrackCode == invoiceNo.Substring(0, 2)
+                    && i.No == invoiceNo.Substring(2)).FirstOrDefault();
+                if (item != null)
+                {
+                    _item = item.CreateF0401();
+                    _voidItem = new ModelCore.Schema.TurnKey.F0701.VoidInvoice
+                    {
+                        VoidInvoiceNumber = invoiceNo,
+                        InvoiceDate = String.Format("{0:yyyyMMdd}", item.InvoiceDate),
+                        BuyerId = item.InvoiceBuyer.ReceiptNo,
+                        SellerId = item.InvoiceSeller.ReceiptNo,
+                        VoidDate = DateTime.Now.Date.ToString("yyyyMMdd"),
+                        VoidTime = DateTime.Now,
+                        VoidReason = "註銷重開",
+                        Remark = ""
+                    };
+                }
+            }
+            else if (invoiceNo != null)
+            {
+                String[] items = invoiceNo.Split(new String[] { "\r\n", ",", ";", "、" }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var invNo in items)
+                {
+                    if (invNo.Length != 10)
+                        break;
+                    var item = invoiceItems.Where(i => i.TrackCode == invNo.Substring(0, 2)
+                        && i.No == invNo.Substring(2)).FirstOrDefault();
+                    if (item != null)
+                    {
+                        storedMIG(item, storedPath);
+                    }
+                }
+            }
+
+            models.Dispose();
+        }
+        else if (invoiceNo.Length == 10 && endNo.Length == 10)
+        {
+            var items = invoiceItems
+                .Where(i => i.TrackCode == invoiceNo.Substring(0, 2))
+                .Where(i => String.Compare(i.No, invoiceNo.Substring(2)) >= 0)
+                .Where(i => String.Compare(i.No, endNo.Substring(2)) <= 0);
+
+            var count = items.Count();
+            if (count > 0)
+            {
+                alert("送出執行註銷筆數:" + count);
+                System.Threading.ThreadPool.QueueUserWorkItem(t =>
+                {
+                    foreach (var item in items)
+                    {
+                        try
+                        {
+                            storedMIG(item, storedPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                        }
+                    }
+                    models.Dispose();
+                });
+            }
+        }
+        else
+        {
+            models.Dispose();
+        }
+    }
+
+    void storedMIG(InvoiceItem item, String storedPath)
+    {
+        String invoiceNo = item.TrackCode + item.No;
+        item.CreateF0401().ConvertToXml().Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
+        (new ModelCore.Schema.TurnKey.F0701.VoidInvoice
+        {
+            VoidInvoiceNumber = invoiceNo,
+            InvoiceDate = String.Format("{0:yyyyMMdd}", item.InvoiceDate),
+            BuyerId = item.InvoiceBuyer.ReceiptNo,
+            SellerId = item.InvoiceSeller.ReceiptNo,
+            VoidDate = DateTime.Now.Date.ToString("yyyyMMdd"),
+            VoidTime = DateTime.Now,
+            VoidReason = "註銷重開",
+            Remark = ""
+        }).ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.C0701Outbound, "F0701_" + item.TrackCode + item.No + ".xml"));
+
+    }
+
+
+}
+
+@functions
+{
+    void alert(String data)
+    {
+        <script>
+            alert('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(data))');
+        </script>
+    }
+}

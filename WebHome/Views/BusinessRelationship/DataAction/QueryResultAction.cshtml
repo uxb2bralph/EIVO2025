@@ -1,0 +1,32 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+<table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td class="Bargain_btn">
+            <input type="button" class="btn" name="btnPrint" value="Excel下載" onclick="$inquiryAgent.downloadQuery();" />
+        </td>
+    </tr>
+</table>
+
+
+

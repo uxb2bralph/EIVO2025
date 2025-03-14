@@ -1,0 +1,94 @@
+﻿@using System.IO
+@using System.Net
+@using System.Net.Mail
+@using System.Linq
+@using System.Linq.Expressions
+@using System.Xml
+@using System.Text
+@using System.Threading.Tasks
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.InvoiceManagement
+@using ModelCore.InvoiceManagement.InvoiceProcess
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using ModelCore.Notification
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    DocumentQueryViewModel _viewModel = new DocumentQueryViewModel();
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+    ViewBag.ViewModel = _viewModel;
+
+}
+@{
+    @*var data = "Hello, Line Notify...".PushToLineNotify();
+        @Html.Raw(data);*@
+    @*@Html.Raw(Request["Token"]);*@
+if (_viewModel.ChkItem?.Length > 0)
+{
+    foreach (var id in _viewModel.ChkItem)
+    {
+        var invoice = models.GetTable<InvoiceItem>().Where(i => i.InvoiceID == id).FirstOrDefault();
+        if (invoice != null)
+        {
+            await Html.RenderPartialAsync("~/Views/Notification/IssueC0701.cshtml", invoice);
+            Logger.Debug($"Notify Issuing C0701: {id}, {invoice.TrackCode}{invoice.No}");
+        }
+    }
+}
+    @(global::ModelExtension.Properties.AppSettings.Default.UseMIG40)
+    ExternalPdfWrapper.AppSettings.Default.UseSelenium = false;
+    ExternalPdfWrapper.AppSettings.Default.Save();
+    var pdf = new ExternalPdfWrapper.PdfUtility();
+    pdf.ConvertHtmlToPDF("https://www.google.com", "G:\\temp\\doc.pdf", 5);
+    pdf.ConvertHtmlToPDF("http://192.168.6.45/GAP/DataView/GetCustomerAllowancePDF?keyID=L5AHnA7a1TOygcaH0FmK6Q%3d%3d&html=True", "G:\\temp\\doc1.pdf", 5);
+
+    //int taskID;
+    //if (int.TryParse(Request["TaskID"],out taskID))
+    //{
+    //    taskID.ZipInvoicePDF();
+    //}
+    //String fileName = Request["toPDF"];
+    //if (fileName != null)
+    //{
+    //    File.WriteAllText(@"C:\UXB2B_EIVO\PDFQueue\data.txt", fileName);
+    //}
+    //XmlDocument doc = new XmlDocument();
+    //doc.Load("G:\\temp\\ToDo\\dataToSign.xml");
+    //var dataToSign = Encoding.Default.GetBytes(doc.OuterXml);
+    //var dataSignature = CryptoUtility
+    //                        .SignCms(AppSigner.SignerCertificate, doc.OuterXml, Encoding.Default)
+    //                        .Encode();
+
+    //CryptoUtility crypto = new CryptoUtility();
+    //var result = crypto.VerifyPKCS7(dataToSign, dataSignature);
+
+    //Write(result);
+    //Task.Run(() =>
+    //{
+    //    using (InvoiceManager models = new InvoiceManager())
+    //    {
+    //        A0401Handler a0401 = new A0401Handler(models);
+    //        a0401.ProcessToIssue();
+    //        a0401.NotifyToReceive();
+    //        a0401.NotifyIssued();
+    //        a0401.WriteToTurnkey();
+    //        a0401.MatchDocumentAttachment();
+    //    }
+
+    //});
+}
+

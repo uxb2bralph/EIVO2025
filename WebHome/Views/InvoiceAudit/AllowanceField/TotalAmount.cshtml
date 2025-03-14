@@ -1,0 +1,52 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+@{
+    Naming.FieldDisplayType? displayType = (Naming.FieldDisplayType?)ViewBag.DisplayType;
+}
+@switch (displayType)
+{
+    case Naming.FieldDisplayType.Header:
+        <a href="javascript:void(0);" onclick="$inquiryAgent.sort('SaleAmount',this);">含稅金額</a>
+        break;
+    case Naming.FieldDisplayType.DataItem:
+        InvoiceAllowance item = this.Model as InvoiceAllowance;
+        <pre class="number">@($"{item.TotalAmount + item.TaxAmount,12:##,###,###,###.###}")</pre>
+        break;
+    case Naming.FieldDisplayType.SortBy:
+        break;
+    case Naming.FieldDisplayType.Query:
+        break;
+    default:
+        break;
+}
+
+

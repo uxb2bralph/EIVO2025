@@ -1,0 +1,169 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    Layout = "~/Views/Common/QueryIndex.cshtml";
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+
+    ProductCatalogQueryViewModel _viewModel = (ProductCatalogQueryViewModel)ViewBag.ViewModel;
+    _viewModel.UrlAction = Url.Action("InquireProduct", "ProductCatalog");
+}
+
+@section QueryForm
+{
+    <!--交易畫面標題-->
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票品名");
+    }
+    @{
+        ViewBag.DisplayType = Naming.FieldDisplayType.Query;
+    }
+    <div class="border_gray" id="queryArea">
+        <table class="table table-striped">
+            <tr>
+                <th colspan="2" class="Head_style_a">查詢條件</th>
+            </tr>
+            <tr>
+                <th>營業人</th>
+                <td>
+                    @{
+                        ViewBag.FieldName = "SupplierID";
+                        await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _profile.InitializeOrganizationQuery(models));
+                    }
+                </td>
+            </tr>
+            @{
+                await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/ProductName.cshtml");
+                await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/Barcode.cshtml");
+                await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/Spec.cshtml");
+            }
+            <tr>
+                <td colspan="2" style="text-align:center;">
+                    <input name="btnQuery" class="btn" type="button" value="查詢" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        $(function () {
+
+            $inquiryAgent.deleteItem = function (keyID) {
+                if (confirm('確定刪除此項目?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@Html.Raw(Url.Action("DeleteItem","ProductCatalog",new { displayType = (int)Naming.FieldDisplayType.Edit }))', { 'keyID': keyID }, function (data) {
+                        if (data.result) {
+                            alert('資料已刪除!!')
+                            $tr.remove();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                }
+            };
+
+            $inquiryAgent.editItem = function (keyID) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                $global.$scope = $tr;
+                var viewModel = $tr.find('input,select,textArea').serializeObject();
+                viewModel.keyID = keyID;
+                viewModel.supplierID = $('#queryArea [name="SupplierID"]').val();
+                viewModel.displayType = @((int)Naming.FieldDisplayType.Edit);
+                $inquiryAgent.loadItem(viewModel, function (data) {
+                    $tr.after(data).remove();
+                });
+            };
+
+        $inquiryAgent.dataItem = function (keyID, scope, done) {
+            var event = event || window.event;
+            var $tr = scope || $(event.target).closest('tr');
+            $global.$scope = $tr;
+            var viewModel = $tr.find('input,select,textArea').serializeObject();
+            viewModel.keyID = keyID;
+            viewModel.supplierID = $('#queryArea [name="SupplierID"]').val();
+            viewModel.displayType = @((int)Naming.FieldDisplayType.DataItem);
+            $inquiryAgent.loadItem(viewModel, function (data) {
+                $tr.after(data).remove();
+                if (done) {
+                    done();
+                }
+            });
+        };
+
+            $inquiryAgent.loadItem = function (viewModel, onload) {
+                showLoading();
+                $.post('@Html.Raw(Url.Action("ProcessDataItem","ProductCatalog"))', viewModel, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        onload(data);
+                    }
+                });
+            };
+
+        $inquiryAgent.commitItem = function (keyID) {
+            var event = event || window.event;
+            var $tr = $(event.target).closest('tr');
+            $global.$scope = $tr;
+            var $parent = $tr.parent();
+            var viewModel = $tr.find('input,select,textArea').serializeObject();
+            viewModel.keyID = keyID;
+            viewModel.supplierID = $('#queryArea [name="SupplierID"]').val();
+            clearErrors();
+            $.post('@Html.Raw(Url.Action("CommitItem","ProductCatalog"))', viewModel, function (data) {
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        $inquiryAgent.dataItem(data.keyID, $tr, function () {
+                            $inquiryAgent.loadItem({ 'displayType':@((int)Naming.FieldDisplayType.Create), 'keyID': '@((-1).EncryptKey())' }, function (d) {
+                                $parent.append(d);
+                            });
+                        });
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body')).remove();
+                }
+            });
+        };
+    });
+
+    </script>
+    @if (_viewModel.StartQuery == true)
+    {
+        <script>
+            $(function () {
+                $('input[name="btnQuery"]').click();
+            });
+        </script>
+    }
+
+}
+

@@ -1,0 +1,31 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <th>客戶 ID</th>
+    <td class="tdleft">
+        <input name="CustomerID" type="text" value="@(_viewModel?.CustomerID)" class="form-control" />
+    </td>
+</tr>
+
+

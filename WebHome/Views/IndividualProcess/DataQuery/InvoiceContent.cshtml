@@ -1,0 +1,42 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+
+}
+<div>
+    @{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票");}
+
+    <div class="border_gray">
+        @{ await Html.RenderPartialAsync("~/Views/DataView/Module/Invoice.cshtml", _model);}
+
+    </div>
+</div>
+
+
+
+

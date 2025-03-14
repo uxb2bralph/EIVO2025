@@ -1,0 +1,27 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@{
+    Type _model = (Type)this.Model;
+    if (ViewBag.FieldName == null)
+    {
+        ViewBag.FieldName = _model.Name;
+    }
+}
+<select name="@(ViewBag.FieldName)">
+    @if (!String.IsNullOrEmpty(ViewBag.SelectorIndication))
+    {
+        <option value="@(ViewBag.SelectorIndicationValue)">@(ViewBag.SelectorIndication)</option>
+    }
+    @{
+        await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelectOptions.cshtml", _model);
+    }
+</select>
+@if (!String.IsNullOrEmpty(ViewBag.DefaultValue))
+{
+    <script>
+        $(function () {
+            $('select[name="@(ViewBag.FieldName)"]').val('@(ViewBag.DefaultValue)');
+        });
+    </script>
+}

@@ -1,0 +1,107 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using System.Xml
+@using System.Xml.Linq
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+@functions {
+
+    ModelSource<InvoiceItem> models;
+
+    InvoiceItem MatchAllowanceItem(AllowanceRootAllowance allowance, AllowanceRootAllowanceAllowanceItem allowanceItem)
+    {
+        InvoiceItem invoice = null;
+        var invoiceNo = allowanceItem.OriginalInvoiceNumber.GetEfficientString();
+        if (invoiceNo != null && invoiceNo.Length == 10)
+        {
+            invoice = models.GetTable<InvoiceItem>()
+                    .Where(i => i.TrackCode == invoiceNo.Substring(0, 2))
+                    .Where(i => i.No == invoiceNo.Substring(2))
+                    .Join(models.GetTable<Organization>().Where(o => o.ReceiptNo == allowance.SellerId),
+                        i => i.SellerID, o => o.CompanyID, (i, o) => i)
+                    .OrderByDescending(i => i.InvoiceID)
+                    .FirstOrDefault();
+
+        }
+
+        if (invoice == null)
+        {
+            String orderNo = allowanceItem.OriginalDataNumber.GetEfficientString();
+            if (orderNo != null)
+            {
+                invoice = models.GetTable<InvoicePurchaseOrder>()
+                            .Where(d => d.OrderNo == orderNo)
+                                .Join(models.GetTable<InvoiceItem>()
+                                    .Join(models.GetTable<Organization>()
+                                        .Where(o => o.ReceiptNo == allowance.SellerId),
+                                        i => i.SellerID, o => o.CompanyID, (i, o) => i),
+                                    p => p.InvoiceID, i => i.InvoiceID, (p, i) => i)
+                                .FirstOrDefault();
+            }
+
+        }
+
+        return invoice;
+    }
+}
+@{
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    XmlDocument docInv = ViewBag.ViewModel as XmlDocument;
+
+    AllowanceRoot root = docInv.TrimAll().ConvertTo<AllowanceRoot>();
+    var Response = Context.Response;
+
+    if (root.Allowance != null)
+    {
+        foreach (var allowance in root.Allowance)
+        {
+            if (allowance.AllowanceItem != null && allowance.AllowanceItem.Length > 0)
+            {
+
+                String orderNo = allowance.DataNumber.GetEfficientString();
+                var order = models.GetTable<InvoicePurchaseOrder>()
+                    .Where(d => d.OrderNo == orderNo)
+                        .Join(models.GetTable<InvoiceItem>()
+                            .Join(models.GetTable<Organization>()
+                                .Where(o => o.ReceiptNo == allowance.SellerId),
+                                i => i.SellerID, o => o.CompanyID, (i, o) => i),
+                            p => p.InvoiceID, i => i.InvoiceID, (p, i) => p)
+                        .FirstOrDefault();
+
+                for (int i = 0; i < allowance.AllowanceItem.Length; i++)
+                {
+                    var allowanceItem = allowance.AllowanceItem[i];
+                    var invoice = order?.InvoiceItem ?? MatchAllowanceItem(allowance, allowanceItem);
+
+                    if (invoice != null)
+                    {
+                        allowance.BuyerId = invoice.InvoiceBuyer?.ReceiptNo;
+                        allowance.BuyerName = invoice.InvoiceBuyer?.Name;
+                        allowanceItem.OriginalInvoiceNumber = $"{invoice.TrackCode}{invoice.No}";
+                        allowanceItem.OriginalInvoiceDate = $"{invoice.InvoiceDate:yyyy/MM/dd}";
+                    }
+                }
+            }
+        }
+    }
+
+    Response.ContentType = "text/xml";
+    Output.WriteLine(root.ConvertToXml().OuterXml);
+}

@@ -1,0 +1,188 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+}
+<!--交易畫面標題-->
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "登錄掛號郵件");}
+
+<div class="border_gray">
+    <!--表格 開始-->
+    <table id="queryArea" class="table table-striped">
+        <tr>
+            <th>
+                發票號碼(起號)
+            </th>
+            <td class="tdleft">
+                <input name="StartNo" type="text" class="form-control" />
+            </td>
+            <th>
+                發票號碼(迄號)
+            </th>
+            <td class="tdleft">
+                <input name="EndNo" type="text" class="form-control" />
+            </td>
+        </tr>
+        <tr>
+            <th colspan="4">
+                查詢資料《
+                <input name="DateFilter" type="radio" class="form-control-sm" value="@((int)global::ModelCore.Models.ViewModel.FilterType.Include)" />符合
+                <input name="DateFilter" type="radio" class="form-control-sm" value="@((int)global::ModelCore.Models.ViewModel.FilterType.Exclude)" />排除
+                》下列日期區間
+            </th>
+        </tr>
+        <tr>
+            <th>
+                日期區間(起日)
+            </th>
+            <td class="tdleft">
+                <input name="DateFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="" />
+            </td>
+            <th>
+                日期區間(迄日)
+            </th>
+            <td class="tdleft">
+                <input name="DateTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="" />
+            </td>
+        </tr>
+        <tr>
+            <th>
+                排除買受人統編
+            </th>
+            <td class="tdleft" colspan="3">
+                @{ 
+                    await Html.RenderPartialAsync("~/Views/Handling/MailTracking/ExclusiveReceiptNo.cshtml");
+                }
+            </td>
+        </tr>
+        <tr>
+            <th>
+                寄件過程
+            </th>
+            <td class="tdleft">
+                <input name="DeliveryStatus" value="1303" type="radio" />初次寄送
+                <input name="DeliveryStatus" value="1309" type="radio" />退回重寄
+            </td>
+            <th>
+                郵件張數
+            </th>
+            <td class="tdleft">
+                <input name="MailingCount" type="text" class="form-control" />
+            </td>
+        </tr>
+        <tr>
+            <th>
+                郵件號碼1(流水號碼段)
+            </th>
+            <td class="tdleft">
+                <input name="MailNo1" type="text" class="form-control" />
+            </td>
+            <th>
+                郵件號碼2(固定號碼段)
+            </th>
+            <td class="tdleft">
+                <input name="MailNo2" type="text" class="form-control" value="102286" />
+            </td>
+        </tr>
+        <tr>
+            <th>
+                郵件號碼3(固定號碼段)
+            </th>
+            <td class="tdleft">
+                <input name="MailNo3" type="text" class="form-control" value="18" />
+            </td>
+            <th>
+                寄件日期
+            </th>
+            <td class="tdleft">
+                <input name="DeliveryDate" type="text" class="form_date form-control" />
+            </td>
+
+            @*<th>
+                 作業方式
+            </th>
+            <td class="tdleft">
+                <select class="form-control" name="ChannelID">
+                    <option value="">全部</option>
+                    <option value="@((int)Naming.ChannelIDType.ForGoogleOnLine)">On line</option>
+                    <option value="@((int)Naming.ChannelIDType.ForGoogleTerms)">Terms</option>
+                </select>
+            </td>*@
+        </tr>
+        <tr>
+            <th>
+                發票種類
+            </th>
+            <td class="tdleft" colspan="3">
+                @**@
+                <input name="UserType" value="0" type="radio" />一般用戶　
+                <input name="UserType" value="1" type="radio" />VIP用戶
+            </td>
+            @*<th>
+                附件檔
+            </th>
+            <td class="tdleft">
+                <select name="Attachment">
+                    <option value="">全部</option>
+                    <option value="1" selected="selected">有</option>
+                    <option value="0">無</option>
+                </select>
+            </td>*@
+        </tr>
+    </table>
+    <!--表格 結束-->
+</div>
+
+<!--按鈕-->
+<table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
+    <tbody>
+        <tr>
+            <td class="Bargain_btn">
+                <button type="button" onclick="uiHandling.reset(); uiHandling.inquireTracking(); ShowOverlay_1(/*getWriterTimer1()*/);">查詢</button>&nbsp;&nbsp;
+                <button type="button" onclick="uiHandling.reset();">清除</button>
+                @*<button type="button" onclick="getWriterTimer1()">Test_OK</button>
+                  <button type="button" onclick="ShowOverlay_1(getWriterTimer1())">Test1_OK</button>*@
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!--表格 開始-->
+@{ await Html.RenderPartialAsync("~/Views/Handling/ScriptHelper/Common.cshtml");}
+
+<div id="loadingOverlay1" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(169, 169, 169, 0.7); z-index: 9999;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="spinner-border text-primary" role="status" style="font-size: 50px;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <p style="font-size: 50px; color: brown; ">Loading...</p>
+    </div>
+</div>
+
+<script>
+    getWriterTimer1 = function() {        
+        var startNo = document.getElementsByName('StartNo')[0].value;
+        var endNo = document.getElementsByName('EndNo')[0].value;
+        startNo = parseInt(startNo.slice(-8));
+        endNo = parseInt(endNo.slice(-8));
+        var getSecond = (parseInt(endNo) - parseInt(startNo)) / 100;  //資料寫入UI所需要的秒數
+        getSecond = Math.ceil(getSecond);//小數點無條件進位
+        //alert(getSecond)
+        return getSecond;
+    }
+</script>
+

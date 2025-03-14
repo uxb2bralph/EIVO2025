@@ -1,0 +1,77 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using ModelCore.DataExchange
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using ModelCore.Helper
+@{
+    Layout = "~/Views/Shared/Module/MessageDialog.cshtml";
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    AttachmentViewModel _viewModel = this.Model as AttachmentViewModel ??  ViewBag.ViewModel as AttachmentViewModel;
+    String _viewID = $"check{DateTime.Now.Ticks}";
+}
+
+<div class="border_gray" id="@(_viewID)">
+    <label>下載資料準備中，您可以繼續等待，或稍後至工作清單查詢下載。</label>
+    <label class="progress"></label>
+    <a href="#" style="display:none;" onclick="$('').launchDownload('@(Url.Action("DownloadResource","DataExchange"))', { 'keyID': '@Html.Raw((new { _viewModel.FileDownloadName,_viewModel.FileName,_viewModel.ContentType }).JsonStringify().EncryptData())' },'_blank');">資料下載</a>
+    <script>
+        debugger;
+        $(function () {
+            var turn = 0;
+            function checkResource() {
+                $.post('@Html.Raw(Url.Action("CheckResource","DataExchange"))', { 'keyID': '@Html.Raw(_viewModel.JsonStringify().EncryptData())' }, function (data) {
+                    if ($.isPlainObject(data)) {
+                        console.log(data);
+                        if (data.result) {
+                            hideLoading();
+                            $('#@(_viewID) label').remove();
+                            $('#@(_viewID) a').css('display','block');
+                            alert('下載資料準備完成...');
+                        } else if (data.message != null) {
+                            hideLoading();
+                            $('#@(_viewID) a').remove();
+                            $('div').text(data.message)
+                                .appendTo($('#@(_viewID)'));
+                        } @*else if (turn >= 360) {
+                            hideLoading();
+                            $('#@(_viewID) a').remove();
+                            $('div').text('下載錯誤...')
+                                .appendTo($('#@(_viewID)'));
+                        }*@ else {
+                            if (data.progressCount > 0 && data.totalCount > 0) {
+                                $('#@(_viewID) label.progress').text(data.progressCount + '/' + data.totalCount);
+                            }
+                            turn++;
+                            setTimeout(checkResource, 5000);
+                        }
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+            }
+
+            //showLoading();
+            setTimeout(checkResource, 5000);
+
+        });
+    </script>
+</div>
+
+
+

@@ -1,0 +1,80 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    OrganizationViewModel _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+}
+
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "編輯營業人資料");}
+
+<form id="editItem">
+    @{ await Html.RenderPartialAsync("~/Views/Organization/Module/ItemForm.cshtml", _model);}
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <td class="Bargain_btn" align="center">
+                            <button type="button" onclick="$global.commitOrganization();" name="UpdateButton" class="btn">確定</button>
+                            &nbsp;
+                            <input name="Reset" type="reset" class="btn" value="重填" />
+                            @*<asp:Button ID="Config_btn" runat="server" CausesValidation="True" CssClass="btn"
+                                Text="下載設定檔" OnClick="Config_btn_Click" />*@
+                            @*@if (_viewModel.CompanyID.HasValue)
+                                    {
+                                <input type="button" class="btn" name="btnDownloadConfig" value="下載設定檔" />
+                                }*@
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        $global.commitOrganization = function () {
+            $form = $('#editItem');
+            var $formData = $form.serializeObject();
+            $formData.CustomNotification = $('<div>').text($formData.CustomNotification).html();
+            showLoading();
+            $.post('@Html.Raw(Url.Action("CommitItem","Organization",new { _viewModel.KeyID }))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        if (confirm('資料已儲存，是否關閉？')) {
+                            $global.removeTab('editOrganization');
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body'));
+                }
+            });
+        };
+    });
+</script>
+

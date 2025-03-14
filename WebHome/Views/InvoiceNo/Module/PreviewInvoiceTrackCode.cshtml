@@ -1,0 +1,90 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using WebHome.Controllers.TrackCodeNo
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+    ModelSource<InvoiceItem> models;
+    IEnumerable< UploadInvoiceTrackCodeModel> _model = this.Model as IEnumerable<UploadInvoiceTrackCodeModel>;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+}
+
+@if(_model!=null)
+{
+    <div class="border_gray" id="queryResult">
+        <table class="table table-striped itemList">
+            <thead>
+                <tr>
+                    <th style="min-width: 100px">營業人統一編號</th>
+                    <th style="min-width: 100px">發票年度</th>
+                    <th style="min-width: 100px">月份</th>
+                    <th style="min-width: 80px">字軌</th>
+                    <th style="min-width: 160px">發票號碼起</th>
+                    <th style="min-width: 160px">發票號碼迄</th>
+                    <th style="min-width: 150px"></th>
+                </tr>
+            </thead>
+            @{
+                foreach (var item in _model)
+                {
+                    await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/EditInvoiceTrackCodeNo.cshtml", item);
+                }
+            }
+        </table>
+        @if (_model.Any(t => t.Message == null))
+        {
+            <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td class="Bargain_btn">
+                        <button type="button" class="btn" name="btnCommit" onclick="commitItems();">確定上傳</button>
+                    </td>
+                </tr>
+            </table>
+            <script>
+
+                function commitItems() {
+                    var event = event || window.event;
+
+                    var $formData = $('#queryResult').find('input,select,textarea').serializeObject();
+                    clearErrors();
+                    showLoading();
+                    $.post('@(Url.Action("CommitUpload", "InvoiceNo"))', $formData, function (data) {
+                        hideLoading();
+                        if ($.isPlainObject(data)) {
+                            if (data.result) {
+
+                            } else {
+                                alert(data.message);
+                            }
+                        } else {
+                            var $parent = $('#queryResult').parent();
+                            $('#queryResult').remove();
+                            $parent.append(data);
+                        }
+                    });
+                }
+            </script>
+        }
+    </div>
+}
+
+
+
+

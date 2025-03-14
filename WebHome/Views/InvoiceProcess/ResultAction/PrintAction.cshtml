@@ -1,0 +1,43 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@{
+    InquireInvoiceViewModel _viewModel;
+    _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+}
+@if (_viewModel != null)
+{
+    if (_viewModel.ProcessType == Naming.InvoiceProcessType.C0401)
+    {
+        <div>
+            <button type="button" class="btn" name="paperStyle" value="A4" onclick="uiInvoiceQuery.print('A4');">A4格式列印</button>
+            (列印兌獎訊息：<input name="printBack" type="radio" value="true" />是
+            <input name="printBack" type="radio" value="false" />否)
+            <input type="button" class="btn" name="btnPrint" value="熱感紙規格列印" onclick="uiInvoiceQuery.print('POS');" />
+            (列印買受人地址：<input name="printBuyerAddr" type="radio" value="true" />是
+            <input name="printBuyerAddr" type="radio" value="false" />否，縮放比例：<input type="text" name="Zoom" size="1" value="@(WebHome.Properties.AppSettings.Default.Zoom)" />%)
+            @if (_viewModel.BuyerReceiptNo == "!0000000000")
+            {
+                <button type="button" class="btn" name="paperStyle" value="A4" onclick="uiInvoiceQuery.print('A4',@((int)Naming.InvoiceProcessType.A0401));">B2B格式列印</button>
+            }
+        </div>
+    }
+    else if (_viewModel.ProcessType == Naming.InvoiceProcessType.A0401)
+    {
+        <button type="button" class="btn" name="paperStyle" value="A4" onclick="uiInvoiceQuery.print('A4',@((int)Naming.InvoiceProcessType.A0401));">A4格式列印</button>
+    }
+}
+
+
+
+
+

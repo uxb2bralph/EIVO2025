@@ -1,0 +1,86 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+@using System.Web
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using ModelCore.DataExchange
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using CommonLib.DataAccess
+@using ModelCore.Helper
+@using Newtonsoft.Json.Linq
+@using ClosedXML.Excel;
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    QueryViewModel? _viewModel = ViewBag.ViewModel as QueryViewModel;
+    if (_viewModel == null)
+    {
+        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<QueryViewModel>(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+    var Response = Context.Response;
+    Response.ContentType = "text/plain";
+
+    switch (_viewModel?.KeyID)
+    {
+        case "InvoiceBuyer":
+            var exchange = new InvoiceBuyerExchange();
+            using (XLWorkbook xls = exchange.GetSample())
+            {
+                await xls.SaveAsExcelAsync(Response, $"attachment;filename={HttpUtility.UrlEncode("修改買受人資料")}.xlsx");
+            }
+            break;
+
+        case "TrackCode":
+            var tracodeSample = new TrackCodeExchange();
+            using (XLWorkbook xls = tracodeSample.GetSample())
+            {
+                await xls.SaveAsExcelAsync(Response, $"attachment;filename={HttpUtility.UrlEncode("發票字軌資料")}.xlsx");
+            }
+            break;
+
+        case "WinningNo":
+            DataTable table = new DataTable();
+            table.Columns.Add(new DataColumn("期別", typeof(String)));
+            table.Columns.Add(new DataColumn("字軌", typeof(String)));
+            table.Columns.Add(new DataColumn("號碼", typeof(String)));
+            table.Columns.Add(new DataColumn("中獎獎別", typeof(String)));
+            table.Columns.Add(new DataColumn("中獎獎金", typeof(int)));
+
+            DateTime sampleDate = (new DateTime(DateTime.Today.Year, (DateTime.Today.Month + 1) / 2 * 2, 1)).AddMonths(-2);
+            var row = table.NewRow();
+            row[0] = $"{sampleDate.Year - 1911:000}{sampleDate.Month:00}";
+            row[1] = "XX";
+            row[2] = "01234567";
+            row[3] = "D";
+            row[4] = "500";
+
+            table.Rows.Add(row);
+
+            using (DataSet ds = new DataSet())
+            {
+                table.TableName = "中獎清冊";
+                ds.Tables.Add(table);
+
+                using var xls = ds.ConvertToExcel();
+                await xls.SaveAsExcelAsync(Response, $"attachment;filename={HttpUtility.UrlEncode("WinningSample")}.xlsx");
+            }
+            break;
+    }
+
+    await Response.CompleteAsync();
+}

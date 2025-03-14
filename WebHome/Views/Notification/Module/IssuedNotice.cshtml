@@ -1,0 +1,60 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+@using ModelCore.Helper
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+
+}
+<p>
+    若您對此發票內容或消費有任何疑問，請連絡@(_model.Organization.CompanyName)
+    @if (_model.Organization.OrganizationExtension?.CustomNotification != null)
+    {
+        Write(new HtmlString(System.Web.HttpUtility.HtmlDecode(_model.Organization.OrganizationExtension?.CustomNotification)));
+    }
+    else if (!String.IsNullOrEmpty(_model.Organization.OrganizationExtension.BusinessContactPhone))
+    {
+        <text>(@(_model.Organization.OrganizationExtension.BusinessContactPhone))</text>
+    }
+    else if (!String.IsNullOrEmpty(_model.Organization.ContactEmail))
+    {
+        <text>(@(_model.Organization.ContactEmail))</text>
+    }
+    。
+</p>
+@if (_model.Organization.OrganizationSettings.Any(s => s.Settings == "AllowPrintAll"))
+{
+    <p>
+        列印電子發票證明聯請<a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("GetPrint","IndividualProcess",new { KeyID = _model.InvoiceID.EncryptKey() })}")">按此</a>。
+    </p>
+}
+<p class="red">
+    ※本信件為電子發票開立通知無法進行兌領獎。
+</p>
+<p class="red">
+    ※本電子信箱為加值中心系統代原消費公司發送通知使用亦請勿直接回覆
+</p>

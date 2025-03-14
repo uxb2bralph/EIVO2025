@@ -1,0 +1,105 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+@using System.Web
+@using System.Xml
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Http
+
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using ModelCore.DataExchange
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using CommonLib.DataAccess
+@using ModelCore.Helper
+@using ModelCore.InvoiceManagement 
+@using Newtonsoft.Json.Linq
+@using ClosedXML.Excel;
+@functions
+{
+    ModelStateDictionary? _modelState;
+    ModelSource<InvoiceItem>? models;
+    DocumentQueryViewModel? _viewModel;
+    HttpResponse Response;
+
+
+}
+
+@{
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _viewModel = ViewBag.ViewModel as DocumentQueryViewModel;
+    if (_viewModel == null)
+    {
+        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]!).PrepareViewModelAsync<DocumentQueryViewModel>(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+
+    Response = Context.Response;
+    Response.Clear();
+    Response.ContentType = "text/xml";
+
+    if (_viewModel?.LogID.HasValue == true)
+    {
+        using (InvoiceManager mgr = new InvoiceManager())
+        {
+            var item = mgr.GetTable<ExceptionLog>().Where(e => e.LogID == _viewModel.LogID).FirstOrDefault();
+            if (item != null)
+            {
+                if (item.IsCSV == true)
+                {
+                    Response.ContentType = "text/plain";
+                    await Response.WriteAsync(item.DataContent);
+                }
+                else
+                {
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(item.DataContent);
+                    if (doc.ChildNodes[1]?.Name.Contains("Root") == true)
+                    {
+                        XmlWriter xtw = XmlWriter.Create(Response.Body, new XmlWriterSettings { Async = true });
+                        //xtw.Settings.Indent = true;
+                        xtw.WriteStartDocument(true);
+                        switch ((Naming.DocumentTypeDefinition?)item.TypeID)
+                        {
+                            case Naming.DocumentTypeDefinition.E_Invoice:
+                                xtw.WriteStartElement("Invoice");
+                                break;
+                            case Naming.DocumentTypeDefinition.E_InvoiceCancellation:
+                                xtw.WriteStartElement("CancelInvoice");
+                                break;
+                            case Naming.DocumentTypeDefinition.E_Allowance:
+                                xtw.WriteStartElement("Allowance");
+                                break;
+                            case Naming.DocumentTypeDefinition.E_AllowanceCancellation:
+                                xtw.WriteStartElement("CancelAllowance");
+                                break;
+                            default:
+                                xtw.WriteStartElement("Undefined");
+                                break;
+                        }
+                        doc.DocumentElement?.WriteContentTo(xtw);
+                        xtw.WriteEndElement();
+                        await xtw.FlushAsync();
+                        //xtw.Close();
+                    }
+                    else
+                    {
+                        Response.ContentType = "text/xml; charset=UTF-8";
+                        await Response.WriteAsync(doc.OuterXml);
+                    }
+                }
+            }
+        }
+    }
+
+    //await Response.CompleteAsync();
+}

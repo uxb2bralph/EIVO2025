@@ -1,0 +1,316 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    char[] _totalAmtChar = null;
+
+    InvoiceProductItem[] _products = null;
+    int _itemIdx;
+    int _pageCount = 0;
+
+    int __FIRST_PAGE_ITEM_COUNT = 14;
+    const int __PAGE_ITEM_COUNT = 18;
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+
+
+    if (_model != null)
+    {
+        __FIRST_PAGE_ITEM_COUNT = _model.Organization.LogoURL != null ? 12 : 14;
+
+        _products = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
+            .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+            .Join(models.GetTable<InvoiceProductItem>(), d => d.ProductID, i => i.ProductID, (p, i) => i)
+            .OrderBy(i => i.ItemID).ToArray();
+
+        if (_products.Length == 0)
+        {
+            _products = _model.InvoiceDetails.SelectMany(d => d.InvoiceProduct.InvoiceProductItem).ToArray();
+        }
+
+        _pageCount = _products.Length > __FIRST_PAGE_ITEM_COUNT
+                ? (_products.Length + (__PAGE_ITEM_COUNT - __FIRST_PAGE_ITEM_COUNT) + __PAGE_ITEM_COUNT - 1) / __PAGE_ITEM_COUNT
+                : 1;
+
+        if (_model.InvoiceAmountType.TotalAmount >= 100000000)
+        {
+            _totalAmtChar = ((int)_model.InvoiceAmountType.TotalAmount.Value).GetChineseNumberSeries(9);
+        }
+        else
+        {
+            _totalAmtChar = ((int?)_model.InvoiceAmountType.TotalAmount ?? 0).GetChineseNumberSeries(8);
+        }
+
+    }
+}
+@if (_model != null)
+{
+    <div class="Invo_page" style="page-break-after: always; /*width: 23cm;*/">
+        <!-- 列印頁面 -->
+        <div class="pageOne" style="max-height:27cm;overflow-y:auto;">
+            @{
+                String height = "height: 17cm;";
+                if (_model.Organization.EnglishName != null)
+                {
+                    height = "height: 14.5cm;";
+                    <div class="title" style="padding: 0px;">
+                        <div style="  text-align: left;    margin-left: 20px;    font-size: xx-large;    font-family: serif;font-weight:bolder">
+                            @if (_model.Organization.LogoURL != null)
+                            {
+                                <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Organization.LogoURL))' />
+                            }
+                            else
+                            {
+                                <text>@(_model.Organization.EnglishName)</text>
+                            }
+                        </div>
+                        <div style="margin-top: -20px;font-size: 20px;font-weight: bold;">
+                            @(_model.Organization.CompanyName)
+                        </div>
+                    </div>
+                }
+                else if (_model.Organization.LogoURL != null)
+                {
+                    height = "height: 14.5cm;";
+                    <div class="title">
+                        <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Organization.LogoURL))' />
+                    </div>
+                }
+                else
+                {
+
+                }
+            }
+            <h2 style="padding-top:5px;">電子發票證明聯</h2>
+            @if (_model.InvoiceCancellation != null)
+            {
+                <p style="padding-top: 0; color: red; text-align: center; font-size: xx-large;">(作廢)</p>
+            }
+            <p class="text-center">@(String.Format("{0:yyyy-MM-dd}", _model.InvoiceDate))</p>
+            <div class="invoice_data">
+                <p>
+                    發票號碼：@(_model.TrackCode)@(_model.No)
+                    <span class="fright">
+                        @(_model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4
+                            ? "不得扣抵"
+                            : String.Format("格式 {0}", ((int)_model.InvoiceType.Value).InvoiceTypeToFormat()))
+                    </span>
+                </p>
+                <p>買　　方：@(_model.InvoiceBuyer.IsB2C() ? null : _model.InvoiceBuyer.CustomerName)</p>
+                <p>統一編號：@(_model.InvoiceBuyer.IsB2C() ? null : _model.InvoiceBuyer.ReceiptNo)</p>
+                <p>地　　址：@(_model.InvoiceBuyer.IsB2C() ? null : _model.InvoiceBuyer.Address)</p>
+                <p class="text-right">第 1 頁/共 @(_pageCount) 頁</p>
+            </div>
+            <table width="100%" border="0" cellpadding="0" cellspacing="0" class="tableMain" style="@(height) /*width: 23cm;*/">
+                <tbody>
+                    <tr>
+                        <td valign="top" height="100%">
+                            <table height="100%" border="0" cellpadding="0" cellspacing="0" class="item_list_left" width="100%">
+                                <tr>
+                                    <th align="center">品名</th>
+                                    <th width="40" align="center">數量</th>
+                                    <th width="100" align="center">單價</th>
+                                    <th width="140" align="center">金額</th>
+                                    <th width="200" align="center">備註</th>
+                                </tr>
+                                @for (_itemIdx = 0; _itemIdx < __FIRST_PAGE_ITEM_COUNT && _itemIdx < _products.Length; _itemIdx++)
+                                {
+                                    var prodItem = _products[_itemIdx];
+                                    var product = prodItem.InvoiceProduct;
+                                    <tr>
+                                        <td>
+                                            @if (product.Brief?.IndexOf('\n') >= 0)
+                                            {
+                                                <div style="overflow-wrap: anywhere;">@Html.Raw(product.Brief.Replace("\r\n", "<br/>"))</div>
+                                            }
+                                            else
+                                            {
+                                                <span style="overflow-wrap: anywhere;">@Html.Raw(product.Brief)</span>
+                                            }
+                                        </td>
+                                        <td align="right">@(String.Format("{0:##,###,###,##0.##}", prodItem.Piece))</td>
+                                        <td align="right">@(String.Format("{0:##,###,###,##0.##}", prodItem.UnitCost))</td>
+                                        <td align="right">@(String.Format("{0:##,###,###,##0.##}", prodItem.CostAmount))</td>
+                                        <td>
+                                            @if (_itemIdx == 0 && _model.Organization.ReceiptNo == "80279131")
+                                            {
+                                                <span style="font-weight: bolder; font-size:large;">更正發票請於收到發票後5日內辦理逾期恕不受理</span>
+                                            }
+                                            @(prodItem.Remark)
+                                        </td>
+                                    </tr>
+                                }
+                                <!-- 最後一列不能刪-撐高table用 -->
+                                @if (_itemIdx == __FIRST_PAGE_ITEM_COUNT)
+                                {
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td valign="top">@(_model.Remark)</td>
+                                    </tr>
+                                    <!-- 最後一列不能刪-撐高table用 -->
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td height="100%">&nbsp;</td>
+                                        <td height="100%">&nbsp;</td>
+                                        <td height="100%">&nbsp;</td>
+                                        <td height="100%">&nbsp;</td>
+                                        <td height="100%" valign="top">@(_model.Remark)</td>
+                                    </tr>
+                                    <!-- 最後一列不能刪-撐高table用 -->
+                                }
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table width="100%" border="0" cellpadding="0" cellspacing="0" class="total" @*style="width: 23cm;"*@>
+                <tr>
+                    <td colspan="7">銷售額合計</td>
+                    <td width="130" align="right"><strong>@(String.Format("{0:##,###,###,##0.##.}", _model.InvoiceAmountType.SalesAmount ?? _model.InvoiceAmountType.FreeTaxSalesAmount ?? _model.InvoiceAmountType.ZeroTaxSalesAmount))</strong></td>
+                    <td width="155" align="center">營業人蓋統一發票專用章</td>
+                </tr>
+                <tr>
+                    <td>營業稅</td>
+                    <td align="center">應稅</td>
+                    <td align="center">@(_model.InvoiceAmountType.TaxType == (byte)1 ? "V" : "")</td>
+                    <td align="center">零稅率</td>
+                    <td align="center">@(_model.InvoiceAmountType.TaxType == (byte)2 ? "V" : "")</td>
+                    <td align="center">免稅</td>
+                    <td align="center">@(_model.InvoiceAmountType.TaxType == (byte)3 ? "V" : "")</td>
+                    <td width="130" align="right"><strong>@(String.Format("{0:##,###,###,##0.##.}", _model.InvoiceAmountType.TaxAmount))</strong></td>
+                    <td width="155" rowspan="3" align="center">
+                        <div class="eivo_stamp">
+                            @(_model.InvoiceSeller.CustomerName)<br />
+                            統一編號<br />
+                            <div class="notitle">@(_model.InvoiceSeller.ReceiptNo)</div>
+                            @(_model.InvoiceSeller.Address)<br />
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7">總計</td>
+                    <td width="130" align="right"><strong>@(String.Format("{0:##,###,###,##0.##.}", _model.InvoiceAmountType.TotalAmount))</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="8">
+                        總計新台幣
+                        <br />
+                        (中文大寫)
+                        @if (_totalAmtChar.Length > 8)
+                        {
+                            <span class="totalno">
+                                @(_totalAmtChar[8])億@(_totalAmtChar[7])仟@(_totalAmtChar[6])佰@(_totalAmtChar[5])拾@(_totalAmtChar[4])萬@(_totalAmtChar[3])仟@(_totalAmtChar[2])佰@(_totalAmtChar[1])拾@(_totalAmtChar[0]) 元 整
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="totalno">
+                                @(_totalAmtChar[7]) 仟
+                                @(_totalAmtChar[6]) 佰
+                                @(_totalAmtChar[5]) 拾
+                                @(_totalAmtChar[4]) 萬
+                                @(_totalAmtChar[3]) 仟
+                                @(_totalAmtChar[2]) 佰
+                                @(_totalAmtChar[1]) 拾
+                                @(_totalAmtChar[0]) 元 整
+                            </span>
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+        @{
+            int pageNum = 1;
+        }
+        @while (_itemIdx < _products.Length)
+        {
+            pageNum++;
+            <div class="pageTwo" style="page-break-after: always">
+                @*<div class="title">
+                        <img src="images/chc_logo.gif" width="403" height="51">
+                    </div>*@
+                <h2 class="text-left">交易明細 (續)</h2>
+                <p class="text-center">@(String.Format("{0:yyyy-MM-dd}", _model.InvoiceDate))</p>
+                <div class="invoice_data">
+                    <p>發票號碼：@(_model.TrackCode)@(_model.No)</p>
+                    <p class="text-right">第 @(pageNum) 頁/共 @(_pageCount) 頁</p>
+                </div>
+                <table width="100%" border="0" cellpadding="0" cellspacing="0" class="tableMain" style="height: 22.5cm; /*width: 23cm;*/">
+                    <tbody>
+                        <tr>
+                            <td valign="top" height="100%">
+                                <table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0" class="item_list_left">
+                                    <tr>
+                                        <th align="center">品名</th>
+                                        <th width="80" align="center">數量</th>
+                                        <th width="100" align="center">單價</th>
+                                        <th width="140" align="center">金額</th>
+                                        <th width="165" align="center">備註</th>
+                                    </tr>
+                                    @for (int idx = 0; idx < __PAGE_ITEM_COUNT && _itemIdx < _products.Length; idx++, _itemIdx++)
+                                    {
+                                        var prodItem = _products[_itemIdx];
+                                        var product = prodItem.InvoiceProduct;
+                                        <tr>
+                                            <td>
+                                                @if (product.Brief?.IndexOf('\n') >= 0)
+                                                {
+                                                    <div style="overflow-wrap: anywhere;">@Html.Raw(product.Brief.Replace("\r\n", "<br/>"))</div>
+                                                }
+                                                else
+                                                {
+                                                    <span style="overflow-wrap: anywhere;">@Html.Raw(product.Brief)</span>
+                                                }
+                                            </td>
+                                            <td align="right">@(String.Format("{0:##,###,###,##0.##}", prodItem.Piece))</td>
+                                            <td align="right">@(String.Format("{0:##,###,###,##0.##}", prodItem.UnitCost))</td>
+                                            <td align="right">@(String.Format("{0:##,###,###,##0.##}", prodItem.CostAmount))</td>
+                                            <td>@(prodItem.Remark)</td>
+                                        </tr>
+                                    }
+                                    <!-- 最後一列不能刪-撐高table用 -->
+                                    <tr>
+                                        <td height="100%">&nbsp;</td>
+                                        <td height="100%">&nbsp;</td>
+                                        <td height="100%">&nbsp;</td>
+                                        <td height="100%">&nbsp;</td>
+                                        <td height="100%">&nbsp;</td>
+                                    </tr>
+                                    <!-- 最後一列不能刪-撐高table用 -->
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+        <!-- 列印頁面 -->
+    </div>
+}
+
+

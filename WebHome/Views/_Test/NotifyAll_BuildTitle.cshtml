@@ -1,0 +1,43 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    DocumentQueryViewModel _viewModel = new DocumentQueryViewModel();
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+    ViewBag.ViewModel = _viewModel;
+
+}
+<p>親愛的客戶：</p>
+<p>&nbsp;</p>
+<pre>
+    您收到如下的電子發票開立通知,係mail server錯誤發送所致,敬請忽略。
+    Don’t file the same e-GUIs to Tax Office twice
+    (請勿提交重複的電子發票)
+    造成不便之處,尚祈見諒。感謝!
+</pre>
+
+
+

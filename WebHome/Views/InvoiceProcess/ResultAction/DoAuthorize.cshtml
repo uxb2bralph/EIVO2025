@@ -1,0 +1,45 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+    <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td >
+                <button type="button" class="btn" name="btnAuthorize" onclick="uiInvoiceQuery.authorize();">核准列印</button>
+            </td>
+        </tr>
+    </table>
+
+
+    <script>
+        window.uiInvoiceQuery.authorize = function () {
+            if (!$('input[name="chkItem"]').is(':checked')) {
+                alert('請選擇核准重印資料!!');
+                return false;
+            }
+
+            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+            $formData = {
+                ...$formData,
+                ...$('#queryResult').find('input,select,textarea').serializeObject(),
+            };
+
+            doPost('@(Url.Action("AuthorizeToPrint", "InvoiceProcess"))', $formData, function (data) {
+                var $data = $(data);
+                $('body').append($data);
+                $data.remove();
+            });
+
+        };
+
+
+    </script>
+

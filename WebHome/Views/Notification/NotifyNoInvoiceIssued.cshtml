@@ -1,0 +1,62 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    if (_viewModel == null)
+    {
+        _viewModel = new InquireInvoiceViewModel();
+        ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+
+    _viewModel.DateFrom = DateTime.Today.AddDays(-1);
+    _viewModel.DateTo = DateTime.Today;
+
+    var items = models.GetTable<InvoiceItem>()
+                    .Where(i => i.InvoiceDate >= _viewModel.DateFrom)
+                    .Where(i => i.InvoiceDate < _viewModel.DateTo);
+
+    var orgItems = models.GetTable<Organization>()
+                            .Where(o => !o.OrganizationExtension.ExpirationDate.HasValue)
+                            .Where(o => models.GetTable<InvoiceItem>().Any(i => i.SellerID == o.CompanyID));
+
+    if (_viewModel.ReceiptNo?.Length > 0)
+    {
+        orgItems = orgItems.Where(o => o.ReceiptNo == _viewModel.ReceiptNo);
+    }
+
+    foreach (var item in orgItems)
+    {
+        if ((item.OrganizationStatus?.InvoiceNoticeSetting & (int)Naming.InvoiceNoticeStatus.NoInvoiceIssued) > 0
+            && !items.Any(i => i.SellerID == item.CompanyID))
+        {
+            <pre>@(item.ReceiptNo)</pre>
+            await Html.RenderPartialAsync("~/Views/Notification/IssueNoInvoice.cshtml", item);
+        }
+    }
+}
+

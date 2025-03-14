@@ -1,0 +1,113 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Helper
+
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using WebHome.Helper
+@{
+    UserProfileViewModel _viewModel;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile;
+    UserProfile _model = this.Model as UserProfile;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (UserProfileViewModel)ViewBag.ViewModel;
+    _profile = Context.GetUser();
+}
+
+<table class="table table-striped">
+    <tr>
+        <th width="20%">
+            <font color="red">*</font>會　　員
+        </th>
+        <td colspan="2" class="tdleft">
+            @{
+                @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new SellerSelectorViewModel { FieldName = "EncSellerID", Encrypt = true, SellerID = _model?.UserRole.FirstOrDefault()?.OrganizationCategory.CompanyID }));
+            }
+        </td>
+    </tr>
+    <tr>
+        <th width="20%">
+            <font color="red">*</font>帳　　號
+        </th>
+        <td colspan="2" class="tdleft">
+            <input class="form-control" name="PID" type="text" placeholder="" value="@(_viewModel.PID)" />
+            <input type="hidden" name="KeyID" value="@(_viewModel.KeyID)" />
+        </td>
+    </tr>
+    <tr>
+        <th width="20%">
+            <font color="red">*</font>姓　　名
+        </th>
+        <td colspan="2" class="tdleft">
+            <input class="form-control" name="UserName" type="text" placeholder="" value="@(_viewModel.UserName)" />
+        </td>
+    </tr>
+    @{ 
+        await Html.RenderPartialAsync("~/Views/UserProfile/Module/ChangePass.cshtml");
+    }
+    <tr>
+        <th width="20%">
+            <font color="red">*</font>常用電子郵件
+        </th>
+        <td colspan="2" class="tdleft">
+            <input class="form-control" name="EMail" type="text" placeholder="" value="@(_viewModel.EMail)" />
+        </td>
+    </tr>
+    <tr>
+        <th width="20%">
+            <font color="red">*</font>住　　址
+        </th>
+        <td colspan="2" class="tdleft">
+            <input class="form-control" name="Address" type="text" placeholder="" value="@(_viewModel.Address)" />
+        </td>
+    </tr>
+    <tr>
+        <th width="20%">
+            電話（日）
+        </th>
+        <td colspan="2" class="tdleft">
+            <input class="form-control" name="Phone" type="text" placeholder="" value="@(_viewModel.Phone)" />
+        </td>
+    </tr>
+    <tr>
+        <th width="20%">
+            電話（夜）
+        </th>
+        <td colspan="2" class="tdleft">
+            <input class="form-control" name="Phone2" type="text" placeholder="" value="@(_viewModel.Phone2)" />
+        </td>
+    </tr>
+    <tr>
+        <th width="20%">
+            行動電話
+        </th>
+        <td colspan="2" class="tdleft">
+            <input class="form-control" name="MobilePhone" type="text" placeholder="" value="@(_viewModel.MobilePhone)" />
+        </td>
+    </tr>
+    <tr>
+        <th width="20%">
+            身份設定
+        </th>
+        <td colspan="2" class="tdleft">
+            <select name="RoleID" class="form-control">
+                <option value="@((int)Naming.RoleID.ROLE_SELLER)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.ROLE_SELLER)">營業人</option>
+                <option value="@((int)Naming.RoleID.資料稽核員)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.資料稽核員)">資料稽核員</option>
+                @if (_profile.IsSystemAdmin())
+                {
+                    <option value="@((int)Naming.RoleID.ROLE_SYS)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.ROLE_SYS)">平台系統管理員</option>
+                }
+            </select>
+        </td>
+    </tr>
+</table>
+
+
+

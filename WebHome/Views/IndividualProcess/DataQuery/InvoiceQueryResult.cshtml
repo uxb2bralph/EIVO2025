@@ -1,0 +1,129 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using System.Xml
+
+@using Newtonsoft.Json
+
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = this.Model as InvoiceItem;
+
+    String _viewID = $"Q{DateTime.Now.Ticks}";
+
+}
+<div id="@(_viewID)">
+    @if (_model == null)
+    {
+        <text>查無發票開立資料</text>
+    }
+    else
+    {
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票");
+    <div class="border_gray">
+        @{
+            if (_viewModel.BuyerName != null || _viewModel.RandomNo != null)
+            {
+                await Html.RenderPartialAsync("~/Views/DataView/Module/Invoice.cshtml", _model);
+                if (!_model.InvoiceBuyer.IsB2C() || _model.Organization.OrganizationSettings.Any(s => s.Settings == "AllowPrintAll"))
+                {
+                    <div>
+                        <button type="button" class="btn btnPrint" onclick="$('').launchDownload('@Url.Action("PrintSingleInvoiceAsPDF", "DataView",
+                               new RenderStyleViewModel
+                               {
+                                   CreateNew = true,
+                                   PaperStyle = "A4",
+                                   PrintCuttingLine = false,
+                                   ProcessType = Naming.InvoiceProcessType.C0401,
+                                   UseCustomView = true,
+                               })', { 'keyID':'@Html.Raw(_model.InvoiceID.EncryptKey())'});">下載發票PDF</button>
+                        @if (_model.CDS_Document.Attachment.Count > 0)
+                        {
+                            <button type="button" class="btn" onclick="$('').launchDownload('@Url.Action("DownloadInvoiceAttachment", "InvoiceQuery")', { 'keyID':'@Html.Raw(_model.InvoiceID.EncryptKey())'});">下載附件檔</button>
+                        }
+                    </div>
+                }
+            }
+            else
+            {
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th style="white-space:nowrap;">
+                                開立人名稱
+                            </th>
+                            <td class="tdleft" style="white-space:nowrap;">
+                                @(_model.InvoiceSeller.CustomerName)
+                            </td>
+                            <th style="white-space:nowrap;">
+                                開立人統一編號
+                            </th>
+                            <td class="tdleft">
+                                @(_model.InvoiceSeller.ReceiptNo)
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="white-space:nowrap;">
+                                發票號碼
+                            </th>
+                            <td class="tdleft">
+                                @(_model.TrackCode + _model.No)
+                            </td>
+                            <th style="white-space:nowrap;">
+                                發票日期
+                            </th>
+                            <td class="tdleft">
+                                @(ValidityAgent.ConvertChineseDateString(_model.InvoiceDate.Value))
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+        }
+    </div>
+
+    }
+</div>
+<script>
+    $(function () {
+        $('#@(_viewID)').dialog({
+            width: 640,
+            buttons: [
+                {
+                    text: "關閉",
+                    icons: {
+                        primary: "ui-icon-close"
+                    },
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            ]
+        });
+    });
+</script>
+
+
+
+
+

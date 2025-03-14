@@ -1,0 +1,98 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+
+    //ProcessRequestQueryViewModel _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
+}
+@{
+    String _dialogID = ViewBag.DialogID ?? $"product{DateTime.Now.Ticks}";
+}
+
+<div class="border_gray" id="@(_dialogID)" style="display:none;">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="input-group">
+                <input class="form-control" name="ProductName" type="text" placeholder="品名搜尋" />
+                <span class="input-group-addon">
+                    <i class="fa fa-sort-desc" aria-hidden="true"></i>
+                </span>
+            </div>
+        </div>
+    </div>
+    <script>
+        debugger;
+        $(function () {
+            var $input = $('#@(_dialogID) [name="ProductName"]');
+                @*if ($input.autocomplete('instance')) {
+                    alert($input.autocomplete('instance'));
+                    return;
+                }*@
+            var products;
+            $input.autocomplete({
+                source: function (request, response) {
+                    showLoading();
+                    $.post('@Html.Raw(Url.Action("QuickSearch", "ProductCatalog"))', { 'productName': request.term }, function (data) {
+                        hideLoading();
+                        if ($.isArray(data)) {
+                            products = data;
+                            var items = Enumerable.From(products).Select(
+                                function (p) {
+                                    return { 'label': p.ProductName, 'value': p.ProductID };
+                                }).ToArray();
+                            response(items);
+                        } else {
+                            response([]);
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    var product = Enumerable.From(products).Where(
+                        function (p) {
+                            return p.ProductID == ui.item.value;
+                        }).FirstOrDefault();
+                    if ($global.searchDone && product) {
+                        $global.searchDone(product);
+                    }
+                    event.preventDefault();
+                    $('#@(_dialogID)').dialog('close');
+                },
+                close: function (event, ui) {
+                    if ($input.val() == '') {
+                    }
+                },
+                open: function (event, ui) {
+                    $('.ui-autocomplete').css('z-index', 9999);
+                },
+            });
+
+            $('#@(_dialogID) .input-group-addon').on('click', function (event) {
+                $input.autocomplete('search', '*');
+            });
+        });
+    </script>
+</div>

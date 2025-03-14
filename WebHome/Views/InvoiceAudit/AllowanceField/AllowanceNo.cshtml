@@ -1,0 +1,88 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+@{
+    Naming.FieldDisplayType? displayType = (Naming.FieldDisplayType?)ViewBag.DisplayType;
+}
+@switch (displayType)
+{
+    case Naming.FieldDisplayType.Header:
+        <a href="javascript:void(0);" onclick="$inquiryAgent.sort('AllowanceNo',this);">折讓單號碼</a>
+        break;
+    case Naming.FieldDisplayType.DataItem:
+        InvoiceAllowance item = this.Model as InvoiceAllowance;
+        <text><a onclick="javascript:showAllowanceModalByKeyID('@(item.AllowanceID.EncryptKey())');">@(item.AllowanceNumber)</a></text>
+        break;
+    case Naming.FieldDisplayType.SortBy:
+        InquireInvoiceViewModel viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+        if (viewModel.SortName != null)
+        {
+            int idx = System.Array.IndexOf(viewModel.SortName, "AllowanceNo");
+            if (idx >= 0)
+            {
+                if (viewModel.SortType[idx] == (int)Naming.SortType.ASC)
+                {
+                    if (TempData["SortedItems"] != null)
+                    {
+                        TempData["SortedItems"] = ((IOrderedQueryable<InvoiceAllowance>)TempData["SortedItems"]).ThenBy(p => p.AllowanceNumber);
+                    }
+                    else
+                    {
+                        TempData["SortedItems"] = ((IQueryable<InvoiceAllowance>)this.Model).OrderBy(p => p.AllowanceNumber);
+                    }
+                }
+                else if (viewModel.SortType[idx] == (int)Naming.SortType.DESC)
+                {
+                    if (TempData["SortedItems"] != null)
+                    {
+                        TempData["SortedItems"] = ((IOrderedQueryable<InvoiceAllowance>)TempData["SortedItems"]).ThenByDescending(p => p.AllowanceNumber);
+                    }
+                    else
+                    {
+                        TempData["SortedItems"] = ((IQueryable<InvoiceAllowance>)this.Model).OrderByDescending(p => p.AllowanceNumber);
+                    }
+                }
+            }
+        }
+        break;
+    case Naming.FieldDisplayType.Query:
+        <tr>
+            <th>發票／折讓單號碼</th>
+            <td class="tdleft">
+                <input name="DataNo" type="text" class="form-control" value="@( _viewModel?.DataNo )" />
+            </td>
+        </tr>
+        break;
+    default:
+        break;
+}
+
+

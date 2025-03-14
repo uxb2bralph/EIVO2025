@@ -1,0 +1,57 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using WebHome.Controllers
+@using WebHome.Helper
+@{
+    ModelSource<InvoiceItem> models;
+    IEnumerable<InvoiceItem> _model;
+    InvoiceItem _item;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IEnumerable<InvoiceItem>)this.Model;
+    _item = _model.First();
+}
+
+<tr>
+    <td>
+        <input name="DeliveryDate" class="form_date" type="text" data-package="@(_item.InvoiceID)" />
+    </td>
+    <td>@(_item.InvoiceBuyer.CustomerID)</td>
+    <td><pre>@(String.Join("\r\n", _model.Select(i => i.TrackCode + i.No)))</pre></td>
+    <td><input name="MailNo1" type="text" data-package="@(_item.InvoiceID)" />-<input name="MailNo2" type="text" data-package="@(_item.InvoiceID)" /></td>
+    <td>@(_item.InvoiceBuyer.ContactName)</td>
+    <td>@(_item.InvoiceBuyer.Address)</td>
+    <td>@(_item.InvoiceBuyer.ReceiptNo)</td>
+    <td>
+        <input name="PackageID" type="checkbox" value="@(_item.InvoiceID)" />(@_model.Count())
+    </td>
+    <td>@(((Naming.ChannelIDType?)_item.CDS_Document.ChannelID).ToString())</td>
+    <td>
+        @{
+            int pageCount = 0;
+            foreach (var item in _model)
+            {
+                pageCount += (item.InvoiceID.GetAttachedPdfPageCount(models));
+            }
+            if (pageCount > 0)
+            {
+                <text>@pageCount</text>
+            }
+        }
+    </td>
+    <td>
+        <div class="btn-group dropdown" data-toggle="dropdown">
+            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a class="btn" onclick="uiHandling.pack();">合併</a></li>
+                <li><a class="btn" onclick="uiHandling.unpack();">分開</a></li>
+            </ul>
+        </div>
+    </td>
+</tr>
+

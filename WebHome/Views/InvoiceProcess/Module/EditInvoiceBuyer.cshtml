@@ -1,0 +1,185 @@
+
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InvoiceBuyer _model;
+    InvoiceBuyerViewModel _viewModel;
+    String _dialogID = "buyer" + DateTime.Now.Ticks;
+
+
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = this.Model as InvoiceBuyer;
+    _viewModel = (InvoiceBuyerViewModel)ViewBag.ViewModel;
+
+}
+<div id="@(_dialogID)">
+
+    <div class="border_gray">
+        <table class="table table-striped itemList" cellspacing="0" cellpadding="0" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>發票號碼</th>
+                    <th>@($"{_model.InvoiceItem.TrackCode}{_model.InvoiceItem.No}")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.SimpleForm != true)
+                {
+                    <tr>
+                        <th>買受人名稱</th>
+                        <td>
+                            <input type="text" name="CustomerName" value="@(_viewModel.CustomerName)" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>買受人統編</th>
+                        <td>
+                            <input type="text" name="ReceiptNo" value="@(_viewModel.ReceiptNo)" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>顧客ID</th>
+                        <td>
+                            <input type="text" name="CustomerID" value="@(_viewModel.CustomerID)" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>EMail</th>
+                        <td>
+                            <input type="text" name="EMail" value="@(_viewModel.EMail)" />
+                        </td>
+                    </tr>
+                }
+                <tr>
+                    <th>連絡人名稱</th>
+                    <td>
+                        <input type="text" name="ContactName" value="@(_viewModel.ContactName)" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>連絡人電話</th>
+                    <td>
+                        <input type="text" name="Phone" value="@(_viewModel.Phone)" />
+                    </td>
+                </tr>
+                <tr>
+                    <th>連絡人地址</th>
+                    <td>
+                        <input type="text" name="Address" value="@(_viewModel.Address)" />
+                        <script>
+                            var $local = {};
+                            $(function () {
+                                $local.updateZipCode = function () {
+                                    var $addr = $('#@(_dialogID) input[name="Address"]');
+                                    var $postCode = $('#@(_dialogID) input[name="PostCode"]');
+                                    if ($addr.val() != '') {
+                                        $.get('http://zip5.5432.tw/zip5json.py?adrs=' + encodeURI($addr.val()), function (data) {
+                                            console.log(data);
+                                            $postCode.val(data.zipcode);
+                                        });
+                                    }
+                                };
+
+                                $('#@(_dialogID) input[name="Address"]').on('change', function (evt) {
+                                    $local.updateZipCode();
+                                });
+
+                                $('#@(_dialogID) input[name="PostCode"]').on('click', function (evt) {
+                                    $local.updateZipCode();
+                                });
+
+                            });
+
+                        </script>
+                    </td>
+                </tr>
+                <tr>
+                    <th>郵遞區號</th>
+                    <td>
+                        <input type="text" name="PostCode" value="@(_viewModel.PostCode)" />
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="text-align:center;">
+                        <input type="button" value="確定" class="btn" />
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+        $('#@(_dialogID)').dialog({
+            //autoOpen: false,
+            width: 'auto',
+            resizable: true,
+            //modal: true,
+            title: "<div class='modal-title'><h4><i class='fa fa-clock-o'></i> 編輯買受人資料</h4></div>",
+            buttons: [
+            ],
+            close: function (event, ui) {
+                $('#@(_dialogID)').remove();
+            }
+        });
+        $(function () {
+            $('#@(_dialogID) input:button[value="確定"]').on('click', function () {
+
+                var event = event || window.event;
+                var viewModel = @Html.Raw(_viewModel.JsonStringify());
+                var $formData = $.extend(viewModel, $('#@(_dialogID)').find('input,select,textarea').serializeObject());
+                clearErrors();
+
+                showLoading();
+                $.post('@(Url.Action("CommitInvoiceBuyer", ViewBag.SimpleForm == true ? "IndividualProcess" : "InvoiceProcess", new { DialogID = _dialogID }))', $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        if (data.result) {
+                            alert('作業完成!!');
+                            $('#@(_dialogID)').dialog("close");
+                            if (uiInvoiceQuery.refreshDataRow) {
+                                uiInvoiceQuery.refreshDataRow();
+                            }
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+            });
+
+            $('#@(_dialogID) input:button[value="關閉"]').on('click', function () {
+                $('#@(_dialogID)').dialog("close");
+            });
+
+            $('#@(_dialogID)').find('input,select,textarea').attr('data-role', '@(_dialogID)');
+        });
+    </script>
+
+</div>
+
+
+

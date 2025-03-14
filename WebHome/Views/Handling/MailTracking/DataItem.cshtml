@@ -1,0 +1,49 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using WebHome.Controllers
+@using WebHome.Helper
+@{
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+}
+<tr>
+    <td>
+        <input name="DeliveryDate" class="form_date" type="text" data-package="@(_model.InvoiceID)" />
+    </td>
+    <td>@(_model.InvoiceBuyer.CustomerID)</td>
+    <td>@(_model.TrackCode + _model.No)</td>
+    <td><input name="MailNo1" type="text" data-package="@(_model.InvoiceID)" />-<input name="MailNo2" type="text" data-package="@(_model.InvoiceID)" /></td>
+    <td>@(_model.InvoiceBuyer.ContactName)</td>
+    <td>@(_model.InvoiceBuyer.Address)</td>
+    <td>@(_model.InvoiceBuyer.ReceiptNo)</td>
+    <td>
+        <input name="PackageID" type="checkbox" value="@(_model.InvoiceID)" />
+    </td>
+    <td>@(((Naming.ChannelIDType?)_model.CDS_Document.ChannelID).ToString())</td>
+    <td>
+        @{
+            int pageCount = _model.InvoiceID.GetAttachedPdfPageCount(models);
+            if (pageCount > 0)
+            {
+                <text>@pageCount</text>
+            }
+        }
+    </td>
+    <td>
+        <div class="btn-group dropdown" data-toggle="dropdown">
+            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a class="btn" onclick="uiHandling.pack();">合併</a></li>
+                <li><a class="btn" onclick="uiHandling.delete(@(_model.PackageID));">刪除</a></li>
+            </ul>
+        </div>
+    </td>
+</tr>

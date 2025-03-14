@@ -1,0 +1,197 @@
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    BusinessCounterpartUploadManager _uploadMgr;
+
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    var profile = Context.GetUser();
+    _uploadMgr = (BusinessCounterpartUploadManager)profile["UploadManager"];
+}
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "匯入商務關係相對營業人資料");}
+
+<div class="border_gray">
+    <!--表格 開始-->
+    <table class="table table-striped">
+        <tbody>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    匯入格式
+                </th>
+                <td class="tdleft">
+                    CSV
+                </td>
+            </tr>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    匯入檔案範本
+                </th>
+                <td class="tdleft">
+                    <a id="sample" runat="server" enableviewstate="false" href="~/Published/ImportCompany.csv">
+                        <img enableviewstate="false" runat="server" id="img1" border="0" alt="" align="absMiddle"
+                             src="~/images/icon_ca.gif" width="27" height="28" />
+                    </a> <font color="blue">請依據檔案中各欄位名稱填入相對應內容，每一列代表唯一家相對營業人資料，若匯入資料已存在系統，系統會以編輯方式修改原存在資料</font>
+                </td>
+            </tr>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    所屬集團成員
+                </th>
+                <td class="tdleft">
+                    @{ await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/GroupMemberSelector.cshtml",
+                              new InputViewModel
+                              {
+                                  Name = "CompanyID"
+                              });}
+
+                </td>
+            </tr>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    相對營業人類別
+                </th>
+                <td class="tdleft">
+                    <uc6:EnumSelector ID="BusinessType" FieldName="BusinessType" runat="server" SelectorIndication="請選擇" TypeName="ModelCore.Locale.Naming+InvoiceCenterBusinessQueryType, Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+                </td>
+            </tr>
+            <tr class="other">
+                <th width="20%" nowrap>
+                    相對營業人資料匯入
+                </th>
+                <td class="tdleft">
+                    <input id="csvFile" type="file" name="csvFile" style="display:inline;" />
+                    &nbsp;
+                    文件編碼：
+                    <select name="encoding">
+                        <option value="utf-8">UTF-8</option>
+                        <option value="big5">繁體中文</option>
+                    </select>
+                    <button type="button" onclick="$('form').prop('action','@(Url.Action("ImportBusinessCsv","BusinessRelationship"))').submit();">確認</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!--表格 結束-->
+</div>
+@if (_uploadMgr != null)
+{
+    <script>
+    var uiImportBusiness;
+    $(function () {
+
+        uiImportBusiness = {
+            $result: null,
+            filterMode: null,
+            inquireImport: function(pageNum, onPaging) {
+                $('form').ajaxForm({
+                    url: "@(Url.Action("ImportCounterpartBusinessCsvList","BusinessRelationship"))",
+                    data: {
+                        'pageIndex': pageNum,
+                        'filterMode': uiImportBusiness.filterMode
+                    },
+                    beforeSubmit: function () {
+                    },
+                    success: function (data) {
+                        if (data) {
+                            if (onPaging) {
+                                onPaging(data);
+                            }
+                        }
+                    },
+                    error: function () {
+                    }
+                }).submit();
+            },
+            commitImport: function (value) {
+                var event = event || window.event;
+                $.post('@(Url.Action("CommitImportBusinessCsv","BusinessRelationship"))', { }, function (data) {
+                    if (data.result) {
+                        $('.tblAction').remove();
+                        uiImportBusiness.filterMode = null;
+                        alert('匯入資料完成!!');
+                        $('#importPagination').twbsPagination('show',1);
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            },
+            cancelImport: function (value) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                $.post('@(Url.Action("CancelImport","BusinessRelationship"))', $.param($tr.find('input,select,textarea')), function (data) {
+                    if (data.result) {
+                        window.location.href = '@(Url.Action("ImportCounterpartBusinessCsv","BusinessRelationship"))';
+                    }
+                });
+            },
+            filterList: function(value) {
+                uiImportBusiness.filterMode = value;
+                $('#importPagination').twbsPagination('show',1);
+            }
+        };
+    });
+    </script>
+
+    <div class="border_gray query_result">
+        @{ var recordCount = _uploadMgr.ItemCount;}
+        @if (recordCount > 0)
+        {
+            await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/ImportCounterpartBusinessCsvList.cshtml");
+
+            <nav aria-label="Page navigation">
+                <ul class="pagination" id="importPagination"></ul>
+            </nav>
+            <script>
+                        $(function () {
+                            var obj = $('#importPagination').twbsPagination({
+                                        totalPages: @((recordCount+ModelCore.Properties.AppSettings.Default.PageSize-1) / ModelCore.Properties.AppSettings.Default.PageSize),
+                                        totalRecordCount: @(recordCount),
+                                        visiblePages: 10,
+                                        first: '最前',
+                                        prev: '上頁',
+                                        next: '下頁',
+                                        last: '最後',
+                                        initiateStartPageClick: false,
+                                        onPageClick: function (event, page) {
+                                            uiImportBusiness.inquireImport(page,function(data){
+                                                var $node = $('.importList').next();
+                                                $('.importList').remove();
+                                                $node.before(data);
+                                            });
+                                        }
+                                    });
+                                });
+            </script>
+        }
+    </div>
+    <table border="0" cellspacing="0" cellpadding="0" width="100%" class="tblAction">
+        <tbody>
+            <tr>
+                <td class="Bargain_btn">
+                    <button onclick="uiImportBusiness.commitImport();" type="button">確定</button>
+                    &nbsp;&nbsp;&nbsp;
+                    <button onclick="uiImportBusiness.cancelImport();" type="button">取消</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+
+

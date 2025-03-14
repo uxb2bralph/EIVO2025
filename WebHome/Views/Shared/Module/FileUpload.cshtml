@@ -1,0 +1,65 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+
+@using ModelCore.Helper
+@using WebHome.Controllers
+@{
+    AttachmentViewModel _model = this.Model as AttachmentViewModel;
+    int? _idx = (TempData["FileUpload"] as int?) ?? 0;
+    TempData["FileUpload"] = _idx + 1;
+}
+
+<button type="button" id="@($"btnUpload_{_idx}")" value="">@(_model?.ButtonField ?? "立即傳送")</button>
+<script>
+    $(function () {
+
+        var $btn = $('#@($"btnUpload_{_idx}")');
+        var $file = $('<input name="@(_model?.FileName ?? "theFile")" type="file" style="display: none;" />');
+        $btn.before($file);
+
+        $btn.click(function () {
+            $file.val('');
+            $file.click();
+        });
+
+        var $result;
+
+        $file.on('change', function (event) {
+            clearErrors();
+            var $formData = @Html.Raw(_model?.GetFormData ?? "{}");
+            uploadFile($file, $formData, '@Html.Raw(_model?.UrlAction)',
+                function (data) {
+                    $btn.before($file);
+                    if ($.isPlainObject(data)) {
+                        if (data.result) {
+                            if ($global.onAttached) {
+                                $global.onAttached();
+                            }
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        if ($result) {
+                            $result.remove();
+                        }
+                        $result = $(data);
+                        $('body').append($result);
+                    }
+                },
+                function () {
+                    $btn.before($file);
+                });
+        });
+    });
+</script>
+
+

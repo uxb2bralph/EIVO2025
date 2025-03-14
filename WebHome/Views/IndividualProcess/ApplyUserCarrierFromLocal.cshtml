@@ -1,0 +1,51 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using WebHome.Properties
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+
+@{
+    ModelSource<InvoiceItem> models;
+    ModelStateDictionary _modelState;
+    LoginViewModel _viewModel = ViewBag.ViewModel as LoginViewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+
+    InvoiceUserCarrier _model = this.Model as InvoiceUserCarrier;
+    InvoiceUserCarrier carrier = _model;
+
+}
+
+<form id="carrier" action="@Html.Raw(AppSettings.Default.GovCarrierLocalVerrificationUrl)" method="post">
+    <input type="hidden" name="card_ban" value="@(AppSettings.Default.InvoiceCarrierProviderID)" />
+    <input type="hidden" name="card_no1" value="@(_viewModel.CardNo1)" />
+    <input type="hidden" name="card_no2" value="@(_viewModel.CardNo1)" />
+    <input type="hidden" name="card_type" value="@(_viewModel.CardType)" />
+    <input type="hidden" name="back_url" value="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ValidateUserToken","IndividualProcess")}")" />
+    <input type="hidden" name="token" value="@Html.Raw(_viewModel.Token)" />
+</form>
+<script>
+    debugger;
+    $(function () {
+        $('#carrier').submit();
+    });
+</script>
+

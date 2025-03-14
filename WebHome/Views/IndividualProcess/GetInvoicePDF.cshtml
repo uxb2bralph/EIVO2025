@@ -1,0 +1,45 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    InvoiceItem _model = this.Model as InvoiceItem;
+}
+@{
+    if (_model != null)
+    {
+        String invoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/DataView/ShowInvoice")}?DocID={_model.InvoiceID}&UseCustomView=true";
+        String pdfFile = System.IO.Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.pdf");
+        invoiceUrl.ConvertHtmlToPDF(pdfFile, ModelExtension.Properties.AppSettings.Default.SessionTimeout);
+        if (File.Exists(pdfFile))
+        {
+            await (new PhysicalFileResult(pdfFile, "application/pdf")).ExecuteResultAsync(ViewContext);
+        }
+        else
+        {
+            <script>
+                alert('資料錯誤!!');
+            </script>
+        }
+    }
+    else
+    {
+        <script>
+            alert('資料錯誤!!');
+        </script>
+    }
+}

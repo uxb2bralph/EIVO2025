@@ -1,0 +1,210 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+@using System.Data
+@using ClosedXML.Excel
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using CommonLib.DataAccess
+
+@functions
+{
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceItem> _model;
+    InquireInvoiceViewModel _viewModel;
+    UserProfile profile;
+
+    void SaveAsExcel(int taskID, String resultFile)
+    {
+        Task.Run(() =>
+        {
+            try
+            {
+                using (DataSet ds = new DataSet())
+                {
+
+                    Exception exception = null;
+
+                    try
+                    {
+                        DataTable table = new DataTable("發票資料明細");
+                        ds.Tables.Add(table);
+                        table.Columns.Add("發票號碼", typeof(String));
+                        table.Columns.Add("發票日期", typeof(String));
+                        table.Columns.Add("開立時間", typeof(String));
+                        table.Columns.Add("附件檔名", typeof(String));
+                        table.Columns.Add("附件檔頁數", typeof(int));
+                        table.Columns.Add("客戶ID", typeof(String));
+                        table.Columns.Add("序號", typeof(String));
+                        table.Columns.Add("發票開立人", typeof(String));
+                        table.Columns.Add("開立人統編", typeof(String));
+                        table.Columns.Add("營業人店別", typeof(String));
+                        table.Columns.Add("未稅金額", typeof(decimal));
+                        table.Columns.Add("稅別", typeof(String));
+                        table.Columns.Add("稅額", typeof(decimal));
+                        table.Columns.Add("含稅金額", typeof(decimal));
+                        table.Columns.Add("幣別", typeof(String));
+                        table.Columns.Add("買受人名稱", typeof(String));
+                        table.Columns.Add("買受人統編", typeof(String));
+                        table.Columns.Add("連絡人名稱", typeof(String));
+                        table.Columns.Add("連絡人地址", typeof(String));
+                        table.Columns.Add("買受人EMail", typeof(String));
+                        table.Columns.Add("愛心碼", typeof(String));
+                        table.Columns.Add("是否中獎", typeof(String));
+                        table.Columns.Add("備註", typeof(String));
+                        table.Columns.Add("發票狀態", typeof(String));
+                        table.Columns.Add("載具類別", typeof(String));
+                        table.Columns.Add("載具號碼", typeof(String));
+
+                        foreach (var i in _model.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
+                        {
+                            DataRow r = table.NewRow();
+                            r["發票號碼"] = i.TrackCode + i.No;
+                            r["發票日期"] = $"{i.InvoiceDate:yyyy/MM/dd}";
+                            r["開立時間"] = $"{i.InvoiceDate:HH:mm}";
+                            var attachment = i.CDS_Document.Attachment.FirstOrDefault();
+                            if (attachment != null)
+                            {
+                                r["附件檔名"] = attachment.KeyName;
+                                r["附件檔頁數"] = attachment.GetAttachedPdfPageCount();
+                            }
+                            r["客戶ID"] = i.InvoiceBuyer.CustomerID;
+                            r["序號"] = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : DBNull.Value;
+                            r["發票開立人"] = i.InvoiceSeller.CustomerName;
+                            r["開立人統編"] = i.InvoiceSeller.ReceiptNo;
+                            r["營業人店別"] = i.Organization.OrganizationExtension.CustomerNo;
+                            r["未稅金額"] = (Object)i.InvoiceAmountType.SalesAmount ?? DBNull.Value;
+                            r["稅別"] = $"{(Naming.TaxTypeDefinition?)i.InvoiceAmountType.TaxType}";
+                            r["稅額"] = (Object)i.InvoiceAmountType.TaxAmount ?? DBNull.Value;
+                            r["含稅金額"] = i.InvoiceAmountType.TotalAmount;
+                            r["幣別"] = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : DBNull.Value;
+                            r["買受人名稱"] = i.InvoiceBuyer.CustomerName;
+                            r["買受人統編"] = i.InvoiceBuyer.IsB2C() ? "" : i.InvoiceBuyer.ReceiptNo;
+                            r["連絡人名稱"] = i.InvoiceBuyer.ContactName;
+                            r["連絡人地址"] = i.InvoiceBuyer.Address;
+                            r["買受人EMail"] = i.InvoiceBuyer.EMail;
+                            r["愛心碼"] = i.InvoiceDonation != null ? i.InvoiceDonation?.AgencyCode : DBNull.Value;
+                            r["是否中獎"] = i.InvoiceWinningNumber?.PrizeType ?? "";
+                            r["備註"] = i.Remark;
+                            r["發票狀態"] = i.InvoiceCancellation != null ? "已作廢" : DBNull.Value;
+                            if (i.InvoiceCarrier != null)
+                            {
+                                r["載具類別"] = i.InvoiceCarrier.CarrierType;
+                                r["載具號碼"] = i.InvoiceCarrier.CarrierNo;
+                            }
+
+                            table.Rows.Add(r);
+                        }
+
+                        if (profile.IsSystemAdmin())
+                        {
+
+                        }
+                        else
+                        {
+                            table.Columns.RemoveAt(17);
+                            table.Columns.RemoveAt(17);
+                            table.Columns.RemoveAt(17);
+                            table.Columns.RemoveAt(3);
+                            table.Columns.RemoveAt(3);
+                        }
+
+                        using (XLWorkbook xls = ds.ConvertToExcel())
+                        {
+                            xls.SaveAs(resultFile);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"{ex}\r\n{_model}");
+                        exception = ex;
+                    }
+
+                    using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
+
+                    ProcessRequest taskItem = db.GetTable<ProcessRequest>()
+                        .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                    if (taskItem != null)
+                    {
+                        if (exception != null)
+                        {
+                            var logItem = new ExceptionLog
+                            {
+                                DataContent = exception.Message,
+                                LogTime = DateTime.Now,
+                            };
+                            db.GetTable<ExceptionLog>
+                                ().InsertOnSubmit(logItem);
+                            db.SubmitChanges();
+
+                            taskItem.LogID = logItem.LogID;
+                        }
+
+                        taskItem.ProcessComplete = DateTime.Now;
+                        db.SubmitChanges();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        });
+
+    }
+
+}
+@{
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    _model = (IQueryable<InvoiceItem>)this.Model;
+    profile = Context.GetUser();
+
+}
+@{
+    ProcessRequest processItem = new ProcessRequest
+    {
+        Sender = profile?.UID,
+        SubmitDate = DateTime.Now,
+        ProcessStart = DateTime.Now,
+        ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
+    };
+
+    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.SubmitChanges();
+
+    SaveAsExcel(processItem.TaskID, processItem.ResponsePath);
+
+    await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
+        new AttachmentViewModel
+        {
+            TaskID = processItem.TaskID,
+            FileName = processItem.ResponsePath,
+            FileDownloadName = "發票資料明細.xlsx",
+        });
+}
+
+
+
+
+

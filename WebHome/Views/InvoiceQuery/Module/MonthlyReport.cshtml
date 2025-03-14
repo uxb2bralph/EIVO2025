@@ -1,0 +1,78 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Components
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    Layout = "~/Views/Template/QueryFormTemplate.cshtml";
+
+}
+
+<!--交易畫面標題-->
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "每月統計報表匯出");}
+@section QueryFormContent
+{
+    <!--表格 開始-->
+    <table class="table table-striped">
+        <tr>
+            <th colspan="2" class="Head_style_a">
+                查詢條件
+            </th>
+        </tr>
+        @{
+            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
+        }
+
+    </table>
+    <!--表格 結束-->
+    <!--按鈕-->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="Bargain_btn">
+                <input type="button" value="製作報表" name="btnMonthlyReport" class="btn" onclick="downloadMonthlyReport();" />
+            </td>
+        </tr>
+    </table>
+    <script>
+        function downloadMonthlyReport() {
+            var event = event || window.event;
+
+            var $formData = $('input,select,textarea').serializeObject();
+
+            clearErrors();
+            showLoading();
+            $.post('@(Url.Action("InquireMonthlyReport", "InvoiceQuery"))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    alert(data.message);
+                } else {
+                    var $data = $(data);
+                    $('body').append($data);
+                }
+            });
+        }
+
+    $(function() {
+        var $opts = $('form select[name="sellerID"] option');
+        if($opts.length==2) {
+            $opts.eq(0).remove();
+        }
+    });
+    </script>
+    <!--表格 開始-->
+}
+

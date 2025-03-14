@@ -1,0 +1,119 @@
+@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+
+@using WebHome.Models
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
+@using WebHome.Controllers
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@functions
+{
+    static void SaveAsERP(int taskID, String resultFile, InquireInvoiceViewModel viewModel, UserProfile profile)
+    {
+        Task.Run(() =>
+        {
+            try
+            {
+                using (ModelSource db = new ModelSource())
+                {
+                    IQueryable<InvoiceAllowance> items = db.GetTable<InvoiceAllowance>    ();
+                    bool effective = false;
+                    items = db.FilterAllowanceByRole(profile, items)
+                .InquireAllowance(viewModel, db, ref effective);
+
+                    Exception exception = null;
+
+                    try
+                    {
+                        String tmpPath = System.IO.Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.tmp");
+                        using (StreamWriter writer = new StreamWriter(tmpPath))
+                        {
+                            foreach (var item in items)
+                            {
+                                writer.WriteLine($"{item.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomerNo,8}{item.AllowanceDate.Value.Year - 1911:0000}{item.AllowanceDate:MMdd}{item.InvoiceAllowanceDetails.FirstOrDefault()?.InvoiceAllowanceItem.InvoiceNo}{(item.InvoiceAllowanceBuyer.IsB2C() ? "        " : item.InvoiceAllowanceBuyer.ReceiptNo)}{item.TotalAmount,8:########}{item.TaxAmount,8:########}{item.TotalAmount + item.TaxAmount,8:########}{(item.InvoiceAllowanceCancellation != null ? "Y" : " ")}");
+                            }
+                        }
+                        File.Move(tmpPath, resultFile);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"{ex}\r\n{items}");
+                        exception = ex;
+                    }
+
+                    ProcessRequest taskItem = db.GetTable<ProcessRequest>()
+                        .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                    if (taskItem != null)
+                    {
+                        if (exception != null)
+                        {
+                            var logItem = new ExceptionLog
+                            {
+                                DataContent = exception.Message,
+                                LogTime = DateTime.Now,
+                            };
+                            db.GetTable<ExceptionLog>
+                            ().InsertOnSubmit(logItem);
+                            db.SubmitChanges();
+
+                            taskItem.LogID = logItem.LogID;
+                        }
+
+                        taskItem.ProcessComplete = DateTime.Now;
+                        db.SubmitChanges();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+        });
+
+    }
+
+}
+@{
+
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    InquireInvoiceViewModel _viewModel = new InquireInvoiceViewModel();
+    await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<InquireInvoiceViewModel>(_viewModel);
+
+    var profile = Context.GetUser();
+
+    ProcessRequest processItem = new ProcessRequest
+    {
+        Sender = profile?.UID,
+        SubmitDate = DateTime.Now,
+        ProcessStart = DateTime.Now,
+        ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".txt"),
+    };
+    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.SubmitChanges();
+
+    SaveAsERP(processItem.TaskID, processItem.ResponsePath, _viewModel, profile);
+
+    await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
+    new AttachmentViewModel
+    {
+        TaskID = processItem.TaskID,
+        FileName = processItem.ResponsePath,
+        FileDownloadName = "POSDISC.dat",
+    });
+}

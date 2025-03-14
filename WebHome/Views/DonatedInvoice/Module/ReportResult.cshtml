@@ -1,0 +1,43 @@
+@using System.IO
+
+@using System.Linq.Expressions
+@using WebHome.Helper
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    models.DataSourcePath = VirtualPathUtility.ToAbsolute("~/DonatedInvoice/ReportGridPage");
+
+}
+@{
+    await Html.RenderPartialAsync("~/Views/DonatedInvoice/Module/InquireDonation.cshtml");
+}
+
+@if (!models.InquiryHasError)
+{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+    <div class="border_gray">
+        @{
+            await Html.RenderPartialAsync("~/Views/Module/DonatedInvoiceReport.ascx", models);
+        }
+        <!--按鈕-->
+    </div>
+    <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="Bargain_btn">
+                @{
+                    await Html.RenderPartialAsync("~/Views/Module/PrintData.ascx");
+                }
+                <input type="button" value="CSV下載" name="btnCsv" class="btn" onclick="$('form').prop('action', '@(Url.Action("DownloadCSV"))').submit();" />
+            </td>
+        </tr>
+    </table>
+}

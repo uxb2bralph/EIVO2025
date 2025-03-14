@@ -1,0 +1,55 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    OrganizationViewModel _viewModel = ViewBag.ViewModel as OrganizationViewModel;
+    Organization _model = this.Model as Organization;
+    String _viewID = "hq" + DateTime.Now.Ticks;
+
+}
+<div id="@(_viewID)" class="border_gray">
+    <button type="button" class="btn btnRevoke">解除主機構</button><br />
+    <button type="button" class="btn btnOrgBranch">查詢分支機構</button><br />
+                                                                  <script>
+        $(function () {
+            $('#@(_viewID) button.btnRevoke').click(function (event) {
+                var viewModel = { 'SellerID' : @(_model.CompanyID) };
+                invokeAction('@(Url.Action("RevokeHeadquarter", "Organization"))',
+                    viewModel,
+                    function (data) {
+                        if ($.isPlainObject(data)) {
+                            if (data.result) {
+                                alertModal('已解除主機構!!');
+                            }
+                        }
+                    });
+            });
+
+            $('#@(_viewID) button.btnOrgBranch').click(function (event) {
+                var $queryArea = $('#queryArea');
+                $queryArea.find('input[name="receiptNo"]').val('@(_model.ReceiptNo)');
+                @*$queryArea.find('select[name="CategoryID"]').val('@((int)CategoryDefinition.CategoryEnum.發票開立營業人)');*@
+                $queryArea.find('input[name="BranchRelation"]').prop('checked', true);
+                $inquiryAgent.inquire();
+                $('#@(_viewID)').closest('div.currentDialog').dialog('close');
+            });
+        });
+                                                                  </script>
+</div>

@@ -1,0 +1,36 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <th>列印狀態</th>
+    <td class="tdleft">
+        <div class="input-group text-nowrap">
+            <select name="Printed" class="form-control mr-4">
+                <option value="">全部</option>
+                <option value="False">未列印</option>
+                <option value="True">已列印</option>
+            </select>
+            <input type="checkbox" name="HasAddr" value="True" />篩選有買受人地址
+        </div>
+    </td>
+</tr>
+

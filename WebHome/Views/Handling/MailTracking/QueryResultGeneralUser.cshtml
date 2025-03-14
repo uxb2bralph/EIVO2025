@@ -1,0 +1,95 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Newtonsoft.Json
+
+@{
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceItem> _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<InvoiceItem>)this.Model;
+}
+
+@functions {
+    public class _PackItem
+    {
+        public int PackageID { get; set; }
+        public int InvoiceID { get; set; }
+        public String CustomerID { get; set; }
+        public String InvoiceNo { get; set; }
+        public String ContactName { get; set; }
+        public String Address { get; set; }
+        public String Remark { get; set; }
+    }
+}
+<script>
+    $(function () {
+        if (!uiHandling.items) {
+            uiHandling.items = [];
+        }
+
+        @if (_model.Any())
+        {
+            //   List<_PackItem> items = new List<_PackItem>();
+            //   var dataItems = _model.ToList();
+            //   foreach (var i in dataItems.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
+            //   {
+            //       items.Add(new _PackItem
+            //       {
+            //            InvoiceID = i.InvoiceID,
+            //            CustomerID = i.InvoiceBuyer.CustomerID,
+            //            InvoiceNo = i.TrackCode + i.No,
+            //            ContactName = i.InvoiceBuyer.ContactName,
+            //            Address = i.InvoiceBuyer.Address,
+            //            Remark = ""
+            //       });
+
+            //           Logger.Info($"PackageID:{items.Last().PackageID}");
+            //}
+            var items = _model.ToList()
+                .Select(i =>
+                new _PackItem
+                {
+                    PackageID = i.InvoiceID,
+                    InvoiceID = i.InvoiceID,
+                    CustomerID = i.InvoiceBuyer.CustomerID,
+                    InvoiceNo = i.TrackCode + i.No,
+                    ContactName = i.InvoiceBuyer.ContactName,
+                    Address = i.InvoiceBuyer.Address,
+                    Remark = ""
+                }).ToList().OrderBy(i => i.InvoiceNo);
+            //var preItem = items[0];
+            //for (int i = 1; i < items.Count; i++)
+            //{
+            //    var current = items[i];
+            //    if (current.ContactName == preItem.ContactName && current.Address == preItem.Address)
+            //    {
+            //        current.PackageID = preItem.PackageID;
+            //    }
+            //    current.PackageID = preItem.PackageID;
+            //    preItem = current;
+            //}
+    <text>
+        var newItems = @(Html.Raw(JsonConvert.SerializeObject(items)));
+        uiHandling.items = uiHandling.items.concat(newItems);
+        uiHandling.showDetails();
+    </text>
+        }
+    });
+</script>
+
+

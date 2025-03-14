@@ -1,0 +1,426 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+
+<script>
+    var uiHandling;
+    $(function () {
+        var $postForm;
+        uiHandling = {
+            items: [],
+            reset: function () {
+                $('.queryAction').next().remove();
+                uiHandling.items = [];
+                uiHandling.$result = null;
+            },
+            inquireTracking: function (pageNum, onPaging) {
+                if (pageNum) {
+                    $('input[name="pageIndex"]').val(pageNum);
+                } else {
+                    $('input[name="sort"]').remove();
+                }
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+
+                clearErrors();
+                //showLoading();
+                $.post('@Html.Raw(Url.Action("InquireToTrackMail","Handling",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+                    if ($.isPlainObject(data)) {
+                        //hideLoading();
+                        $('#loadingOverlay1').css('display', 'none');
+                        alert(data.message);
+                    } else {
+                        var $data = $(data);
+                        $('body').append($data);
+                        //hideLoading();
+                        $('#loadingOverlay1').css('display', 'none');
+                        //$data.remove();
+                    }
+                });
+            },
+
+            showDetails: function () {
+                var items = Enumerable.From(uiHandling.items);
+                if (!uiHandling.$result) {
+                    $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = true }))', { 'id': items.Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
+                        uiHandling.$result = $(data);
+                        $('.queryAction').after(uiHandling.$result);
+                        uiHandling.$result = uiHandling.$result.find('table.itemList > tbody');
+                    });
+                } else {
+                    $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = false }))', { 'id': Enumerable.From(uiHandling.items).Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
+                        $(data).appendTo(uiHandling.$result);
+                    });
+                }
+            },
+
+            pack: function () {
+                //var event = event || window.event;
+                //var $tr = $(event.target).closest('tr');
+                var allItems = Enumerable.From(uiHandling.items);
+                var checkedItems = $('input[name="PackageID"]:checked').toEnumerable();
+                if (checkedItems.Count() < 1) {
+                    alert('請選擇合併寄件項目!!');
+                    return;
+                }
+                var first = checkedItems.First();
+                var $tr = first.closest('tr');
+                var packageID = first.val();
+                var items = [];
+                checkedItems.ForEach(function (c) {
+                    allItems.Where(function (i) { return i.PackageID == c.val(); })
+                        .ForEach(function (current) {
+                            current.PackageID = packageID;
+                            items.push(current.InvoiceID);
+                        });
+                });
+
+                $.post('@Html.Raw(Url.Action("PackInvoice","Handling"))', { 'id': items }, function (data) {
+                    if (data) {
+                        var $data = $(data);
+                        if ($data.is('tr')) {
+                            $tr.before($data);
+                            checkedItems.ForEach(function (c) {
+                                c.closest('tr').remove();
+                            });
+                        } else {
+                            $('body').append($data);
+                            $data.remove();
+                        }
+                    }
+                });
+            },
+
+            unpack: function () {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                var packageID = $tr.find('input[name="PackageID"]').val();
+                var packedItems = Enumerable.From(uiHandling.items)
+                    .Where(function (i) { return i.PackageID == packageID; });
+                if (packedItems.Count() < 1) {
+                    alert('請選擇分開寄件項目!!');
+                    return;
+                }
+
+                var items = [];
+                Enumerable.From(packedItems).ForEach(function (current) {
+                    current.PackageID = current.InvoiceID;
+                    items.push(current.InvoiceID);
+                });
+
+                $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = false }))', { 'id': items, 'packageID': items }, function (data) {
+                    if (data) {
+                        var $data = $(data);
+                        if ($data.is('tr')) {
+                            $tr.before($data);
+                            $tr.remove();
+                        } else {
+                            $('body').append($data);
+                            $data.remove();
+                        }
+                    }
+                });
+            },
+
+            delete: function () {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                var packageID = $tr.find('input[name="PackageID"]').val();
+                var packedItems = Enumerable.From(uiHandling.items)
+                    .Where(function (i) { return i.PackageID == packageID; });
+                if (packedItems.Count() < 1) {
+                    alert('請選擇欲刪除寄件項目!!');
+                    return;
+                }
+
+                Enumerable.From(packedItems).ForEach(function (current) {
+                    var idx = uiHandling.items.indexOf(current);
+                    if (idx >= 0)
+                        uiHandling.items.splice(idx, 1);
+                });
+
+                $tr.remove();
+            },
+
+            processPack: function () {
+                var items = $('input[name="DeliveryDate"]');
+                var val = items.val();
+                items.each(function (idx) {
+                    $(this).val(val);
+                });
+
+                items = $('input[name="MailNo2"]');
+                val = items.val();
+                items.each(function (idx) {
+                    $(this).val(val);
+                });
+
+                var items = $('input[name="MailNo1"]');
+                var val = items.val();
+
+                var MailNo3 = $('input[name="MailNo3"]');
+                //alert(MailNo3.val());
+
+                $('input[name="MailNo1"]:gt(0)').val('');
+                var count = $('input[name="MailingCount"]').val();
+                if (!isNaN(val) && !isNaN(count)) {
+                    val = parseInt(val);
+                    count = parseInt(count);
+                    items.each(function (idx) {
+                        if (idx > 0 && idx <= count) {
+                            $(this).val(val + idx - 1);
+                        }
+                    });
+                }
+
+                var isMailNo1Completed = this.checkPostdataCompletion();
+                if (isMailNo1Completed) {
+                    //alert("OK");
+                    this.postdata(); //完成頁面文字後進行postdata寫入
+                } else {
+                    $('#loadingOverlay2').css('display', 'none');
+                }
+            },
+            //判斷掛號編號是否已完成
+            checkPostdataCompletion: function () {
+                var isCompleted = true;
+                var DeliveryDate = $('input[name="DeliveryDate"]');
+                var MailNo1      = $('input[name="MailNo1"]');
+                var MailNo2 = $('input[name="MailNo2"]');
+
+                MailNo1.each(function () {
+                    if ($(this).val() === '') {
+                        isCompleted = false;
+                        return false;
+                    } else {
+                        //alert($(this).val());
+                    }
+                });
+
+                MailNo2.each(function () {
+                    if ($(this).val() === '') {
+                        isCompleted = false;
+                        return false;
+                    }
+                });
+
+                DeliveryDate.each(function () {
+                    if ($(this).val() === '') {
+                        isCompleted = false;
+                        return false;
+                    }
+                });
+                return isCompleted;
+            },
+            //Amy-1121114-前端郵件資料拋到Controller進行資料庫儲存
+            postdata: function () {
+                if ($postForm) {
+                    $postForm.remove();
+                }
+
+                var dateItems = $('input[name="DeliveryDate"][data-package]').toEnumerable()
+                    .Select(function (c) {
+                        return { 'key': c.attr('data-package'), 'value': c.val() };
+                    });
+
+                var mailNo1 = $('input[name="MailNo1"][data-package]').toEnumerable()
+                    .Select(function (c) {
+                        return { 'key': c.attr('data-package'), 'value': c.val() };
+                    });
+
+                var mailNo2 = $('input[name="MailNo2"][data-package]').toEnumerable()
+                    .Select(function (c) {
+                        return { 'key': c.attr('data-package'), 'value': c.val() };
+                    });
+
+                var MailNo3 = $('input[name="MailNo3"].form-control').val();  //Amy
+                //alert(MailNo3);
+
+                var items = Enumerable.From(uiHandling.items).GroupBy(function (i) { return i.PackageID; })
+                    .Select(function (g) {
+                        return {
+                            'PackageID'   : g.Key(),
+                            'DeliveryDate': dateItems.First(function (c) { return c.key == g.Key(); }).value,
+                            'MailNo1'     : mailNo1.First(function (c) { return c.key == g.Key(); }).value,
+                            'MailNo2'     : mailNo2.First(function (c) { return c.key == g.Key(); }).value,
+                            'MailNo3'     : MailNo3,
+                            'InvoiceID'   : g.Select(function (v) { return v.InvoiceID; }).ToArray()
+                        };
+                    }).ToArray();
+
+                $.post({
+                    url: '@Url.Action("GeneratePostData", "Handling")',
+                    data: { 'jsonData': JSON.stringify(items) },
+                    success: function (data) {
+                        $('#loadingOverlay2').css('display', 'none');
+                        $(data).appendTo(uiHandling.$result);
+                    },
+                    error: function () {
+                        alert("郵件號碼寫入失敗!!");
+                    }
+                });
+            },
+
+            download: function () {
+                if ($postForm) {
+                    $postForm.remove();
+                }
+
+                var dateItems = $('input[name="DeliveryDate"][data-package]').toEnumerable()
+                    .Select(function (c) {
+                        return { 'key': c.attr('data-package'), 'value': c.val() };
+                    });
+
+                var mailNo1 = $('input[name="MailNo1"][data-package]').toEnumerable()
+                    .Select(function (c) {
+                        return { 'key': c.attr('data-package'), 'value': c.val() };
+                    });
+
+                var mailNo2 = $('input[name="MailNo2"][data-package]').toEnumerable()
+                    .Select(function (c) {
+                        return { 'key': c.attr('data-package'), 'value': c.val() };
+                    });
+
+                var MailNo3 = $('input[name="MailNo3"].form-control').val();
+
+                var items = Enumerable.From(uiHandling.items).GroupBy(function (i) { return i.PackageID; })
+                    .Select(function (g) {
+                        return {
+                            'PackageID': g.Key(),
+                            'DeliveryDate': dateItems.First(function (c) { return c.key == g.Key(); }).value,
+                            'MailNo1'     : mailNo1.First(function (c)   { return c.key == g.Key(); }).value,
+                            'MailNo2'     : mailNo2.First(function (c)   { return c.key == g.Key(); }).value,
+                            'MailNo3'     : MailNo3,
+                            'InvoiceID'   : g.Select(function (v)        { return v.InvoiceID; }).ToArray()
+                        };
+                    }).ToArray();
+
+                $('').launchDownload('@Html.Raw(Url.Action("DownloadXlsx","Handling"))', { 'jsonData': JSON.stringify(items) });
+
+                @*$postForm = $('<form method="post" />').prop('action', '@Html.Raw(Url.Action("DownloadXlsx","Handling"))')
+                    .css('display', 'none').appendTo($('body'));
+
+                $('<input type="hidden" name="data">')
+                    .prop('value', JSON.stringify(items))
+                    .appendTo($postForm);
+                $postForm.submit();*@
+                //showLoading();
+            },
+
+            zipAll: function () {
+                if ($postForm) {
+                    $postForm.remove();
+                }
+
+                var dateItems = $('input[name="DeliveryDate"][data-package]').toEnumerable()
+                    .Select(function (c) {
+                        return { 'key': c.attr('data-package'), 'value': c.val() };
+                    });
+
+                var items = Enumerable.From(uiHandling.items).GroupBy(function (i) { return i.PackageID; })
+                    .Select(function (g) {
+                        return {
+                            'PackageID': g.Key(),
+                            'InvoiceID': g.Select(function (v) { return v.InvoiceID; }).ToArray()
+                        };
+                    }).ToArray();
+
+                var viewModel = @Html.Raw((new RenderStyleViewModel
+                               {
+                                   PaperStyle = "A4",
+                                   PrintCuttingLine = true,
+                                   ProcessType = Naming.InvoiceProcessType.C0401,
+                                   CreateNew = true,
+                               }).JsonStringify());
+                viewModel.jsonData = JSON.stringify(items);
+                viewModel.ForMailingPackage = true;
+
+                if (confirm('是否列印兌獎訊息？')) {
+                    viewModel.PrintBack = true;
+                }
+
+                showLoading();
+                $.post('@(Url.Action("ZipInvoicePackagePDF", "DataView"))', viewModel, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+
+                @*$('').launchDownload('@Html.Raw(Url.Action("ZipInvoicePackagePDF","DataView"))', viewModel, "report", true);*@
+            },
+        };
+    });
+
+</script>
+<script>
+    //Amy-1121116-查詢/資料逐筆放入UI
+    ShowOverlay_1 = function (dataTimer) {
+        // Show loading overlay
+        $('#loadingOverlay1').css('display', 'block');
+        //var countdown = dataTimer; //全部資料需要執行時間,隨時間逐一遞減
+        //var countdownInterval = setInterval(function () {
+        //    if (countdown <= 0) {
+        //        $('#loadingOverlay1').css('display', 'none');
+        //        //alert('請檢查發票是否已完成下載!!');
+        //        clearInterval(countdownInterval); // Stop the countdown
+        //    } else {
+        //        // Update the countdown value
+        //        //var percentage = Math.round(((30 - countdown) / 30) * 100);
+        //        var percentage = Math.round(((dataTimer - countdown) / dataTimer) * 100);
+        //        $('#loadingOverlay1 p').text(percentage + '% Loading... ');
+        //        countdown--;
+        //    }
+        //}, 1000);
+    };
+
+
+    //Amy-1121117-郵政資料寫入DB/資料逐筆放入UI
+    ShowOverlay_2 = function (dataTimer) {
+        $('#loadingOverlay2').css('display', 'block');
+        var countdown = dataTimer;
+        var countdownInterval = setInterval(function () {
+            if (countdown <= 0) {
+                $('#loadingOverlay2').css('display', 'none');
+                clearInterval(countdownInterval);
+            } else {
+                var percentage = Math.round(((dataTimer - countdown) / dataTimer) * 100);
+                $('#loadingOverlay2 p').text(percentage + '% 資料已處理,請勿中斷程序... ');
+                countdown--;
+            }
+        }, 1000);
+    };
+
+    OverlayProcessPack = function () {
+        $('#loadingOverlay2').css('display', 'block');
+        $('#loadingOverlay2 p').text('資料寫入中,勿中斷執行程序,待執行結束請確認郵政號碼是否均已寫入!');
+
+        uiHandling.processPack();
+        @*setTimeout(function () {
+            $('#loadingOverlay2').css('display', 'none');
+            uiHandling.processPack();
+        }, 20000);*@
+    }
+
+
+
+</script>

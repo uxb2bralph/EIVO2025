@@ -1,0 +1,145 @@
+﻿
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+@using System.Data
+@using System.Xml
+@using ClosedXML.Excel
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using CommonLib.DataAccess
+@functions
+{
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+    List<Organization> orgList = new List<Organization>();
+    List<CDS_Document> errorItems = new List<CDS_Document>();
+    List<CDS_Document> pendingItems = new List<CDS_Document>();
+
+    void SaveItemList(List<CDS_Document> items, DataSet ds,String tableName,String status)
+    {
+        DataTable table = new DataTable(tableName);
+        ds.Tables.Add(table);
+        table.Columns.Add("類型", typeof(String));
+        table.Columns.Add("號碼", typeof(String));
+        table.Columns.Add("營業人統編", typeof(String));
+        table.Columns.Add("異常狀態", typeof(String));
+
+        foreach (var i in items)
+        {
+            DataRow r = table.NewRow();
+            r["異常狀態"] = status;
+
+            switch (i.DocType)
+            {
+                case (int)Naming.DocumentTypeDefinition.E_Invoice:
+                    var invItem = i.InvoiceItem;
+                    r["類型"] = "電子發票";
+                    r["號碼"] = $"{invItem.TrackCode}{invItem.No}";
+                    r["營業人統編"] = invItem.InvoiceSeller.ReceiptNo;
+                    break;
+                case (int)Naming.DocumentTypeDefinition.E_Allowance:
+                    var allowanceItem = i.InvoiceAllowance;
+                    r["類型"] = "電子折讓";
+                    r["號碼"] = $"{allowanceItem.TurnkeyAllowanceNo}";
+                    r["營業人統編"] = allowanceItem.InvoiceAllowanceSeller.ReceiptNo;
+                    break;
+                case (int)Naming.DocumentTypeDefinition.E_InvoiceCancellation:
+                    var cancelItem = i.DerivedDocument.ParentDocument.InvoiceItem;
+                    r["類型"] = "作廢電子發票";
+                    r["號碼"] = $"{cancelItem.TrackCode}{cancelItem.No}";
+                    r["營業人統編"] = cancelItem.InvoiceSeller.ReceiptNo;
+                    break;
+                case (int)Naming.DocumentTypeDefinition.E_AllowanceCancellation:
+                    var cancelAllowanceItem = i.DerivedDocument.ParentDocument.InvoiceAllowance;
+                    r["類型"] = "作廢電子折讓";
+                    r["號碼"] = $"{cancelAllowanceItem.TurnkeyAllowanceNo}";
+                    r["營業人統編"] = cancelAllowanceItem.InvoiceAllowanceSeller.ReceiptNo;
+                    break;
+            }
+
+            table.Rows.Add(r);
+        }
+    }
+
+    void SaveAsExcel(String resultFile)
+    {
+        using (DataSet ds = new DataSet())
+        {
+
+            try
+            {
+                SaveItemList(errorItems, ds, "Turnkey傳輸錯誤", "E");
+                SaveItemList(pendingItems, ds, "Turnkey傳輸未回應", "P");
+                using (XLWorkbook xls = ds.ConvertToExcel())
+                {
+                    xls.SaveAs(resultFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        }
+    }
+
+}
+@{
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    if (_viewModel == null)
+    {
+        _viewModel = new InquireInvoiceViewModel();
+        ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+
+    _viewModel.DateFrom = _viewModel.DateTo = DateTime.Today.AddDays(-1);
+    _viewModel.UrlAction = Url.Action("DownloadDailyReport", "Notification");
+
+    bool effective = false;
+    var orgItems = models.GetTable<Organization>()
+                            .Where(o => !o.OrganizationExtension.ExpirationDate.HasValue)
+                            .Where(o => models.GetTable<InvoiceItem>().Any(i => i.SellerID == o.CompanyID));
+
+    if (_viewModel.ReceiptNo?.Length > 0)
+    {
+        orgItems = orgItems.Where(o => o.ReceiptNo == _viewModel.ReceiptNo);
+    }
+
+    foreach (var item in orgItems)
+    {
+        _viewModel.SellerID = _viewModel.CompanyID = item.CompanyID;
+        var invoice = models.GetTable<InvoiceItem>().InquireInvoice(_viewModel, models, ref effective, false);
+        var allowance = models.GetTable<InvoiceAllowance>().InquireAllowance(_viewModel, models, ref effective, false);
+        var cancelInvoice = models.GetTable<InvoiceItem>().InquireVoidInvoice(_viewModel, models, ref effective);
+        var cancelAllowance = models.GetTable<InvoiceAllowance>().InquireVoidAllowance(_viewModel, models, ref effective);
+
+        <pre>@(item.ReceiptNo)</pre>
+        await Html.RenderPartialAsync("~/Views/Notification/IssueDailyReport.cshtml", new Object[] { item, invoice, cancelInvoice, allowance, cancelAllowance, orgList, errorItems, pendingItems });
+    }
+    if (orgList.Any())
+    {
+        String resultFile = ViewBag.DailyReport = System.IO.Path.Combine(Logger.LogDailyPath, $"{DateTime.Today:yyyyMMdd}_DailyReport.xlsx");
+        await Html.RenderPartialAsync("~/Views/Notification/IssueDailyPendingAlert.cshtml", orgList);
+        SaveAsExcel(resultFile);
+    }
+}
+

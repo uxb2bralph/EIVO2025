@@ -1,0 +1,51 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Helper
+
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using WebHome.Helper
+@{
+    QueryViewModel _viewModel;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+    var profile = Context.GetUser();
+
+    Object[] paramItems = ViewBag.ParamItems as Object[];
+    String id = (String)paramItems[0];
+    UserProfileProperty.PropertyType property = (UserProfileProperty.PropertyType)paramItems[1];
+    var item = models.GetTable<UserProfileProperty>()
+                    .Where(p => p.UID == profile.UID)
+                    .Where(p => p.PropertyID == (int)property)
+                    .FirstOrDefault();
+    paramItems[2] = item?.ToPlainText();
+
+}
+@RenderSection("DataField")
+<script>
+        $(function () {
+            var $target = $('#@(id)');
+            $target.on('change', function (event) {
+                var viewModel = {
+                    'UID':@(profile.UID),
+                    'PropertyID':@((int)property),
+                    'Property': $target.val()
+                };
+
+                doPost('@Html.Raw(Url.Action("UpdateProperty", "UserProfileProperty"))', viewModel, function (data) {
+                    console.log(data);
+                    $target.val(data.message);
+                });
+            });
+        });
+</script>
+
+
+

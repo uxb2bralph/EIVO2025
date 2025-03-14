@@ -1,0 +1,54 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+
+}
+@if (_model.InvoiceAllowanceSeller.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCustomStyle))
+{
+    ViewBag.MailTitle = "發票折讓證明作廢";
+    await Html.RenderPartialAsync("~/Views/Notification/Module/MailTitle.cshtml", _model.InvoiceAllowanceSeller.Organization);
+}
+else
+{
+    <text>
+        <p>親愛的客戶您好：</p>
+        @(_model.InvoiceAllowanceSeller.CustomerName)
+        已作廢您下述電子發票折讓證明，請知悉。
+        <br />
+    </text>
+
+}
+@{ await Html.RenderPartialAsync("~/Views/Notification/Module/AllowanceMailView.cshtml", _model);}
+@if (_model.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomNotification != null)
+{
+    Write(new HtmlString(System.Web.HttpUtility.HtmlDecode(_model.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomNotification)));
+    <br />
+}
+信件寄送時間：@(DateTime.Now)

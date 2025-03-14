@@ -1,0 +1,251 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+}
+<script>
+    var uiInvoiceQuery;
+    $(function () {
+        var $postForm;
+        uiInvoiceQuery = {
+            inquire: function (pageNum, onPaging) {
+
+                var $this = uiInvoiceQuery;
+                var $placement = $('button:contains("查詢")').closest('table');
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+
+                if (isNaN(pageNum)) {
+                    $formData.startQuery = true;
+                    uiInvoiceQuery.pageIndex = 1;
+                }
+                else {
+                    $formData.pageIndex = pageNum;
+                    $this.pageIndex = pageNum;
+                }
+
+                if ($this.sort) {
+                    $formData.Sort = $this.sort.getSort();
+                }
+
+                $formData.actionTitle = '@(_viewModel.ActionTitle)';
+
+                showLoading();
+                $.post('@(Url.Action("Inquire","InvoiceProcess",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        if ($this.initQuery) {
+
+                            if (uiInvoiceQuery.$result)
+                                uiInvoiceQuery.$result.remove();
+                            uiInvoiceQuery.$result = $(data).insertAfter($placement);
+                            $this.initQuery = false;
+                            //$this.showHeader();
+                            //$this.checkColumns();
+                        } else {
+                            $this.paging(data);
+                            //$this.checkColumns();
+                        }
+                    }
+                });
+            },
+            print: function (style,processType) {
+                if (!$('input[name="chkItem"]').is(':checked')) {
+                    alert('請選擇列印資料!!');
+                    return false;
+                }
+
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                $formData = { ...$formData, ...$('#queryResult').find('input,select,textarea').serializeObject() };
+                //$formData = $.extend($formData, $('input[name="chkItem"]').serializeObject());
+                $formData.paperStyle = style;
+                if (!isNaN(processType)) {
+                    $formData.ProcessType = processType;
+                }
+
+                showLoading();
+                $.post('@(Url.Action("Print","InvoiceProcess"))', $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        if (data) {
+                            var $data = $(data);
+                            $data.dialog();
+                            $data.find('a').on('click', function (evt) {
+                                $data.dialog('close');
+                            });
+                        }
+                    }
+                });
+            },
+            submitTask: function (viewModel) {
+                viewModel.ProcessModel = @((int)ProcessRequestViewModel.ProcessModelDefinition.ByTask);
+                showLoading();
+                $.post('@(Url.Action("ZipInvoicePDF", "DataView"))', viewModel, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+            },
+
+            download: function () {
+                if ($postForm) {
+                    $postForm.remove();
+                }
+
+                $postForm = $('<form method="post" />').prop('action', '@(Url.Action("CreateXlsx","InvoiceProcess"))')
+                    .css('display', 'none').appendTo($('body'));
+
+                $('#theForm').serializeArray().forEach(function (item, index) {
+                    $('<input type="hidden">')
+                        .prop('name', item.name).prop('value', item.value)
+                        .appendTo($postForm);
+                });
+                $postForm.submit();
+                //showLoading();
+            },
+
+            download2021: function () {
+
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                $formData = $.extend($formData, $('input[name="chkItem"]').serializeObject());
+                showLoading();
+                $.post('@(Url.Action("CreateXlsx2024","InvoiceProcess"))', $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        if (data.message != undefined) {
+                            alert(data.message);
+                        }
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+
+            },
+
+            saveBuyer: function () {
+                if ($postForm) {
+                    $postForm.remove();
+                }
+
+                $postForm = $('<form method="post" />').prop('action', '@(Url.Action("ExportInvoiceBuyer","InvoiceProcess"))')
+                    .css('display', 'none').appendTo($('body'));
+
+                $('#theForm').serializeArray().forEach(function (item, index) {
+                    $('<input type="hidden">')
+                        .prop('name', item.name).prop('value', item.value)
+                        .appendTo($postForm);
+                });
+                $postForm.submit();
+                //showLoading();
+            },
+            editBuyer: function (keyID) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+
+                uiInvoiceQuery.refreshDataRow = function () {
+                    $tr.empty();
+                    showLoading();
+                    $.post('@(Url.Action("LoadInvoiceItem", "InvoiceProcess",new { _viewModel.ResultAction }))', { 'keyID': keyID }, function (data) {
+                        hideLoading();
+                        if ($.isPlainObject(data)) {
+                            alert(data.message);
+                        } else {
+                            $(data).appendTo($('body')).appendTo($tr);
+                        }
+                    });
+                };
+
+                showLoading();
+                $.post('@(Url.Action("EditInvoiceBuyer", "InvoiceProcess"))', {'keyID':keyID}, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+            },
+            arrangeAttachment: function (keyID) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+
+                uiInvoiceQuery.refreshDataRow = function () {
+                    $tr.empty();
+                    showLoading();
+                    $.post('@(Url.Action("LoadInvoiceItem", "InvoiceProcess",new { _viewModel.ResultAction }))', { 'keyID': keyID }, function (data) {
+                        hideLoading();
+                        if ($.isPlainObject(data)) {
+                            alert(data.message);
+                        } else {
+                            $(data).appendTo($('body')).appendTo($tr);
+                        }
+                    });
+                };
+
+                showLoading();
+                $.post('@(Url.Action("ArrangeAttachment", "InvoiceProcess"))', {'keyID':keyID}, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+            },
+            removeAttachment: function (keyID) {
+                if (confirm('確定刪除此筆資料?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@(Url.Action("DeleteAttachment", "InvoiceProcess"))', { 'keyID': keyID }, function (data) {
+                        if (data.result) {
+                            alert('資料已刪除!!')
+                            $tr.remove();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                }
+            },
+            notifyWinning: function (keyID) {
+
+                showLoading();
+                $.post('@(Url.Action("IssueWinningNotice", "InvoiceProcess"))', { 'keyID': keyID }, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        $(data).appendTo($('body')).remove();
+                    }
+                });
+            },
+        };
+    });
+</script>
+

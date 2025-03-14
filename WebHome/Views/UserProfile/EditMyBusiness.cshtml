@@ -1,0 +1,27 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Helper
+@{
+    Layout = "~/Views/Template/MvcMainPage.cshtml";
+    ViewBag.ActionName = "首頁 > 營業人資料設定";
+}
+@section headContent {
+
+}
+@section formContent
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/UserProfile/Module/EditBusinessItem.cshtml");
+    }
+}

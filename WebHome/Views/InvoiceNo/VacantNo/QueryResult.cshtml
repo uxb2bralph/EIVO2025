@@ -1,0 +1,42 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@{
+
+    IQueryable<UnassignedInvoiceNo> _model = (IQueryable<UnassignedInvoiceNo>)this.Model;
+}
+@{ 
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+    }
+
+
+<div class="border_gray query_result">
+    @{ var recordCount = _model.Count();}
+    @if (recordCount > 0)
+    {
+        await Html.RenderPartialAsync("~/Views/InvoiceNo/VacantNo/ItemList.cshtml", _model);
+
+        <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td class="Bargain_btn">
+                    <input type="button" class="btn" name="btnPrint" value="下載Xml" onclick="uiVacantNoQuery.download();" />
+                    <input type="button" class="btn" name="btnPrint" value="下載Csv" onclick="uiVacantNoQuery.downloadCsv();" />
+                </td>
+            </tr>
+        </table>
+    }
+    else
+    {
+        <font color="red">查無資料!!</font>
+    }
+</div>
+
+
+

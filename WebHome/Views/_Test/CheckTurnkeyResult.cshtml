@@ -1,0 +1,120 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+@using System.Text
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+
+@using ModelCore.InvoiceManagement.Validator
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using CommonLib.DataAccess
+@using Newtonsoft.Json
+
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+}
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState ?? ViewContext.ViewData.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    InquireInvoiceViewModel _viewModel = new InquireInvoiceViewModel();
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+    var Response = Context.Response;
+    _viewModel.InvoiceNo = _viewModel.InvoiceNo.GetEfficientString();
+    _viewModel.AllowanceNo = _viewModel.AllowanceNo.GetEfficientString();
+
+    var seller = models.GetTable<Organization>().Where(s => s.ReceiptNo == _viewModel.ReceiptNo).FirstOrDefault();
+    InvoiceItem invoice = null;
+    InvoiceAllowance allowance = null;
+    IEnumerable<DataProcessLog> logItems = null;
+
+    if (seller != null)
+    {
+        if (_viewModel.InvoiceNo != null)
+        {
+            var match = _viewModel.InvoiceNo.ParseInvoiceNo();
+            if (match.Success)
+            {
+                var items = models.GetTable<InvoiceItem>()
+                    .Where(i => i.TrackCode == match.Groups[1].Value && i.No == match.Groups[2].Value)
+                    .Where(i => i.SellerID == seller.CompanyID);
+
+                if (_viewModel.InvoiceDate.HasValue)
+                {
+                    items = items.Where(i => i.InvoiceDate >= _viewModel.InvoiceDate && i.InvoiceDate < _viewModel.InvoiceDate.Value.AddDays(1));
+                }
+
+                invoice = items.OrderByDescending(i => i.InvoiceID).FirstOrDefault();
+
+                if (invoice != null)
+                {
+                    if (_viewModel.Cancelled == true)
+                    {
+                        logItems = invoice.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document?.DataProcessLog;
+                    }
+                    else
+                    {
+                        logItems = invoice.CDS_Document.DataProcessLog;
+                    }
+                }
+
+            }
+        }
+        else if (_viewModel.AllowanceNo != null)
+        {
+            allowance = models.GetTable<InvoiceAllowance>()
+                            .Where(a => a.AllowanceNumber == _viewModel.AllowanceNo)
+                            .Where(a => a.InvoiceAllowanceSeller.SellerID == seller.CompanyID)
+                            .OrderByDescending(a => a.AllowanceID)
+                            .FirstOrDefault();
+            if(allowance!=null)
+            {
+                if (_viewModel.Cancelled == true)
+                {
+                    logItems = allowance.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document?.DataProcessLog;
+                }
+                else
+                {
+                    logItems = allowance.CDS_Document.DataProcessLog;
+                }
+            }
+        }
+    }
+
+
+    Response.Clear();
+
+    Response.Headers.Clear();
+    Response.ContentType = "application/json";
+
+    var jsonResult = new
+    {
+        result = logItems != null,
+        TxnCode = logItems?.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true
+                    ? Naming.GovTurnkeyTransaction.C.ToString()
+                    : logItems?.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true
+                        ? Naming.GovTurnkeyTransaction.E.ToString()
+                        : logItems?.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立) == true
+                            ? Naming.GovTurnkeyTransaction.P.ToString()
+                            : invoice != null || allowance != null
+                                ? Naming.GovTurnkeyTransaction.I.ToString()
+                                : null
+    };
+
+    await Response.WriteAsync(jsonResult.JsonStringify());
+
+
+
+}

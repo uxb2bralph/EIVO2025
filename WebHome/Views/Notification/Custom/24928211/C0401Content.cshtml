@@ -1,0 +1,357 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    RenderStyleViewModel _viewModel;
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    InvoiceProductItem[] _productItem;
+    InvoiceBuyer _buyer;
+    Organization _buyerOrg;
+    bool _isDuplicatedPrint = false;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+
+    _productItem = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
+        .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+        .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, i => i.ProductID, (p, i) => i).ToArray();
+
+    _buyer = _model.InvoiceBuyer;
+    if (_buyer != null && _buyer.BuyerID.HasValue)
+    {
+        _buyerOrg = _buyer.Organization;
+    }
+
+    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Organization.OrganizationStatus.EntrustToPrint != true;
+
+}
+@if (_model != null)
+{
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <table width="1000" border="0" style="margin:0px auto;background-color:#FFF">
+            <thead>
+                <tr>
+                    <td style="font-size:12px;  color:#404040; line-height:30px"> 親愛的<span style="font-size:12px; color:#0066FF; line-height:30px; margin:0px 3px">Beyond Fitness 顧客</span> 您好，以下是您購買商品的發票開立通知，詳情也可參閱『<a href="https://www.einvoice.nat.gov.tw/ptl007w/1681291699372" title="電子發票流程說明">電子發票流程說明</a>』。 </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <table width="100%" border="0" style="padding:10px 0px; border:1px solid #666666" class="@(_buyer.IsB2C() ? "receipt-box" : null)">
+                            <tbody>
+                                <tr>
+                                    <td width="240" rowspan="2" valign="top"
+                                        style="padding:0px 10px; border-right:1px dotted #666666; position:relative">
+                                        <!--<b style="font-size:60px; font-family:微軟正黑體; font-weight:bold; color:#FFCCCC; position:absolute; top:55px; left:70px">副本</b>-->
+                                        <table width="100%" border="0" style="position:relative;z-index:2">
+                                            <tbody>
+                                                <tr>
+                                                    <td height="25" align="center">
+                                                        @if (_model.Organization.LogoURL != null)
+                                                        {
+                                                            <img id="logo" src="@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" +_model.Organization.LogoURL))" width="180" style="vertical-align:middle" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <h3 style="width:@(_model.InvoiceSeller.CustomerName?.Length>16 ? "5.2cm" : "5.2cm");" class="title-small">@(_model.InvoiceSeller.CustomerName)</h3>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center" style="font-size:15px; line-height:30px; color:#F00">
+                                                        @if (!_buyer.IsB2C())
+                                                        {
+                                                            <h2>電子發票證明聯</h2>
+                                                        }
+                                                        else
+                                                        {
+                                                            <text>*此為發票開立通知，非正式發票*</text>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center" style="font-size:30px; line-height:30px">
+                                                        <b style=" margin:0px 3px 0px 0px">@(_model.InvoiceDate.Value.Year - 1911)</b>年
+                                                        <span class="class30" style="padding:0px 3px">
+                                                            <b class="class30" style="padding:0px 3px 0px 0px">@($"{(_model.InvoiceDate.Value.Month-1)/2*2+1:00}")</b>-<b class="class30" style="padding:0px 0px 0px 3px">@($"{(_model.InvoiceDate.Value.Month+1)/2*2:00}")</b>
+                                                        </span>月
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center" class="class30">@(_model.TrackCode)-@(_model.No)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <table width="100%" border="0" cellspacing="0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td valign="baseline">
+                                                                        <span class="class15"
+                                                                              style="margin:0px 5px 0px 0px">@(String.Format("{0:yyyy-MM-dd}", _model.InvoiceDate.Value))</span> <span class="class15">@(String.Format("{0:HH:mm:ss}", _model.InvoiceDate.Value))</span>
+                                                                    </td>
+                                                                    <td valign="baseline" align="right" class="class15">
+                                                                        @(_buyer.IsB2C()
+                                                                            ? ""
+                                                                            : _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4
+                                                                                ? "不得扣抵"
+                                                                                : String.Format("格式 {0}", ((int)_model.InvoiceType.Value).InvoiceTypeToFormat()))
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <table width="100%" border="0" cellspacing="0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td valign="baseline" class="class15">
+                                                                        隨機碼：<span style="font-size:15px; line-height:15px">@(_model.RandomNo)</span>
+                                                                    </td>
+                                                                    <td valign="baseline" align="right" class="class15">
+                                                                        總計：<span id="totalPrice" class="class15">@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <table width="100%" border="0" cellspacing="0">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td valign="baseline" class="class15">
+                                                                        賣方：<span style="font-size:15px; line-height:15px">@(_model.Organization.ReceiptNo)</span>
+                                                                    </td>
+                                                                    <td valign="baseline" align="right" class="class15">
+                                                                        @(_buyer.IsB2C() ? null : String.Format("買方：{0}", _buyer.ReceiptNo))
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        @{
+                                                            String data = $"{_model.InvoiceDate.Value.Year - 1911:000}{(_model.InvoiceDate.Value.Month + 1) / 2 * 2:00}{_model.TrackCode}{_model.No}{_model.RandomNo}";
+                                                        }
+                                                        <img id="barcode" alt="" style="max-width:5.4cm;" src="@(data.GetBarcode39ImageSrc(margin:10,height:40,wide:3,narrow:1))" />
+                                                        @*<img src="https://m.momoshop.com.tw/mymomo/ajaxProduceImage.jsp?type=0&amp;hrp=none&amp;code=24052190564502&amp;t=1717655973691"
+                                                            width="230" height="36">*@
+                                                    </td>
+                                                </tr>
+                                                <tr class="paddingTop" id="paddingTop">
+                                                    <td></td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center" id="qrCodeArea">
+                                                        <img src="@(_model.GetLeftQRCodeImageSrc(width:180,height:180,qrVersion:10))"
+                                                             width="90" style="margin:5px 10px">
+                                                        <img src="@("**".CreateQRCodeImageSrc(width:180,height:180,qrVersion:10))"
+                                                             width="90" style="margin:5px 10px">
+                                                    </td>
+                                                    <td class="invalid" id="invalidArea">
+                                                        <span></span>
+                                                    </td>
+                                                </tr>
+                                                <tr class="paddingBottom" id="paddingBottom">
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                    <td valign="top" style="padding:0px 10px">
+                                        <p style="font-size:18px; line-height:20px; text-align:center; margin:0px; padding:0px">
+                                            銷貨明細
+                                        </p>
+                                        <table width="100%" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td valign="top" style="font-size:13px; line-height:15px">
+                                                        @(_model.InvoiceSeller.CustomerName)<br>
+                                                        營業人地址：@(_model.InvoiceSeller.Address)
+                                                    </td>
+                                                    <td width="200" valign="top" style="font-size:13px; line-height:15px">
+                                                        @if (_model.InvoiceCarrier != null)
+                                                        {
+                                                            <text>載具號碼：<span>@(_model.InvoiceCarrier.CarrierNo)</span><br></text>
+                                                        }
+                                                        @*訂單號碼：<span>@(_model.InvoicePurchaseOrder?.OrderNo)</span><br>*@
+                                                        發票號碼：<span>@($"{_model.TrackCode}{_model.No}")</span><br />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <table class="detailArea" width="100%" border="0" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th>品名</th>
+                                                    <th>數量</th>
+                                                    <th>單價</th>
+                                                    <th>金額</th>
+                                                    <th>&nbsp;</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{ int _itemIdx;}
+                                                @for (_itemIdx = 0; _productItem != null && _itemIdx < _productItem.Length; _itemIdx++)
+                                                {
+                                                    var item = _productItem[_itemIdx];
+                                                    <tr>
+                                                        <td class="class12" style="padding:3px">@(item.InvoiceProduct.Brief)</td>
+                                                        <td align="center">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</td>
+                                                        <td align="right">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</td>
+                                                        <td align="right">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</td>
+                                                        <td align="center">@(_model.InvoiceAmountType.TaxTypeString)</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td valign="bottom" style="padding:0px 10px">
+                                        <table class="summaryArea" width="100%" border="0">
+                                            <tbody>
+                                                <tr>
+                                                    <td align="right">
+                                                        <table border="0" style="margin:0px 20px 0px 0px">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td valign="top">
+                                                                        <table border="0" cellspacing="0">
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td align="right"
+                                                                                        style="font-size:12px;  line-height:15px">
+                                                                                        銷售額(應稅)：
+                                                                                    </td>
+                                                                                    <td align="right" width="90"
+                                                                                        style="font-size:12px; line-height:15px; padding:0px 10px 0px 0px">
+                                                                                        $
+                                                                                        <span style="font-size:12px; line-height:15px">
+                                                                                            @(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.SalesAmount))
+                                                                                        </span>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                @if (!_buyer.IsB2C())
+                                                                                {
+                                                                                    <tr>
+                                                                                        <td width="150" align="right"
+                                                                                            style="font-size:12px;line-height:15px">
+                                                                                            銷售額(免稅)：
+                                                                                        </td>
+                                                                                        <td align="right"
+                                                                                            style="font-size:12px; line-height:15px; padding:0px 10px 0px 0px">
+                                                                                            $<span class="class12">@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.FreeTaxSalesAmount))</span>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                    <tr>
+                                                                                        <td class="class12" align="right">營業稅額：</td>
+                                                                                        <td class="class12" align="right" width="90"
+                                                                                            style="padding:0px 10px 0px 0px">
+                                                                                            $<span style="font-size:12px; line-height:15px">@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4 ? 0 : _model.InvoiceAmountType.TaxAmount))</span>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                                <tr>
+                                                                                    <td align="right" class="class12">總計：</td>
+                                                                                    <td align="right" class="class12" width="90"
+                                                                                        style="padding:0px 10px 0px 0px">
+                                                                                        $<span class="class12">@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </td>
+                                                                    <td valign="top" class="class12">
+                                                                        合計：
+                                                                        <span class="class12" style="margin:0px 0px 0px 50px">
+                                                                            @(_model.InvoiceDetails.Count)
+                                                                        </span>
+                                                                        項
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>
+                        <table class="noteArea" width="100%" border="0">
+                            <tbody>
+                                @if (_buyer.IsB2C())
+                                {
+                                    <tr>
+                                        <td valign="top">●</td>
+                                        <td valign="top" class="redtxt">依財政部令此副本僅供參考，不可直接兌獎。 </td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="top">●</td>
+                                        <td valign="top" class="redtxt">統一發票給獎辦法第11條規定，發票金額為0，不能兌換。</td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="top">●</td>
+                                        <td valign="top">
+                                            根據財政部「電子發票實施作業要點」，Beyond Fitness 將為您的發票檔案儲存於您的訂單資料中，且將您的電子發票檔上傳到政府的「 <a href="http://www.einvoice.nat.gov.tw/"
+                                                                                                                    title="電子發票整合服務平台">電子發票整合服務平台</a> 」，詳情請參考「<a href="https://www.einvoice.nat.gov.tw/ptl007w/1681291699372"
+                                                                                                                                                                 title="電子發票流程說明">電子發票流程說明</a>」。
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td valign="top">●</td>
+                                        <td valign="top" class="redtxt">本公司開立的是電子發票，可直接下載列印「電子發票證明聯」作為報帳使用。</td>
+                                    </tr>
+                                    <tr>
+                                        <td valign="top">●</td>
+                                        <td valign="top">列印日期：@($"{DateTime.Today:yyyy/MM/dd}")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
+
+
+
+
+

@@ -1,0 +1,56 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using System.Collections.Specialized
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+    ViewBag.ActionName = "首頁 > 大平台歸戶";
+    dynamic _model = this.Model as dynamic;
+
+    String _viewID = $"Q{DateTime.Now.Ticks}";
+
+}
+
+@section headContent {
+
+}
+@section formContent
+{
+    <div id="@(_viewID)">
+        @{
+            await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "大平台歸戶驗證失敗");
+        }
+        <div class="border_gray">
+            <label>錯誤訊息：@Html.Raw(_model.err_msg)</label>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $('#@(_viewID)').dialog({
+                width: 640,
+                buttons: [
+                    {
+                        text: "關閉",
+                        icons: {
+                            primary: "ui-icon-close"
+                        },
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+}

@@ -1,0 +1,52 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+    _viewModel.ActionTitle = "刪除折讓";
+    _viewModel.CommitAction = "DeleteAllowance";
+    String _viewID = $"btnDelete{DateTime.Now.Ticks}";
+}
+
+@if (_viewModel != null)
+{
+    <button type="button" class="btn" id="@(_viewID)" name="btnVoid">@(_viewModel.ActionTitle)</button>
+    <script>
+        $(function () {
+            $('#@(_viewID)').on('click', function (data) {
+                if (!confirm('資料刪除將無法復原!!確定刪除?')) {
+                    return;
+                }
+                showLoading();
+                $.post('@Html.Raw(Url.Action("InvokeCommitAction","AllowanceProcess",new { _viewModel.CommitAction,_viewModel.ActionTitle }))', {}, function (data) {
+                    if ($.isPlainObject(data)) {
+                        hideLoading();
+                        alert(data.message);
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+
+

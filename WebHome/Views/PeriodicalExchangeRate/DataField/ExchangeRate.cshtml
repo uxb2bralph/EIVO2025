@@ -1,0 +1,73 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@using CommonLib.DataAccess
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+@{
+    Naming.FieldDisplayType? displayType = (Naming.FieldDisplayType?)ViewBag.DisplayType;
+}
+@switch (displayType)
+{
+    case Naming.FieldDisplayType.Header:
+        <a href="javascript:void(0);" onclick="$inquiryAgent.sort('ExchangeRate',this);">匯率</a>
+        break;
+    case Naming.FieldDisplayType.DataItem:
+        InvoicePeriodExchangeRate item = this.Model as InvoicePeriodExchangeRate;
+        <text>@(item?.ExchangeRate)</text>
+        break;
+    case Naming.FieldDisplayType.SortBy:
+        QueryViewModel viewModel = (QueryViewModel)ViewBag.ViewModel;
+        if (viewModel.SortName != null)
+        {
+            int idx = System.Array.IndexOf(viewModel.SortName, "ExchangeRate");
+            if (idx >= 0)
+            {
+                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<InvoicePeriodExchangeRate> ?? (IQueryable<InvoicePeriodExchangeRate>)this.Model).OrderBy(p => p.ExchangeRate, viewModel.SortType[idx]);
+            }
+        }
+        break;
+
+    case Naming.FieldDisplayType.Edit:
+        item = this.Model as InvoicePeriodExchangeRate;
+        editField(_viewModel as ExchangeRateQueryViewModel, item);
+        break;
+    default:
+        break;
+}
+
+@functions
+{
+    void editField(ExchangeRateQueryViewModel _viewModel, InvoicePeriodExchangeRate item)
+    {
+        <input name="ExchangeRate" class="form-control" type="text" value="@(item!=null ? item.ExchangeRate : _viewModel?.ExchangeRate)" />
+    }
+}
+
+

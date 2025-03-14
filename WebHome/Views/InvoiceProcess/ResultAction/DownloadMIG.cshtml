@@ -1,0 +1,35 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@{
+
+    InquireInvoiceViewModel _viewModel;
+
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+
+<table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td >
+            <button type="button" class="btn" name="btnNotify" onclick="uiInvoiceQuery.C0401();">下載C0401</button>
+            <button type="button" class="btn" name="btnNotify" onclick="uiInvoiceQuery.C0701();">下載C0701</button>
+            @if (_viewModel.Cancelled == true)
+            {
+                <button type="button" class="btn" name="btnNotify" onclick="uiInvoiceQuery.C0501();">下載C0501</button>
+            }
+        </td>
+    </tr>
+</table>
+
+
+

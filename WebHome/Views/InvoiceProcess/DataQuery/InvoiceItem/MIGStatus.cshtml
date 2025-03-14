@@ -1,0 +1,106 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@functions
+{
+    InquireInvoiceViewModel _viewModel;
+}
+@{
+
+    ModelStateDictionary _modelState;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+}
+@{
+    _viewModel.DataColumns.Add(new QueryResultDataColumnHelper
+    {
+        ShowHeader = item => BuildHelperResult(ShowHeader, item),
+        ShowBody = item => BuildHelperResult(ShowBody, item),
+        ShowFooter = item => BuildHelperResult(ShowFooter, item)
+    });
+}
+
+@functions
+{
+    HelperResult BuildHelperResult(Action<dynamic> action, dynamic item)
+    {
+        return new HelperResult(async (writer) =>
+        {
+            var original = ViewContext.Writer;
+            ViewContext.Writer = writer;
+            action(item);
+            await writer.WriteAsync("");
+            ViewContext.Writer = original;
+        });
+    }
+    void ShowHeader(dynamic item)
+    {
+        <th aria-sort="other">發票狀態</th>
+    }
+
+
+    void ShowBody(dynamic po)
+    {
+        InvoiceItem item = (InvoiceItem)po;
+        <td>
+            @(item.InvoiceCancellation==null ? "" : $"已作廢({item.InvoiceCancellation.CancelDate:yyyy/MM/dd})")
+            @if (_viewModel.MIG == true)
+            {
+                @(((Naming.InvoiceProcessType?)item.CDS_Document.ProcessType)?.ToString() ?? "C0401");
+                if (item.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C))
+                {
+                    @(":C");
+                }
+                else if (item.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E))
+                {
+                    @(":E");
+                }
+                else
+                {
+                    @(":P");
+                }
+                if (item.InvoiceCancellation != null)
+                {
+                    @(",");
+                    var doc = item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
+                    @(((Naming.InvoiceProcessType?)doc.ProcessType)?.ToString() ?? "C0501");
+                    if (doc?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
+                    {
+                        @(":C");
+                    }
+                    else if (doc?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
+                    {
+                        @(":E");
+                    }
+                    else
+                    {
+                        @(":P");
+                    }
+                }
+            }
+        </td>
+    }
+
+    void ShowFooter(dynamic item)
+    { }
+}
+
+
+

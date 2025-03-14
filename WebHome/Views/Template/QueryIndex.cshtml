@@ -1,0 +1,86 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+
+
+@using Newtonsoft.Json
+@{
+
+    Layout = "~/Views/Template/QueryActionTemplate.cshtml";
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    var _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+
+@RenderSection("QueryForm", false)
+
+<script>
+
+    var $inquiryAgent = {
+        viewModel: @Html.Raw(_viewModel.JsonStringify()),
+        initQuery: false,
+        columns: null,
+        $queryResult: null,
+        sort: function (name, target) {
+            if (!$inquiryAgent.viewModel.SortName) {
+                $inquiryAgent.viewModel.SortName = [];
+            }
+            if (!$inquiryAgent.viewModel.SortType) {
+                $inquiryAgent.viewModel.SortType = [];
+            }
+            var sortType = 1;
+            var idx = $inquiryAgent.viewModel.SortName.indexOf(name);
+            if (idx >= 0) {
+                sortType = ($inquiryAgent.viewModel.SortType[idx] + 2) % 3 - 1;
+                $inquiryAgent.viewModel.SortType[idx] = sortType;
+            } else {
+                if ($inquiryAgent.viewModel.SortName.length > 0) {
+                    $inquiryAgent.viewModel.SortName[0] = name;
+                } else {
+                    $inquiryAgent.viewModel.SortName.push(name);
+                }
+                if ($inquiryAgent.viewModel.SortType.length > 0) {
+                    $inquiryAgent.viewModel.SortType[0] = sortType;
+                } else {
+                    $inquiryAgent.viewModel.SortType.push(sortType);
+                }
+            }
+
+            var $target = $(target);
+            $target.closest('tr').find('i.fas').remove();
+            $target.closest('tr').find('svg').remove();
+            //$target.find('i').remove();
+            if (sortType == 1) {
+                $target.append('<i class="fas fa-arrow-up" aria-hidden="true"></i>');
+            } else if (sortType == -1) {
+                $target.append('<i class="fas fa-arrow-down" aria-hidden="true"></i>');
+            }
+            $inquiryAgent.inquire(-1);
+        },
+        pageIndex: 0,
+        doPage: function (data) {
+        },
+        onBodyLoad: function () {
+        },
+        onQueryDone: null,
+    };
+
+</script>
+@RenderBody()

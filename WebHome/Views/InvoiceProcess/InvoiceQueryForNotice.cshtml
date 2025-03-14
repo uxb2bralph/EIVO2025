@@ -1,0 +1,134 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
+@using WebHome.Controllers
+@using WebHome.Components
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    String _title;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _title = ViewBag.Title ?? "重送開立發票通知";
+    QueryViewModel _viewModel = ViewBag.ViewModel as QueryViewModel;
+    _viewModel.UrlAction = Url.Action("Inquire2023", "InvoiceProcess");
+
+}
+<!--交易畫面標題-->
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", _title);}
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#inquireInvoice">查詢條件</a></li>
+    <li><a data-toggle="tab" href="#uploadBatch">批次</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="inquireInvoice" role="tabpanel" class="tab-pane fade in active">
+        <div class="border_gray">
+            <!--表格 開始-->
+            <table id="queryArea" class="table table-striped">
+                <tr>
+                    <th colspan="2" class="Head_style_a">
+                        查詢條件
+                        <input type="hidden" name="ResultAction" value="@(_viewModel.ResultAction ?? "Notify")" />
+                    </th>
+                </tr>
+                @{
+                    await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/QueryDirective.cshtml", 0);
+                    ViewBag.QueryAll = true;
+                    @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>());
+                    @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>());
+                    @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>());
+                    @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>());
+                    @(await Component.InvokeAsync<InquireCustomerIDViewComponent>());
+                    @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
+                    @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>());
+                }
+
+                @{
+                    await Html.RenderPartialAsync("~/Views/InquireInvoice/ByAttachment.cshtml");
+                    await Html.RenderPartialAsync("~/Views/InquireInvoice/ByWinningNumber.cshtml");
+                    await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCancellation.cshtml");
+                    await Html.RenderPartialAsync("~/Views/InquireInvoice/ByPrintMark.cshtml");
+                    await Html.RenderPartialAsync("~/Views/InquireInvoice/ByPrintStatus.cshtml");
+                    await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierType.cshtml");
+                    await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierNo.cshtml");
+                }
+                <tr>
+                    <th>
+                        通知未送出
+                    </th>
+                    <td class="tdleft">
+                        <select name="IsNoticed">
+                            <option value="">全部</option>
+                            <option value="False">是</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+            <!--表格 結束-->
+        </div>
+
+        <!--按鈕-->
+        <table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
+            <tbody>
+                <tr>
+                    <td class="Bargain_btn">
+                        <button type="button" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">查詢</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!--表格 開始-->
+        @{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");}
+
+        @{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Notify.cshtml");}
+    </div>
+    <div id="uploadBatch" role="tabpanel" class="tab-pane">
+        <div class="border_gray">
+            <!--表格 開始-->
+            <table class="table table-striped">
+                <tr>
+                    <th>
+                        買受人
+                    </th>
+                    <td class="tdleft">
+                        <button type="button" name="btnBuyerSample" onclick="getSample();">下載範本</button>&nbsp;&nbsp;
+                        <script>
+                            function getSample() {
+                                $('').launchDownload('@(VirtualPathUtility.ToAbsolute("~/Helper/GetSample.ashx"))', { 'data': 'InvoiceBuyer' });
+                            }
+                        </script>
+                        @{
+                            await Html.RenderPartialAsync("~/Views/Shared/Module/FileUpload.cshtml",
+                                new AttachmentViewModel
+                                {
+                                    FileName = "InvoiceBuyer",
+                                    ButtonField = "傳送更新",
+                                    UrlAction = Url.Action("UpdateBuyerInfo", "DataExchange", new { IssueNotification = true }),
+                                });
+                        }
+                    </td>
+                </tr>
+            </table>
+            <!--表格 結束-->
+        </div>
+    </div>
+</div>
+
+
+

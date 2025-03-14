@@ -1,0 +1,36 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using ModelCore.DataExchange
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc
+
+@{
+    Layout = "~/Views/Shared/Module/MessageDialog.cshtml";
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    VirtualFileResult _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (VirtualFileResult)this.Model;
+
+}
+
+<div class="border_gray">
+    <a href="#" onclick="$('').launchDownload('@(Url.Action("DownloadResource","DataExchange"))', { 'keyID': '@Html.Raw((new { _model.FileDownloadName,_model.FileName,_model.ContentType }).JsonStringify().EncryptData())' });">@(_model.FileDownloadName ?? "下載回應檔")</a>
+</div>
+
+
+

@@ -1,0 +1,86 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+    IQueryable<Organization> _model = (IQueryable<Organization>)this.Model;
+
+}
+
+<table class="table table-small-font table-bordered table-striped table01 companyList">
+    <thead>
+        <tr>
+            <th>
+                <input name="chkAll" type="checkbox" onclick="var $this = $(this); $this.closest('table').find('input[name=\'chkItem\']').prop('checked', $this.is(':checked'));" />
+            </th>
+            <th>
+                <a href="javascript:void(0);" onclick="$inquiryAgent.sort('CompanyName',this);">營業人名稱</a>
+            </th>
+            <th>
+                <a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">統一編號</a>
+            </th>
+            <th>上線日期</th>
+            <th>註記停用日期</th>
+            <th>營業人狀態</th>
+            <th style="white-space: nowrap; min-width: 150px;">管理</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/SellerItemList.cshtml");
+        }
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td colspan="7">
+                <div class="col-md-2">
+                    <a class="btn" onclick="createCompany();">新增開立人</a>
+                </div>
+                <div class="col-md-4">
+                    @{
+                        await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml");
+                    }
+                </div>
+                <div class="btn-group" data-toggle="dropdown">
+                    <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+                    <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="btn" onclick="cloneBilling(this);">複製收費標準</a>
+                        </li>
+                        <li>
+                            <a class="btn" onclick="applyHeadquarter(this);">設為分支機構</a>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $inquiryAgent.doPage = function (data) {
+        $('table.companyList tbody')
+            .empty()
+            .append(data);
+    };
+</script>
+

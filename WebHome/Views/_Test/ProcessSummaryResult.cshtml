@@ -1,0 +1,100 @@
+﻿@using System.IO
+@using System.Net
+@using System.Net.Mail
+@using System.Linq
+@using System.Linq.Expressions
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using System.Xml.Linq
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    var Request = Context.Request;
+    var Response = Context.Response;
+
+    InquireInvoiceViewModel? _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+    if(_viewModel == null)
+    {
+        _viewModel = new InquireInvoiceViewModel();
+        await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<InquireInvoiceViewModel>(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+    DateTime startDate = _viewModel.DateFrom ?? DateTime.Today;
+}
+@{
+    if (Request.Form.Files.Count > 0)
+    {
+        var resultFile = Request.Form.Files[0];
+        try
+        {
+            using var stream = resultFile.OpenReadStream();
+            XElement data = XElement.Load(stream);
+            if(data.Document?.FirstNode!=null)
+            {
+                foreach(var item in data.Document.Elements())
+                {
+                    var msgType = item.Element("MessageType");
+                    var dataNo = item.Element("InvoiceNumber");
+                    var code = item.Element("ReturnCode");
+
+                    switch(msgType?.Value)
+                    {
+                        case "A0401":
+                        case "C0401":
+                            var no = dataNo?.Value;
+                            if(no?.Length == 10)
+                            {
+                                var invoice = models.GetTable<InvoiceItem>()
+                                        .Where(i => i.InvoiceDate >= startDate)
+                                        .Where(i => i.TrackCode == no.Substring(0, 2))
+                                        .Where(i => i.No == no.Substring(2))
+                                        .FirstOrDefault();
+
+                                if(invoice!=null)
+                                {
+
+                                }
+                            }
+                            break;
+                        case "A0501":
+                            break;
+                        case "C0501":
+                            break;
+                        case "B0401":
+                            break;
+                        case "B0501":
+                            break;
+                        case "D0401":
+                            break;
+                        case "D0501":
+                            break;
+                    }
+                }
+            }
+
+        }
+        catch(Exception ex)
+        {
+            Logger.Error(ex);
+            <div>@(ex.Message)</div>
+                }
+    }
+    else
+    {
+                <div>檔案未上傳</div>
+            }
+}
+

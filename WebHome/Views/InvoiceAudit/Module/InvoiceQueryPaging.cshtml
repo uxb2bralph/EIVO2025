@@ -1,0 +1,75 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    IQueryable<InvoiceItem> _model = (IQueryable<InvoiceItem>)this.Model;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+@{
+    String _listID = $"list{DateTime.Now.Ticks}";
+    String _paginationID = "pagination" + DateTime.Now.Ticks;
+}
+@{
+    var recordCount = _model.Count();
+    if (recordCount > 0)
+    {
+        <script>
+            $inquiryAgent.doPage = function (data) {
+                $('#@(_listID) table tbody')
+                    .empty()
+                    .append(data);
+            };
+        </script>
+        <div id="@(_listID)" class="query_result">
+            @{
+                await Html.RenderPartialAsync(_viewModel.ResultView, _model);
+            }
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination" id="@(_paginationID)"></ul>
+        </nav>
+        <script>
+            $(function () {
+
+                var obj = $('#@(_paginationID)').twbsPagination({
+                    totalPages: @((recordCount + _viewModel.PageSize - 1) / _viewModel.PageSize),
+                    totalRecordCount: @(recordCount),
+                    visiblePages: 10,
+                    first: '最前',
+                    prev: '上頁',
+                    next: '下頁',
+                    last: '最後',
+                    initiateStartPageClick: false,
+                    onPageClick: function (event, page) {
+                        $inquiryAgent.inquire(page);
+                    }
+                });
+            });
+        </script>
+    }
+}
+
+

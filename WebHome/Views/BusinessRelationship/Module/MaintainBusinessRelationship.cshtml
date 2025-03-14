@@ -1,0 +1,364 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile;
+    BusinessRelationshipQueryViewModel _viewModel;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _profile = Context.GetUser();
+    _viewModel = (BusinessRelationshipQueryViewModel)ViewBag.ViewModel;
+
+    _viewModel.UrlAction = Url.Action("InquireBusinessRelationship");
+    _viewModel.DeleteAction = Url.Action("DeleteItem");
+    _viewModel.LoadAction = Url.Action("ProcessDataItem");
+    _viewModel.CommitAction = Url.Action("CommitItem");
+    _viewModel.DownloadAction = Url.Action("CreateXlsx");
+    _viewModel.EditAction = "default";
+    _viewModel.EmptyKeyID = (new { MasterID = -1, RelativeID = -1, BusinessID = -1 }).JsonStringify().EncryptData();
+
+}
+
+@*<table class="top_table" border="0" cellspacing="0" cellpadding="0" width="100%">
+    <tbody>
+        <tr>
+            <td>
+                @if (_profile.IsSystemAdmin())
+                {
+                    <div class="btn-group dropdown" data-toggle="dropdown">
+                        <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">匯入相對營業人</button>
+                        <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+                        <ul class="dropdown-menu" style="min-width:auto;">
+                            <li><button type="button" class="btn" onclick="window.location.href='@(Url.Action("ImportCounterpartBusiness", "BusinessRelationship"))';">匯入分店相對營業人</button></li>
+                            <li><button type="button" class="btn" onclick="window.location.href='@(Url.Action("ImportCounterpartBusinessXml", "BusinessRelationship"))';">匯入商務關係相對營業人</button></li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <button type="button" class="btn" onclick="window.location.href='@(Url.Action("ImportCounterpartBusinessXml", "BusinessRelationship"))';">匯入相對營業人</button>
+                }
+            </td>
+        </tr>
+    </tbody>
+</table>*@
+<div class="border_gray" id="queryArea">
+    <!--表格 開始-->
+    <table class="table table-striped">
+        <tr>
+            <th colspan="2" class="Head_style_a">
+                資料維護
+            </th>
+        </tr>
+        <tr>
+            <th>
+                匯入相對營業人
+            </th>
+            <td class="tdleft">
+                <input type="button" name="btnDataSample" value="下載範本" onclick="$inquiryAgent.downloadQuery({'KeyID':'@((new {MasterID = -1}).JsonStringify().EncryptData())'});" />&nbsp;&nbsp;
+                @{
+                    await Html.RenderPartialAsync("~/Views/Shared/Module/FileUpload.cshtml",
+                        new AttachmentViewModel
+                        {
+                            FileName = "ExcelFile",
+                            ButtonField = "立即傳送",
+                            GetFormData = "getFormData()",
+                            UrlAction = Url.Action("UploadCounterpartBusiness", "BusinessRelationship"),
+                        });
+                }
+                <script>
+                    function getFormData() {
+                        var $placement = $('#queryArea');
+                        var $formData = $placement.find('input,select,textarea').serializeObject();
+                        return $formData;
+                    }
+                </script>
+            </td>
+        </tr>
+    </table>
+    <!--表格 結束-->
+    <!--表格 開始-->
+    <table class="table table-striped">
+        <tbody>
+            <tr>
+                <th class="Head_style_a" colspan="2">
+                    查詢條件
+                </th>
+            </tr>
+            @if (_profile.IsSystemAdmin())
+            {
+                <tr>
+                    <th>
+                        集團成員
+                    </th>
+                    <td class="tdleft">
+                        @{ ViewBag.SelectAll = true;
+                            await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/GroupMemberSelector.cshtml");}
+
+                    </td>
+                </tr>
+            }
+            <tr>
+                <th width="120">
+                    營業人統編
+                </th>
+                <td class="tdleft">
+                    <input name="ReceiptNo" type="text" />
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <th width="120">
+                    <span class="tdleft">營業人名稱</span>
+                </th>
+                <td class="tdleft">
+                    <input name="CompanyName" type="text" />
+                    &nbsp;
+                </td>
+            </tr>
+            @*<tr>
+                    <th width="120">
+                        <span class="tdleft">店號</span>
+                    </th>
+                    <td class="tdleft">
+                        <input name="branchNo" type="text" />
+                        &nbsp;
+                    </td>
+                </tr>*@
+            @*<tr>
+                    <th width="120">
+                        營業人狀態
+                    </th>
+                    <td class="tdleft">
+                        <select name="CompanyStatus">
+                            <option value="">全部</option>
+                            <option value="1103">已啟用</option>
+                            <option value="1101">已停用</option>
+                        </select>
+                    </td>
+                </tr>*@
+            <tr>
+                <th width="120">
+                    營業人類別
+                </th>
+                <td class="tdleft">
+                    @{
+                        ViewBag.FieldName = "BusinessType";
+                        ViewBag.SelectorIndication = "全部";
+                        ViewBag.SelectorIndicationValue = "";
+                        await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelector.cshtml", typeof(Naming.InvoiceCenterBusinessType));
+                    }
+                </td>
+            </tr>
+            @*<tr>
+                    <th width="120">
+                        自動接收
+                    </th>
+                    <td class="tdleft">
+                        <select name="Entrusting">
+                            <option value="">全部</option>
+                            <option value="True">已啟用</option>
+                            <option value="False">已停用</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th width="120">
+                        主動列印
+                    </th>
+                    <td class="tdleft">
+                        <select name="EntrustToPrint">
+                            <option value="">全部</option>
+                            <option value="True">已啟用</option>
+                            <option value="False">已停用</option>
+                        </select>
+                    </td>
+                </tr>*@
+        </tbody>
+    </table>
+    <!--表格 結束-->
+    <table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
+        <tbody>
+            <tr>
+                <td class="Bargain_btn">
+                    <button type="button" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">查詢</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    var uiInquireBusiness;
+    $(function () {
+
+        uiInquireBusiness = {
+            $result: null,
+            commitItem: function (value) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                $.post('@(Url.Action("CommitItem","BusinessRelationship"))', $.param($tr.find('input,select,textarea')), function (data) {
+                    if (data) {
+                        var $data = $(data);
+                        if ($data.is('tr')) {
+                            $tr.before($data);
+                            if (value) {
+                                alert('資料已更新!!');
+                                $tr.remove();
+                            }
+                        } else {
+                            $('body').append($data);
+                            $data.remove();
+                        }
+                    }
+                });
+            },
+            edit: function (value) {
+                actionHandler('@(VirtualPathUtility.ToAbsolute("~/Helper/EditCompany.aspx"))',
+                    { 'companyID': value },
+                    function () {
+                        uiInquireBusiness.inquireBusiness();
+                    }, 800, 560);
+            },
+            inquireBusiness: function (pageNum, onPaging) {
+                $('form').ajaxForm({
+                    url: "@(Url.Action("InquireBusinessRelationship","BusinessRelationship"))" + "?pageIndex=" + pageNum,
+                    beforeSubmit: function () {
+                        showLoading();
+                    },
+                    success: function (data) {
+                        hideLoading();
+                        if (data) {
+                            if (onPaging) {
+                                onPaging(data);
+                            } else {
+                                if (uiInquireBusiness.$result)
+                                    uiInquireBusiness.$result.remove();
+                                uiInquireBusiness.$result = $(data);
+                                $('.queryAction').after(uiInquireBusiness.$result);
+                            }
+                        }
+                    },
+                    error: function () {
+                    }
+                }).submit();
+            },
+            deleteItem: function (businessID, masterID, relativeID) {
+                if (confirm('確認刪除此營業人關係?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@(Url.Action("DeleteItem","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                        if (data.result) {
+                            alert('資料已刪除!!')
+                            $tr.remove();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+
+                }
+            },
+            entrustToPrint: function (businessID, masterID, relativeID, onoff) {
+                if (confirm('確認停用列印?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@(Url.Action("SetEntrustToPrint","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
+                        if (data) {
+                            var $data = $(data);
+                            if ($data.is('tr')) {
+                                $tr.before($data);
+                                alert('資料已更新!!');
+                                $tr.remove();
+                            } else {
+                                $('body').append($data);
+                                $data.remove();
+                            }
+                        }
+                    });
+
+                }
+            },
+            entrusting: function (businessID, masterID, relativeID, onoff) {
+                if (confirm('確認啟用此營業人自動接收?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@(Url.Action("SetEntrusting","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
+                        if (data) {
+                            var $data = $(data);
+                            if ($data.is('tr')) {
+                                $tr.before($data);
+                                alert('資料已更新!!');
+                                $tr.remove();
+                            } else {
+                                $('body').append($data);
+                                $data.remove();
+                            }
+                        }
+                    });
+
+                }
+            },
+            activate: function (businessID, masterID, relativeID) {
+                if (confirm('確認啟用此營業人?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@(Url.Action("Activate","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                        if (data) {
+                            var $data = $(data);
+                            if ($data.is('tr')) {
+                                $tr.before($data);
+                                alert('資料已更新!!');
+                                $tr.remove();
+                            } else {
+                                $('body').append($data);
+                                $data.remove();
+                            }
+                        }
+                    });
+
+                }
+            },
+            deactivate: function (businessID, masterID, relativeID) {
+                if (confirm('確認停用此營業人?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@(Url.Action("Deactivate","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                        if (data) {
+                            var $data = $(data);
+                            if ($data.is('tr')) {
+                                $tr.before($data);
+                                alert('資料已更新!!');
+                                $tr.remove();
+                            } else {
+                                $('body').append($data);
+                                $data.remove();
+                            }
+                        }
+                    });
+                }
+            },
+
+            inquireUser: function (value) {
+                $.post('@(Url.Action("AccountIndex","Account",new { showTab = true, roleID = (int)Naming.RoleQueryDefinition.分店相對營業人 }))', { 'sellerID': value }, function (data) {
+                    $global.createTab('@("listUser"+DateTime.Now.Ticks)', '使用者管理', data, true);
+                });
+            },
+        };
+    });
+</script>
+

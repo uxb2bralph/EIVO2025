@@ -1,0 +1,341 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        div.fspace {
+            height: 9.0cm;
+        }
+
+        div.bspace {
+            height: 9.0cm;
+        }
+
+        body, td, th {
+            font-family: Verdana, Arial, Helvetica, sans-serif, "細明體", "新細明體";
+        }
+
+        body {
+            margin: 0px;
+            margin-left: 0.6cm;
+            margin-right: 0.6cm;
+            padding: 0px;
+            font-family: "Arial", "Verdana","Helvetica", "sans-serif", "細明體", "新細明體";
+        }
+
+        .container {
+            display: block;
+            width: 100%;
+            height: 9.4cm;
+            border-top: 1px dotted #999;
+            border-bottom: 1px dotted #999;
+            padding-top: 0.3cm;
+        }
+
+            .container .cutfield {
+                border: 1px dashed #808080;
+                display: block;
+                width: 5.7cm;
+                height: 9cm;
+                overflow: hidden;
+                float: left;
+            }
+
+                .container .cutfield h2 {
+                    font-size: 17pt;
+                    line-height: 1;
+                    letter-spacing: -1px;
+                    text-align: center;
+                    padding: 0;
+                    margin: 0;
+                }
+
+                .container .cutfield h3 {
+                    width: 5.2cm;
+                    font-size: 13pt;
+                    line-height: 1.4;
+                    text-align: center;
+                    padding: 0;
+                    padding-top: 1cm;
+                    padding-bottom: 0.2cm;
+                    margin: 0 auto;
+                }
+
+                    .container .cutfield h3.notop {
+                        font-size: 12pt;
+                        line-height: 1.4;
+                        text-align: center;
+                        padding: 0;
+                        padding-top: 5px;
+                        padding-bottom: 0px;
+                        margin: 0;
+                    }
+
+                .container .cutfield p {
+                    font-size: 8pt;
+                    line-height: 1.2;
+                    padding: 0;
+                    padding-top: 0.1cm;
+                    padding-left: 0.1cm;
+                    padding-right: 0.2cm;
+                    margin: 0;
+                }
+
+                    .container .cutfield p.sign {
+                        font-size: 10pt;
+                        line-height: 1.5;
+                        padding: 0;
+                        padding-top: 2px;
+                        padding-bottom: 2px;
+                        padding-left: 0.2cm;
+                        padding-right: 0.2cm;
+                        margin: 0;
+                        border-top: 1px dashed #808080;
+                        border-bottom: 1px dashed #808080;
+                    }
+
+                    .container .cutfield p.rule1 {
+                        font-size: 9pt;
+                    }
+
+                    .container .cutfield p.rule {
+                        font-size: 9pt;
+                        padding: 0;
+                        padding-top: 2px;
+                        padding-bottom: 2px;
+                        padding-left: 0.2cm;
+                        padding-right: 0.2cm;
+                        margin: 0;
+                        margin-left: 2em;
+                        text-indent: -2em;
+                    }
+
+                .container .cutfield .code1 {
+                    text-align: center;
+                    padding: 0;
+                    padding-top: 0.2cm;
+                    margin: 0;
+                }
+
+                .container .cutfield .code2 {
+                    text-align: center;
+                    padding: 0;
+                    padding-top: 0.3cm;
+                    margin: 0;
+                }
+
+                    .container .cutfield .code2 img {
+                        /*margin:0 0.6cm 0 0.6cm;*/
+                        border: none;
+                    }
+        /*交易明細*/
+        div.listfield {
+            /*display:block;*/
+            width: 720px;
+            /*height:400px;*/
+            margin-left: 0.1cm;
+            padding: 0;
+            /*overflow: hidden;*/
+            /*float:left;*/
+            /*-moz-column-count:2;*/ /* Firefox */
+            /*-webkit-column-count:2;*/ /* Safari and Chrome */
+            /*column-count:2;*/
+            -moz-column-gap: 6px; /* Firefox */
+            -webkit-column-gap: 6px; /* Safari and Chrome */
+            column-gap: 6px;
+            -moz-column-rule: 1px solid #999; /* Firefox */
+            -webkit-column-rule: 1px solid #999; /* Safari and Chrome */
+            column-rule: 1px solid #999;
+        }
+
+        .listfield .content_box {
+            /*clear:both;*/
+            /*width:240px;*/
+            display: inline-block;
+            padding: 2px 0px;
+            margin: 0;
+            /*overflow:hidden;*/
+            font-size: 8pt;
+            line-height: 1.5;
+        }
+
+            .listfield .content_box p.productname {
+                width: 280px;
+                display: inline-block;
+                float: left;
+            }
+
+            .listfield .content_box p.quantity {
+                width: 50px;
+                display: inline-block;
+                text-align: right;
+                float: left;
+            }
+
+            .listfield .content_box p.price {
+                width: 140px;
+                display: inline-block;
+                text-align: right;
+                float: left;
+            }
+
+            .listfield .content_box p.totalPrice {
+                width: 100px;
+                display: inline-block;
+                text-align: right;
+                /*margin-left: 6px;*/
+                float: right;
+            }
+
+        .listfield h3 {
+            font-size: 12pt;
+            line-height: 1.4;
+            text-align: left;
+            padding: 0.2cm 0.3cm;
+            margin: 0;
+        }
+
+        .listfield p {
+            /*font-size:10pt;*/
+            line-height: 1.4;
+            padding: 0;
+            padding-top: 0.1cm;
+            padding-left: 0.2cm;
+            padding-right: 0.2cm;
+            margin: 0;
+        }
+
+        /***共用***/
+
+
+        .company .title {
+            margin: 0px;
+            padding: 0px;
+            font-size: 15pt;
+            font-family: 標楷體;
+            font-weight: normal;
+        }
+
+        .company p {
+            margin: 0px;
+            padding: 0px;
+            font-size: 9pt;
+            font-family: 標楷體;
+        }
+
+        .customer {
+            margin: 80px 0px 0px 180px;
+            padding: 0px;
+            color: #000;
+        }
+
+            .customer .title {
+                margin: 0px;
+                padding: 0px;
+                font-size: 15pt;
+                font-family: 標楷體;
+            }
+
+            .customer p {
+                margin: 0px;
+                padding: 0px;
+                font-size: 15pt;
+                font-family: 標楷體;
+            }
+    </style>
+    <title>電子發票系統</title>
+</head>
+<body>
+    <form id="form1">
+        <!--交易畫面標題-->
+        <p>
+            您的客戶編號：<span class="blue">
+                @(_model.InvoiceBuyer.CustomerID?.StringMask(4,3,'X'))
+            </span>
+            發票號碼：
+            <span class="blue">
+                @( _model.TrackCode)
+                @( _model.No)
+            </span>，依據財政部所公告統一發票中獎號碼，確認您的發票已中獎，中獎發票將以掛號寄出，郵寄收件人資料如下：
+        </p>
+        <p>
+            收件人：<span class="blue">
+                @( _model.InvoiceBuyer.ContactName?.StringMask(2,1,'*'))
+            </span>
+        </p>
+        <p>
+            住址：<span class="blue">
+                @( _model.InvoiceBuyer.Address)
+            </span>
+        </p>        
+        <p>
+            電話：<span class="blue">
+                @( _model.InvoiceBuyer.Phone)
+            </span>
+        </p>
+        <p>
+            如上述收件人資料內容有缺少或變更請將無法正確寄達，如需進行相關資料填寫或變更請<a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("EditInvoiceBuyer","IndividualProcess",new { KeyID = _model.InvoiceID.EncryptKey() })}")">按此</a><br />
+            以下為您的中獎發票內容：
+        </p>
+        @{ 
+            await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_CBE.cshtml", _model);
+        }
+        <ol>
+            <li>
+                如無法提供完整收件人資訊，兌領獎截止仍無法寄達發票正本致權益受損，將由消費者自行負責。
+            </li>
+            <li>
+                依財政部令此通知內容僅供參考，不可直接兌換。
+            </li>
+            <li>
+                發票正本只能索取一次，一旦遺失，無法再次索取。
+            </li>
+            <li>
+                根據財政部「電子發票實施作業要點」規範，營業人將您的發票明細資料上傳到政府儲存，若您要至<a href="https://www.einvoice.nat.gov.tw/portal/btc/audit">財政部網站</a>查詢發票開立狀況，請輸入「發票號碼」及「發票日期」，即可查詢此張發票內容。
+            </li>
+        </ol>
+        @if (_model.Organization.OrganizationExtension?.CustomNotification != null)
+        {
+            <text>
+                @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.Organization.OrganizationExtension?.CustomNotification))
+            </text>
+        }
+        <p>&nbsp;</p>
+        @{
+            await Html.RenderPartialAsync("~/Views/Notification/Shared/ServiceNotation.cshtml", _model.Organization);
+        }
+    </form>
+</body>
+</html>

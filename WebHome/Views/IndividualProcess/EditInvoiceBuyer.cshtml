@@ -1,0 +1,31 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+    ViewBag.ActionName = "首頁 > 全民稽核";
+}
+
+@section headContent {
+
+}
+@section formContent {
+
+}
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "郵寄發票收件人資料確認");
+    ViewBag.SimpleForm = true;
+    await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/EditInvoiceBuyer.cshtml");
+}
+

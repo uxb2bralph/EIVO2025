@@ -1,0 +1,38 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+@using WebHome.Controllers
+
+@using ModelCore.Helper
+@using global::ApplicationResource
+
+@{
+    ActionResultViewModel _viewModel = (ActionResultViewModel)ViewBag.ViewModel;
+
+    if (_viewModel == null)
+    {
+        _viewModel = new ActionResultViewModel { };
+    }
+}
+@if (_viewModel.ErrorCode != null && _viewModel.ErrorCode.Length > 0)
+{
+    <div>
+        @foreach (var code in _viewModel.ErrorCode)
+        {
+            <text>@(ErrorMessage.ResourceManager.GetString(code))</text><br />
+        }
+    </div>
+}
+else
+{
+    <span>@(_viewModel.Message)</span>
+}
+
+
+

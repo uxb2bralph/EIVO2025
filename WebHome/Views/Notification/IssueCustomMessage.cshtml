@@ -1,0 +1,73 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    DocumentQueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
+}
+
+@if (_viewModel.ForTest == true)
+{
+    await Html.RenderPartialAsync("~/Views/Notification/Module/CustomMessage.cshtml", _model);
+}
+else
+{
+    String subject = "中獎電子發票郵件通知（更正通知）";
+    String body = Html.Partial("~/Views/Notification/Module/CustomMessage.cshtml").ToString();
+    var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+
+    var items = models.GetTable<InvoiceItem>()
+            .Where(i => i.InvoiceCancellation == null)
+            .Where(i => i.InvoiceDonation == null)
+            .Where(i => i.PrintMark == "N")
+            .Join(models.GetTable<Organization>()
+                .Where(o => o.CompanyID == 8175)
+                .Join(models.GetTable<OrganizationStatus>().Where(s => !s.DisableWinningNotice.HasValue || s.DisableWinningNotice == false),
+                    o => o.CompanyID, s => s.CompanyID, (o, s) => o),
+                i => i.SellerID, o => o.CompanyID, (i, o) => i)
+            .Join(models.GetTable<InvoiceWinningNumber>()
+                .Join(models.GetTable<UniformInvoiceWinningNumber>()
+                    .Where(u => u.Year == 2019 && u.Period == 2),
+                    w => w.WinningID, u => u.WinningID, (w, u) => w),
+                i => i.InvoiceID, w => w.InvoiceID, (i, w) => i);
+
+    foreach (var item in items)
+    {
+        var mailTo = item.InvoiceBuyer.EMail.GetEfficientString();
+
+        if (mailTo == null)
+        {
+            continue;
+        }
+        mailTo = mailTo.Replace(';', ',').Replace('、', ',');
+        if (!String.IsNullOrEmpty(mailTo))
+        {
+            body.SendMailMessage(mailTo, subject, smtpSettings);
+        };
+    }
+}
+

@@ -1,0 +1,68 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+}
+@if (_model.InvoiceAllowanceSeller.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.CancellingAllowance))
+{
+    var mailing = models.GetUserListByCompanyID(_model.InvoiceAllowanceBuyer.BuyerID)
+            .Select(u => u.EMail).ToList();
+
+    if (!String.IsNullOrEmpty(_model.InvoiceAllowanceBuyer.EMail))
+    {
+        mailing.Add(_model.InvoiceAllowanceBuyer.EMail);
+    }
+    else
+    {
+        foreach (var a in _model.InvoiceAllowanceDetails)
+        {
+            String trackCode = a.InvoiceAllowanceItem.InvoiceNo.Substring(0, 2);
+            String no = a.InvoiceAllowanceItem.InvoiceNo.Substring(2);
+            var invoice = models.GetTable<InvoiceItem>().Where(i => i.TrackCode == trackCode && i.No == no).FirstOrDefault();
+            if (invoice != null)
+            {
+                mailing.Add(invoice.InvoiceBuyer.EMail);
+            }
+        }
+    }
+    var mailTo = String.Join(",",
+        mailing.Where(m => m != null));
+
+    if (!String.IsNullOrEmpty(mailTo))
+    {
+        var enterprise = _model.InvoiceAllowanceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
+        var smtpSettings = _model.InvoiceAllowanceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+
+        String Subject = $"{(enterprise?.EnterpriseGroup.EnterpriseName)} 折讓證明作廢通知(折讓證明單號碼:{_model.AllowanceNumber})";
+        String body = Html.Partial("~/Views/Notification/Module/IssuedAllowanceCancellation.cshtml", _model).ToString();
+
+        body.SendMailMessage(mailTo, Subject, smtpSettings);
+    }
+}
+
+
+

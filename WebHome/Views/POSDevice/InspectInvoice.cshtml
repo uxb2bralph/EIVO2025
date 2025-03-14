@@ -1,0 +1,72 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using System.Xml
+
+@using Newtonsoft.Json
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = this.Model as InvoiceItem;
+}
+
+@section headContent
+{
+
+}
+@section formContent
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票內容檢視");
+    }
+    @if (_model == null)
+    {
+        <div>查無發票開立資料</div>
+    }
+    else
+    {
+        <div class="border_gray">
+            @{
+                await Html.RenderPartialAsync("~/Views/DataView/Module/Invoice.cshtml", _model);
+                <div>
+                    <button type="button" class="btn btnPrint" onclick="printInvoice();">
+                        列印發票
+                    </button>
+                </div>
+            }
+        <script>
+            window.printInvoice = function () {
+                var viewModel = {
+                    'keyID': '@Html.Raw(_model.InvoiceID.EncryptKey())'
+                };
+                doPost('@Url.Action("PrintSingleInvoice", "DataView")', viewModel, function (data) {
+                    $global.printHtml(data);
+                });
+            };
+        </script>
+        </div>
+    }
+
+}
+
+

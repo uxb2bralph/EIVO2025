@@ -1,0 +1,35 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+    Layout = "~/Views/Template/MvcMainPage.cshtml";
+
+    ModelSource<InvoiceItem> models;
+    ModelStateDictionary _modelState;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    ViewBag.ActionName = "首頁 > 發送訊息通知";
+    //Page.Form.Enctype = "multipart/form-data";
+
+}
+@section headContent {
+
+}
+@{
+    await Html.RenderPartialAsync("~/Views/Notification/Module/MessageItem.cshtml");
+}

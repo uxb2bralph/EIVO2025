@@ -1,0 +1,53 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using System.Reflection
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    DataTableQueryViewModel _viewModel;
+
+    _viewModel = (DataTableQueryViewModel)ViewBag.ViewModel;
+    var type = (Type)ViewBag.TableType; // _model.GetType();
+    PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+}
+<td>
+    <button type="button" class="btn" onclick='$global.dataTable.deleteData();'>刪除</button>
+</td>
+@foreach (PropertyInfo property in properties)
+{
+    var t = property.GetColumnAttribute();
+    if(t==null)
+    {
+        continue;
+    }
+    else if (t.IsDbGenerated == false)
+    {
+        <td>
+            <input type="text" name="@(property.Name)" value="" class="form-control" />
+        </td>
+    }
+    else
+    {
+        <td></td>
+    }
+
+}
+<td style="white-space: nowrap;min-width:132px;">
+    <button type="button" class="btn" onclick='$global.dataTable.commitData();'>新增</button>
+</td>
+
+

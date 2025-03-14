@@ -1,0 +1,137 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+<script>
+    $(function () {
+        var $postForm;
+        if (!window.uiTrackCodeQuery) {
+            window.uiTrackCodeQuery = {};
+        }
+
+        window.uiTrackCodeQuery.inquire = function (pageNum, onPaging) {
+
+            var $this = uiTrackCodeQuery;
+            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+
+            if (isNaN(pageNum)) {
+                $formData.startQuery = true;
+                $this.pageIndex = 1;
+            }
+            else {
+                $formData.pageIndex = pageNum;
+                $this.pageIndex = pageNum;
+            }
+
+            if ($this.sort) {
+                $formData.Sort = $this.sort.getSort();
+            }
+
+
+            showLoading();
+            $.post('@(Url.Action("Inquire","TrackCode",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    alert(data.message);
+                } else {
+                    if (onPaging) {
+                        onPaging(data);
+                    } else {
+                        if (uiTrackCodeQuery.$result)
+                            uiTrackCodeQuery.$result.remove();
+                        uiTrackCodeQuery.$result = $(data);
+                        $('.queryAction').after(uiTrackCodeQuery.$result);
+                    }
+                }
+            });
+        };
+
+        window.uiTrackCodeQuery.edit = function (value) {
+
+            var event = event || window.event;
+            var $tr = $(event.target).closest('tr');
+            $.post('@(Url.Action("EditItem","TrackCode"))', 'id=' + value, function (data) {
+                if (data) {
+                    var $data = $(data);
+                    if ($data.is('tr')) {
+                        $tr.before($data);
+                        $tr.remove();
+                    } else {
+                        $('body').append($data);
+                        $data.remove();
+                    }
+                }
+            });
+
+        };
+
+        window.uiTrackCodeQuery.showItem = function (value) {
+            var event = event || window.event;
+            var $tr = $(event.target).closest('tr');
+            uiTrackCodeQuery.dataItem($tr, value);
+        };
+
+        window.uiTrackCodeQuery.dataItem = function ($tr, value) {
+            $.post('@(Url.Action("DataItem","TrackCode"))', 'id=' + value, function (data) {
+                if (data) {
+                    var $data = $(data);
+                    if ($data.is('tr')) {
+                        $tr.before($data);
+                        $tr.remove();
+                    } else {
+                        $('body').append($data);
+                        $data.remove();
+                    }
+                }
+            });
+        };
+
+        window.uiTrackCodeQuery.commitItem = function (value) {
+            var event = event || window.event;
+            var $tr = $(event.target).closest('tr');
+            clearErrors();
+            $.post('@(Url.Action("CommitItem","TrackCode"))', 'trackID=' + (value ? value : '') + '&' + $.param($tr.find('input,select,textarea')), function (data) {
+                if (data) {
+                    var $data = $(data);
+                    if ($data.is('tr')) {
+                        $tr.before($data);
+                        if (value) {
+                            alert('資料已更新!!');
+                            $tr.remove();
+                        }
+                    } else {
+                        $('body').append($data);
+                        $data.remove();
+                    }
+                }
+            });
+        },
+
+            window.uiTrackCodeQuery.delete = function (value) {
+                if (confirm('確定刪除此筆資料?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@(Url.Action("DeleteItem","TrackCode"))', { 'id': value }, function (data) {
+                        if (data.result) {
+                            alert('資料已刪除!!')
+                            $tr.remove();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                }
+            };
+
+    });
+</script>
+

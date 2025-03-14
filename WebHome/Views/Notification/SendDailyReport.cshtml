@@ -1,0 +1,204 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Helper.DataQuery
+
+@using CommonLib.DataAccess
+@{
+
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+    Organization _model = this.Model as Organization;
+
+}
+@{
+
+    IQueryable<InvoiceItem> items = _viewModel.Inquire(models);
+    var invoiceItems = items.OrderBy(i => i.TrackCode).ThenBy(i => i.No)
+                .Select(i => new
+                {
+                    發票號碼 = i.TrackCode + i.No,
+                    發票日期 = i.InvoiceDate,
+                    客戶ID = i.InvoiceBuyer.CustomerID,
+                    序號 = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : null,
+                    發票開立人 = i.InvoiceSeller.CustomerName,
+                    開立人統編 = i.InvoiceSeller.ReceiptNo,
+                    未稅金額 = i.InvoiceAmountType.SalesAmount,
+                    稅額 = i.InvoiceAmountType.TaxAmount,
+                    含稅金額 = i.InvoiceAmountType.TotalAmount,
+                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : null,
+                    買受人名稱 = i.InvoiceBuyer.CustomerName,
+                    買受人統編 = i.InvoiceBuyer.ReceiptNo,
+                    //連絡人名稱 = i.InvoiceBuyer.ContactName,
+                    //連絡人地址 = i.InvoiceBuyer.Address,
+                    //買受人EMail = i.InvoiceBuyer.EMail,
+                    愛心碼 = i.InvoiceDonation.AgencyCode,
+                    是否中獎 = i.InvoiceWinningNumber.PrizeType,
+                    載具類別 = i.InvoiceCarrier.CarrierType,
+                    載具號碼 = i.InvoiceCarrier.CarrierNo,
+                    發票狀態 = i.InvoiceCancellation != null ? "已作廢" : null,
+                    備註 = i.Remark
+                });
+
+    items = _viewModel.InquireInvoiceCancellation(models);
+    var cancelledInvoice = items.OrderBy(i => i.TrackCode).ThenBy(i => i.No)
+                .Select(i => new
+                {
+                    發票號碼 = i.TrackCode + i.No,
+                    發票日期 = i.InvoiceDate,
+                    作廢日期 = i.InvoiceCancellation.CancelDate,
+                    客戶ID = i.InvoiceBuyer.CustomerID,
+                    序號 = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : null,
+                    發票開立人 = i.InvoiceSeller.CustomerName,
+                    開立人統編 = i.InvoiceSeller.ReceiptNo,
+                    未稅金額 = i.InvoiceAmountType.SalesAmount,
+                    稅額 = i.InvoiceAmountType.TaxAmount,
+                    含稅金額 = i.InvoiceAmountType.TotalAmount,
+                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : null,
+                    買受人名稱 = i.InvoiceBuyer.CustomerName,
+                    買受人統編 = i.InvoiceBuyer.ReceiptNo,
+                    //連絡人名稱 = i.InvoiceBuyer.ContactName,
+                    //連絡人地址 = i.InvoiceBuyer.Address,
+                    //買受人EMail = i.InvoiceBuyer.EMail,
+                    愛心碼 = i.InvoiceDonation.AgencyCode,
+                    是否中獎 = i.InvoiceWinningNumber.PrizeType,
+                    載具類別 = i.InvoiceCarrier.CarrierType,
+                    載具號碼 = i.InvoiceCarrier.CarrierNo,
+                    發票狀態 = i.InvoiceCancellation != null ? "已作廢" : null,
+                    備註 = i.Remark
+                });
+
+    IQueryable<InvoiceAllowance> allowance = _viewModel.InquireAllowance(models);
+    var allowanceItems = allowance.Select(i =>
+            new
+            {
+                折讓單號碼 = i.AllowanceNumber,
+                折讓日期 = i.AllowanceDate,
+                客戶ID = i.InvoiceAllowanceBuyer.CustomerID,
+                發票開立人 = i.InvoiceAllowanceSeller.CustomerName,
+                開立人統編 = i.InvoiceAllowanceSeller.ReceiptNo,
+                未稅金額 = i.TotalAmount,
+                稅額 = i.TaxAmount,
+                含稅金額 = i.TotalAmount + i.TaxAmount,
+                買受人名稱 = i.InvoiceAllowanceBuyer.CustomerName,
+                買受人統編 = i.InvoiceAllowanceBuyer.ReceiptNo,
+                //連絡人名稱 = i.InvoiceAllowanceBuyer.ContactName,
+                //連絡人地址 = i.InvoiceAllowanceBuyer.Address,
+                //買受人EMail = i.InvoiceAllowanceBuyer.EMail,
+                折讓單狀態 = i.InvoiceAllowanceCancellation != null ? "已作廢" : null,
+            });
+
+    IQueryable<InvoiceAllowanceDetail> details = allowance.SelectMany(a => a.InvoiceAllowanceDetails);
+    var allowanceDetails = details.Select(i =>
+            new
+            {
+                折讓單號碼 = i.InvoiceAllowance.AllowanceNumber,
+                原發票號碼 = i.InvoiceAllowanceItem.InvoiceNo,
+                原發票日期 = i.InvoiceAllowanceItem.InvoiceDate,
+                未稅金額 = i.InvoiceAllowanceItem.Amount,
+                稅額 = i.InvoiceAllowanceItem.Tax,
+                備註 = i.InvoiceAllowanceItem.Remark
+            });
+
+    allowance = _viewModel.InquireAllowanceCancellation(models);
+    var cancelledAllowance = allowance.Select(i =>
+            new
+            {
+                折讓單號碼 = i.AllowanceNumber,
+                //原發票號碼 = g.Key.InvoiceNo,
+                折讓日期 = i.AllowanceDate,
+                客戶ID = i.InvoiceAllowanceBuyer.CustomerID,
+                發票開立人 = i.InvoiceAllowanceSeller.CustomerName,
+                開立人統編 = i.InvoiceAllowanceSeller.ReceiptNo,
+                未稅金額 = i.TotalAmount,
+                稅額 = i.TaxAmount,
+                含稅金額 = i.TotalAmount + i.TaxAmount,
+                買受人名稱 = i.InvoiceAllowanceBuyer.CustomerName,
+                買受人統編 = i.InvoiceAllowanceBuyer.ReceiptNo,
+                連絡人名稱 = i.InvoiceAllowanceBuyer.ContactName,
+                連絡人地址 = i.InvoiceAllowanceBuyer.Address,
+                買受人EMail = i.InvoiceAllowanceBuyer.EMail,
+                //備註 = i.Remark
+            });
+
+    details = allowance.SelectMany(a => a.InvoiceAllowanceDetails);
+    var cancelledAllowanceDetails = details.Select(i =>
+            new
+            {
+                折讓單號碼 = i.InvoiceAllowance.AllowanceNumber,
+                原發票號碼 = i.InvoiceAllowanceItem.InvoiceNo,
+                原發票日期 = i.InvoiceAllowanceItem.InvoiceDate,
+                未稅金額 = i.InvoiceAllowanceItem.Amount,
+                稅額 = i.InvoiceAllowanceItem.Tax,
+                備註 = i.InvoiceAllowanceItem.Remark
+            });
+
+    String xlsxFile = System.IO.Path.Combine(Logger.LogDailyPath, $"日報表({_model.ReceiptNo})-{(_viewModel.DateFrom ?? DateTime.Today.AddDays(-1)):yyyyMMdd}.xlsx");
+
+    using (DataSet ds = new DataSet())
+    {
+        DataTable table = invoiceItems.ToDataTable();
+        table.TableName = $"發票開立";
+        ds.Tables.Add(table);
+
+        table = cancelledInvoice.ToDataTable();
+        table.TableName = $"作廢發票";
+        ds.Tables.Add(table);
+
+        table = allowanceItems.ToDataTable();
+        table.TableName = $"折讓單";
+        ds.Tables.Add(table);
+
+        table = allowanceDetails.ToDataTable();
+        table.TableName = $"折讓單明細";
+        ds.Tables.Add(table);
+
+        table = cancelledAllowance.ToDataTable();
+        table.TableName = $"作廢折讓單";
+        ds.Tables.Add(table);
+
+        table = cancelledAllowanceDetails.ToDataTable();
+        table.TableName = $"作廢折讓單明細";
+        ds.Tables.Add(table);
+
+        using (var xls = ds.ConvertToExcel())
+        {
+            xls.SaveAs(xlsxFile);
+        }
+    }
+
+    var mailing = models.GetUserListByCompanyID(_model.CompanyID)
+            .Select(u => u.EMail).ToList();
+
+    var mailTo = String
+                    .Join(",",
+                        mailing.Where(m => m != null))
+                    .GetEfficientString();
+
+    if (mailTo != null)
+    {
+        String subject = $"{_model.CompanyName} 電子發票開立每日結算通知({DateTime.Today:yyyy-MM-dd})";
+        String body = "內容如附件。";
+        body.SendMailMessage(mailTo, subject, null, xlsxFile);
+    }
+}

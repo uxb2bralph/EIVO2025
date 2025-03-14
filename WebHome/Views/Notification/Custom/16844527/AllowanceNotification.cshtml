@@ -1,0 +1,79 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.InvoiceManagement.Validator
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+
+    InvoiceItem invoice = null;
+    InvoiceAllowanceItem item = _model.InvoiceAllowanceDetails.FirstOrDefault()?.InvoiceAllowanceItem;
+
+    if (item != null)
+    {
+        var invoiceNo = item.InvoiceNo.ParseInvoiceNo();
+        if (invoiceNo.Success)
+        {
+            invoice = models.GetTable<InvoiceItem>()
+                .Where(i => i.TrackCode == invoiceNo.Groups[1].Value
+                    && i.No == invoiceNo.Groups[2].Value
+                    && i.SellerID == _model.InvoiceAllowanceSeller.SellerID)
+                .FirstOrDefault();
+        }
+    }
+
+}
+<div style="width:720px;">
+    <div style="text-align:center;">
+        <h2>發票折讓證明</h2>
+    </div>
+
+    <p>親愛的客戶您好:</p>
+    <p>IQOS.COM/TW 使用網際優勢電子發票平台，開立下述電子發票折讓證明如下：</p>
+    <p>
+        發票號碼：@(item?.InvoiceNo)<br />
+        隨機碼：@(invoice?.RandomNo)<br />
+        折讓日期：@($"{_model.AllowanceDate:yyyy-MM-dd}")<br />
+    </p>
+
+    <hr />
+    <p>若您有使用紙本進行帳務作業的需求，請下載後自行列印附件PDF檔案，或至財政部電子發票整合平台下載列印。</p>
+    <br />
+    <p>
+        本公司平台並未提供申請紙本銷貨退回、進貨退出或折讓證明單。<br />
+        若您尚有需要服務的地方，隨時歡迎來電或來信電子發票客服信箱。<br />
+        委外客服信箱：ifs_service@uxb2b.com<br />
+        @*委外客服電話：0800-010-626<br />*@
+        <span style="color:red;">※ 本信件為系統自動發送 ( 請勿回信 )。</span>
+    </p>
+    <div style="text-align:center;color:grey;font-size:10pt;">
+        電子發票服務由 網際優勢 提供<br />
+        網際優勢非交易當事人，並未販售商品或服務，如有相關問題請洽原購買營業人。
+    </div>
+</div>
+
+
+
+

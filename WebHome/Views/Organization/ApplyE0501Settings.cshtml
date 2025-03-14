@@ -1,0 +1,117 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using ModelCore.DataExchange
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using ModelCore.Helper
+@using Newtonsoft.Json.Linq
+@{
+    Layout = "~/Views/Shared/Module/MessageDialog.cshtml";
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    ViewBag.DialogOptions = JObject.FromObject(new { Width = 480 });
+
+    OrganizationQueryViewModel _viewModel = this.Model as OrganizationQueryViewModel ?? ViewBag.ViewModel as OrganizationQueryViewModel;
+    if (_viewModel == null)
+    {
+        await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<OrganizationQueryViewModel>(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+
+    int? companyID = null;
+    if (_viewModel.KeyID != null)
+    {
+        companyID = _viewModel.DecryptKeyValue();
+    }
+
+    var item = models.GetTable<Organization>().Where(o => o.CompanyID == companyID).FirstOrDefault();
+
+    String _viewID = $"check{DateTime.Now.Ticks}";
+}
+@if (_viewModel.CustomSettings != null)
+{
+    if (item != null)
+    {
+        var custSettings = item.OrganizationCustomSetting;
+        if (custSettings == null)
+        {
+            custSettings = item.OrganizationCustomSetting = new OrganizationCustomSetting { };
+        }
+        custSettings.Settings.E0501InitialLock = _viewModel.CustomSettings.E0501InitialLock ?? Naming.Truth.False;
+        custSettings.Settings.E0501ReservedBooklets = _viewModel.CustomSettings.E0501ReservedBooklets;
+        custSettings.Settings.DisableE0501AutoUpdate = _viewModel.CustomSettings.DisableE0501AutoUpdate;
+        custSettings.Accept();
+        models.SubmitChanges();
+
+        await ViewContext.HttpContext.Response.RenderJsonResultAsync(new { result = true });
+    }
+    else
+    {
+        await ViewContext.HttpContext.Response.RenderJsonResultAsync(new { result = false, message = "資料錯誤!!" });
+    }
+}
+else
+{
+<div class="border_gray" id="@(_viewID)">
+    <div class="container mt-4">
+        <div class="row mb-3">
+            <label class="col-sm-6 col-form-label">E0501自動取號設定</label>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <input type="checkbox" class="form-control-sm" id="DisableE0501AutoUpdate" name="DisableE0501AutoUpdate" value="1" checked="@(item?.OrganizationCustomSetting?.Settings.DisableE0501AutoUpdate == Naming.Truth.True)" />
+                    <span class="input-group-text">停用</span>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="input-group">
+                    <input type="checkbox" class="form-control-sm" id="E0501InitialLock" name="E0501InitialLock" value="1" checked="@(item?.OrganizationCustomSetting?.Settings.E0501InitialLock == Naming.Truth.True)" />
+                    <span class="input-group-text">預設鎖定</span>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <label class="col-sm-6 col-form-label">保留本組數</label>
+            <div class="col-sm-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="E0501ReservedBooklets" name="E0501ReservedBooklets" value="@(item?.OrganizationCustomSetting?.Settings.E0501ReservedBooklets)" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        $(function () {
+            $('#@(_viewID)').find('input,select,textarea').on('change', function (event) {
+                clearErrors();
+                var settings = $('#@(_viewID)').find('input,select,textArea').serializeObject();
+                var viewModel = {
+                    'KeyID': '@Html.Raw((item?.CompanyID ?? -1).EncryptKey())',
+                    'CustomSettings': settings
+                };
+
+                doPost('@Html.Raw(Url.Action("ApplyE0501Settings", "Organization"))', viewModel, function (data) {
+                });
+
+            });
+    });
+    </script>
+</div>   
+    }
+
+
+
+

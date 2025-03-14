@@ -1,0 +1,59 @@
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using Newtonsoft.Json.Linq
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    QueryViewModel _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = this.Model as QueryViewModel ?? ViewBag.ViewModel as QueryViewModel;
+
+    String _dialogID = "message" + DateTime.Now.Ticks;
+    JObject options = ViewBag.DialogOptions as JObject;
+
+}
+
+<div id="@(_dialogID)">
+
+    @RenderBody()
+
+    <script>
+        $('#@(_dialogID)').dialog({
+            //autoOpen: false,
+            width: '@(options?["Width"]?.ToString() ?? "auto")',
+            resizable: true,
+            //modal: true,
+            title: "<div class='modal-title'><h4><i class='fa fa-clock-o'></i> @(_model?.ActionTitle ?? "訊息")</h4></div>",
+            buttons: [
+            ],
+            close: function (event, ui) {
+                $('#@(_dialogID)').remove();
+            }
+        });
+
+        $(function () {
+
+            $('#@(_dialogID) input:button.btnClose').on('click', function () {
+                $('#@(_dialogID)').dialog("close");
+            });
+
+            $('#@(_dialogID)').find('input,select,textarea').attr('data-role', '@(_dialogID)');
+        });
+    </script>
+
+</div>
+
+

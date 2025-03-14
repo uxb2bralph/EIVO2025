@@ -1,0 +1,42 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+    DocumentQueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+    _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
+}
+@{ await Html.RenderPartialAsync("~/Views/DataView/Module/Allowance.cshtml", _model);}
+
+@if (_model.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomNotification != null)
+{
+    <text>
+        @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomNotification))
+    </text>
+}
+else
+{
+    await Html.RenderPartialAsync("~/Views/Notification/Shared/ServiceNotation.cshtml", _model.InvoiceAllowanceSeller.Organization);
+}

@@ -1,0 +1,31 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Helper
+@{
+    Layout = "~/Views/Common/QueryIndex.cshtml";
+    ViewBag.ActionName = "首頁 > 系統管理維護";
+}
+@section QueryForm
+{
+    <!--交易畫面標題-->
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "期別匯率維護");
+
+        await Html.RenderPartialAsync("~/Views/PeriodicalExchangeRate/DataQuery/PeriodicalExchangeRateQuery.cshtml");
+    }
+}
+
+
+
+

@@ -1,0 +1,107 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    MailMessageViewModel _viewModel;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (MailMessageViewModel)ViewBag.ViewModel;
+}
+
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發送訊息通知");
+}
+
+<form id="editItem">
+
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <th>
+                            營業人
+                        </th>
+                        <td colspan="3">
+                            @{
+                                ViewBag.FieldName = "CompanyID";
+                                await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml");
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            主旨
+                        </th>
+                        <td colspan="3">
+                            <input type="text" class="form-control" name="Subject" value="" maxlength="160" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            收件人email
+                        </th>
+                        <td colspan="3">
+                            <input type="text" class="form-control" name="MailTo" value="" maxlength="160" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            訊息內容
+                        </th>
+                        <td colspan="3">
+                            <textarea name="MailMessage" class="form-control" rows="10"></textarea>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="Bargain_btn" align="center" colspan="4">
+                            <button type="button" onclick="$global.commitMessage();" name="UpdateButton" class="btn">確定</button>
+                            &nbsp;
+                            <input name="Reset" type="reset" class="btn" value="重填" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        $global.commitMessage = function () {
+            $form = $('#editItem');
+            var $formData = $form.serializeObject();
+            $formData.MailMessage = $('<div>').text($formData.MailMessage).html();
+            showLoading();
+            $.post('@Html.Raw(Url.Action("CommitMessage","Notification"))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        alertModal('訊息已送出');
+                    } else {
+                        alertModal(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body'));
+                }
+            });
+        };
+    });
+</script>
+

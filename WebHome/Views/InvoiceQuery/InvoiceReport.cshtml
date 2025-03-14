@@ -1,0 +1,34 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+    Layout = "~/Views/Template/QueryIndex.cshtml";
+    ViewBag.ActionName = "首頁 > 統計報表";
+    InquireInvoiceViewModel _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+
+    _viewModel.UrlAction = Url.Action("InquireSummary", "InvoiceQuery");
+}
+
+@section QueryForm
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/InvoiceQuery/Module/InvoiceReport.cshtml");
+    }
+}
+
+
+

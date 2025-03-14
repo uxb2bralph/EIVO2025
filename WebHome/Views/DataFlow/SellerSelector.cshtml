@@ -1,0 +1,62 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+@using WebHome.Controllers
+
+@using ModelCore.Helper
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IQueryable<Organization> _model;
+    SellerSelectorViewModel _viewModel = ViewBag.ViewModel as SellerSelectorViewModel;
+
+    if (_viewModel == null)
+    {
+        ViewBag.ViewModel = _viewModel = new SellerSelectorViewModel { };
+        _viewModel.FieldName = ViewBag.FieldName ?? "SellerID";
+    }
+
+    String _fieldName;
+    String _contentID = "id" + DateTime.Now.Ticks;
+    String _valueID = "value" + DateTime.Now.Ticks;
+    UserProfile _profile;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<Organization>)this.Model;
+    _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "SellerID";
+    _profile = Context.GetUser();
+}
+
+@if (_profile.IsSystemAdmin())
+{
+    await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml", _model);
+}
+else
+{
+    <select class="form-control" name="@(_fieldName)">
+        @if (ViewBag.SelectorIndication != null)
+        {
+            <option value="@(ViewBag.SelectorIndicationValue ?? "")">@(ViewBag.SelectorIndication)</option>
+        }
+        @foreach (var o in _model.OrderBy(o => o.ReceiptNo))
+        {
+            <option value="@(_viewModel.Encrypt==true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString())">@(String.Format("{0} {1}", o.ReceiptNo, o.CompanyName))</option>
+        }
+    </select>
+}
+
+
+
+

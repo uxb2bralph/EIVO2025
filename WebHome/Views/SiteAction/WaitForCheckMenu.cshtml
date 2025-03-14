@@ -1,0 +1,17 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+<div class="navbar-default sidebar" role="navigation">
+    <div class="sidebar-nav navbar-collapse">
+        <ul class="nav" id="side-menu">
+            <li>
+                <a href="@Html.Raw(Url.Action("EditMySelf","UserProfile",new { forCheck = true }))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>帳號管理</a>
+            </li>
+        </ul>
+    </div>
+    <!-- /.sidebar-collapse -->
+</div>
+
+

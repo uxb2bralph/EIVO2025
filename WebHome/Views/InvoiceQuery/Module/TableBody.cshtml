@@ -1,0 +1,85 @@
+@using System.IO
+@using System.Linq.Expressions
+@using WebHome.Helper
+
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using CommonLib.DataAccess
+
+@{
+
+    _model = (IQueryable<Organization>)this.Model;
+    _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+
+    _pageSize = _viewModel.PageSize ?? 10;
+    _pageIndex = _viewModel.PageIndex ?? 0;
+
+    if (_viewModel.SortType != null && _viewModel.SortType.Length > 0)
+    {
+        sorting();
+
+        if (_order == null)
+        {
+            _items = _model.Skip(_pageIndex * _pageSize)
+                .Take(_pageSize);
+        }
+        else
+        {
+            _items = _order.Skip(_pageIndex * _pageSize)
+                .Take(_pageSize);
+        }
+    }
+    else
+    {
+        _items = _model.OrderBy(t => t.ReceiptNo);
+        _items = _items.Skip(_pageIndex * _pageSize)
+            .Take(_pageSize);
+    }
+}
+
+@{
+    int idx = 0;
+}
+@foreach (var item in _items)
+{
+    idx++;
+    await Html.RenderPartialAsync("~/Views/InvoiceQuery/Module/DataItem.cshtml", item);
+}
+
+@functions
+{
+
+    IQueryable<Organization> _items;
+    IQueryable<Organization> _model;
+    IQueryable<Organization> _order;
+    InquireInvoiceViewModel _viewModel;
+    int _pageSize;
+    int _pageIndex;
+
+    void sorting()
+    {
+        _order = _model;
+        for (int i = 0; i < _viewModel.SortType.Length; i++)
+        {
+            int idx = _viewModel.SortType[i].Value;
+            switch (_viewModel.SortName[i])
+            {
+                case "營業人名稱":
+                    _order = _order.OrderBy(f => f.CompanyName, idx);
+                    break;
+                case "統一編號":
+                    _order = _order.OrderBy(f => f.ReceiptNo, idx);
+                    break;
+            }
+        }
+    }
+
+}

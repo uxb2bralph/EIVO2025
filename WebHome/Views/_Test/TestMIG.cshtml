@@ -1,0 +1,213 @@
+@using System.IO
+@using System.Linq.Expressions
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.WebUtilities
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    Response = Context.Response;
+
+    await doTaskAsync();
+    @Html.Raw($"{storedPath},{recordCount}");
+}
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+    IQueryable<InvoiceItem> invoiceItems;
+    IQueryable<InvoiceAllowance> allowanceItems;
+    String storedPath = null;
+    int recordCount = 0;
+    Func<InvoiceItem, System.Xml.XmlDocument> ConvertInvoiceMIG;
+    Func<InvoiceAllowance, System.Xml.XmlDocument> ConvertAllowanceMIG;
+    HttpResponse Response;
+
+    async Task WriteInvioceMIGAsync()
+    {
+        recordCount = invoiceItems.Count();
+        if (recordCount == 1)
+        {
+            Response.ContentType = "text/xml";
+            using (FileBufferingWriteStream output = new FileBufferingWriteStream())
+            {
+                ConvertInvoiceMIG(invoiceItems.First()).Save(output);
+                await output.DrainBufferAsync(Response.Body);
+            }
+
+        }
+        else
+        {
+            foreach (var item in invoiceItems)
+            {
+                ConvertInvoiceMIG(item).Save(System.IO.Path.Combine(storedPath, $"{_viewModel.ProcessType}_{item.TrackCode}{item.No}.xml"));
+            }
+        }
+    }
+    async Task WriteAllowanceMIGAsync()
+    {
+        recordCount = allowanceItems.Count();
+        if (recordCount == 1)
+        {
+            Response.ContentType = "text/xml";
+            using (FileBufferingWriteStream output = new FileBufferingWriteStream())
+            {
+                ConvertAllowanceMIG(allowanceItems.First()).Save(output);
+                await output.DrainBufferAsync(Response.Body);
+            }
+        }
+        else
+        {
+            foreach (var item in allowanceItems)
+            {
+                ConvertAllowanceMIG(item).Save(System.IO.Path.Combine(storedPath, $"{_viewModel.ProcessType}_{item.AllowanceNumber.EscapeFileNameCharacter('_')}.xml"));
+            }
+        }
+    }
+
+    async Task doTaskAsync()
+    {
+        _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+        if (_viewModel == null)
+        {
+            _viewModel = new InquireInvoiceViewModel();
+            ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+        }
+
+        invoiceItems = models.GetTable<InvoiceItem>();
+        bool effective = false;
+        invoiceItems = invoiceItems.InquireInvoice(_viewModel, models, ref effective, false);
+        if(!effective)
+        {
+            invoiceItems = invoiceItems.Where(i => false);
+        }
+
+        allowanceItems = models.GetTable<InvoiceAllowance>();
+        effective = false;
+        allowanceItems = allowanceItems.InquireAllowance(_viewModel, models, ref effective, false);
+        if(!effective)
+        {
+            allowanceItems = allowanceItems.Where(a => false);
+        }
+
+        switch(_viewModel.ProcessType)
+        {
+            case Naming.InvoiceProcessType.C0401:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.C0401Outbound;
+                ConvertInvoiceMIG = i => i.CreateC0401().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.A0401:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.A0401Outbound;
+                ConvertInvoiceMIG = i => i.CreateA0401().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.F0401:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.C0401Outbound;
+                ConvertInvoiceMIG = i => i.CreateF0401().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.C0501:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.C0501Outbound;
+                invoiceItems = invoiceItems.Join(models.GetTable<InvoiceCancellation>(), i => i.InvoiceID, c => c.InvoiceID, (i, c) => i);
+                ConvertInvoiceMIG = i => i.CreateC0501().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.A0501:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.A0501Outbound;
+                invoiceItems = invoiceItems.Join(models.GetTable<InvoiceCancellation>(), i => i.InvoiceID, c => c.InvoiceID, (i, c) => i);
+                ConvertInvoiceMIG = i => i.CreateA0501().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.F0501:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.C0501Outbound;
+                invoiceItems = invoiceItems.Join(models.GetTable<InvoiceCancellation>(), i => i.InvoiceID, c => c.InvoiceID, (i, c) => i);
+                ConvertInvoiceMIG = i => i.CreateF0501().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.D0401:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.D0401Outbound;
+                ConvertAllowanceMIG = i => i.CreateD0401().ConvertToXml();
+                await WriteAllowanceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.B0401:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.B0401Outbound;
+                ConvertAllowanceMIG = i => i.CreateB0401().ConvertToXml();
+                await WriteAllowanceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.G0401:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.D0401Outbound;
+                ConvertAllowanceMIG = i => i.CreateG0401().ConvertToXml();
+                await WriteAllowanceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.D0501:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.D0401Outbound;
+                allowanceItems = allowanceItems.Join(models.GetTable<InvoiceAllowanceCancellation>(), a => a.AllowanceID, c => c.AllowanceID, (a, c) => a);
+                ConvertAllowanceMIG = i => i.CreateD0501().ConvertToXml();
+                await WriteAllowanceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.B0501:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.B0401Outbound;
+                allowanceItems = allowanceItems.Join(models.GetTable<InvoiceAllowanceCancellation>(), a => a.AllowanceID, c => c.AllowanceID, (a, c) => a);
+                ConvertAllowanceMIG = i => i.CreateB0501().ConvertToXml();
+                await WriteAllowanceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.G0501:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.D0401Outbound;
+                allowanceItems = allowanceItems.Join(models.GetTable<InvoiceAllowanceCancellation>(), a => a.AllowanceID, c => c.AllowanceID, (a, c) => a);
+                ConvertAllowanceMIG = i => i.CreateG0501().ConvertToXml();
+                await WriteAllowanceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.C0701:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.C0701Outbound;
+                ConvertInvoiceMIG = i => i.CreateC0701().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.F0701:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.C0701Outbound;
+                ConvertInvoiceMIG = i => i.CreateF0701().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.A0101:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.A0101Outbound;
+                ConvertInvoiceMIG = i => i.CreateA0101().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+            case Naming.InvoiceProcessType.A0201:
+                storedPath = global::ModelExtension.Properties.AppSettings.Default.A0201Outbound;
+                invoiceItems = invoiceItems.Join(models.GetTable<InvoiceCancellation>(), i => i.InvoiceID, c => c.InvoiceID, (i, c) => i);
+                ConvertInvoiceMIG = i => i.CreateA0201().ConvertToXml();
+                await WriteInvioceMIGAsync();
+                break;
+
+        }
+    }
+
+}

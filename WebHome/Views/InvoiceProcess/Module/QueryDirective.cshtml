@@ -1,0 +1,36 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@{
+    int? _model;
+    _model = (int?)this.Model ?? 0;
+}
+
+<tr>
+    <th>
+        查詢項目
+    </th>
+    <td class="tdleft">
+        <input type="radio" name="urlTo" onchange="window.location.href='@(Url.Action("Index","InvoiceProcess"))';" />發票
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" name="urlTo" onchange="window.location.href='@(Url.Action("Index","AllowanceProcess"))';" />折讓單
+        <script>
+        $(function () {
+            $('input[name="urlTo"]').eq(@(_model)).prop('checked', true);
+        });
+        </script>
+    </td>
+
+</tr>
+
+
+
+

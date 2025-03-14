@@ -1,0 +1,21 @@
+
+@using System.Linq.Expressions
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+<tr>
+    <th>捐贈類別 
+    </th>
+    <td class="tdleft">
+        <input type="radio" name="donation" value="donated" />捐贈統計表
+        <input type="radio" name="donation" value="winning" />捐贈中獎統計表
+    </td>
+</tr>
+<script>
+    $(function () {
+        $('input[type="radio"][name="donation"][value=""]').prop('checked', true);
+    });
+</script>

@@ -1,0 +1,59 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+
+    InvoiceNoIntervalViewModel _viewModel;
+    InvoiceNoInterval _model;
+
+
+    _viewModel = (InvoiceNoIntervalViewModel)ViewBag.ViewModel;
+    _model = (InvoiceNoInterval)this.Model;
+}
+<tr>
+    <td>@(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo)</td>
+    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)</td>
+    <td>@(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1, _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2))</td>
+    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)</td>
+    <td>
+        <input type="text" name="StartNo" class="form-control" data-role="edit" placeholder="請輸入配號區間起始號碼" value="@(String.Format("{0:00000000}",_model.StartNo))" />
+    </td>
+    <td>
+        <input type="text" name="EndNo" class="form-control" data-role="edit" placeholder="請輸入配號區間結尾號碼" value="@(String.Format("{0:00000000}",_model.EndNo))" />
+    </td>
+    <td>
+        <input type="text" name="DeviceName" class="form-control" data-role="edit" placeholder="POS機號碼" value="@Html.Raw(_model.InvoiceNoSegment?.DeviceName)" />
+    </td>
+    <td></td>
+    <td colspan="3">
+        <div class="btn-group dropdown" data-toggle="dropdown">
+            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a class="btn" onclick="uiTrackCodeNo.commitItem('@(_model.IntervalID.EncryptKey())');">確定</a></li>
+                <li><a class="btn" onclick="uiTrackCodeNo.showItem('@(_model.IntervalID.EncryptKey())');">取消</a></li>
+            </ul>
+        </div>
+    </td>
+</tr>
+
+
+
+

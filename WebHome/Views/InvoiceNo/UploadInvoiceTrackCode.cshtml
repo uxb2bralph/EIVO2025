@@ -1,0 +1,48 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+
+@using ModelCore.Helper
+@using WebHome.Controllers
+
+@{
+    Layout = "~/Views/Template/MvcMainPage.cshtml";
+
+    ViewBag.ActionName = "首頁 > 電子發票字軌號碼上傳";
+}
+
+<style>
+    td input {
+        width: 80px;
+    }
+
+    input.file {
+        position: relative;
+        text-align: right;
+        -moz-opacity: 0;
+        filter: alpha(opacity: 0);
+        opacity: 0;
+        z-index: 2;
+    }
+</style>
+
+
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "上傳發票字軌號碼");
+}
+
+<div class="border_gray" id="queryArea">
+    <table class="table table-striped">
+        @{
+            await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/UploadInvoiceTrackCode.cshtml");
+            await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/UploadMOFInvoiceTrackCode.cshtml");
+        }
+    </table>
+</div>
+

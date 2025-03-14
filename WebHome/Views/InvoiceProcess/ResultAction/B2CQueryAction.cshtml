@@ -1,0 +1,51 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _profile = Context.GetUser();
+}
+
+<table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td>
+            @if (_profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo != "0000000000")
+            {
+                <button type="button" class="btn" name="paperStyle" value="A4" onclick="uiInvoiceQuery.print('A4');">A4格式列印</button>
+                @*(列印兌獎訊息：<input name="printBack" type="radio" value="true" />是
+                    <input name="printBack" type="radio" value="false" />否)*@
+            }
+            else
+            {
+                <input type="button" class="btn" name="btnPrint" value="熱感紙規格列印" onclick="uiInvoiceQuery.print('POS');" />
+                @*(列印買受人地址：<input name="printBuyerAddr" type="radio" value="true" />是
+                    <input name="printBuyerAddr" type="radio" value="false" />否)*@
+            }
+            <input type="button" class="btn" name="btnPrint" value="Excel下載" onclick="uiInvoiceQuery.download2021();" />
+        </td>
+    </tr>
+</table>
+
+
+
+
+

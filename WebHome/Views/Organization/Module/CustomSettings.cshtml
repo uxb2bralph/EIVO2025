@@ -1,0 +1,106 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    CustomSmtpHost _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (CustomSmtpHost)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+
+    CustomSmtpHost settings = _model.CustomSmtpHost.OrderByDescending(s => s.HostID).FirstOrDefault();
+}
+
+<form id="settings">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            客製化服務設訂
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                @{
+                    await Html.RenderPartialAsync("~/Views/Organization/Module/CustomSmtp.cshtml");
+                }
+            </div>
+        </div>
+    </div>
+
+</form>
+<script>
+    $(function () {
+
+        $global.loadSmtpSettings = function (keyID) {
+            var $formData = { };
+            $formData.KeyID = keyID;
+            showLoading();
+            $.post('@Html.Raw(Url.Action("LoadSmtpSettings", "Organization"))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                        alertModal(data.message);
+                } else {
+                    var $parent = $('#smtpSettings').parent();
+                    $('#smtpSettings').remove();
+                    $parent.append($(data));
+                }
+            });
+        };
+
+        $global.commitSmtpSettings = function (keyID) {
+            var $formData = $('#smtpSettings').find('input,select,textarea').serializeObject();
+            $formData.KeyID = keyID;
+            clearErrors();
+            showLoading();
+            $.post('@Html.Raw(Url.Action("CommitSmtpSettings", "Organization"))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        alertModal('資料已儲存!!');
+                        $global.loadSmtpSettings(keyID);
+                    } else {
+                        alertModal(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body')).remove();
+                }
+            });
+        };
+
+        $global.disableSmtpSettings = function (keyID) {
+            var $formData = {};
+            $formData.KeyID = keyID;
+            showLoading();
+            $.post('@Html.Raw(Url.Action("DisableSmtpSettings", "Organization"))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        alertModal('資料已停用!!');
+                        $global.loadSmtpSettings(keyID);
+                    } else {
+                        alertModal(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body')).remove();
+                }
+            });
+        };
+
+    });
+</script>
+

@@ -1,0 +1,84 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Newtonsoft.Json
+
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IQueryable<Organization> _items;
+    OrganizationViewModel _viewModel;
+
+    void InquireData()
+    {
+        _items = models.GetTable<Organization>();
+        bool hasQuery = false;
+
+        _viewModel.CompanyName = _viewModel.CompanyName.GetEfficientString();
+        if (_viewModel.CompanyName != null)
+        {
+            _items = _items.Where(c => c.CompanyName.Contains(_viewModel.CompanyName));
+            hasQuery = true;
+        }
+
+        if (_viewModel.ReceiptNo?.Length > 0)
+        {
+            _items = _items.Where(c => c.ReceiptNo.StartsWith(_viewModel.ReceiptNo));
+            hasQuery = true;
+        }
+
+        if(hasQuery)
+        {
+
+        }
+        else
+        {
+            _items = _items.Where(o => false);
+        }
+
+    }
+}
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    var Response = Context.Response;
+    _viewModel = new OrganizationViewModel { };
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+
+    InquireData();
+
+    var items = _items.ToList();
+
+    foreach (var c in items)
+    {
+        var s = c.OrganizationStatus;
+        var x = c.OrganizationExtension;
+        var t = c.OrganizationToken;
+    }
+
+    if (_viewModel.ResultMode == Naming.DataResultMode.Download)
+    {
+        Response.ContentType = "application/octet-stream";
+        Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", System.Web.HttpUtility.UrlEncode("Organization.json")));
+    }
+    else
+    {
+        Response.ContentType = "application/json";
+    }
+
+    await Response.WriteAsync(items.JsonStringify());
+    
+
+}

@@ -1,0 +1,93 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    CustomSmtpHost _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (CustomSmtpHost)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+
+    CustomSmtpHost settings = _model.CustomSmtpHost.OrderByDescending(s => s.HostID).FirstOrDefault();
+    if (settings?.Status == (int)CustomSmtpHost.StatusType.Disabled)
+    {
+        settings = null;
+    }
+}
+
+<table id="smtpSettings" class="table table-striped table-bordered table-hover">
+    <tr>
+        <td colspan="4" class="Head_style_a">
+            設定發送通知郵件伺服器(SMTP)
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <span style="color: red">*</span>伺服器domain name或IP
+        </th>
+        <td>
+            <input type="text" class="form-control" name="Host" value='@(settings?.Host)' />
+        </td>
+        <th>
+            <span style="color: red">*</span>Port
+        </th>
+        <td>
+            <input type="text" class="form-control" name="Port" value='@(settings?.Port)' />
+        </td>
+    </tr>
+    <tr>
+        <th>
+            登入帳號
+        </th>
+        <td>
+            <input type="text" class="form-control" name="UserName" value='@(settings?.UserName)' placeholder="請輸入smtp登入帳號" />
+        </td>
+        <th>
+            密碼
+        </th>
+        <td>
+            <input type="password" class="form-control" name="Password" value='' placeholder="請輸入smtp登入密碼" />
+        </td>
+    </tr>
+    <tr>
+        <th>
+            <span style="color: red">*</span>寄件人email
+        </th>
+        <td>
+            <input type="text" class="form-control" name="MailFrom" value='@(settings?.MailFrom)' />
+        </td>
+        <th>
+            <span style="color: red">*</span>使用SSL
+        </th>
+        <td>
+            <input type="checkbox" value="@($"{true}")" name="EnableSsl" checked="@(settings?.EnableSsl==true)" /> 使用SSL連線
+        </td>
+    </tr>
+    <tr>
+        <td class="Bargain_btn" align="center" colspan="4">
+            <button type="button" onclick="$global.commitSmtpSettings('@Html.Raw(_model.CompanyID.EncryptKey())');" name="UpdateButton" class="btn">設定使用</button>
+            &nbsp;
+            @if (settings != null && settings.Status != (int)CustomSmtpHost.StatusType.Disabled)
+            {
+                <input type="button" class="btn" onclick="$global.disableSmtpSettings('@Html.Raw(_model.CompanyID.EncryptKey())');" value="停用" />
+            }
+        </td>
+    </tr>
+</table>

@@ -1,0 +1,34 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    QueryViewModel _viewModel = ViewBag.ViewModel as QueryViewModel;
+
+}
+
+@RenderBody()
+
+<div class="border_gray" id="queryArea">
+    @RenderSection("QueryFormContent")
+</div>
+
+
+
+
+

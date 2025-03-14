@@ -1,0 +1,68 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+    _viewModel.UrlAction = Url.Action("Query", "InvoiceNumberApply");
+
+    ViewBag.ActionName = "首頁 > 系統管理維護";
+
+}
+<!--交易畫面標題-->
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票號申請");
+}
+
+<!--路徑名稱-->
+<div class="border_gray" id="queryArea">
+    <!--表格 開始-->
+    <table class="table table-striped">
+        <tr>
+            <th nowrap="nowrap" width="120">
+                統一編號
+            </th>
+            <td class="tdleft">
+                <input name="BusinessId" type="text" value="" class="form-control" />
+            </td>
+        </tr>
+    </table>
+    <!--表格 結束-->
+    <!--按鈕-->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="queryAction">
+        <tr>
+            <td class="Bargain_btn">
+                <input type="button" value="查詢" name="btnQuery" class="btn" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();" />
+            </td>
+        </tr>
+    </table>
+    <script>
+
+    </script>
+
+</div>
+

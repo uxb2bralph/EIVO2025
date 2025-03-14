@@ -1,0 +1,77 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    IQueryable<InvoiceAllowance> _model = (IQueryable<InvoiceAllowance>)this.Model;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+@{
+    String currentID = $"table{DateTime.Now.Ticks}";
+    int pageIndex = _viewModel.PageIndex ?? 0;
+    int pageSize = _viewModel.PageSize ?? 10;
+    IQueryable<InvoiceAllowance> items;
+    String[] columns = (string[])ViewBag.TableColumns;
+
+    TempData["SortedItems"] = null;
+}
+@if (_viewModel.SortName != null && _viewModel.SortName.Length > 0)
+{
+    ViewBag.DisplayType = Naming.FieldDisplayType.SortBy;
+    foreach (var c in columns)
+    {
+        await Html.RenderPartialAsync(c, _model);
+    }
+}
+@if (TempData["SortedItems"] == null)
+{
+    items = _model
+        .Skip(pageIndex * pageSize)
+        .Take(pageSize);
+}
+else
+{
+    items = ((IQueryable<InvoiceAllowance>)TempData["SortedItems"])
+    .Skip(pageIndex * pageSize)
+    .Take(pageSize);
+}
+@{
+    ViewBag.DisplayType = Naming.FieldDisplayType.DataItem;
+}
+@foreach (var item in items)
+{
+    <tr>
+        @foreach (var c in columns)
+        {
+            <td>@{ await Html.RenderPartialAsync(c, item); }</td>
+        }
+    </tr>
+}
+@*<script>
+        $(function () {
+            $inquiryAgent.onBodyLoad();
+        });
+    </script>*@
+

@@ -1,0 +1,81 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    String _listID = "itemList" + DateTime.Now.Ticks;
+    QueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+
+}
+
+@RenderSection("PrepareQueryResult")
+
+<table id="@(_listID)" class="table table-striped itemList">
+    <thead>
+        <tr>
+            @foreach (var col in _viewModel.DataColumns)
+            {
+                Write(col.ShowHeader(null));
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @RenderSection("DataItemList", true)
+    </tbody>
+    <tfoot>
+        <tr>
+            @foreach (var col in _viewModel.DataColumns)
+            {
+                Write(col.ShowFooter(this.Model));
+            }
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $(function () {
+        $("#@(_listID)").find("input[name='chkAll']")
+            .click(function () {
+                $("#@(_listID)").find("input[name='chkItem']")
+                    .prop('checked', $(this).is(':checked'));
+            });
+
+        $("#@(_listID)").find("input[name='chkItem']")
+            .click(function (e) {
+                if (!$(this).is(':checked')) {
+                    $("#@(_listID)").find("input[name='chkAll']").prop('checked', false);
+                }
+            });
+    });
+    $inquiryAgent.doPage = function (data) {
+        $('#@(_listID) tbody')
+            .empty()
+            .append(data);
+
+        $("#@(_listID)").find("input[name='chkItem']")
+            .click(function (e) {
+                if (!$(this).is(':checked')) {
+                    $("#@(_listID)").find("input[name='chkAll']").prop('checked', false);
+                }
+            });
+    };
+</script>

@@ -1,0 +1,70 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+IQueryable<BusinessRelationship> _items;
+    BusinessRelationshipQueryViewModel _viewModel;
+
+
+
+    _viewModel = (BusinessRelationshipQueryViewModel)ViewBag.ViewModel;
+    _items = ((IQueryable<BusinessRelationship>)this.Model).Skip(_viewModel.PageIndex.Value * _viewModel.PageSize.Value)
+        .Take(_viewModel.PageSize.Value);
+}
+
+<table class="table table-striped businessList">
+    <thead>
+        <tr>
+            <th style="min-width: 200px">集團成員</th>
+            <th style="min-width: 200px">相對營業人名稱</th>
+            <th style="min-width: 80px">統一編號</th>
+            <th style="min-width: 50px">類別</th>
+            <th style="min-width: 120px">聯絡人電子郵件</th>
+            <th style="min-width: 200px">地址</th>
+            <th style="min-width: 120px">電話</th>
+            <th style="min-width: 120px">店號</th>
+            <th style="min-width: 60px">狀態</th>
+            <th style="min-width: 150px">管理</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ int idx = 0;}
+        @foreach (var item in _items)
+        {
+            idx++;
+            await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/DataItem.cshtml", item);
+        }@{ await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/AddItem.cshtml");}
+
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="10">&nbsp;</td>
+        </tr>
+    </tfoot>
+</table>
+@*<script>
+        $(function () {
+            $('.businessList').DataTable({
+                "scrollX": true,
+                "paging": false,
+                "ordering": false,
+                "info": false,
+                "searching": false,
+                "responsive": true
+            });
+        });
+    </script>*@
+
+
+
+
+
+

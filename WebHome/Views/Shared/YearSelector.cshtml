@@ -1,0 +1,31 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    int _startYear = 2012;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+}
+<select name="year">
+    @for (int y = DateTime.Today.Year; y >= _startYear; y--)
+    {
+        <option value="@(y)">@(y)</option>
+    }
+</select>
+
+
+
+

@@ -1,0 +1,108 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    InvoiceItem _model;
+    InquireInvoiceViewModel _viewModel;
+
+
+    _model = (InvoiceItem)this.Model;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+}
+<td><input name="chkItem" type="checkbox" value="@(_model.InvoiceID)" /></td>
+<td>@(String.Format("{0:yyyy/MM/dd}",_model.InvoiceDate))</td>
+<td>@(_model.InvoiceBuyer.CustomerID)</td>
+<td>@(_model.InvoicePurchaseOrder!=null ? _model.InvoicePurchaseOrder.OrderNo : null)</td>
+<td>@(_model.InvoiceSeller?.CustomerName)</td>
+<td>@(_model.InvoiceSeller?.ReceiptNo)</td>
+<td><a onclick="showInvoiceModal(@(_model.InvoiceID));">@(_model.TrackCode)@(_model.No)</a></td>
+<td align="right">@(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.SalesAmount))</td>
+<td align="right">@(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.TaxAmount))</td>
+<td align="right">@(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.TotalAmount))</td>
+<td>@(_model.InvoiceAmountType.CurrencyType?.AbbrevName)</td>
+<td>@(_model.InvoiceWinningNumber!=null ? _model.InvoiceWinningNumber.PrizeType : "N/A")</td>
+<td>@(_model.InvoiceBuyer.IsB2C() ? "" : _model.InvoiceBuyer.ReceiptNo)</td>
+<td>
+    @(_model.InvoiceCancellation==null ? "" : $"已作廢({_model.InvoiceCancellation.CancelDate:yyyy/MM/dd})")
+    @if (_viewModel.MIG == true)
+    {
+        Write(((Naming.InvoiceProcessType?)_model.CDS_Document.ProcessType)?.ToString() ?? "C0401");
+        if (_model.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C))
+        {
+            Write(":C");
+        }
+        else if (_model.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E))
+        {
+            Write(":E");
+        }
+        else
+        {
+            Write(":P");
+        }
+        if(_model.InvoiceCancellation != null)
+        {
+            Write(",");
+            var doc = _model.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
+            Write(((Naming.InvoiceProcessType?)doc.ProcessType)?.ToString() ?? "C0501");
+            if (doc?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
+            {
+                Write(":C");
+            }
+            else if (doc?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
+            {
+                Write(":E");
+            }
+            else
+            {
+                Write(":P");
+            }
+        }
+    }
+</td>
+<td>@(_model.InvoiceBuyer.CustomerName)</td>
+<td>@(_model.InvoiceBuyer.ContactName)</td>
+<td>@(_model.InvoiceBuyer.Address)</td>
+<td>@(_model.InvoiceBuyer.EMail)</td>
+<td>@(String.Join("", _model.InvoiceDetails.Select(t => t.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)))</td>
+<td>@(_model.CDS_Document.IssuingNotice!=null ? String.Format("{0:yyyy/MM/dd HH:mm:ss}",_model.CDS_Document.IssuingNotice.IssueDate) : "未通知")</td>
+<td>@(_model.InvoiceCarrier!=null ? _model.InvoiceCarrier.CarrierNo : null)</td>
+<td>@(_model.PrintMark)</td>
+<td>
+    @(_model.InvoiceDonation?.AgencyCode)
+</td>
+<td>
+    @{
+        foreach (var attachment in _model.CDS_Document.Attachment)
+        {
+            <a href="@($"{VirtualPathUtility.ToAbsolute("~/Helper/DownloadAttachment.ashx")}?keyName={attachment.KeyName}")">@(attachment.KeyName),共@(attachment.GetAttachedPdfPageCount())頁</a><br />
+        }
+    }
+</td>
+<td style="white-space: nowrap;">
+    @if (_viewModel.ResultAction == "Process" || _viewModel.ResultAction == "Notify")
+    {
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataAction/DataProcess.cshtml", _model);
+    }
+    @if (_viewModel.ResultAction == "NotifyWinning")
+    {
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataAction/NotifyWinning.cshtml", _model);
+    }
+</td>
+
+

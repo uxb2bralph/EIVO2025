@@ -1,0 +1,40 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@functions
+{
+    ModelSource<InvoiceItem> models;
+    dynamic _model;
+    QueryViewModel _viewModel;
+}
+@{
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = this.Model as dynamic;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+
+@{
+    foreach (var col in _viewModel.DataColumns)
+    {
+        Write(col.ShowBody(_model));
+    }
+}
+
+

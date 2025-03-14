@@ -1,0 +1,62 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Helper
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+
+@using ModelCore.Models.ViewModel
+@{
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    IEnumerable<InvoiceNoInterval> _model;
+    _model = (IEnumerable<InvoiceNoInterval>)this.Model;
+    InquireNoIntervalViewModel _viewModel = ViewBag.ViewModel as InquireNoIntervalViewModel;
+}
+
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");}
+
+
+<div class="border_gray query_result">
+    @{
+        var recordCount = _model.Count();
+        bool hasOrg = false;
+    }
+    @if (_viewModel?.SellerID.HasValue == true)
+    {
+        var orgItem = models.GetTable<Organization>().Where(o => o.CompanyID == _viewModel.SellerID).FirstOrDefault();
+        if (orgItem != null)
+        {
+            hasOrg = true;
+            <div>
+                設定營業人@(orgItem.CompanyName)(@(orgItem.ReceiptNo))可用配號存量警戒值：
+                <input class="form-control" name="InvoiceNoSafetyStock" type="number" value="@(orgItem.OrganizationExtension?.InvoiceNoSafetyStock)" onchange="commitSafetyStock('@(orgItem.CompanyID.EncryptKey())');" />
+            </div>
+        }
+    }
+
+    @if (recordCount > 0)
+    {
+        await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _model);
+    }
+    else
+    {
+        if (!hasOrg)
+        {
+            <font color="red">查無資料!!</font>
+        }
+        await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _model);
+    }
+</div>
+
+

@@ -1,0 +1,87 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    String[] _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = this.Model as String[];
+
+    QueryViewModel _viewModel = new QueryViewModel();
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+
+}
+@{
+    if (_model == null)
+    {
+
+        var orgItems = models.GetTable<Organization>().Where(
+                                o => o.OrganizationCategory.Any(
+                                    c => c.CategoryID == (int)Naming.CategoryID.COMP_E_INVOICE_B2C_SELLER
+                                        || c.CategoryID == (int)Naming.CategoryID.COMP_VIRTUAL_CHANNEL
+                                        || c.CategoryID == (int)Naming.CategoryID.COMP_E_INVOICE_GOOGLE_TW
+                                        || c.CategoryID == (int)Naming.CategoryID.COMP_INVOICE_AGENT));
+
+        if (_viewModel.KeyItems?.Length > 0)
+        {
+            orgItems = orgItems.Where(o => _viewModel.KeyItems.Contains(o.ReceiptNo));
+        }
+
+        var agents = models.GetTable<InvoiceIssuerAgent>().Where(a => orgItems.Any(o => a.IssuerID == o.CompanyID))
+                        .Join(models.GetTable<Organization>(), a => a.AgentID, c => c.CompanyID, (a, c) => c);
+
+        _model = orgItems.Union(agents)
+            .Where(o => o.ContactEmail != null)
+            .Select(o => o.ContactEmail)
+            .ToList()
+            .Select(m => m.GetEfficientString())
+            .Where(m => m != null)
+            .Distinct()
+            .ToArray();
+
+    }
+}
+@if (_model!=null)
+{
+    String Subject = $"網際優勢電子發票加值中心 系統公告";
+    String body = Html.Partial("~/Views/Notification/Module/Announcement.cshtml").ToString();
+    foreach(var mailTo in _model)
+    {
+        try
+        {
+            body.SendMailMessage(mailTo, Subject);
+        }
+        catch(Exception ex)
+        {
+            Logger.Warn($"error mailTo: {mailTo}");
+            Logger.Error(ex);
+        }
+    }
+}
+ @{ 
+     await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml", model: "公告訊息已送出!!");
+ }
+
+
+
+

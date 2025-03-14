@@ -1,0 +1,114 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+@using System.Data.SqlClient
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@functions
+{
+    DataQueryViewModel _viewModel;
+}
+@{
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _viewModel = (DataQueryViewModel)ViewBag.ViewModel;
+}
+@{ 
+    ProcessRequest processItem = new ProcessRequest
+    {
+        Sender = Context.GetUser()?.UID,
+        SubmitDate = DateTime.Now,
+        ProcessStart = DateTime.Now,
+        ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
+    };
+    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.SubmitChanges();
+
+    saveAsExcel(processItem.TaskID, processItem.ResponsePath);
+
+    await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml", 
+        new AttachmentViewModel
+        {
+            TaskID = processItem.TaskID,
+            FileName = processItem.ResponsePath,
+            FileDownloadName = "查詢資料.xlsx",
+        });
+
+}
+
+@functions
+{
+    void saveAsExcel(int taskID,String resultFile)
+    {
+        System.Threading.ThreadPool.QueueUserWorkItem(stateInfo =>
+        {
+            try
+            {
+                using (ModelCore.InvoiceManagement.InvoiceManager mgr = new ModelCore.InvoiceManagement.InvoiceManager())
+                {
+                    Exception exception = null;
+
+                    try
+                    {
+
+                        SqlConnection conn = (SqlConnection)mgr.GetTable<Organization>().Context.Connection;
+                        SqlCommand sqlCmd = new SqlCommand(_viewModel.CommandText, conn);
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(sqlCmd))
+                        {
+                            using (DataSet ds = new DataSet())
+                            {
+                                adapter.Fill(ds);
+                                using (ClosedXML.Excel.XLWorkbook xls = new ClosedXML.Excel.XLWorkbook())
+                                {
+                                    xls.Worksheets.Add(ds);
+                                    xls.SaveAs(resultFile);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                        exception = ex;
+                    }
+
+                    ProcessRequest taskItem = mgr.GetTable<ProcessRequest>()
+                                    .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                    if (taskItem != null)
+                    {
+                        if(exception!=null)
+                        {
+                            taskItem.ExceptionLog = new ExceptionLog
+                            {
+                                DataContent = exception.Message
+                            };
+                        }
+                        taskItem.ProcessComplete = DateTime.Now;
+                        mgr.SubmitChanges();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        });
+    }
+}

@@ -1,0 +1,92 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IQueryable<Organization> _model;
+    QueryViewModel _viewModel;
+}
+@{
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+
+    _model = (IQueryable<Organization>)this.Model;
+
+    await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/CompanyItemSorting.cshtml");
+
+    IQueryable<Organization> items;
+    int pageIndex = _viewModel.PageIndex ?? 0;
+    int pageSize = _viewModel.PageSize ?? 10;
+
+    if (TempData["SortedItems"] == null)
+    {
+        if (_viewModel.Paging == false)
+        {
+            items = _model;
+        }
+        else
+        {
+            items = _model
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize);
+        }
+    }
+    else
+    {
+        if (_viewModel.Paging == false)
+        {
+            items = ((IQueryable<Organization>)TempData["SortedItems"]);
+        }
+        else
+        {
+            items = ((IQueryable<Organization>)TempData["SortedItems"])
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize);
+        }
+    }
+
+}
+@{
+    int idx = 0;
+}
+@foreach (var item in items)
+{
+    idx++;
+    <tr>
+        <td>@(item.CompanyName)</td>
+        <td>@(item.ReceiptNo)</td>
+        <td>@(item.UndertakerName)</td>
+        <td>@(item.ContactEmail)</td>
+        <td>@(item.OrganizationStatus?.LevelExpression?.Description)</td>
+        <td>
+            @{
+                ViewBag.Index = idx;
+                await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/ProcessCompanyItem.cshtml", item);
+            }
+        </td>
+    </tr>
+}
+
+
+
+

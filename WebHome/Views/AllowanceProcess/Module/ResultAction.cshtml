@@ -1,0 +1,87 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceAllowance> _model;
+    InquireInvoiceViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    _model = (IQueryable<InvoiceAllowance>)this.Model;
+    var _profile = Context.GetUser();
+}
+@if (_viewModel != null)
+{
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td class="Bargain_btn">
+                @if (_viewModel.Status == "ReadyToMIG")
+                {
+                    await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/DoTransferAllowance.cshtml");
+                    await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/DoDeleteAllowance.cshtml");
+                }
+                else
+                {
+                    if (_viewModel.ProcessType == Naming.InvoiceProcessType.B0401)
+                    {
+                        <button type="button" class="btn mr-2" name="paperStyle" value="A4" onclick="uiAllowanceQuery.print('A4');">A4格式列印</button>
+                    }
+                    else if (_viewModel.ProcessType == Naming.InvoiceProcessType.D0401)
+                    {
+                        <button type="button" class="btn mr-2" name="paperStyle" value="POS" onclick="uiAllowanceQuery.print('POS');">熱感紙規格列印</button>
+                    }
+                    <input type="button" class="btn mr-2" name="btnPrint" value="Excel下載" onclick="uiAllowanceQuery.download2021();" />
+                    if (_profile.IsSystemAdmin() || _profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo == "43460094")
+                    {
+                        <input type="button" class="btn mr-2" name="btnPrint" value="ERP下載" onclick="uiAllowanceQuery.downloadERP();" />
+                        <script>
+                            uiAllowanceQuery.downloadERP = function () {
+
+                                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                                $formData = $.extend($formData, $('input[name="chkItem"]').serializeObject());
+                                showLoading();
+                                $.post('@(Url.Action("CreateCustomERPResult", "AllowanceProcess"))', $formData, function (data) {
+                                    hideLoading();
+                                    if ($.isPlainObject(data)) {
+                                        if (data.message != undefined) {
+                                            alert(data.message);
+                                        }
+                                    } else {
+                                        $(data).appendTo($('body'));
+                                    }
+                                });
+
+                            }
+                        </script>
+                    }
+
+                    <button type="button" class="btn" name="btnNotify" onclick="uiAllowanceQuery.notify();">重送開立通知</button>
+
+                    await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/DoVoidAllowance.cshtml");
+                    await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/DoDeleteAllowance.cshtml");
+
+                }
+            </td>
+        </tr>
+    </table>
+}
+
+
+

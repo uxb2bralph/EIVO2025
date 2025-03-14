@@ -1,0 +1,232 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using System.Xml
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+
+@functions
+{
+    const int _FirstCheckCount = 6;
+    const int _SecondCheckCount = 16;
+    const int _ItemPagingCount = 10;
+}
+@{
+
+    RenderStyleViewModel _viewModel;
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    InvoiceProductItem[] _productItem;
+    InvoiceBuyer _buyer;
+    Organization _buyerOrg;
+    bool _isDuplicatedPrint = false;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+
+    _productItem = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
+        .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+        .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, i => i.ProductID, (p, i) => i).ToArray();
+
+    _buyer = _model.InvoiceBuyer;
+    if (_buyer != null && _buyer.BuyerID.HasValue)
+    {
+        _buyerOrg = _buyer.Organization;
+    }
+
+    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Organization.OrganizationStatus.EntrustToPrint != true;
+
+}
+@if (_model != null)
+{
+    <div style="page-break-after: always;width:5.5cm;margin-left: 0cm;margin-right:0cm">
+
+        <div class="container" style="border-top:0px;border-bottom: 0px;@(_buyer.IsB2C() ? "page-break-after: always;" : null)">
+            <table>
+                <tr>
+                    <td>
+                        <div class="cutfield" style="/*width:5cm;*/border-top:0px;border:0px;/*font-weight:bold;*/">
+                            @if (_model.Organization.LogoURL != null)
+                            {
+                                <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Organization.LogoURL))' />
+                            }
+                            else
+                            {
+                                <div style="text-align:left; width:4.4cm">
+                                    <h3 class="title-small" style="width:4.2cm; padding-top:0px;font-weight:bold; font-size:small;">瑞士商菲利普莫里斯<br />股份有限公司</h3>
+                                </div>
+                            }
+                            @if (_isDuplicatedPrint)
+                            {
+                                <h2 style="font-size:larger;">電子發票證明聯補印</h2>
+                            }
+                            else
+                            {
+                                <h2>電子發票證明聯</h2>
+                            }
+                            <h2>@(_model.InvoiceDate.Value.Year - 1911)年@((_model.InvoiceDate.Value.Month % 2).Equals(0) ? String.Format("{0:00}-{1:00}", _model.InvoiceDate.Value.Month - 1, _model.InvoiceDate.Value.Month) : String.Format("{0:00}-{1:00}", _model.InvoiceDate.Value.Month, _model.InvoiceDate.Value.Month + 1))月 </h2>
+                            <h2>@(_model.TrackCode + "-" + _model.No)</h2>
+                            <p>
+                                @(String.Format("{0:yyyy-MM-dd HH:mm:ss}", _model.InvoiceDate.Value)) @(_buyer.IsB2C()
+          ? ""
+          : _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4
+              ? "不得扣抵"
+              : String.Format("格式 {0}", ((int)_model.InvoiceType.Value).InvoiceTypeToFormat()))<br />
+                                隨機碼 @(_model.RandomNo)&nbsp;&nbsp;&nbsp;&nbsp; 總計 @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))<br />
+                                賣方@(_model.Organization.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
+                            </p>
+                            <div class="code1" style="padding-top:0;">
+                                @{ String data = $"{_model.InvoiceDate.Value.Year - 1911:000}{(_model.InvoiceDate.Value.Month + 1) / 2 * 2:00}{_model.TrackCode}{_model.No}{_model.RandomNo}";}
+
+                                <img id="barcode" alt="" style="max-width:4.7cm;" src="@(data.GetBarcode39ImageSrc(margin: 10, height: 40, wide: 3, narrow: 1))" />
+                                @*<img id="barcode" alt="" width="160" height="22" src="@(String.Format("{0}{1}?{2}", ModelExtension.Properties.AppSettings.Default.HostUrl, VirtualPathUtility.ToAbsolute("~/Published/GetBarCode39.ashx"), data))" />*@
+                            </div>
+                            <div class="code2" style="padding-left:0.3cm;margin-top:-3px;">
+                                <img style="margin-right: 0.3cm;width:2.0cm;" alt="" src="@(_model.GetLeftQRCodeImageSrc(qrVersion: 8))" />
+                                <img style="margin-right: 0.3cm;width:2.0cm;" alt="" src="@("**".CreateQRCodeImageSrc(width: 180, height: 180, qrVersion: 8))" />
+                                @*<img style="/*margin-left:0.3cm;*/margin-right:0.3cm;" alt="" width="80" height="80" src="@(String.Format("{0}{1}?invoiceID={2}", ModelExtension.Properties.AppSettings.Default.HostUrl, VirtualPathUtility.ToAbsolute("~/DataView/GetLeftQRCode"), _model.InvoiceID))" />
+                                    <img style="/*margin-left:0.3cm;*/margin-right:0.3cm;" alt="" width="80" height="80" src="@(String.Format("{0}{1}?invoiceID={2}", ModelExtension.Properties.AppSettings.Default.HostUrl, VirtualPathUtility.ToAbsolute("~/DataView/GetRightQRCode"), _model.InvoiceID))" />*@
+                            </div>
+                            <table style="width:5.6cm;font-weight:bold;margin-top:-8px;">
+                                <tr>
+                                    <td colspan="3" style="font-size: 7pt;">
+                                        @{
+                                            String[] remark = _model.Remark?.Split(';');
+                                        }
+                                        @{ BuildRemark(remark); }
+                                        退換貨時請持發票及交易明細回原店辦理<br />
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+
+        <div class="listfield" style="border-top:0px;border-bottom: 0px">
+            <table style="width:4.8cm;font-size:8pt;font-weight:bold;">
+                <tr>
+                    <td colspan="3">
+                        <div style="text-align:center; width:100%;font-size: 12pt;line-height: 1.2">
+                            瑞士商菲利普莫里斯
+                        </div>
+                        <div style="text-align:center; width:100%;font-size: 12pt;line-height: 1.2">
+                            股份有限公司
+                        </div>
+                        <div style="text-align:center; width:100%;font-size: 12pt;line-height: 1.2">
+                            交易明細
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div style="font-size: 7pt;">營業人統編:@(_model.InvoiceSeller.ReceiptNo)</div>
+                        <div style="font-size: 7pt;">
+                            @{
+                                BuildRemark(remark);
+                            }
+                        </div>
+                        <div style="font-size: 7pt;">系統日:@($"{DateTime.Today:yyyy-MM-dd HH:mm:ss}")</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <p style="display: inline-block;padding: 2px 0px;margin: 0;font-size:8pt;line-height: 1.5">品名</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:20%">
+                        <p style="display: inline-block;padding: 2px 0px;margin: 0;font-size:8pt;line-height: 1.5">數量</p>
+                    </td>
+                    <td style="width:40%">
+                        <p style="display: inline-block;padding: 2px 0px;margin: 0;font-size:8pt;line-height: 1.5">單價</p>
+                    </td>
+                    <td style="width:40%">
+                        <p style="display: inline-block;padding: 2px 0px;margin: 0;font-size:8pt;line-height: 1.5">金額</p>
+                    </td>
+                </tr>
+                @{ int _itemIdx;}
+                @for (_itemIdx = 0; _productItem != null && _itemIdx < _productItem.Length; _itemIdx++)
+                {
+                    var item = _productItem[_itemIdx];
+                    <tr>
+                        <td colspan="3" height="15" valign="top">@(item.InvoiceProduct.Brief)</td>
+                    </tr>
+                    <tr>
+                        <td align="right" valign="top">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</td>
+                        <td align="right" valign="top">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</td>
+                        <td align="right" valign="top">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount)) TX</td>
+                    </tr>
+                }
+                @if (_productItem != null)
+                {
+                    <tr>
+                        <td colspan="3">
+                            <p style="border-top: 1px dotted #808080;">
+                                <span style="font-size: 8pt;">總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
+                                @{
+                                    String customContent = _model.CDS_Document.CustomerDefined?.DataContent.GetEfficientString();
+                                    if (customContent != null)
+                                    {
+                                        XmlDocument doc = new XmlDocument();
+                                        doc.LoadXml(customContent);
+                                        InvoiceRootInvoiceCustomerDefined custom = doc.ConvertTo<InvoiceRootInvoiceCustomerDefined>();
+                                        if (custom.Payment != null && custom.Payment.Length > 0)
+                                        {
+                                            <span style="font-size: 8pt;">付款方式：</span><br />
+                                            foreach (var p in custom.Payment)
+                                            {
+                                                <span style="font-size: 8pt;">@(p.Method)：@(p.Amount)</span><br />
+                                            }
+                                        }
+                                    }
+                                }
+                                備註：<br />
+                                <span style="font-size: 7pt;">
+                                    發票號碼：@(_model.TrackCode)@(_model.No)<br />
+                                    退換貨時請持發票及交易明細回原店辦理。活動贈品與贈券須一併帶回，方可辦理
+                                </span>
+                            </p>
+                        </td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+}
+@functions
+{
+	void BuildRemark(String[] remark)
+	{ 
+    if (remark != null)
+    {
+        <text>
+            門市:@(remark.Length>0 ? remark[0] : null) 序號:@(remark.Length>1 ? remark[1] : null)
+            <br />
+            序號2:@(remark.Length > 2 ? remark[2] : null)
+            <br>
+        </text>
+     }
+ }
+}
+
+
+
+
+

@@ -1,0 +1,78 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using Newtonsoft.Json
+
+@{
+    List<InvoiceItem> _items;
+    List<InvoiceItem> _model;
+    _model = (List<InvoiceItem>)this.Model;
+    _items = _model;
+}
+
+<div class="border_gray query_result">
+    <table class="table table-striped">
+        <tr>
+            <td class="Bargain_btn">
+                @*<button type="button" onclick="uiHandling.processPack();">整理郵件號碼</button>*@
+                @*<button type="button" onclick="uiHandling.processPack();ShowOverlay_2(getWriterTimer2());">整理郵件號碼_ShowOverlay_2</button>*@ @*1121222-遮罩測試*@
+                <button type="button" onclick="OverlayProcessPack();">整理郵件號碼</button>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-striped itemList">
+        <thead>
+            <tr>
+                <th style="min-width: 80px;">寄送日期</th>
+                <th style="min-width: 120px;">GoogleID</th>
+                <th style="min-width: 120px;">發票號碼</th>
+                <th style="min-width: 320px;">掛號號碼</th>
+                <th style="min-width: 120px;">收件人</th>
+                <th style="min-width: 280px;">收件人地址</th>
+                <th style="min-width: 120px;">收件人統編</th>
+                <th style="min-width: 60px;">備考</th>
+                <th>作業方式</th>
+                <th>附件張數</th>
+                <th style="min-width: 150px;">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ await Html.RenderPartialAsync("~/Views/Handling/MailTracking/ItemList.cshtml", _model);}
+
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="9" class="Bargain_btn">
+                    <button type="button" onclick="uiHandling.inquireTracking();">存檔</button>&nbsp;
+                    <button type="button" onclick="uiHandling.download();">下載</button>
+                    <button type="button" onclick="uiHandling.zipAll();">列印資料下載(ZIP)</button>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div id="loadingOverlay2" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(169, 169, 169, 0.7); z-index: 9999;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <div class="spinner-border text-primary" role="status" style="font-size: 50px;">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <p style="font-size: 30px; color: brown;">Loading...</p>
+    </div>
+</div>
+
+<script>
+    getWriterTimer2 = function (getSecond) {
+        var startNo = $("input[name='StartNo']").val();
+        var endNo   = $("input[name='EndNo']").val();
+        startNo     = parseInt(startNo.slice(-8));
+        endNo       = parseInt(endNo.slice(-8));
+        var getSecond = (parseInt(endNo) - parseInt(startNo)) / 100;  //資料寫入UI所需要的秒數
+        getSecond = Math.ceil(getSecond);//小數點無條件進位
+        //alert(getSecond);
+        return getSecond;
+    };
+</script>

@@ -1,0 +1,51 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+    DocumentQueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+    _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
+}
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title>電子發票系統</title>
+    <link href="../App_Themes/Ver2016/eivo.css" rel="stylesheet" type="text/css" />
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+    <form id="theForm" runat="server">
+        @{ await Html.RenderPartialAsync("~/Views/DataView/Module/B0401.cshtml", _model);}
+
+    </form>
+</body>
+</html>
+@if (_viewModel?.ResultMode == Naming.DataResultMode.Print)
+{
+    <script>
+        window.onload = function () {
+            window.print();
+        };
+    </script>
+}

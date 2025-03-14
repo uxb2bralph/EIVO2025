@@ -1,0 +1,40 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@{
+    Layout = "~/Views/Template/MvcMainPage.cshtml";
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = ViewBag.ViewModel as QueryViewModel ?? new QueryViewModel { };
+
+    ViewBag.ActionName = "首頁 > 發票作業";
+}
+
+@section headContent
+{
+
+}
+
+@section formContent {
+    @{
+        await Html.RenderPartialAsync("~/Views/WinningInvoice/Module/ReportResult.cshtml");
+    }
+}
+

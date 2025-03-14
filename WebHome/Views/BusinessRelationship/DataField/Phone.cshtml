@@ -1,0 +1,64 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@using CommonLib.DataAccess
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+@{
+    Naming.FieldDisplayType? displayType = (Naming.FieldDisplayType?)ViewBag.DisplayType;
+}
+@switch (displayType)
+{
+    case Naming.FieldDisplayType.Header:
+        <text>電話</text>
+        break;
+    case Naming.FieldDisplayType.DataItem:
+        BusinessRelationship item = this.Model as BusinessRelationship;
+        <text>@(item?.Phone)</text>
+        break;
+    case Naming.FieldDisplayType.SortBy:
+        break;
+
+    case Naming.FieldDisplayType.Edit:
+        item = this.Model as BusinessRelationship;
+        editField(_viewModel as QueryViewModel, item);
+
+        break;
+    default:
+        break;
+}
+
+@functions
+{
+    void editField(QueryViewModel _viewModel, BusinessRelationship item)
+    {
+        <input name="Phone" class="form-control" type="text" value="@(item?.Phone)" />
+    }
+}
+
+

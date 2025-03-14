@@ -1,0 +1,48 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+
+    IQueryable<ProductCatalog> items = models.FilterProductCatalogByRole(_profile, models.GetTable<ProductCatalog>());
+
+}
+
+<tr>
+    <td><input class="form-control" name="ItemNo" type="text" /></td>
+    <td>
+        <input class="form-control" name="Brief" onclick="@(items.Count()>0 ? "uiInvoice.quickSearch(this);" : null)" required type="text" placeholder="請輸入品名!!" />
+    </td>
+    <td><input class="form-control" name="Piece" type="number" required min="1" step="1" value="1" placeholder="請輸入件數!!" /></td>
+    <td><input class="form-control" name="UnitCost" type="number" required min="1" step="1" value="1" placeholder="請輸入單價!!" /></td>
+    <td><input class="form-control" name="CostAmount" type="number" /></td>
+    <td><input class="form-control" name="ItemRemark" type="text" /></td>
+    <td>
+        <button type="button" class="btn" onclick="uiInvoice.addRow();">新增</button>
+    </td>
+</tr>
+
+

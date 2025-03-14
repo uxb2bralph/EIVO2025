@@ -1,0 +1,52 @@
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataExchange
+
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    CounterpartBusinessExchange _model;
+
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    var profile = Context.GetUser();
+    _model = (CounterpartBusinessExchange)this.Model;
+}
+
+<table border="0" cellspacing="0" cellpadding="0" width="100%" class="tblAction">
+    <tbody>
+        <tr>
+            <td class="Bargain_btn">
+                @if (_model.HasError)
+                {
+                    <span>
+                        資料匯入處理有錯誤，請取回處理回應檔查明原因。< br />
+                        <a href="@(Url.Action("GetResource","DataExchange",new { path = ((String)ViewBag.ImportFile).EncryptData() }))"> 點此下載回應檔 </a>
+                    </span>
+                }
+                else
+                {
+                    <text>資料匯入完成!!</text>
+                }
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+
+

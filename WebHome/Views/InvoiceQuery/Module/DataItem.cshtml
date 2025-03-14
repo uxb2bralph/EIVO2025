@@ -1,0 +1,41 @@
+@using System.IO
+@using System.Linq.Expressions
+@using WebHome.Helper
+
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using CommonLib.DataAccess
+@using Newtonsoft.Json
+@{
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    InquireInvoiceViewModel _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+
+    Organization _model = (Organization)this.Model;
+    Organization item = _model;
+}
+
+@functions
+{
+    ModelSource<InvoiceItem> models;
+
+    int checkCompany(Organization orgItem)
+    {
+        return models.Items.Count(i => i.SellerID == orgItem.CompanyID);
+    }
+}
+<tr>
+    <td>@(item.CompanyName)</td>
+    <td>@(item.ReceiptNo)</td>
+    <td>@(checkCompany(item))</td>
+    <td>@($"{item.OrganizationExtension?.ExpirationDate:yyyy/MM/dd}")</td>
+</tr>
+
+

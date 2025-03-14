@@ -1,0 +1,55 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+    UserProfile _model;
+    _model = (UserProfile)this.Model;
+}
+
+<tr>
+    <td>@(_model.UserRole.Count > 0 ? _model.UserRole.First().OrganizationCategory.Organization.CompanyName : null)</td>
+    <td>@(_model.UserRole.Count > 0 ? ((Naming.EIVOUserRoleID)_model.UserRole.First().RoleID).ToString() : null)</td>
+    <td>@(_model.UserName)</td>
+    <td>@(_model.PID)</td>
+    <td>@(_model.EMail)</td>
+    <td>
+        <div class="btn-group dropdown" data-toggle="dropdown">
+            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a class="btn" onclick="uiAccountQuery.edit(@(_model.UID));">編輯</a></li>
+                @if (_model.LevelID == (int)Naming.MemberStatusDefinition.Mark_To_Delete)
+                {
+                    <li><a class="btn" onclick="uiAccountQuery.activate(@(_model.UID));">啟用</a></li>
+                }
+                else
+                {
+                    <li><a class="btn" onclick="uiAccountQuery.sendConfirmation(@(_model.UID));">重送確認信</a></li>
+                    <li><a class="btn" onclick="uiAccountQuery.deactivate(@(_model.UID));">停用</a></li>
+                    <li><a class="btn" onclick="uiAccountQuery.delete(@(_model.UID));">刪除</a></li>
+                }
+            </ul>
+        </div>
+    </td>
+</tr>
+
+

@@ -1,0 +1,46 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+<script>
+    $(function () {
+        var $postForm;
+        if (!window.uiInvoiceQuery) {
+            window.uiInvoiceQuery = {};
+        }
+        window.uiInvoiceQuery.notify = function () {
+            if (!$('input[name="chkItem"]').is(':checked')) {
+                alert('請選擇重送資料!!');
+                return false;
+            }
+
+            var $formData = $('input[name="chkItem"]:checked').serializeObject();
+            $formData.cancellation = $('#queryArea select[name="Cancelled"]').val();
+            $formData.processType = $('#queryArea select[name="ProcessType"]').val();
+            $formData.mailTo = $('input[name="MailTo"]').val();
+
+
+            showLoading();
+            $.post('@(Url.Action("IssueInvoiceNotice", "InvoiceProcess"))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    alert(data.message);
+                } else {
+                    $(data).appendTo($('body')).remove();
+                }
+            });
+
+        };
+    });
+</script>
+

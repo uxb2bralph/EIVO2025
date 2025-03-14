@@ -1,0 +1,68 @@
+﻿
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+@{
+    Layout = "~/Views/DataView/C0401A4Template.cshtml";
+    ModelSource<InvoiceItem> models;
+    IQueryable<DocumentPrintQueue> _model;
+    RenderStyleViewModel _viewModel;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<DocumentPrintQueue>)this.Model;
+    _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+    if (_viewModel == null)
+    {
+        _viewModel = this.TempData["viewModel"] as RenderStyleViewModel;
+        if (_viewModel != null)
+        {
+            ViewBag.ViewModel = _viewModel;
+        }
+    }
+}
+@{
+    var profile = Context.GetUser();
+    DocumentPrintQueue item;
+    var items = _model.OrderBy(d => d.CDS_Document.InvoiceItem.No);
+}
+@while ((item = items.FirstOrDefault()) != null)
+{
+    String invoicePrintView;
+
+    if (_viewModel?.UseCustomView == true && (invoicePrintView = item.CDS_Document.InvoiceItem.Organization.OrganizationStatus.InvoicePrintView.GetEfficientString()) != null)
+    {
+        await Html.RenderPartialAsync(invoicePrintView, item.CDS_Document.InvoiceItem);
+    }
+    else if (_viewModel?.PrintCuttingLine == true)
+    {
+        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4_Print.cshtml", item.CDS_Document.InvoiceItem);
+    }
+    else
+    {
+        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4.cshtml", item.CDS_Document.InvoiceItem);
+    }
+    models.MarkPrintedLog(item.CDS_Document.InvoiceItem, profile);
+}
+<script>
+    window.onload = function () {
+        window.print();
+    };
+</script>

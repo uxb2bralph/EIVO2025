@@ -1,0 +1,67 @@
+﻿@model WebHome.Models.InvoiceNumberApplyResponse
+
+@{
+    ViewBag.Title = "";
+}
+<script src="~/Scripts/jquery-3.7.1.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
+@using (Html.BeginForm("SetAll", "InvoiceNumberApply"))
+{
+    @Html.TextBoxFor(m => m.BusinessID, new { @class = "form-control", @style = "display:none" })
+    @Html.TextBoxFor(m => m.RedirectUrl, new { @class = "form-control", @style = "display:none" })
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">下載Word</h5>
+                </div>
+                <div class="modal-body">
+                    資料已送出!! 是否需下載Word檔?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">否</button>
+                    <button type="submit" class="btn btn-primary">是</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+    let count = 3;
+    $(this).submit(function () {
+        countDown();
+    });
+
+    function countDown() {
+        count -= 1;
+        if (count == 0) {
+            $('button[type="button"]').click();
+        }
+        setTimeout("countDown()", 1000);
+    }
+    /*
+    $(this).submit(function (e) {
+        //e.preventDefault(); // don't submit multiple times
+        //$('#exampleModal').modal('hide');
+        //$('#BusinessID').val(''); // blank the input
+        $('button[type="button"]').click();
+    });
+    */
+    $('button[type="button"]').on('click', function () {
+        window.location.replace($('#RedirectUrl').val());
+    });
+
+    $(function () {
+        setTimeout("window.history.forward();", 0);
+
+        if ($('#BusinessID').val() == "") {
+            $('.modal-body').text('統編有誤, 請洽服務人員');
+            $('button[type="submit"]').attr('style', 'display:none');
+            $('button[type="button"]').text('確認');
+        }
+        $('#exampleModal').modal({ backdrop: 'static', keyboard: false }, 'show');
+    })
+</script>
+

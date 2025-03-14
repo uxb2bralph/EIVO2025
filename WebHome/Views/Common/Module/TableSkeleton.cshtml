@@ -1,0 +1,78 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    IQueryable<dynamic> _model = (IQueryable<dynamic>)this.Model;
+}
+@{
+    String currentID = $"table{DateTime.Now.Ticks}";
+    String[] columns = (string[])ViewBag.TableColumns;
+}
+<table id="@currentID" class="table table-striped itemList" cellspacing="0" cellpadding="0" style="width: 100%;">
+    <thead>
+        <tr>
+            @{
+                ViewBag.DisplayType = Naming.FieldDisplayType.Header;
+            }
+            @foreach (var c in columns)
+            {
+                <th>
+                @{ 
+                    await Html.RenderPartialAsync(c, (object)_model.FirstOrDefault()); 
+                    }
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            await Html.RenderPartialAsync("~/Views/Common/Module/TableBody.cshtml", _model);
+        }
+    </tbody>
+    <tfoot>
+        @{
+            if (ViewBag.TableFooter != null)
+            {
+                await Html.RenderPartialAsync((String)ViewBag.TableFooter, _model);
+            }
+        }
+        <tr>
+            <td colspan="@(columns.Length)">&nbsp;</td>
+        </tr>
+    </tfoot>
+</table>
+<script>
+    $(function () {
+
+        $inquiryAgent.onBodyLoad = function () {
+            var $table = $('#@currentID');
+            $table.find('tr:odd').addClass('OldLace');
+        };
+
+        //$inquiryAgent.onBodyLoad();
+    });
+</script>
+

@@ -1,0 +1,49 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _profile = Context.GetUser();
+    List<InvoiceNumberApplyQueryViewModel> _model = (List<InvoiceNumberApplyQueryViewModel>)ViewBag.Model;
+    InvoiceNumberApplyQueryViewModel _viewModel = ViewBag.ViewModel as InvoiceNumberApplyQueryViewModel;
+}
+@if (!models.InquiryHasError)
+{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+
+    <div class="container border_gray query_result">
+        @if (_model.Count > 0)
+        {
+            await Html.RenderPartialAsync("~/Views/InvoiceNumberApply/QueryList.cshtml", _model);
+
+            //await Html.RenderPartialAsync("~/Views/Common/Module/QueryPagingControl.cshtml", _model);
+        }
+        else
+        {
+            <font color="red">查無資料!!</font>
+        }
+    </div>
+}
+

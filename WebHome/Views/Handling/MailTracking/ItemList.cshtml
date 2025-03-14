@@ -1,0 +1,30 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using Newtonsoft.Json
+
+@{
+    List<InvoiceItem> _items;
+    List<InvoiceItem> _model;
+    _model = (List<InvoiceItem>)this.Model;
+    _items = _model;
+}
+
+@{ int idx = 0;}
+@foreach (var g in _items.GroupBy(i=>i.PackageID))
+{
+    idx++;
+    if (g.Count() > 1)
+    {
+        await Html.RenderPartialAsync("~/Views/Handling/MailTracking/PackedItemList.cshtml", g.ToList());
+    }
+    else
+    {
+        await Html.RenderPartialAsync("~/Views/Handling/MailTracking/DataItem.cshtml", g.First());
+    }
+}
+
+

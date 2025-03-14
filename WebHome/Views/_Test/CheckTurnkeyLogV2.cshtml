@@ -1,0 +1,80 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+@using System.Text
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using CommonLib.DataAccess
+@using Newtonsoft.Json
+
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    class TurnkeyLogViewModel : V_Invoice
+    {
+        public string AllowanceNo { get; set; }
+    }
+
+}
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState ?? ViewContext.ViewData.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    TurnkeyLogViewModel _viewModel = new TurnkeyLogViewModel();
+    ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+    var Response = Context.Response;
+
+    _viewModel.InvoiceNo = _viewModel.InvoiceNo.GetEfficientString();
+    _viewModel.DocType = _viewModel.DocType.GetEfficientString();
+
+    JobHelper.Tasks.CheckTurnkeyLog.Notify();
+
+    Response.Clear();
+
+    Response.Headers.Clear();
+    Response.ContentType = "application/json";
+
+    using (TurnKey2DataContext turnkeyDB = new TurnKey2DataContext())
+    {
+        var logItems = turnkeyDB.GetTable<TurnkeyTriggerLog>().Where(t => false);
+        if (_viewModel.InvoiceNo?.Length >0)
+        {
+            logItems = turnkeyDB.GetTable<TurnkeyTriggerLog>()
+                .Where(t=>t.MESSAGE_TYPE == _viewModel.DocType)
+                .Where(t => t.INVOICE_IDENTIFIER.Contains(_viewModel.InvoiceNo));
+        }
+        else if(_viewModel.AllowanceNo?.Length>0)
+        {
+            logItems = turnkeyDB.GetTable<TurnkeyTriggerLog>()
+                .Where(t => t.MESSAGE_TYPE == _viewModel.DocType)
+                .Where(t => t.INVOICE_IDENTIFIER.Contains(_viewModel.AllowanceNo));
+        }
+
+        var items = logItems.OrderByDescending(i => i.MESSAGE_DTS).ToList();
+        await Response.WriteAsync(items.JsonStringify());
+
+        foreach(var log in items)
+        {
+            turnkeyDB.ExecuteCommand(
+                @"Delete TurnkeyTriggerLog WHERE (LogID = {0})", log.LogID);
+        }
+
+        
+
+    }
+
+
+}

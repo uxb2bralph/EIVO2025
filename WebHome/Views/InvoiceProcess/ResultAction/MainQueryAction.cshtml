@@ -1,0 +1,62 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.Helper
+@{
+
+    UserProfile _profile;
+
+    _profile = Context.GetUser();
+}
+<table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+        <td>
+            @{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/PrintAction.cshtml");}
+
+            <input type="button" class="btn mr-2" name="btnPrint" value="Excel下載" onclick="uiInvoiceQuery.download2021();" />
+            @if (_profile.IsSystemAdmin())
+            {
+                <input type="button" class="btn mr-2" name="btnBuyer" value="下載買受人資料" onclick="uiInvoiceQuery.saveBuyer();" />
+            }
+            @if (_profile.IsSystemAdmin() || _profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo == "43460094")
+            {
+                <input type="button" class="btn mr-2" name="btnPrint" value="ERP下載" onclick="uiInvoiceQuery.downloadERP();" />
+                <script>
+                    uiInvoiceQuery.downloadERP = function () {
+
+                        var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                        $formData = $.extend($formData, $('input[name="chkItem"]').serializeObject());
+                        showLoading();
+                        $.post('@(Url.Action("CreateCustomERPResult", "InvoiceProcess"))', $formData, function (data) {
+                            hideLoading();
+                            if ($.isPlainObject(data)) {
+                                if (data.message != undefined) {
+                                    alert(data.message);
+                                }
+                            } else {
+                                $(data).appendTo($('body'));
+                            }
+                        });
+
+                    }
+                </script>
+            }
+        </td>
+    </tr>
+</table>
+
+
+
+

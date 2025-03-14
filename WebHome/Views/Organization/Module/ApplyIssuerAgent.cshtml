@@ -1,0 +1,96 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    OrganizationViewModel _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+}
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "設定發票經銷商");}
+
+<form>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            發票經銷商
+        </div>
+        <div class="panel-body col-md-12">
+            @{
+                var items = models.GetTable<Organization>()
+                    .Where(o => o.OrganizationCategory.Any(c => c.CategoryID == (int)Naming.CategoryID.COMP_INVOICE_AGENT))
+                    .OrderBy(o => o.ReceiptNo);
+            }
+            @foreach (var item in items)
+            {
+                <label class="col-md-6">
+                    <input type="checkbox" name="agentID" value="@(item.CompanyID)" @(item.InvoiceIssuerAgent.Any(i => i.IssuerID == _model.CompanyID) ? "checked" : null) />
+                    <i></i> @(String.Concat("(",item.ReceiptNo,")",item.CompanyName))
+                </label>
+            }
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <td class="Bargain_btn" align="center">
+                            <button type="button" onclick="$global.commitIssuerAgent();" name="UpdateButton" class="btn">確定</button>
+                            &nbsp;
+                            <input name="Reset" type="reset" class="btn" value="重填" />
+                            @*<asp:Button ID="Config_btn" runat="server" CausesValidation="True" CssClass="btn"
+                                Text="下載設定檔" OnClick="Config_btn_Click" />*@
+                            @*@if (_viewModel.CompanyID.HasValue)
+                                    {
+                                <input type="button" class="btn" name="btnDownloadConfig" value="下載設定檔" />
+                                }*@
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        $global.commitIssuerAgent = function () {
+            var event = event || window.event;
+            $form = $(event.target).closest('form');
+            showLoading();
+            $.post('@(Url.Action("CommitIssuerAgent","Organization",new { _viewModel.KeyID }))', $form.serializeObject(), function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        if (confirm('資料已儲存，是否關閉？')) {
+                            $global.removeTab('applyIssuerAgent');
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body'));
+                }
+            });
+        };
+    });
+</script>
+
+

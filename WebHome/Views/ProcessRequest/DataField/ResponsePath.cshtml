@@ -1,0 +1,60 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@using ApplicationResource
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    ProcessRequestQueryViewModel _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
+}
+@{
+    Naming.FieldDisplayType? displayType = (Naming.FieldDisplayType?)ViewBag.DisplayType;
+}
+@switch (displayType)
+{
+    case Naming.FieldDisplayType.Header:
+        <text>回應檔</text>
+        break;
+    case Naming.FieldDisplayType.DataItem:
+        ProcessRequest item = this.Model as ProcessRequest;
+        if (item.ResponsePath != null)
+        {
+            if (File.Exists(item.ResponsePath))
+            {
+                <a href="@Html.Raw(Url.Action("GetResource", "DataExchange", new { path = item.ResponsePath.EncryptData() }))">@(System.IO.Path.GetFileName(item.ResponsePath))</a>
+            }
+            else
+            {
+                <text>@(System.IO.Path.GetFileName(item.ResponsePath))</text>
+            }
+        }
+        break;
+
+    default:
+        break;
+}
+
+

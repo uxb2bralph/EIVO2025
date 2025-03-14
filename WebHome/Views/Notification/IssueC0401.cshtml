@@ -1,0 +1,149 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Service 
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    DocumentQueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
+
+    var renderViewModel = new RenderStyleViewModel
+    {
+        PaperStyle = "A4",
+        ProcessType = Naming.InvoiceProcessType.C0401,
+        CreateNew = true,
+    };
+
+    String notificationView = _model?.Organization?.OrganizationStatus.CustomNotificationView;
+
+    //Request.SaveAs(System.IO.Path.Combine(Logger.LogDailyPath, String.Format("IssueC0401_{0}.txt", DateTime.Now.Ticks)), true);
+}
+
+@if (_viewModel.ForTest == true)
+{
+    if (_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle))
+    {
+        await Html.RenderPartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model);
+    }
+    else
+    {
+        await Html.RenderPartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model);
+    }
+}
+else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Issuing))
+{
+    var mailing = models.GetUserListByCompanyID(_model.InvoiceBuyer.BuyerID)
+            .Select(u => u.EMail).ToList();
+    mailing.Add(_model.InvoiceBuyer.EMail);
+    mailing.Add(_viewModel.MailTo.GetEfficientString());
+    var mailTo = String.Join(",",
+            mailing.Where(m => m != null));
+
+    Logger.Debug($"InvoiceNo:{_model.TrackCode}{_model.No},mail to:{mailTo}");
+    var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+
+    if (!String.IsNullOrEmpty(mailTo))
+    {
+
+        String subject = $"{_model.Organization.OrganizationExtension?.MailSubjectAlias ?? _model.Organization.CompanyName} 電子發票{(_model.InvoiceDonation == null ? "開立" : "捐贈")}通知(發票號碼:{_model.TrackCode}{_model.No})";
+        if (_model.InvoiceBuyer.IsB2C()
+            || _model.Organization.OrganizationStatus.UseB2BStandalone == true)
+        {
+
+            String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
+                ? Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model).ToString()
+                : Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model).ToString();
+
+            if (_viewModel.AppendAttachment == true)
+            {
+                body.SendMailMessage(mailTo, subject, smtpSettings, _model.CDS_Document.Attachment.Select(a => a.StoredPath).ToArray());
+            }
+            else
+            {
+                body.SendMailMessage(mailTo, subject, smtpSettings);
+            }
+        }
+        else
+        {
+
+            //將Log下的B2B發票PDF，Copy至暫存資料夾
+            renderViewModel.DocID = _model.InvoiceID;
+            String pdfFile = System.IO.Path.Combine(Logger.LogPath.GetDateStylePath(_model.InvoiceDate.Value), $"{_model.TrackCode}{_model.No}.pdf");
+            String fileName = PdfDocumentGenerator.CreateInvoicePdf(renderViewModel);
+            if(File.Exists(pdfFile))
+            {
+                File.Delete(pdfFile);
+            }
+            //File.Move(fileName, pdfFile);
+            File.Copy(fileName, pdfFile, true);
+            try
+            {
+                File.Delete(fileName);
+            }
+            catch(Exception ex)
+            {
+                Logger.Error(ex);
+            }
+            //models.PrepareToDownload(_model, false);
+
+            if (_viewModel.AppendAttachment == true)
+            {
+                var attached = _model.CDS_Document.Attachment.Select(a => a.StoredPath).ToList();
+                attached.Insert(0, pdfFile);
+                String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
+                    ? Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model).ToString()
+                    : Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model).ToString();
+                body.SendMailMessage(mailTo, subject, smtpSettings, attached.ToArray());
+            }
+            else
+            {
+                String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
+                    ? Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model).ToString()
+                    : Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model).ToString();
+                body.SendMailMessage(mailTo, subject, smtpSettings, pdfFile);
+            }
+        }
+
+        if (models.GetTable<IssuingNotice>().Any(d => d.DocID == _model.InvoiceID))
+        {
+            models.ExecuteCommand(
+                @"UPDATE IssuingNotice
+                    SET IssueDate = {1}
+                    WHERE (DocID = {0})", _model.InvoiceID, DateTime.Now);
+        }
+        else
+        {
+            models.ExecuteCommand(
+                @"Insert IssuingNotice (DocID,IssueDate)
+                    values ({0},{1})", _model.InvoiceID, DateTime.Now);
+        }
+
+    }
+
+}
+
+
+

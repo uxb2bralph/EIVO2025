@@ -1,0 +1,156 @@
+﻿
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using WebHome.Properties
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+@{
+    ModelSource<InvoiceItem> models;
+    IQueryable<DocumentPrintQueue> _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<DocumentPrintQueue>)this.Model;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>電子發票系統</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    @*<link href="@VirtualPathUtility.ToAbsolute("~/App_Themes/Ver2016/eivo.css")" rel="stylesheet" type="text/css" />*@
+    <style>
+        @@page {
+            /*size: portrait;*/ /* 直向 */
+            /*size: A4 portrait;*/ /* 混合使用 */
+            margin: 0cm; /* 邊界與內容的距離 */
+        }
+
+        @@media print {
+            body {
+                @*zoom: @($"{AppSettings.Default.Zoom}%");*@
+            }
+        }
+
+    body {
+        margin: 0;
+        font-weight: bold;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page__break--after {
+        page-break-after: always;
+        width: 5.3cm;
+        margin: auto;
+    }
+
+    .allowances__wrapper {
+        padding: 0 0 0 0;
+    }
+
+    .allowances__logo {
+        max-width: 193px;
+        max-height: 45px;
+    }
+
+    .allowances__cutfield {
+        height: 8cm;
+    }
+
+    .allowances__name {
+        padding: 0 0 5px;
+        text-align: center;
+        font-size: 18px;
+        line-height: 1.1;
+        letter-spacing: -1px;
+        word-break: keep-all;
+    }
+
+    .allowances__title {
+        padding: 0 0 5px;
+        text-align: center;
+        font-size: 20px;
+        line-height: 1.1;
+        letter-spacing: -1px;
+        word-break: keep-all;
+    }
+
+    .allowances__date {
+        padding: 10px 0;
+        text-align: center;
+        font-size: 15px;
+        line-height: 1.1;
+    }
+
+    .allowances__detail {
+        font-size: 12px;
+    }
+
+    .allowances__detail--rows {
+        display: flex;
+        flex-direction: row;
+        word-break: keep-all;
+    }
+
+    .allowances__detail.allowances__detail--input {
+        height: 50px;
+        border-bottom: 1px dashed #000000;
+    }
+
+    .allowances__detail.allowances__detail--paddingBottom {
+        padding-bottom: 10px;
+    }
+
+    .allowances__listfield {
+        padding: 0 10px 5px 0;
+    }
+
+        .allowances__listfield .itemGroup__wrapper {
+            font-size: 12px;
+            line-height: 1.2;
+            padding-bottom: 10px;
+        }
+
+    .itemGroup__wrapper--border {
+        border-top: 1px dashed #000000;
+    }
+
+    .text-nowrap {
+        white-space: nowrap;
+    }
+    </style>
+</head>
+<body style="margin:0px;font-weight: bold;font-family: monospace;">
+    <form id="theForm">
+        @{
+            var profile = Context.GetUser();
+            DocumentPrintQueue item;
+        }
+        @while ((item = _model.FirstOrDefault()) != null)
+        {
+            await Html.RenderPartialAsync("~/Views/DataView/Module/D0401.cshtml", item.CDS_Document.InvoiceAllowance);
+            models.MarkPrintedLog(item.CDS_Document.InvoiceAllowance, profile);
+        }
+    </form>
+</body>
+</html>
+<script>
+    window.onload = function () {
+        window.print();
+    };
+</script>

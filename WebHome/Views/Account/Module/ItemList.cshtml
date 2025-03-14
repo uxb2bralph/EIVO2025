@@ -1,0 +1,153 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+
+    IQueryable<UserProfile> _items;
+    IQueryable<UserProfile> _model;
+
+    UserAccountQueryViewModel _viewModel = (UserAccountQueryViewModel)ViewBag.ViewModel;
+
+    int[] _sort = null;
+    int _pageSize;
+
+    _model = (IQueryable<UserProfile>)this.Model;
+
+    if (_viewModel.Sort != null && _viewModel.Sort.Length > 0)
+    {
+        _sort = _viewModel.Sort.Where(s => s.HasValue).Select(s => s.Value)
+             .ToArray();
+    }
+    _pageSize = _viewModel.PageSize.Value;
+
+    if (_sort != null && _sort.Length > 0)
+    {
+        var _order = sorting(_sort, _model);
+        if (_order == null)
+        {
+            _items = _model.Skip(_viewModel.PageIndex.Value * _pageSize)
+                .Take(_pageSize);
+        }
+        else
+        {
+            _items = _order.Skip(_viewModel.PageIndex.Value * _pageSize)
+                .Take(_pageSize);
+        }
+    }
+    else
+    {
+        _items = _model.Skip(_viewModel.PageIndex.Value * _pageSize)
+            .Take(_pageSize);
+    }
+}
+@functions
+{
+    IOrderedQueryable<UserProfile> sorting(int[] _sort, IQueryable<UserProfile> _model)
+    {
+        IOrderedQueryable<UserProfile> _order = null;
+        foreach (var idx in _sort)
+        {
+            switch (idx)
+            {
+                case 1:
+                    _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null) : _order.ThenBy(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null);
+                    break;
+                case -1:
+                    _order = _order == null ? _model.OrderByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null) : _order.ThenByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null);
+                    break;
+                case 2:
+                    _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0) : _order.ThenBy(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0);
+                    break;
+                case -2:
+                    _order = _order == null ? _model.OrderByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0) : _order.ThenByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0);
+                    break;
+                case 3:
+                    _order = _order == null ? _model.OrderBy(i => i.UserName) : _order.ThenBy(i => i.UserName);
+                    break;
+                case -3:
+                    _order = _order == null ? _model.OrderByDescending(i => i.UserName) : _order.ThenByDescending(i => i.UserName);
+                    break;
+                case 4:
+                    _order = _order == null ? _model.OrderBy(i => i.PID) : _order.ThenBy(i => i.PID);
+                    break;
+                case -4:
+                    _order = _order == null ? _model.OrderByDescending(i => i.PID) : _order.ThenByDescending(i => i.PID);
+                    break;
+                case 5:
+                    _order = _order == null ? _model.OrderBy(i => i.EMail) : _order.ThenBy(i => i.EMail);
+                    break;
+                case -5:
+                    _order = _order == null ? _model.OrderByDescending(i => i.EMail) : _order.ThenByDescending(i => i.EMail);
+                    break;
+                case 6:
+                    _order = _order == null ? _model.OrderBy(i => i.LevelID) : _order.ThenBy(i => i.LevelID);
+                    break;
+                case -6:
+                    _order = _order == null ? _model.OrderByDescending(i => i.LevelID) : _order.ThenByDescending(i => i.LevelID);
+                    break;
+            }
+        }
+        return _order;
+    }
+}
+<table class="table table-striped itemList">
+    <thead>
+        <tr>
+            <th style="min-width: 120px;">公司名稱</th>
+            <th style="min-width: 120px;">角色</th>
+            <th style="min-width: 120px;">會員名稱</th>
+            <th style="min-width: 120px;">ID</th>
+            <th style="min-width: 240px;">電子郵件</th>
+            <th style="min-width: 150px" aria-sort="other">管理</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in _items)
+        {
+            await Html.RenderPartialAsync("~/Views/Account/Module/DataItem.cshtml", item);
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5">
+                &nbsp;
+                @if (_sort != null && _sort.Length > 0)
+                {
+                    <script>
+                        $(function () {
+                            initSort(@(JsonConvert.SerializeObject(_sort)), 1);
+                        });
+                    </script>
+                }
+                <script>
+                    $(function () {
+                        buildSort(uiAccountQuery.inquire,@(_viewModel.PageIndex.Value + 1), 1);
+                    });
+                </script>
+            </td>
+            <td>
+                <a class="btn" onclick="uiAccountQuery.edit();">新增</a>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+

@@ -1,0 +1,77 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>電子發票系統</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/CBSLogin.css" rel="stylesheet" />
+    <style>
+        .error {
+            color: red;
+            font-style: italic;
+            border: 1px dotted red;
+        }
+    </style>
+    @{ await Html.RenderPartialAsync("~/Views/Shared/CommonScriptInclude.cshtml"); }
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="panel-default">
+                    <div class="panel-body">
+                        <form id="form1" accept-charset="UTF-8" role="form" method="post">
+                            <fieldset>
+                                <img class="mx-auto d-block logosize" src="~/images/e-GUIplatform.png" alt="" style="max-width:300px; " />
+                                <div class="form-group prompt">
+                                    <label for="user_login">ID</label>
+                                    <input class="form-control" name="PID" type="text" required autofocus>
+                                </div>
+                                <div class="form-group prompt">
+                                    <label>Password</label>
+                                    <a class="form-sublink" href="@(Url.Action("ForgetPassword","Account"))">Forgot password</a>
+                                    <input class="form-control" name="Password" type="password" value="" required>
+                                </div>
+                                <button id="btn" type="button" class="btn btn-inverted btn-block mb-4">Sign In</button>
+                                <div class="form-group">
+
+                                </div>
+                            </fieldset>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+@{ await Html.RenderPartialAsync("~/Views/Shared/ReportInputError.cshtml");}
+
+<script>
+    $(function () {
+        $('input:text').addClass('form-control textfield');
+    });
+    $('#btn').click(function () {
+        var event = event || window.event;
+        $('form').prop('action', '@(Url.Action("CbsLogin","Account"))').submit();
+    });
+</script>

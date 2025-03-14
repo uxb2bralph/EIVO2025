@@ -1,0 +1,84 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    DocumentQueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
+
+    String notificationView = _model?.Organization?.OrganizationStatus.CustomNotificationView;
+
+}
+@if (_viewModel.ForTest == true)
+{
+    await Html.RenderPartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedA0401.cshtml", _model);
+}
+else if (_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Issuing))
+{
+
+    String pdfFile = models.PrepareToDownload(_model, false);
+
+    System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(pdfFile, System.Net.Mime.MediaTypeNames.Application.Octet);
+    ///修改附件檔名為發票號碼
+    ///
+    attachment.Name = String.Format("{0}{1}.pdf", _model.TrackCode, _model.No);
+
+    //var mailing = models.GetUserListByCompanyID(_model.InvoiceBuyer.BuyerID)
+    //        .Select(u => u.EMail).ToList();
+    List<String> mailing = new List<string>();
+    mailing.Add(_model.InvoiceBuyer.EMail);
+    mailing.Add(_viewModel.MailTo);
+    var mailTo = String.Join(",",
+                        mailing.Where(m => m != null));
+
+    Logger.Debug($"InvoiceNo:{_model.TrackCode}{_model.No},mail to:{mailTo}");
+
+    if (!String.IsNullOrEmpty(mailTo))
+    {
+        var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+
+        var attached = _model.CDS_Document.Attachment.Select(a => a.StoredPath).ToList();
+        attached.Insert(0, pdfFile);
+
+        String subject = $"{_model.Organization.OrganizationExtension?.MailSubjectAlias ?? _model.Organization.CompanyName} 電子發票開立通知(發票號碼:{_model.TrackCode}{_model.No})";
+        String body = Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedA0401.cshtml", _model).ToString();
+        body.SendMailMessage(mailTo, subject, smtpSettings, attached.ToArray());
+
+        if (models.GetTable<IssuingNotice>().Any(d => d.DocID == _model.InvoiceID))
+        {
+            models.ExecuteCommand(
+                @"UPDATE IssuingNotice
+                    SET IssueDate = {1}
+                    WHERE (DocID = {0})", _model.InvoiceID, DateTime.Now);
+        }
+        else
+        {
+            models.ExecuteCommand(
+                @"Insert IssuingNotice (DocID,IssueDate)
+                    values ({0},{1})", _model.InvoiceID, DateTime.Now);
+        }
+    }
+}

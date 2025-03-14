@@ -1,0 +1,68 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+
+@using ModelCore.Helper
+@using WebHome.Controllers
+@{
+
+    InvoiceViewModel _viewModel;
+
+    _viewModel = (InvoiceViewModel)ViewBag.ViewModel;
+    UserProfile _profile = Context.GetUser();
+}
+
+    <tr>
+        <th>
+            作廢折讓單
+        </th>
+        <td class="tdleft">
+            <input type="button" name="btnVoidAllowanceSample" value="下載範本" />&nbsp;&nbsp;
+            <input type="button" name="btnImportVoidAllowance" value="立即傳送" />
+            <script>
+                        $(function () {
+
+                            $('input[name="btnVoidAllowanceSample"]').on('click', function (event) {
+                                $('').launchDownload('@Html.Raw(Url.Action("GetVoidAllowanceRequestSample","InvoiceBusiness"))', {});
+                            });
+
+                            var $btn = $('input[name="btnImportVoidAllowance"]');
+                            var $file = $('<input name="theFile" type="file" style="display: none;" />');
+                            $btn.before($file);
+
+                            $btn.click(function () {
+                                $file.val('');
+                                $file.click();
+                            });
+
+                            $file.on('change', function (event) {
+                                clearErrors();
+                                var $formData = $('form').find('input,select,textArea').serializeObject();
+                                uploadFile($file, $formData, '@Html.Raw($"/{WebHome.Properties.Settings.Default.TaskCenter}/InvoiceData/UploadVoidAllowanceRequestXlsx?sender={_profile.UID}")',
+                                    function (data) {
+                                        $btn.before($file);
+                                        if ($.isPlainObject(data)) {
+                                            if (data.result) {
+                                                alert('開立資料傳送完成，請至工作提示區檢視處理狀態。');
+                                            } else {
+                                                reportError(data);
+                                            }
+                                        }
+                                    },
+                                    function () {
+                                        $btn.before($file);
+                                    });
+                            });
+                        });
+            </script>
+        </td>
+    </tr>
+

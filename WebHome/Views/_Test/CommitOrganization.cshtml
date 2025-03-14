@@ -1,0 +1,57 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+@using System.Text
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using CommonLib.DataAccess
+@using Newtonsoft.Json
+
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IQueryable<MonthlyBilling> _items;
+    OrganizationViewModel[] _viewModel;
+}
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState ?? ViewContext.ViewData.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<OrganizationViewModel[]>(_viewModel);
+    var Response = Context.Response;
+    List<String> result = new List<string>();
+
+    foreach(var viewModel in _viewModel)
+    {
+        _modelState.Clear();
+        Organization item = viewModel.CommitOrganizationViewModel(models, _modelState);
+        if (item == null)
+        {
+            result.Add(String.Join("、", _modelState.AllErrorKey().Select(k => $"{k}:{String.Concat(_modelState[k].Errors.Select(e => e.ErrorMessage))}")));
+        }
+        else
+        {
+            result.Add("OK");
+        }
+    }
+
+    Response.Clear();
+
+    Response.Headers.Clear();
+    Response.ContentType = "application/json";
+
+    await Response.WriteAsync(result.JsonStringify());
+
+}

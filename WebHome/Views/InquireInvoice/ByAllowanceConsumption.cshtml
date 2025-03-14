@@ -1,0 +1,46 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <th>
+        發票類別
+    </th>
+    <td class="tdleft">
+        <select name="ProcessType" class="form-control">
+            @if (ViewBag.QueryAll == true)
+            {
+                <option value="">查詢全部</option>
+            }
+            <option value="@((int)Naming.InvoiceProcessType.D0401)">查詢QR Code證明聯類型</option>
+            <option value="@((int)Naming.InvoiceProcessType.B0401)">查詢營業人交易類型</option>
+        </select>
+        @if (_viewModel!=null && _viewModel.ProcessType.HasValue)
+        {
+            <script>
+            $(function () {
+                $('select[name="ProcessType"]').val('@((int?)_viewModel.ProcessType)');
+            });
+            </script>
+        }
+    </td>
+</tr>

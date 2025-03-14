@@ -1,0 +1,24 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using System.Security.Cryptography.X509Certificates
+@using WebHome.Controllers
+@{
+    ModelStateDictionary _modelState;
+    CertQueryViewModel _viewModel;
+    IEnumerable<X509Certificate2> _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    _viewModel = (CertQueryViewModel)ViewBag.ViewModel;
+    _model = (IEnumerable<X509Certificate2>)this.Model;
+}
+@foreach (var item in _model)
+{
+    <option>@(item.Subject)</option>
+}
+

@@ -1,0 +1,36 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+    Layout = "~/Views/Common/QueryIndex.cshtml";
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    ViewBag.ActionName = "首頁 > 相對營業人管理";
+}
+
+@section QueryForm
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "相對營業人資料維護");
+        await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/MaintainBusinessRelationship.cshtml");
+    }
+}
+
+@functions
+{
+
+    ModelSource<InvoiceItem> models;
+    ModelStateDictionary _modelState;
+
+}

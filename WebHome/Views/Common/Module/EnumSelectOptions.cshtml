@@ -1,0 +1,18 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@{
+    Type _model = (Type)this.Model;
+    if (ViewBag.FieldName == null)
+    {
+        ViewBag.FieldName = _model.Name;
+    }
+}
+@{
+    String[] items = Enum.GetNames(_model);
+    Array values = Enum.GetValues(_model);
+    for (int i = 0; i < items.Length; i++)
+    {
+        <option value="@((int)values.GetValue(i))">@(items[i])</option>
+    }
+}

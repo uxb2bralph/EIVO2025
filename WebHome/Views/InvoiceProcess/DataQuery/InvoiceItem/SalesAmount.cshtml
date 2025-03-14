@@ -1,0 +1,64 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelStateDictionary _modelState;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+}
+@{
+    QueryViewModel _viewModel = ViewBag.ViewModel as QueryViewModel;
+    _viewModel.DataColumns.Add(new QueryResultDataColumnHelper
+    {
+        ShowHeader = item => BuildHelperResult(ShowHeader, item),
+        ShowBody = item => BuildHelperResult(ShowBody, item),
+        ShowFooter = item => BuildHelperResult(ShowFooter, item)
+    });
+}
+
+@functions
+{
+    HelperResult BuildHelperResult(Action<dynamic> action, dynamic item)
+    {
+        return new HelperResult(async (writer) =>
+        {
+            var original = ViewContext.Writer;
+            ViewContext.Writer = writer;
+            action(item);
+            await writer.WriteAsync("");
+            ViewContext.Writer = original;
+        });
+    }
+    void ShowHeader(dynamic item)
+    {
+        <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('SalesAmount',this);">未稅金額</a></th>
+    }
+
+    void ShowBody(dynamic po)
+    {
+        InvoiceItem item = (InvoiceItem)po;
+        <td align="right">@(String.Format("{0:##,###,###,##0.## }",item.InvoiceAmountType.SalesAmount))</td>
+    }
+
+    void ShowFooter(dynamic item)
+    { }
+}
+
+
+

@@ -1,0 +1,49 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+<script>
+    $(function () {
+        var $postForm;
+        if (!window.uiInvoiceQuery) {
+            window.uiInvoiceQuery = {};
+        }
+        window.uiInvoiceQuery.commitAction = function () {
+            if (!$('input[name="chkItem"]').is(':checked')) {
+                alert('@($"請選擇{_viewModel.ActionTitle}")');
+                return false;
+            }
+
+            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+            $formData = { ...$formData, ...$('#queryResult').find('input,select,textarea').serializeObject() };
+
+            doPost("@(Url.Action(_viewModel.CommitAction,"InvoiceProcess"))", $formData, function (data) {
+                var $data = $(data);
+                $('body').append($data);
+            });
+
+        };
+    });
+</script>
+
+

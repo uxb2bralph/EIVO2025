@@ -1,0 +1,1536 @@
+@using Microsoft.AspNetCore.Mvc
+@model WebHome.Models.ViewModel.InvoiceNumberApplyViewModel
+@{
+    ViewBag.Title = "New";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>電子發票系統</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="~/Scripts/jquery.validate.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+    <script>
+        $(function () {
+            $("#Apply_ApplyByAppointDateFrom").datepicker({
+                dateFormat: 'yy-mm-dd'
+            });
+        });
+        $(function () {
+            $("#Apply_ApplyByAppointDateTo").datepicker({
+                dateFormat: 'yy-mm-dd'
+            });
+        });
+        $(function () {
+            $("#Apply_AgentDateFrom").datepicker({
+                dateFormat: 'yy-mm-dd'
+            });
+        });
+        $(function () {
+            $("#Apply_AgentDateTo").datepicker({
+                dateFormat: 'yy-mm-dd'
+            });
+        });
+        $(function () {
+            $("#Apply_SysChkDatetime").datepicker({
+                dateFormat: 'yy-mm-dd'
+            });
+        });
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        })
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-16">
+                @using (Html.BeginForm("Create", "InvoiceNumberApply", new { @id="applyForm", @autocomplete = "off" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                    <div class="p-3 mb-3" id="applyPage">
+                        <div class="p-3 mb-3">
+                            <h2>受理機關</h2>
+                            <div class="input-group">
+                                <label class="input-group-text">財政部</label>
+                                @Html.TextBoxFor(m => m.Apply.MOFBranch, new { @class = "form-control", @placeHolder = "請輸入國稅局單位" })
+                                @Html.ValidationMessageFor(m => m.Apply.MOFBranch, null, new { @class = "text-danger" })
+                                <label class="input-group-text">國稅局</label>
+                                @Html.TextBoxFor(m => m.Apply.TaxBranch, new { @class = "form-control", @placeHolder = "請輸入國稅局分局" })
+                                @Html.ValidationMessageFor(m => m.Apply.TaxBranch, null, new { @class = "text-danger" })
+                                <label class="input-group-text">分局(稽徵所、服務處)</label>
+                            </div>
+                        </div>
+                        <div class="p-3 mb-3">
+                            <h2>申請項目</h2>
+                            <div class="form-check mt-3">
+                                @Html.CheckBoxFor(m => m.Apply.ApplyUse, new { @class = "form-check-input" })
+                                <label class="form-check-label" for="ApplyUse">
+                                    申請整合服務平台帳號、密碼
+                                </label>
+                            </div>
+                            <div class="input-group">
+                                <label class="form-control" id="ApplyUseCollapse">
+                                    <div class="form-check">
+                                        @Html.RadioButtonFor(m => m.Apply.ApplyUse_NeedNumber, 1, new { @class = "form-check-input" })
+                                        <label class="form-check-label" for="ApplyUse_NeedNumber">無工商憑證但需取用電子發票字軌號碼</label>
+                                    </div>
+                                    <div class="form-check">
+                                        @Html.RadioButtonFor(m => m.Apply.ApplyUse_NeedNumber, 2, new { @class = "form-check-input" })
+                                        <label class="form-check-label" for="ApplyUse_NeedNumber">無工商憑證僅接收或查詢電子發票</label>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="form-check mt-3">
+                                @Html.CheckBoxFor(m => m.Apply.ApplyNumber, new { @class = "form-check-input" })
+                                <label class="form-check-label" for="ApplyNumber">
+                                    電子發票字軌號碼申請
+                                </label>
+                            </div>
+                            <div class="form-control" id="ApplyNumberCollapse">
+                                <div class="input-group">
+                                    <label type="text" class="form-control">
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Apply.ApplyNumberNomal, 1, new { @class = "form-check-input" })
+                                            <label class="form-check-label">一般稅額計算</label>
+                                        </div>
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Apply.ApplyNumberNomal, 2, new { @class = "form-check-input" })
+                                            <label class="form-check-label">特種稅額計算</label>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="input-group">
+                                    <labe type="text" class="form-control">
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Apply.ApplyNumberType, WebHome.Models.ViewModel.ApplyNumberType.Apply, new { @class = "form-check-input" })
+                                            <label class="form-check-label">首次申請</label>
+                                        </div>
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Apply.ApplyNumberType, WebHome.Models.ViewModel.ApplyNumberType.Increase, new { @class = "form-check-input" })
+                                            <label class="form-check-label">增加</label>
+                                        </div>
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Apply.ApplyNumberType, WebHome.Models.ViewModel.ApplyNumberType.Deduct, new { @class = "form-check-input" })
+                                            <label class="form-check-label">減少</label>
+                                        </div>
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Apply.ApplyNumberType, WebHome.Models.ViewModel.ApplyNumberType.Zero, new { @class = "form-check-input" })
+                                            <label class="form-check-label">停止配號(字軌號碼減至0組)</label>
+                                        </div>
+                                        <div class="input-group">
+                                            異動組數
+                                            @Html.TextBoxFor(m => m.Apply.ApplyNumberQuantity, new { @class = "form-control", placeholder = "請輸入增加/減少組數" })
+                                        </div>
+                                    </labe>
+                                </div>
+                                <div class="input-group">
+                                    <label type="text" class="form-control">
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Apply.NumberDuration, 1, new { @class = "form-check-input" })
+                                            <label class="form-check-label">期配：按期配賦字軌號碼</label>
+                                        </div>
+                                        <div class="form-check">
+                                            @Html.RadioButtonFor(m => m.Apply.NumberDuration, 2, new { @class = "form-check-input" })
+                                            <label class="form-check-label">年配：如符合下列情形之一者得申請年配</label>
+                                        </div>
+                                        <labe type="text" class="form-control">
+                                            <div class="form-check">
+                                                @Html.RadioButtonFor(m => m.Apply.GetNumberByYearReason, 1, new { @class = "form-check-input" })
+                                                <label class="form-check-label">原經主管稽徵機關核准自行印製收銀機統一發票</label>
+                                            </div>
+                                            <div class="form-check">
+                                                @Html.RadioButtonFor(m => m.Apply.GetNumberByYearReason, 2, new { @class = "form-check-input" })
+                                                <label class="form-check-label">無積欠已確定之營業稅及罰鍰、營利事業所得稅及罰鍰，且最近二年度之營利事業所得稅係委託會計師查核簽證或經核准使用藍色申報書</label>
+                                            </div>
+                                            <div class="form-check">
+                                                @Html.RadioButtonFor(m => m.Apply.GetNumberByYearReason, 3, new { @class = "form-check-input" })
+                                                @Html.Label("以連鎖或加盟方式經營，市招:", "以連鎖或加盟方式經營，市招:", new { @class = "form-check-label" })
+                                                @Html.TextBoxFor(m => m.Apply.GetNumberByYearReasonBusiness, new { @class = "form-check-label" })
+                                            </div>
+                                            <div class="form-check">
+                                                @Html.RadioButtonFor(m => m.Apply.GetNumberByYearReason, 4, new { @class = "form-check-input" })
+                                                @Html.Label("公用事業", "公用事業", new { @class = "form-check-label" })
+                                            </div>
+                                            <div class="form-check">
+                                                @Html.RadioButtonFor(m => m.Apply.GetNumberByYearReason, 5, new { @class = "form-check-input" })
+                                                @Html.Label("其他（請出具必須使用年配之說明或證明文件）", "其他（請出具必須使用年配之說明或證明文件）", new { @class = "form-check-label" })
+                                            </div>
+                                        </labe>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-check mt-3">
+                                @Html.CheckBoxFor(m => m.Apply.StopUse, new { @class = "form-check-input" })
+                                @Html.Label("停用整合服務平台功能", "停用整合服務平台功能", new { @class = "form-check-label" })
+                            </div>
+                            <div class="form-check mt-3">
+                                @Html.CheckBoxFor(m => m.Apply.ApplyByAppoint, new { @class = "form-check-input" })
+                                <label class="form-check-label">
+                                    委任加值服務中心下載電子發票字軌號碼相關業務
+                                    <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="供無法申請工商憑證之營業人以書面（附委任書）委任加值服務中心由整合服務平台下載配號資訊，並代為傳輸總、分支機構配號檔案及空白未使用之字軌號碼至整合服務平台使用。如有延長委任期間或變更委任之加值服務中心者，應填具本申請書向稽徵機關申請異動，終止本項委任時，由營業人自行至整合服務平台以統一編號、帳號及密碼登入，並進行終止委任作業。">
+                                        詳說明五
+                                    </button>
+                                </label>
+                                <div class="form-control" id="ApplyByAppointCollapse">
+                                    <div class="input-group">
+                                        @Html.Label("委任期間自", "委任期間自", new { @class = "form-check-label" })
+                                        @Html.TextBoxFor(m => m.Apply.ApplyByAppointDateFrom, "{0:yyyy-MM-dd}", new { @class = "form-control" })
+                                        @Html.Label("至", "至", new { @class = "form-check-label" })
+                                        @Html.TextBoxFor(m => m.Apply.ApplyByAppointDateTo, "{0:yyyy-MM-dd}", new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(m => m.Apply.ApplyByAppointDateFrom, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-check mt-3">
+                                @Html.CheckBoxFor(m => m.Apply.AppointToAgnet, new { @class = "form-check-input" })
+                                <label class="form-check-label">
+                                    委任專業代理人查詢下載電子發票相關業務（請務必填寫本申請書「專業代理人」各欄項資料）
+                                </label>
+                                <div class="form-control" id="ApplyByAppointCollapse">
+                                    <div class="input-group">
+                                        @Html.Label("委任期間自", "委任期間自", new { @class = "form-check-label" })
+                                        @Html.TextBoxFor(m => m.Apply.AgentDateFrom, "{0:yyyy-MM-dd}", new { @class = "form-control" })
+                                        @Html.Label("至", "至", new { @class = "form-check-label" })
+                                        @Html.TextBoxFor(m => m.Apply.AgentDateTo, "{0:yyyy-MM-dd}", new { @class = "form-control" })
+                                        @Html.ValidationMessageFor(m => m.Apply.AgentDateFrom, null, new { @class = "text-danger" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 mb-3" id="docPage">
+                        <h2>應檢具文件檢核</h2>
+                        <div class="form-check mt-3">
+                            @Html.CheckBoxFor(m => m.Apply.IsApplyB2B, new { @class = "form-check-input", data_target = "#B2BDocs", data_toggle = "collapse" })
+                            <label class="input-group-text bg-info">僅開立B2B或B2G電子發票營業人【詳說明六】</label>
+                            <div class="form-control collapse col-md-8" id="B2BDocs">
+                                <table class="table table-bordered table-sm">
+                                    <thread>
+                                        <tr>
+                                            <th class="col-md-1"></th>
+                                            <th class="col-md-5">文件名稱</th>
+                                            <th class="col-md-2">檢附情形</th>
+                                            <th class="col-md-4">說明</th>
+                                        </tr>
+                                    </thread>
+                                    <tr>
+                                        <td rowspan="4">必備文件</td>
+                                        <td>使用電子發票承諾書</td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2bRequiredDoc1, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>「電子發票證明聯」樣張</td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2bRequiredDoc2, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+                                        <td rowspan="3">
+                                            「由○整合服務平台
+                                            或○加值服務中心平台開立，格式符合電子發票實施作業要點規定者免附
+                                            <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="「電子發票證明聯」樣張其二維條碼所載加密驗證資訊，營業人應於整合服務平台進行QRCode解密驗證，並截取驗證成功畫面作為「二維條碼加密驗證資訊解密驗證成功證明」。該加密驗證資訊產製方式可參考整合服務平台【常用文件下載區】「電子發票證明聯一維及二維條碼規格說明」，如有技術面或整合服務平台操作問題請逕洽整合服務平台技術客服(e-inv@hibox.hinet.net或02-89782365)。">
+                                                詳說明七
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>「電子發票證明聯」二維條碼加密驗證資訊解密驗證成功證明〔僅列印格式二者免附〕</td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2bRequiredDoc3, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td>電子發票開立系統自行檢測表</td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2bRequiredDoc4, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="3">傳輸方式</td>
+                                        <td>
+                                            使用Turnkey方式傳輸資料者，自整合服務平台取得之上線通行碼：
+                                            @Html.TextBoxFor(m => m.Apply.b2bTransferDoc1TurnkeyToken, new { @class = "form-check-label" })
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bTransferDoc1, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bTransferDoc1, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="3">
+                                            <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="營業人開立電子發票，使用Turnkey方式傳輸資料者，請填「電子發票整合服務平台服務申請表」，並應與整合服務平台進行上線檢測（相關申請資訊可洽客服專線0800-521988或至整合服務平台【常用文件下載區】查詢），完成檢測時會由整合服務平台提供一組上線通行碼；如有變更加值服務中心名義者，應填具本申請書向稽徵機關核備。">
+                                                詳說明八
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            若為加值服務中心或其他固定營業場所由總機構代傳，<br>請填加值服務中心或總機構名稱或統一編號：
+                                            @Html.TextBoxFor(m => m.Apply.b2bTransferDoc2BusinessID, new { @class = "form-check-label" })
+                                            <br>及其稅籍編號：
+                                            @Html.TextBoxFor(m => m.Apply.b2bTransferDoc2BusinessTaxID, new { @class = "form-check-label" })
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bTransferDoc2, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bTransferDoc2, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>自整合服務平台開立電子發票</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bTransferDoc3, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bTransferDoc3, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="6">其他文件</td>
+                                        <td>「營業人銷貨退回、進貨退出或折讓證明單」樣張</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc1, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc1, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="如買賣雙方同意以網站、電話或其他電子方式合意銷貨退回、進貨退出或折讓，除使用加值服務中心系統或依電子發票實施作業要點第5章規定使用整合服務平台者免附「營業人銷貨退回、進貨退出或折讓證明單」樣張，應檢附相關證明文件提供審查。另依電子發票實施作業要點第3點規定，應依統一發票使用辦法第7條第4項及第5項規定之時限將該證明單資訊傳輸至整合服務平台存證。">
+                                                詳說明九
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>電子發票證明聯採用感熱紙切結書</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc2, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc2, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="2">
+                                            ○向財政部印刷廠申購，應檢附進項發票<br>
+                                            ○非使用感熱紙印製電子發票證明聯者免附
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>第三方公正檢驗機關（構）出具檢測報告</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc3, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc3, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>總機構代其他固定營業場所申請電子發票字軌號碼明細總表</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc4, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc4, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>非由總機構代其他固定營業場所申請電子發票字軌號碼者免附</td>
+
+                                    </tr>
+                                    <tr>
+                                        <td>委託加值服務中心事務委任書</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc5, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc5, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="供無法申請工商憑證之營業人以書面（附委任書）委任加值服務中心由整合服務平台下載配號資訊，並代為傳輸總、分支機構配號檔案及空白未使用之字軌號碼至整合服務平台使用。如有延長委任期間或變更委任之加值服務中心者，應填具本申請書向稽徵機關申請異動，終止本項委任時，由營業人自行至整合服務平台以統一編號、帳號及密碼登入，並進行終止委任作業。">
+                                                詳說明五
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>委託專業代理人事務委任書</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc6, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2bDoc6, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="form-check mt-3">
+                            @Html.CheckBoxFor(m => m.Apply.IsApplyB2C, new { @class = "form-check-input", data_toggle = "collapse", data_target = "#B2CDocs" })
+                            <label class="input-group-text bg-info">開立B2C電子發票營業人(包含同時開立B2B及B2G電子發票營業人)</label>
+                            <div class="form-control col-md-8" id="B2CDocs">
+                                <table class="table table-bordered table-sm">
+                                    <thread>
+                                        <tr>
+                                            <th class="col-md-1"></th>
+                                            <th class="col-md-5">文件名稱</th>
+                                            <th class="col-md-2">檢附情形</th>
+                                            <th class="col-md-4">說明</th>
+                                        </tr>
+                                    </thread>
+                                    <tr>
+                                        <td rowspan="6">必備文件</td>
+                                        <td>使用電子發票承諾書</td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2cRequiredDoc1, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>「電子發票證明聯」樣張</td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2cRequiredDoc2, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+                                        <td rowspan="2">
+                                            「由○整合服務平台
+                                            或○加值服務中心平台開立，格式符合電子發票實施作業要點規定者免附
+                                            <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="「電子發票證明聯」樣張其二維條碼所載加密驗證資訊，營業人應於整合服務平台進行QRCode解密驗證，並截取驗證成功畫面作為「二維條碼加密驗證資訊解密驗證成功證明」。該加密驗證資訊產製方式可參考整合服務平台【常用文件下載區】「電子發票證明聯一維及二維條碼規格說明」，如有技術面或整合服務平台操作問題請逕洽整合服務平台技術客服(e-inv@hibox.hinet.net或02-89782365)。">
+                                                詳說明七
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>「電子發票證明聯」二維條碼加密驗證資訊解密驗證成功證明〔僅列印格式二者免附〕</td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2cRequiredDoc3, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            具備正確讀取共通性載具之條碼掃描機具或設備證明文件(如掃描槍)
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.CheckBoxFor(m => m.Apply.b2cRequiredDoc6, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">請提供品牌、型號及產品文件 </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.CheckBoxFor(m => m.Apply.b2cRequiredDoc7, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">經營無實體店面營業人檢附可輸入共通性載具之畫面</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2cRequiredDoc4, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            檢附可接受買受人以共通性載具索取及捐贈碼捐贈電子發票之證明文件
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc1Type, 1, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">網頁畫面</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc1Type, 2, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">交易明細</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc1Type, 3, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">其他</label>
+                                                    @Html.TextBoxFor(m => m.Apply.b2cDoc1Other, new { @class = "form-check-label" })
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2cRequiredDoc8, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>電子發票開立系統自行檢測表</td>
+                                        <td>
+                                            <div class="form-check mt-3">
+                                                @Html.CheckBoxFor(m => m.Apply.b2cRequiredDoc5, new { @class = "form-check-input" })
+                                                <label class="form-check-label">是</label>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="2">傳輸方式</td>
+                                        <td>
+                                            使用Turnkey方式傳輸資料者，自整合服務平台取得之上線通行碼：
+                                            @Html.TextBoxFor(m => m.Apply.b2cTransferDoc1TurnkeyToken, new { @class = "form-check-label" })
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cTransferDoc1, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cTransferDoc1, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="2">
+                                            <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="營業人開立電子發票，使用Turnkey方式傳輸資料者，請填「電子發票整合服務平台服務申請表」，並應與整合服務平台進行上線檢測（相關申請資訊可洽客服專線0800-521988或至整合服務平台【常用文件下載區】查詢），完成檢測時會由整合服務平台提供一組上線通行碼；如有變更加值服務中心名義者，應填具本申請書向稽徵機關核備。">
+                                                詳說明八
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            若為加值服務中心或其他固定營業場所由總機構代傳，<br>請填加值服務中心或總機構名稱或統一編號：
+                                            @Html.TextBoxFor(m => m.Apply.b2cTransferDoc2BusinessID, new { @class = "form-check-label" })
+                                            <br>及其稅籍編號：
+                                            @Html.TextBoxFor(m => m.Apply.b2cTransferDoc2BusinessTaxID, new { @class = "form-check-label" })
+                                        </td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cTransferDoc2, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cTransferDoc2, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="8">其他應檢具文件</td>
+                                        <td>「營業人銷貨退回、進貨退出或折讓證明單」樣張</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc2, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc2, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td>電子發票證明聯採用感熱紙切結書</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc3, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc3, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td rowspan="2">
+                                            ○向財政部印刷廠申購，應檢附進項發票<br>
+                                            ○非使用感熱紙印製電子發票證明聯者免附
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>第三方公正檢驗機關（構）出具檢測報告</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc4, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc4, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>總機構代其他固定營業場所申請電子發票字軌號碼明細總表</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc5, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc5, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            非由總機構代其他固定營業場所申請電子發票字軌號碼者免附
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>電子發票載具發行機構核准證明</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc6, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc6, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            非自行發行電子發票載具者免附
+                                            <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="營業人自行發行電子發票載具者，應先向財政部財政資訊中心提出電子發票載具發行機構申請，經審核通過者將配賦一組載具類別代碼。">
+                                                詳說明十
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>委託加值服務中心事務委任書</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc7, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc7, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-info" data-toggle="popover" data-placement="top" data-content="供無法申請工商憑證之營業人以書面（附委任書）委任加值服務中心由整合服務平台下載配號資訊，並代為傳輸總、分支機構配號檔案及空白未使用之字軌號碼至整合服務平台使用。如有延長委任期間或變更委任之加值服務中心者，應填具本申請書向稽徵機關申請異動，終止本項委任時，由營業人自行至整合服務平台以統一編號、帳號及密碼登入，並進行終止委任作業。">
+                                                詳說明五
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>委託專業代理人事務委任書</td>
+                                        <td>
+                                            <div class="input-group">
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc8, true, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">是</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    @Html.RadioButtonFor(m => m.Apply.b2cDoc8, false, new { @class = "form-check-input" })
+                                                    <label class="form-check-label">否</label>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-inline p-3 mb-1" id="businessPage">
+                        <h2>申請資料</h2>
+                        <div class="input-group-text bg-info mb-3">
+                            申請及聯絡人
+                        </div>
+                        <div class="form-group">
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.BusinessName, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessName, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.BusinessID, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessID, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessID, null, new { @class = "text-danger" })
+                                </div>
+
+                                @Html.LabelFor(m => m.Apply.BusinessTaxID, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessTaxID, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessTaxID, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.BusinessAddr, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessAddr, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessAddr, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.BusinessOwner, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessOwner, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessOwner, null, new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(m => m.Apply.BusinessContactName, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessContactName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessContactName, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.BusinessMobile, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessMobile, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessMobile, null, new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(m => m.Apply.BusinessTelNo, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessTelNo, new { @class = "form-control", placeholder = "市話請輸入 XX-XXXXXXXX" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessTelNo, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.BusinessFaxNo, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessFaxNo, new { @class = "form-control", placeholder = "XX-XXXXXXXX" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessFaxNo, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.BusinessContactAddr, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessContactAddr, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessContactAddr, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.BusinessEmail, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-10">
+                                    @Html.TextBoxFor(m => m.Apply.BusinessEmail, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.BusinessEmail, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group-text bg-info mb-3">
+                                委任專業代理人
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.AgentName, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.AgentName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.AgentName, null, new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(m => m.Apply.AgentID, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.AgentID, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.AgentID, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.AgentContactName, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.AgentContactName, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.AgentContactName, null, new { @class = "text-danger" })
+                                </div>
+                                @Html.LabelFor(m => m.Apply.AgentTelNo, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.AgentTelNo, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.AgentTelNo, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                @Html.LabelFor(m => m.Apply.AgentBoss, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                                <div class="col-sm-4">
+                                    @Html.TextBoxFor(m => m.Apply.AgentBoss, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Apply.AgentBoss, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-inline p-3 mb-1" id="sysTestPage">
+                        <h2>系統檢測表</h2>
+                        <div class="input-group-text bg-info mb-3">
+                            電子發票開立系統
+                        </div>
+                        <div class="row mb-2">
+                            @Html.LabelFor(m => m.Apply.SysSupplierID, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-10">
+                                @Html.DropDownListFor(m => m.Apply.SysSupplierID, new SelectList(Model.GetSysSupplierList(), "ID", "Value"), new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Apply.SysSupplierID, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.TextBoxFor(m => m.Apply.SysSupplierBusinessID, new { @class = "form-control", @style = "display: none;" })
+                        </div>
+                        <div class="row mb-2">
+                            @Html.LabelFor(m => m.Apply.SysSupplierNo, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.Apply.SysSupplierNo, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Apply.SysSupplierNo, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(m => m.Apply.SysSupplierName, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.Apply.SysSupplierName, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Apply.SysSupplierName, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(m => m.Apply.SysSupplierVersion, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-2">
+                                @Html.TextBoxFor(m => m.Apply.SysSupplierVersion, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Apply.SysSupplierVersion, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="input-group-text bg-info mb-3">
+                            電子發票開立系統檢測表
+                        </div>
+                        <div class="form-control col-md-8" id="SysCheckDocs">
+                            <table class="table table-bordered table-sm">
+                                <thread>
+                                    <tr>
+                                        <th class="col-md-1">項次</th>
+                                        <th class="col-md-1">功能類別</th>
+                                        <th class="col-md-6">檢測項目</th>
+                                        <th class="col-md-4" colspan="2">檢測結果</th>
+                                    </tr>
+                                </thread>
+                                <tr>
+                                    <td rowspan="3">1</td>
+                                    <td rowspan="3">配號設定</td>
+                                    <td>(1)以平台產出的CSV配號檔進行匯入。</td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk11, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk11, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>(2)開立發票設備之字軌號碼取得係由系統自動取號或給號，非以人工輸入字軌號碼。</td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk12, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk12, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>(3)前述(1)、(2)若採人工輸入，已設計多次多人確認機制，以降低人工輸入產生錯誤。</td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk13, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk13, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>
+                                        配號範圍
+                                        檢核
+                                    </td>
+                                    <td>
+                                        系統開立之發票號碼系統會檢核
+                                        (1)其開立之發票為可用配號設定範圍內。
+                                        (2)依交易時間其發票號碼是否為當期所屬   字軌號碼。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk21, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk21, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">3</td>
+                                    <td rowspan="2">開機檢核</td>
+                                    <td>(1)開立發票設備及系統初次設定時，已具有對時、確認賣方統編、發票字軌號碼檢核機制。 </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk31, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk31, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>(2)開立發票設備及系統開啟後，已具有對時、確認賣方統編、發票字軌及前次開立發票號碼等相關資訊檢核功能。 </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk32, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk32, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">4</td>
+                                    <td rowspan="2">
+                                        發票號碼檢核
+                                    </td>
+                                    <td>
+                                        系統會檢核發票號碼<br>
+                                        (1)檢核發票總長度為10碼。(前2碼英文、後8碼數字)
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk41, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk41, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>(2)檢核發票須在配號設定範圍區間內。 </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk42, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk42, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>字軌年期別顯示</td>
+                                    <td>
+                                        系統會檢核字軌期別為該字軌所屬期別，須為年(3碼)+單月(2碼)+雙月(2碼)。<br>
+                                        例如：FR為1050102期字軌。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk51, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk51, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>
+                                        隨機碼產製
+                                    </td>
+                                    <td>
+                                        隨機碼係以亂數函數產製，不以既定順序重覆出現。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk61, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk61, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>
+                                        共通性載具檢核
+                                    </td>
+                                    <td>
+                                        系統正確讀取共通性載具資訊，應具備基本檢核共通性載具功能。<br>
+                                        (1)手機條碼基本檢核條件：以/為起始作為判斷，目前總長度共為8碼，除第1碼外只會有0123456789ABCDEFGHIJKLMNOP
+                                        QRSTUVWXYZ+-.這39個字元，勿將英文大寫轉換成小寫。<br>
+                                        (2)自然人憑證條碼基本檢核條件：2位大寫字母+14數字，勿將英文大寫轉換成小寫。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk71, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk71, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="9">8</td>
+                                    <td rowspan="9">
+                                        證明聯列印
+                                    </td>
+                                    <td>
+                                        (1)年期別依發票字軌期別已正確設定列印。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk81, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk81, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (2)發票字軌號碼格式與長度已正確設定列印。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk82, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk82, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (3)隨機碼(4碼數字)已正確設定列印。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk83, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk83, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (4)賣方統編(營業人統編)已正確設定列印。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk84, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk84, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (5)輸入買方統編，則已設定列印營業稅申報格式代碼。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk85, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk85, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (6)所產生列印的一維條碼內容與上傳平台之資訊相符。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk86, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk86, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (7)列印的QRCode內容與上傳平台之資訊相符。(請參照電子發票證明聯一維及二維條碼規格說明)
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk87, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk87, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (8)列印的QRCode內容包含正確加密驗證資訊。(請參照電子發票證明聯一維及二維條碼規格說明)。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk88, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk88, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (9)列印之電子發票證明聯內容與上傳平台之資訊相符。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk89, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk89, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="4">9</td>
+                                    <td rowspan="4">
+                                        重號檢核
+                                    </td>
+                                    <td>
+                                        (1)單一設備系統需有檢核功能，不可開立同年期別發票字軌號碼重覆之發票。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk91, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk91, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (2)營業人各分店各設備系統機應有檢核功能，不可開立同年期別發票字軌號碼重覆之發票。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk92, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk92, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (3)有分支機構之營業人系統應有檢核或配號功能，不可誤用其他分支機構之發票字軌號碼，造成不同店重號之狀況。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk93, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk93, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        (4)系統異常中斷時，須確保不可開立同年期別發票字軌號碼重覆之發票。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk94, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk94, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>
+                                        漏傳自動上傳機制
+                                    </td>
+                                    <td>
+                                        系統已具備漏傳檢核機制。<br>
+                                        ※建議發票上傳應有欄位註記，並於每日檢核漏傳發票後系統會自動重新上傳。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk101, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk101, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>11</td>
+                                    <td>
+                                        備份機制
+                                    </td>
+                                    <td>
+                                        發票開立資料已具有即時備份。<br>
+                                        ※建議前端開立發票設備及系統之儲存設備提供Mirror機制或發票可即時後送營業人後端平台，避免設備毀損造成資料遺失。
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk111, true, new { @class = "form-check-input" })
+                                            <label class="form-check-label">具備</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="form-check mt-3">
+                                            @Html.RadioButtonFor(m => m.Apply.SysChk111, false, new { @class = "form-check-input" })
+                                            <label class="form-check-label">不具備</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="input-group-text bg-info mb-3">
+                            電子發票開立系統檢測結果
+                        </div>
+                        <div class="row mb-2">
+                            @Html.LabelFor(m => m.Apply.SysChkEmployeeTitle, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Apply.SysChkEmployeeTitle, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Apply.SysChkEmployeeTitle, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(m => m.Apply.SysChkEmployeeName, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Apply.SysChkEmployeeName, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Apply.SysChkEmployeeName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            @Html.LabelFor(m => m.Apply.SysChkDatetime, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Apply.SysChkDatetime, "{0:yyyy-MM-dd}", new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Apply.SysChkDatetime, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            @Html.LabelFor(m => m.Apply.SysChkMessage, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-10">
+                                @Html.TextAreaFor(m => m.Apply.SysChkMessage, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Apply.SysChkMessage, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="input-group-text bg-info mb-3">
+                            感熱紙切結書
+                        </div>
+                        <div class="row mb-2 ">
+                            @Html.LabelFor(m => m.Apply.PaperTestID, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-10">
+                                @Html.DropDownListFor(m => m.Apply.PaperTestID, new SelectList(Model.GetPaperTestList(), "ID", "Value"), new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.Apply.PaperTestID, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.TextBoxFor(m => m.Apply.TestBusinessName, new { @class = "form-control", @style = "display: none;" })
+                        </div>
+                        <div class="row mb-2">
+                            @Html.LabelFor(m => m.Apply.SubmitBusinessName, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-10">
+                                @Html.TextBoxFor(m => m.Apply.SubmitBusinessName, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Apply.SubmitBusinessName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            @Html.LabelFor(m => m.Apply.ReportNo, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Apply.ReportNo, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Apply.ReportNo, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(m => m.Apply.ReportDate, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Apply.ReportDate, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Apply.ReportDate, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            @Html.LabelFor(m => m.Apply.PaperName, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Apply.PaperName, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Apply.PaperName, "", new { @class = "text-danger" })
+                            </div>
+                            @Html.LabelFor(m => m.Apply.PaperNo, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
+                            <div class="col-sm-4">
+                                @Html.TextBoxFor(m => m.Apply.PaperNo, new { @class = "form-control", @readonly = "readonly" })
+                                @Html.ValidationMessageFor(m => m.Apply.PaperNo, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div>
+                            @{ await Html.RenderPartialAsync("~/Views/Shared/CaptchaImg.cshtml");}
+                            @Html.ValidationMessageFor(m => m.ValidCode, null, new { @class = "text-danger" })
+                            <button type="submit" class="btn btn-primary">save</button>
+                        </div>
+                        <div id="timeBox"></div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
+<script type="text/javascript">
+    $(this).submit(function () {
+        
+    });
+
+    $(function () {
+
+        setTimeout("window.history.forward();", 0);
+
+        $("[data-val-required]").each(function () {
+            var label = $('label[for="' + $(this).attr("id") + '"]');
+            var asterisksHtml = '<span style="color:red">&nbsp;*</span>';
+            if (label.text().length > 0 && label.html().indexOf(asterisksHtml) === -1) {
+                label.append(asterisksHtml);
+            }
+        });
+
+        ChangeSysSupplier();
+        $('#Apply_SysSupplierID').change(function () { ChangeSysSupplier(); });
+        ChangePaperTestSet();
+        $('#Apply_PaperTestID').change(function () { ChangePaperTestSet(); })
+
+        $('#B2CDocs').collapse($('#Apply_IsApplyB2C').prop('checked') ? "show" : "hide");
+        $('#B2BDocs').collapse($('#Apply_IsApplyB2B').prop('checked') ? "show" : "hide");
+
+        console.log('ready field-validation-error length=' + $('.field-validation-error').length);
+
+        //data-valmsg-for取到的是name, 不是id;
+        var errObj = $('.field-validation-error').first().attr('data-valmsg-for');
+        if (errObj != undefined) {
+            //razor gen出的name格式是Apply.IsApplyB2C, id是Apply_IsApplyB2C
+            document.querySelector(`[name="` + errObj + `"]`).scrollIntoView();
+        }
+    });
+
+    function ChangePaperTestSet() {
+        var selectedValue = $('#Apply_PaperTestID option:selected').val();
+        if ($.trim(selectedValue).length > 0) {
+            $.ajax({
+                url: '@Url.Action("PaperTestSet", "InvoiceNumberApply")',
+                data: { paperTestSetID: $.trim(selectedValue) },
+                type: 'get',
+                cache: false,
+                async: true,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.length > 0) {
+                        paperTestSetJson = jQuery.parseJSON(data);
+                        $('#Apply_TestBusinessName').val(paperTestSetJson.TestBusinessName);
+                        $('#Apply_SubmitBusinessName').val(paperTestSetJson.SubmitBusinessName);
+                        $('#Apply_ReportNo').val(paperTestSetJson.ReportNo);
+                        $('#Apply_PaperName').val(paperTestSetJson.PaperName);
+                        $('#Apply_PaperNo').val(paperTestSetJson.PaperNo);
+                        $('#Apply_ReportDate').val(paperTestSetJson.ReportDate);
+                    }
+                }
+            });
+        }
+    }
+
+    function ChangeSysSupplier() {
+        var selectedValue = $('#Apply_SysSupplierID option:selected').val();
+        if ($.trim(selectedValue).length > 0) {
+            $.ajax({
+                url: '@Url.Action("SysSupplier", "InvoiceNumberApply")',
+                data: { sysSupplierID: $.trim(selectedValue) },
+                type: 'get',
+                cache: false,
+                async: true,
+                dataType: 'json',
+                success: function (data) {
+                    if (data.length > 0) {
+                        sysSupplierJson = jQuery.parseJSON(data);
+                        $('#Apply_SysSupplierBusinessID').val(sysSupplierJson.BusinessID);
+                        $('#Apply_SysSupplierNo').val(sysSupplierJson.No);
+                        $('#Apply_SysSupplierName').val(sysSupplierJson.Name);
+                        $('#Apply_SysSupplierVersion').val(sysSupplierJson.Version);
+                    }
+                }
+            });
+        }
+    }
+
+</script>

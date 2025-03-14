@@ -1,0 +1,394 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    OrganizationViewModel _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+
+    BillingGrade gradeItem = null;
+    BillingIncrement increment = null;
+
+    String _viewID = $"billing{DateTime.Now.Ticks}";
+}
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "設定收費標準");}
+
+<form id="@(_viewID)">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            收費標準
+        </div>
+        <div class="panel-body col-md-12">
+            <table class="table table-striped table-bordered table-hover">
+                <tr>
+                    <td colspan="4" class="Head_style_a">
+                        每月固定基本費
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        每月基本費(元)
+                    </th>
+                    <td colspan="3">
+                        @{
+                            gradeItem = _model.BillingGrade.Count > 0 ? _model.BillingGrade[0] : null;
+                        }
+                        <input type="hidden" name="GradeCount" value="1" />
+                        <input type="text" class="form-control" name="BasicFee" value='@(gradeItem?.BasicFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        級距一、每月開立張數
+                        @{
+                            gradeItem = _model.BillingGrade.Count > 1 ? _model.BillingGrade[1] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="GradeCount" value='@(gradeItem?.GradeCount)' />
+                    </td>
+                    <th>
+                        以上(含)，收費(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="BasicFee" value='@(gradeItem?.BasicFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        級距二、每月開立張數
+                        @{
+                            gradeItem = _model.BillingGrade.Count > 2 ? _model.BillingGrade[2] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="GradeCount" value='@(gradeItem?.GradeCount)' />
+                    </td>
+                    <th>
+                        以上(含)，收費(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="BasicFee" value='@(gradeItem?.BasicFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        級距三、每月開立張數
+                        @{
+                            gradeItem = _model.BillingGrade.Count > 3 ? _model.BillingGrade[2] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="GradeCount" value='@(gradeItem?.GradeCount)' />
+                    </td>
+                    <th>
+                        以上(含)，收費(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="BasicFee" value='@(gradeItem?.BasicFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        級距四、每月開立張數
+                        @{
+                            gradeItem = _model.BillingGrade.Count > 4 ? _model.BillingGrade[4] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="GradeCount" value='@(gradeItem?.GradeCount)' />
+                    </td>
+                    <th>
+                        以上(含)，收費(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="BasicFee" value='@(gradeItem?.BasicFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="Head_style_a">
+                        增量收費
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        級距一、每月開立張數超過
+                        @{
+                            increment = _model.BillingIncrement.Count > 0 ? _model.BillingIncrement[0] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UpperBound" value='@(increment?.UpperBound)' />
+                    </td>
+                    <th>
+                        ，每張增收(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UnitFee" value='@(increment?.UnitFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        級距二、每月開立張數超過
+                        @{
+                            increment = _model.BillingIncrement.Count > 1 ? _model.BillingIncrement[1] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UpperBound" value='@(increment?.UpperBound)' />
+                    </td>
+                    <th>
+                        ，每張增收(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UnitFee" value='@(increment?.UnitFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        級距三、每月開立張數超過
+                        @{
+                            increment = _model.BillingIncrement.Count > 2 ? _model.BillingIncrement[2] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UpperBound" value='@(increment?.UpperBound)' />
+                    </td>
+                    <th>
+                        ，每張增收(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UnitFee" value='@(increment?.UnitFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        級距四、每月開立張數超過
+                        @{
+                            increment = _model.BillingIncrement.Count > 3 ? _model.BillingIncrement[3] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UpperBound" value='@(increment?.UpperBound)' />
+                    </td>
+                    <th>
+                        ，每張增收(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UnitFee" value='@(increment?.UnitFee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="Head_style_a">
+                        特別費用
+                    </td>
+                </tr>
+                @{
+                    List<ExtraBillingItem> extraItems = _model.ExtraBillingItem.ToList();
+                    if (extraItems.Count == 0)
+                    {
+                        extraItems.Add(new ExtraBillingItem { });
+                    }
+                    ExtraBillingItem extraItem = null;
+                }
+                <tr>
+                    <th>
+                        費用名稱一、
+                        @{
+                            extraItem = extraItems.Count > 0 ? extraItems[0] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ItemName" value='@(extraItem?.ItemName)' />
+                    </td>
+                    <th>
+                        收費金額(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="Fee" value='@(extraItem?.Fee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>收費起算日期</th>
+                    <td>
+                        <input type="text" class="form_date" name="BillingDate" value='@(extraItem?.BillingDate)' />
+                    </td>
+                    <th>收費類型</th>
+                    <td>
+                        <select name="BillingType">
+                            <option value="@((int)ExtraBillingItem.BillingTypeEnum.PayOnce)" selected="@(extraItem?.BillingType == (int)ExtraBillingItem.BillingTypeEnum.PayOnce)">一次性收費</option>
+                            <option value="@((int)ExtraBillingItem.BillingTypeEnum.PayContinuous)" selected="@(extraItem?.BillingType == (int)ExtraBillingItem.BillingTypeEnum.PayContinuous)">每月持續收費</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        費用名稱二、
+                        @{
+                            extraItem = extraItems.Count > 1 ? extraItems[1] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ItemName" value='@(extraItem?.ItemName)' />
+                    </td>
+                    <th>
+                        收費金額(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="Fee" value='@(extraItem?.Fee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>收費起算日期</th>
+                    <td>
+                        <input type="text" class="form_date" name="BillingDate" value='@(extraItem?.BillingDate)' />
+                    </td>
+                    <th>收費類型</th>
+                    <td>
+                        <select name="BillingType">
+                            <option value="@((int)ExtraBillingItem.BillingTypeEnum.PayOnce)" selected="@(extraItem?.BillingType == (int)ExtraBillingItem.BillingTypeEnum.PayOnce)">一次性收費</option>
+                            <option value="@((int)ExtraBillingItem.BillingTypeEnum.PayContinuous)" selected="@(extraItem?.BillingType == (int)ExtraBillingItem.BillingTypeEnum.PayContinuous)">每月持續收費</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        費用名稱三、
+                        @{
+                            extraItem = extraItems.Count > 2 ? extraItems[2] : null;
+                        }
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ItemName" value='@(extraItem?.ItemName)' />
+                    </td>
+                    <th>
+                        收費金額(元)
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="Fee" value='@(extraItem?.Fee)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>收費起算日期</th>
+                    <td>
+                        <input type="text" class="form_date" name="BillingDate" value='@(extraItem?.BillingDate)' />
+                    </td>
+                    <th>收費類型</th>
+                    <td>
+                        <select name="BillingType">
+                            <option value="@((int)ExtraBillingItem.BillingTypeEnum.PayOnce)" selected="@(extraItem?.BillingType == (int)ExtraBillingItem.BillingTypeEnum.PayOnce)">一次性收費</option>
+                            <option value="@((int)ExtraBillingItem.BillingTypeEnum.PayContinuous)" selected="@(extraItem?.BillingType == (int)ExtraBillingItem.BillingTypeEnum.PayContinuous)">每月持續收費</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="Head_style_a">
+                        開立張數採計基準
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_Invoice)' checked="checked" /> 發票
+                    </td>
+                    <td>
+                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_InvoiceCancellation)' checked="@(_model.BillingCalculation.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_InvoiceCancellation))" /> 作廢發票
+                    </td>
+                    <td>
+                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_Allowance)' checked="@(_model.BillingCalculation.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_Allowance))" /> 折讓證明
+                    </td>
+                    <td>
+                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_AllowanceCancellation)' checked="@(_model.BillingCalculation.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_AllowanceCancellation))" /> 作廢折讓證明
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="Head_style_a">
+                        出帳週期(月)
+                    </td>
+                </tr>
+                <tr>
+                    @{
+                        BillingExtension extension = _model.BillingExtension;
+                    }
+                    <td colspan="4">
+                        <select name="BillingCycle">
+                            <option value="1" selected="@(extension?.BillingCycleInMonth == 1)">1個月</option>
+                            <option value="2" selected="@(extension?.BillingCycleInMonth == 2)">2個月</option>
+                            <option value="3" selected="@(extension?.BillingCycleInMonth == 3)">1季</option>
+                            <option value="6" selected="@(extension?.BillingCycleInMonth == 6)">半年</option>
+                            <option value="12" selected="@(extension?.BillingCycleInMonth == 12)">1年</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <td class="Bargain_btn" align="center">
+                            <button type="button" onclick="$global.commitBillingPlan();" name="UpdateButton" class="btn">確定</button>
+                            &nbsp;
+                            <input name="Reset" type="reset" class="btn" value="重填" />
+                            @*<asp:Button ID="Config_btn" runat="server" CausesValidation="True" CssClass="btn"
+                                Text="下載設定檔" OnClick="Config_btn_Click" />*@
+                            @*@if (_viewModel.CompanyID.HasValue)
+                                    {
+                                <input type="button" class="btn" name="btnDownloadConfig" value="下載設定檔" />
+                                }*@
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        datepicker($('#@(_viewID) input.form_date'));
+        $global.commitBillingPlan = function () {
+            var event = event || window.event;
+            $form = $(event.target).closest('form');
+            var viewModel = $form.serializeObject();
+            viewModel.KeyID = '@(_viewModel.KeyID)';
+            clearErrors();
+            showLoading();
+            $.post('@(Url.Action("CommitBillingPlan","Organization"))', viewModel, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        if (confirm('資料已儲存，是否關閉？')) {
+                            $global.removeTab('applyBilling');
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body'));
+                }
+            });
+        };
+    });
+</script>
+
+

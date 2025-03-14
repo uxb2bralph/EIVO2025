@@ -1,0 +1,86 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
+@using WebHome.Controllers
+@using WebHome.Components
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    QueryViewModel _viewModel = ViewBag.ViewModel as QueryViewModel;
+    _viewModel.UrlAction = Url.Action("Inquire2023", "InvoiceProcess");
+
+}
+<!--交易畫面標題-->
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", (ViewBag.Title as String) ?? "發票報表匯出");}
+
+<div class="border_gray">
+    <!--表格 開始-->
+    <table id="queryArea" class="table table-striped">
+        <tr>
+            <th colspan="2" class="Head_style_a">
+                查詢條件
+                <input type="hidden" name="ResultAction" value="@(_viewModel.ResultAction)" />
+            </th>
+        </tr>
+        @{ 
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/QueryDirective.cshtml", 0);
+            ViewBag.QueryAll = true;
+            @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>());
+            @(await Component.InvokeAsync<InquireCustomerIDViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
+        }
+
+        @{
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByWinningNumber.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCancellation.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByPrintMark.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierType.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierNo.cshtml");
+        }
+
+        <tr>
+            <th>
+                附加查詢顯示
+            </th>
+            <td class="tdleft">
+                <input name="CurrencySummary" value="True" type="checkbox" /> 顯示幣別統計，
+                <input name="MIG" value="True" type="checkbox" /> 顯示大平台處理狀態(C:完成,E:失敗,P:處理中)
+            </td>
+        </tr>
+    </table>
+    <!--表格 結束-->
+</div>
+
+<!--按鈕-->
+<table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
+    <tbody>
+        <tr>
+            <td class="Bargain_btn">
+                <button type="button" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">查詢</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!--表格 開始-->
+@{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");}
+
+
+

@@ -1,0 +1,95 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    IQueryable<ExceptionLog> _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<ExceptionLog>)this.Model;
+
+}
+@functions
+{
+    protected AllowanceRootAllowance getAllowanceContent(String data)
+    {
+        try
+        {
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(data);
+            return doc.ConvertTo<AllowanceRootAllowance>();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex);
+            return null;
+        }
+    }
+}
+@if (_model.Count() > 0)
+{
+    <div>
+        <table class="table table-striped">
+            <tr>
+                <th class="Head_style_a">
+                    折　　讓
+                </th>
+            </tr>
+        </table>
+        <table class="table table-striped itemList">
+            <thead>
+                <tr>
+                    <th>折讓號碼</th>
+                    <th>開立人公司名稱</th>
+                    <th>開立人統編</th>
+                    <th>時間</th>
+                    <th>錯誤訊息</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in _model)
+                {
+                    AllowanceRootAllowance dataItem = null;
+                    <tr>
+                        <td>
+                            <a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Published/DumpExceptionLog.ashx")}?logID={item.LogID}")'
+                               target="_blank">
+                                @(item.IsCSV == true ? item.DataContent : (dataItem=getAllowanceContent(item.DataContent))?.AllowanceNumber)
+                            </a>
+                        </td>
+                        <td>
+                            @{ var receiptNo = dataItem?.SellerId;
+                                var orgItem = models.GetTable<Organization>().Where(o => o.ReceiptNo == receiptNo).FirstOrDefault();}
+
+                            @(orgItem?.CompanyName)
+                        </td>
+                        <td>@(receiptNo)</td>
+                        <td>@($"{item.LogTime:yyyy/MM/dd HH:mm:ss}")</td>
+                        <td>@(item.Message)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+

@@ -1,0 +1,25 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+    <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <th style="width:10%;">寄送副本至：</th>
+            <td><input type="text" name="MailTo" value="" class="form-control" /></td>
+        </tr>
+        <tr>
+            <td colspan="2" >
+                <button type="button" class="btn" name="btnNotify" onclick="uiInvoiceQuery.notify();">重送開立通知</button>
+            </td>
+        </tr>
+    </table>
+
+
+

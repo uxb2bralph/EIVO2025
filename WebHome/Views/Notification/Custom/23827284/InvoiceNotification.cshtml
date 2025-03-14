@@ -1,0 +1,344 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        body {
+            margin: 10px;
+            padding: 0px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+        }
+
+        p {
+            margin: 5px;
+            padding: 0px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+        }
+
+        a:link {
+            margin-left: 5px;
+            margin-right: 5px;
+            font-size: 12px; /*color:#0C419A;*/
+            color: #FF6600;
+            text-decoration: none;
+            border-bottom: 1px dotted #666666;
+        }
+
+        a:hover {
+            color: #0066CC;
+            text-decoration: none;
+            border-bottom: 1px solid #666666;
+        }
+
+        div.border_gray {
+            border: 4px solid #DDD;
+            background: #FFFFFF;
+            margin: 10px 0px;
+            padding: 10px;
+        }
+
+        .left_title {
+            font-family: sans-serif,Geneva,Arial,Helvetica;
+            border-top: 1px solid #DEB887;
+            border-left: 1px solid #F5DEB3;
+            border-bottom: 1px solid #F5DEB3;
+            margin: 0px;
+            color: #666666;
+        }
+
+            .left_title th {
+                padding: 3px 5px;
+                border-top: 1px solid #FFFFFF;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 160%;
+                color: #A0522D;
+                background-color: #F5DEB3;
+                text-align: right;
+            }
+
+                .left_title th.bordertop {
+                    border-top-width: 0px;
+                }
+
+            .left_title td {
+                padding: 3px 5px;
+                border-right: 1px solid #F5DEB3;
+                border-top: 1px solid #F5DEB3;
+                font-size: 12px;
+                line-height: 160%;
+            }
+
+                .left_title td.tdright {
+                    text-align: right;
+                }
+
+                .left_title td.tdleft {
+                    text-align: left;
+                }
+        /*--明細列視窗--*/
+        .table01 {
+            font-family: sans-serif,Geneva,Arial,Helvetica;
+            border-top: 1px solid #DEB887;
+            border-right: 1px solid #DDDDDD;
+            margin: 0px;
+            color: #666666;
+        }
+
+            .table01 th {
+                padding: 3px 5px;
+                border-left: 1px solid #FFF;
+                border-bottom: 1px solid #FFF;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 160%;
+                color: #FFFFFF;
+                background-color: #c99040;
+            }
+
+                .table01 th.borderleft {
+                    padding: 3px 5px;
+                    border-left: 1px solid #DEB887;
+                    font-size: 12px;
+                    font-weight: normal;
+                    line-height: 160%;
+                    color: #FFFFFF;
+                    background-color: #c99040;
+                }
+
+            .table01 td {
+                padding: 3px 5px;
+                border-left: 1px solid #DDDDDD;
+                border-bottom: 1px solid #DDDDDD;
+                font-size: 12px;
+                line-height: 160%;
+            }
+
+                .table01 td.tdright {
+                    text-align: right;
+                }
+
+                .table01 td.tdleft {
+                    text-align: left;
+                }
+
+        .OldLace {
+            background-color: #FDF5E6;
+        }
+
+        .Head_style_a {
+            font-size: 15px;
+            color: #A0522D;
+            padding-top: 5px 2px 5px 2px;
+            letter-spacing: 1px;
+        }
+
+        .blue {
+            color: #0066CC;
+        }
+
+        .red {
+            color: #e60012;
+        }
+
+        .printBtn a {
+            display: block;
+            letter-spacing: 1px;
+            width: 200px;
+            height: 30px;
+            line-height: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+            color: #447691;
+            border-radius: 5px;
+            background-color: #8ad3f3;
+            text-decoration: none;
+            border-left: 1px solid #489c9e;
+            border-bottom: 1px solid #489c9e;
+            border-top: 1px solid #b8f1f8;
+            border-right: 1px solid #b8f1f8;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+            .printBtn a:hover {
+                color: #084259;
+                background-color: #8cd6f3;
+                text-decoration: none;
+                border-top: 1px solid #489c9e;
+                border-right: 1px solid #489c9e;
+                border-left: 1px solid #b8f1f8;
+                border-bottom: 1px solid #b8f1f8;
+                box-shadow: -1px 1px 2px #888888;
+            }
+
+    P.MsoNormal {
+      FONT-SIZE: 12pt;
+      FONT-FAMILY: "Calibri", sans-serif;
+      MARGIN: 0cm;
+      mso-style-unhide: no;
+      mso-style-qformat: yes;
+      mso-style-parent: "";
+      mso-pagination: none;
+      mso-bidi-font-size: 11.0pt;
+      mso-ascii-font-family: Calibri;
+      mso-ascii-theme-font: minor-latin;
+      mso-fareast-font-family: 新細明體;
+      mso-fareast-theme-font: minor-fareast;
+      mso-hansi-font-family: Calibri;
+      mso-hansi-theme-font: minor-latin;
+      mso-bidi-font-family: "Times New Roman";
+      mso-bidi-theme-font: minor-bidi;
+      mso-font-kerning: 1.0pt
+    }
+
+    LI.MsoNormal {
+      FONT-SIZE: 12pt;
+      FONT-FAMILY: "Calibri", sans-serif;
+      MARGIN: 0cm;
+      mso-style-unhide: no;
+      mso-style-qformat: yes;
+      mso-style-parent: "";
+      mso-pagination: none;
+      mso-bidi-font-size: 11.0pt;
+      mso-ascii-font-family: Calibri;
+      mso-ascii-theme-font: minor-latin;
+      mso-fareast-font-family: 新細明體;
+      mso-fareast-theme-font: minor-fareast;
+      mso-hansi-font-family: Calibri;
+      mso-hansi-theme-font: minor-latin;
+      mso-bidi-font-family: "Times New Roman";
+      mso-bidi-theme-font: minor-bidi;
+      mso-font-kerning: 1.0pt
+    }
+
+    DIV.MsoNormal {
+      FONT-SIZE: 12pt;
+      FONT-FAMILY: "Calibri", sans-serif;
+      MARGIN: 0cm;
+      mso-style-unhide: no;
+      mso-style-qformat: yes;
+      mso-style-parent: "";
+      mso-pagination: none;
+      mso-bidi-font-size: 11.0pt;
+      mso-ascii-font-family: Calibri;
+      mso-ascii-theme-font: minor-latin;
+      mso-fareast-font-family: 新細明體;
+      mso-fareast-theme-font: minor-fareast;
+      mso-hansi-font-family: Calibri;
+      mso-hansi-theme-font: minor-latin;
+      mso-bidi-font-family: "Times New Roman";
+      mso-bidi-theme-font: minor-bidi;
+      mso-font-kerning: 1.0pt
+    }
+
+    SPAN.GramE {
+      mso-style-name: "";
+      mso-gram-e: yes
+    }
+
+    .MsoChpDefault {
+      FONT-FAMILY: "Calibri", sans-serif;
+      mso-bidi-font-family: "Times New Roman";
+      mso-bidi-theme-font: minor-bidi;
+      mso-style-type: export-only;
+      mso-default-props: yes
+    }
+
+    DIV.WordSection1 {
+      page: WordSection1
+    }
+    </style>
+    <title>電子發票系統</title>
+</head>
+<BODY lang=ZH-TW style="TEXT-JUSTIFY-TRIM: punctuation; WORD-WRAP: break-word; tab-interval: 24.0pt">
+    <DIV class=WordSection1 style="LAYOUT-GRID:  18pt none">
+        <p class="MsoNormal" >
+            <span style="font-family:標楷體;color:black;mso-bidi-font-weight:bold">親愛的貴賓您好，感謝您使用電子帳單，「不紙」愛地球一起減碳做環保。 </span><span lang="EN-US" style="color:black"><o:p></o:p></span>
+        </p>
+
+        <p class="MsoNormal" ><span lang="EN-US" style="font-family:標楷體;color:black;mso-bidi-font-weight:bold">&nbsp; </span><span lang="EN-US" style="color:black"><o:p></o:p></span></p>
+
+        <p class="MsoNormal" >
+            <span style="font-family:標楷體;color:black;mso-bidi-font-weight:bold">為響應環保及政府無紙化政策，本公司即日起不再提供紙本帳單及紙本發票。 </span><span lang="EN-US" style="color:black"><o:p></o:p></span>
+        </p>
+
+        <p class="MsoNormal" >
+            <span style="font-family:標楷體;color:black;mso-bidi-font-weight:bold">而以電子郵件將發票開立與中獎訊息通知客戶，並於開獎日起，<span lang="EN-US">10-15</span>日內將中獎的「紙本電子發票證明聯」依帳單地址寄交。 </span><span lang="EN-US" style="color:black"><o:p></o:p></span>
+        </p>
+
+        <p class="MsoNormal" >
+            <span style="font-family:標楷體;color:black;mso-bidi-font-weight:bold">至於企業端電子發票用戶，如需列印，請直接開啟附件之發票列印檔另行列印即可。 </span><span lang="EN-US" style="color:black"><o:p></o:p></span>
+        </p>
+
+        <p class="MsoNormal" >
+            <span style="font-family:標楷體;color:black;mso-bidi-font-weight:bold">後續若有異動需求，亦可來電做修改，任何疑問歡迎撥打<span lang="EN-US">(07)213-5788</span>，俱樂部事務請撥分機<span lang="EN-US">#7700</span>，合約公司事務請撥分機<span lang="EN-US">#8170</span>，感謝您的支持與配合。 </span><span lang="EN-US" style="color:black"><o:p></o:p></span>
+        </p>
+
+        <p class="MsoNormal" ><span lang="EN-US" style="font-family:標楷體;color:black">&nbsp; </span><span lang="EN-US" style="color:black"><o:p></o:p></span></p>
+
+        <p class="MsoNormal" >
+            <b>
+                <span style="font-family:&quot;微軟正黑體&quot;,sans-serif;color:black">漢來國際飯店股份有限公司電子發票開立通知</span>
+            </b><span style="color:black"> <span lang="EN-US"><o:p></o:p></span></span>
+        </p>
+        @{
+            await Html.RenderPartialAsync("~/Views/DataView/Module/Invoice.cshtml", _model);
+        }
+        <p class="MsoNormal" >
+            <span style="font-family:標楷體;color:black">本公司奉財政部核准文號： </span><span style="font-family:標楷體;color:#0070C0">財政部高雄國稅局鹽埕稽徵所<span lang="EN-US">106</span>年<span lang="EN-US">9</span>月<span lang="EN-US">11</span>日財高國稅鹽銷字第<span lang="EN-US">1060352133</span>號 </span><span style="font-family:標楷體;color:black">
+                ，使用電子發票。
+            </span><span lang="EN-US" style="color:black"><o:p></o:p></span>
+        </p>
+        <P class=MsoNormal>
+            <SPAN lang=EN-US style="FONT-FAMILY: 標楷體; COLOR: red">
+                &nbsp;
+            </SPAN>
+        </P>
+        <P class=MsoNormal>
+            <SPAN lang=EN-US style="FONT-FAMILY: 標楷體; COLOR: red">※</SPAN><SPAN style="FONT-FAMILY: 標楷體; COLOR: red">
+                此信件為系統發出信件，請勿直接回覆。<SPAN lang=EN-US>
+
+                </SPAN>
+            </SPAN>
+        </P>
+    </DIV>
+</BODY>
+
+</html>
+

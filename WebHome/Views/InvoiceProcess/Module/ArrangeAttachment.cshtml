@@ -1,0 +1,109 @@
+
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+
+@using ModelCore.Helper
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    InquireInvoiceViewModel _viewModel;
+    String _dialogID = "attach" + DateTime.Now.Ticks;
+
+
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = this.Model as InvoiceItem;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+}
+<div id="@(_dialogID)">
+
+    <div class="border_gray">
+        <table class="table table-striped itemList" cellspacing="0" cellpadding="0" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>發票號碼</th>
+                    <th>@($"{_model.TrackCode}{_model.No}")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var attachment in _model.CDS_Document.Attachment)
+                    {
+                        <tr>
+                            <td>
+                                <a href="@($"{VirtualPathUtility.ToAbsolute("~/Helper/DownloadAttachment.ashx")}?keyName={attachment.KeyName}")">@(attachment.KeyName),共@(attachment.GetAttachedPdfPageCount())頁</a>
+                            </td>
+                            <td>
+                                <button type="button" class="btn" onclick="uiInvoiceQuery.removeAttachment('@((new { attachment.KeyName,attachment.DocID }).JsonStringify().EncryptData())');">刪除</button>
+                            </td>
+                        </tr>
+                    }
+                }
+                @{ 
+                    await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataAction/UploadAttachment.cshtml",_model?.CDS_Document);
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="text-align:center;">
+                        <input type="button" value="關閉" class="btn btnClose" />
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+        $('#@(_dialogID)').dialog({
+            //autoOpen: false,
+            width: 'auto',
+            resizable: true,
+            //modal: true,
+            title: "<div class='modal-title'><h4><i class='fa fa-clock-o'></i> 管理發票附件檔</h4></div>",
+            buttons: [
+            ],
+            close: function (event, ui) {
+                $('#@(_dialogID)').remove();
+            }
+        });
+
+        $(function () {
+            $global.onAttached = function () {
+                if (uiInvoiceQuery.refreshDataRow) {
+                    uiInvoiceQuery.refreshDataRow();
+                }
+                $('#@(_dialogID)').dialog("close");
+            };
+
+            $('#@(_dialogID) input:button.btnClose').on('click', function () {
+                $global.onAttached();
+            });
+
+            $('#@(_dialogID)').find('input,select,textarea').attr('data-role', '@(_dialogID)');
+        });
+    </script>
+
+</div>
+
+
+

@@ -1,0 +1,62 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    IQueryable<Organization> _model;
+    UserProfile _profile;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<Organization>)this.Model;
+    _profile = Context.GetUser();
+
+    InquireInvoiceViewModel? _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+}
+@if (_profile.CurrentUserRole.OrganizationCategory.CategoryID == (int)Naming.CategoryID.COMP_SYS)
+{
+    <tr>
+        <th>
+            代理業者統編
+        </th>
+        <td class="tdleft">
+            <select name="AgentID">
+                <option value="">全部</option>
+                @foreach (var a in _model.OrderBy(o=>o.ReceiptNo))
+                {
+                    <option value="@(a.CompanyID)">@($"({a.ReceiptNo}) {a.CompanyName}")</option>
+                }
+            </select>
+            @if (_viewModel?.AgentID.HasValue == true)
+            {
+                <script>
+                    $(function () {
+                        $('select[name="AgentID"]').val('@(_viewModel.AgentID)');
+                    });
+                </script>
+            }
+        </td>
+    </tr>
+}
+
+
+
+
+

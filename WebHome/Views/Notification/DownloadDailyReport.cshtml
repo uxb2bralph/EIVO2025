@@ -1,0 +1,302 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+@using System.Data
+@using ClosedXML.Excel
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.DataAccess
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@functions
+{
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+    IQueryable<InvoiceItem> invoice;
+    IQueryable<InvoiceAllowance> allowance;
+    IQueryable<InvoiceItem> cancelInvoice;
+    IQueryable<InvoiceAllowance> cancelAllowance;
+    UserProfile profile;
+
+    void SaveAsExcel(int taskID, String resultFile)
+    {
+        Task.Run(() =>
+        {
+            try
+            {
+                using (DataSet ds = new DataSet())
+                {
+
+                    Exception exception = null;
+
+                    try
+                    {
+                        if(invoice != null)
+                        {
+                            DataTable table = new DataTable("發票開立日報表");
+                            ds.Tables.Add(table);
+                            table.Columns.Add("發票號碼", typeof(String));
+                            table.Columns.Add("發票日期", typeof(String));
+                            table.Columns.Add("開立時間", typeof(String));
+                            table.Columns.Add("序號", typeof(String));
+                            table.Columns.Add("發票開立人", typeof(String));
+                            table.Columns.Add("開立人統編", typeof(String));
+                            table.Columns.Add("營業人店別", typeof(String));
+                            table.Columns.Add("未稅金額", typeof(decimal));
+                            table.Columns.Add("稅別", typeof(String));
+                            table.Columns.Add("稅額", typeof(decimal));
+                            table.Columns.Add("含稅金額", typeof(decimal));
+                            table.Columns.Add("幣別", typeof(String));
+                            table.Columns.Add("買受人名稱", typeof(String));
+                            table.Columns.Add("買受人統編", typeof(String));
+                            table.Columns.Add("載具類別", typeof(String));
+                            table.Columns.Add("載具號碼", typeof(String));
+                            table.Columns.Add("傳送大平狀態", typeof(String));
+
+                            foreach (var i in invoice.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
+                            {
+                                DataRow r = table.NewRow();
+                                r["發票號碼"] = i.TrackCode + i.No;
+                                r["發票日期"] = $"{i.InvoiceDate:yyyy/MM/dd}";
+                                r["開立時間"] = $"{i.InvoiceDate:HH:mm}";
+
+                                r["序號"] = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : DBNull.Value;
+                                r["發票開立人"] = i.InvoiceSeller.CustomerName;
+                                r["開立人統編"] = i.InvoiceSeller.ReceiptNo;
+                                r["營業人店別"] = i.Organization.OrganizationExtension.CustomerNo;
+                                r["未稅金額"] = (Object)i.InvoiceAmountType.SalesAmount ?? DBNull.Value;
+                                r["稅別"] = $"{(Naming.TaxTypeDefinition?)i.InvoiceAmountType.TaxType}";
+                                r["稅額"] = (Object)i.InvoiceAmountType.TaxAmount ?? DBNull.Value;
+                                r["含稅金額"] = i.InvoiceAmountType.TotalAmount;
+                                r["幣別"] = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : DBNull.Value;
+                                r["買受人名稱"] = i.InvoiceBuyer.CustomerName;
+                                r["買受人統編"] = i.InvoiceBuyer.IsB2C() ? "" : i.InvoiceBuyer.ReceiptNo;
+                                if (i.InvoiceCarrier != null)
+                                {
+                                    r["載具類別"] = i.InvoiceCarrier.CarrierType;
+                                    r["載具號碼"] = i.InvoiceCarrier.CarrierNo;
+                                }
+                                r["傳送大平狀態"] = i.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C)
+                                    ? "C"
+                                    : i.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E)
+                                        ? "E"
+                                        : "P";
+
+                                table.Rows.Add(r);
+                            }
+                        }
+
+                        if (cancelInvoice != null)
+                        {
+                            DataTable table = new DataTable("作廢發票日報表");
+                            ds.Tables.Add(table);
+                            table.Columns.Add("作廢發票號碼", typeof(String));
+                            table.Columns.Add("作廢日期", typeof(String));
+                            table.Columns.Add("作廢原因", typeof(String));
+                            table.Columns.Add("傳送大平狀態", typeof(String));
+
+                            foreach (var i in cancelInvoice.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
+                            {
+                                var cancelItem = i.InvoiceCancellation;
+                                DataRow r = table.NewRow();
+                                r["作廢發票號碼"] = cancelItem.CancellationNo;
+                                r["作廢日期"] = $"{i.InvoiceCancellation.CancelDate:yyyy/MM/dd HH:mm:ss}";
+                                r["作廢原因"] = $"{cancelItem.CancelReason}";
+
+                                var docItem = i.CDS_Document.ChildDocument.Select(c => c.CDS_Document).FirstOrDefault();
+                                r["傳送大平狀態"] = docItem?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true
+                                    ? "C"
+                                    : docItem?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true
+                                        ? "E"
+                                        : "P";
+
+                                table.Rows.Add(r);
+                            }
+                        }
+
+                        if (allowance != null)
+                        {
+                            DataTable table = new DataTable("折讓證明開立日報表");
+                            ds.Tables.Add(table);
+                            table.Columns.Add("折讓單號碼", typeof(String));
+                            table.Columns.Add("折讓日期", typeof(String));
+                            table.Columns.Add("發票開立人", typeof(String));
+                            table.Columns.Add("開立人統編", typeof(String));
+                            table.Columns.Add("未稅金額", typeof(decimal));
+                            table.Columns.Add("稅額", typeof(decimal));
+                            table.Columns.Add("幣別", typeof(String));
+                            table.Columns.Add("傳送大平狀態", typeof(String));
+
+                            foreach (var i in allowance)
+                            {
+                                DataRow r = table.NewRow();
+                                r["折讓單號碼"] = i.AllowanceNumber;
+                                r["折讓日期"] = $"{i.AllowanceDate:yyyy/MM/dd HH:mm:ss}";
+                                r["發票開立人"] = i.InvoiceAllowanceSeller.CustomerName;
+                                r["開立人統編"] = i.InvoiceAllowanceSeller.ReceiptNo;
+                                r["未稅金額"] = (Object)i.TotalAmount ?? DBNull.Value;
+                                r["稅額"] = (Object)i.TaxAmount ?? DBNull.Value;
+                                r["幣別"] = i.CurrencyID.HasValue ? i.CurrencyType.AbbrevName : DBNull.Value;
+                                r["傳送大平狀態"] = i.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C)
+                                    ? "C"
+                                    : i.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E)
+                                        ? "E"
+                                        : "P";
+
+                                table.Rows.Add(r);
+                            }
+                        }
+
+                        if (cancelAllowance != null)
+                        {
+                            DataTable table = new DataTable("作廢折讓證明日報表");
+                            ds.Tables.Add(table);
+                            table.Columns.Add("作廢折讓單號碼", typeof(String));
+                            table.Columns.Add("作廢日期", typeof(String));
+                            table.Columns.Add("作廢原因", typeof(String));
+                            table.Columns.Add("傳送大平狀態", typeof(String));
+
+                            foreach (var i in cancelAllowance)
+                            {
+                                var cancelItem = i.InvoiceAllowanceCancellation;
+
+                                DataRow r = table.NewRow();
+                                r["作廢折讓單號碼"] = i.AllowanceNumber;
+                                r["作廢日期"] = $"{cancelItem.CancelDate:yyyy/MM/dd HH:mm:ss}";
+                                r["作廢原因"] = $"{cancelItem.CancelReason}";
+
+                                var docItem = i.CDS_Document.ChildDocument.Select(c => c.CDS_Document).FirstOrDefault();
+                                r["傳送大平狀態"] = docItem?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true
+                                    ? "C"
+                                    : docItem?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true
+                                        ? "E"
+                                        : "P";
+
+                                table.Rows.Add(r);
+                            }
+                        }
+
+                        using (XLWorkbook xls = ds.ConvertToExcel())
+                        {
+                            xls.SaveAs(resultFile);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                        exception = ex;
+                    }
+
+                    using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
+
+                    ProcessRequest taskItem = db.GetTable<ProcessRequest>()
+                                    .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                    if (taskItem != null)
+                    {
+                        if (exception != null)
+                        {
+                            var logItem = new ExceptionLog
+                            {
+                                DataContent = exception.Message,
+                                LogTime = DateTime.Now,
+                            };
+                            db.GetTable<ExceptionLog>().InsertOnSubmit(logItem);
+                            db.SubmitChanges();
+
+                            taskItem.LogID = logItem.LogID;
+                        }
+
+                        taskItem.ProcessComplete = DateTime.Now;
+                        db.SubmitChanges();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        });
+
+    }
+
+}
+@{
+
+    models = new ModelSource<InvoiceItem>();
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    if (_viewModel == null)
+    {
+        _viewModel = new InquireInvoiceViewModel();
+        ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+
+    if (_viewModel.KeyID != null)
+    {
+        _viewModel = JsonConvert.DeserializeObject<InquireInvoiceViewModel>(_viewModel.KeyID.DecryptData());
+    }
+
+    bool effective = false;
+    invoice = models.GetTable<InvoiceItem>().InquireInvoice(_viewModel, models, ref effective, false);
+    allowance = models.GetTable<InvoiceAllowance>().InquireAllowance(_viewModel, models, ref effective, false);
+    cancelInvoice = models.GetTable<InvoiceItem>().InquireVoidInvoice(_viewModel, models, ref effective);
+    cancelAllowance = models.GetTable<InvoiceAllowance>().InquireVoidAllowance(_viewModel, models, ref effective);
+
+    profile = Context.GetUser();
+
+}
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+    ViewBag.ActionName = "開立資料日報表";
+}
+@section headContent {
+
+}
+@section formContent {
+
+}
+@{
+    var title = $"({_viewModel.DateFrom:yyyy/MM/dd})開立發票統計" + "";
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", title);
+}
+@{
+    ProcessRequest processItem = new ProcessRequest
+    {
+        Sender = profile?.UID,
+        SubmitDate = DateTime.Now,
+        ProcessStart = DateTime.Now,
+        ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
+    };
+
+    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.SubmitChanges();
+
+    SaveAsExcel(processItem.TaskID, processItem.ResponsePath);
+
+    await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
+        new AttachmentViewModel
+        {
+            TaskID = processItem.TaskID,
+            FileName = processItem.ResponsePath,
+            FileDownloadName = "發票資料明細.xlsx",
+        });
+}

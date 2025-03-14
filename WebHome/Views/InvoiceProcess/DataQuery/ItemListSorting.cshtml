@@ -1,0 +1,109 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using CommonLib.DataAccess
+
+@using Newtonsoft.Json
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceItem> _model;
+    QueryViewModel _viewModel;
+}
+@{
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+
+    _model = (IQueryable<InvoiceItem>)this.Model;
+
+    TempData["SortedItems"] = null;
+
+    if (_viewModel.SortName != null)
+    {
+        int idx = System.Array.IndexOf(_viewModel.SortName, "InvoiceDate");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceDate, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "CustomerID");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceBuyer.CustomerID, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "OrderNo");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoicePurchaseOrder.OrderNo, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "CompanyName");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.Organization.CompanyName, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "ReceiptNo");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.Organization.ReceiptNo, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "SalesAmount");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceAmountType.SalesAmount, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "TaxAmount");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceAmountType.TaxAmount, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "TotalAmount");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceAmountType.TotalAmount, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "IsWinning");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceWinningNumber.UniformInvoiceWinningNumber.Rank, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "BuyerNo");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceBuyer.ReceiptNo, _viewModel.SortType[idx]);
+        }
+
+        idx = System.Array.IndexOf(_viewModel.SortName, "InvoiceNo");
+        if (idx >= 0 && _viewModel.SortType[idx] != 0)
+        {
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(i => i.TrackCode + i.No, _viewModel.SortType[idx]);
+        }
+
+    }
+
+
+}

@@ -1,0 +1,71 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@using CommonLib.DataAccess
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+@{
+    Naming.FieldDisplayType? displayType = (Naming.FieldDisplayType?)ViewBag.DisplayType;
+}
+@switch (displayType)
+{
+    case Naming.FieldDisplayType.Header:
+        <div style="min-width: 120px;">管理</div>
+        break;
+    case Naming.FieldDisplayType.DataItem:
+        BusinessRelationship item = this.Model as BusinessRelationship;
+        <div class="btn-group dropdown" data-toggle="dropdown">
+            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="btn" onclick="$inquiryAgent.editItem('@((new {item.MasterID,item.RelativeID,item.BusinessID}).JsonStringify().EncryptData())');">編輯</a>
+                </li>
+                <li><a class="btn" onclick="$inquiryAgent.deleteItem('@((new {item.MasterID,item.RelativeID,item.BusinessID}).JsonStringify().EncryptData())');">刪除</a></li>
+                <li><a class="btn" onclick="uiInquireBusiness.inquireUser(@(item.RelativeID));">管理使用者</a></li>
+            </ul>
+        </div>
+        break;
+    case Naming.FieldDisplayType.SortBy:
+        break;
+
+    case Naming.FieldDisplayType.Edit:
+        item = this.Model as BusinessRelationship;
+        <a class="btn" onclick="$inquiryAgent.commitItem('@(ViewBag.IsNew == true ? _viewModel.EmptyKeyID : (new {item.MasterID,item.RelativeID,item.BusinessID}).JsonStringify().EncryptData())');">確定</a>
+        <a class="btn" onclick="$inquiryAgent.dataItem({ 'keyID': '@((new {item?.MasterID,item?.RelativeID,item?.BusinessID}).JsonStringify().EncryptData())','displayType':@(ViewBag.IsNew == true ? (int)Naming.FieldDisplayType.Create : (int)Naming.FieldDisplayType.DataItem) });">取消</a>
+        break;
+
+    case Naming.FieldDisplayType.Create:
+        item = this.Model as BusinessRelationship;
+        <a class="btn" onclick="$inquiryAgent.editItem('@(_viewModel.EmptyKeyID)');">新增</a>
+        break;
+
+}
+
+
+

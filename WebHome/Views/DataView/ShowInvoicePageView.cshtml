@@ -1,0 +1,26 @@
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+
+}
+@section headContent
+{
+
+}
+@section formContent
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "已開立發票內容檢視");
+        await Html.RenderPartialAsync("~/Views/DataView/Module/Invoice.cshtml", _model);
+    }
+}

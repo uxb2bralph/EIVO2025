@@ -1,0 +1,262 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+
+}
+<html>
+<head>
+    <style type="text/css">
+        body {
+            margin: 10px;
+            padding: 0px;
+            font-family: Arial, Helvetica, sans-serif, 標楷體;
+            font-size: 14px;
+        }
+
+        p {
+            margin: 5px;
+            padding: 0px;
+            font-family: 標楷體,Arial, Helvetica, sans-serif;
+            font-size: 16px;
+        }
+
+        a:link {
+            margin-left: 5px;
+            margin-right: 5px;
+            font-size: 16px; /*color:#0C419A;*/
+            color: #FF6600;
+            text-decoration: none;
+            border-bottom: 1px dotted #666666;
+        }
+
+        a:hover {
+            color: #0066CC;
+            text-decoration: none;
+            border-bottom: 1px solid #666666;
+        }
+
+        div.border_gray {
+            border: 4px solid #DDD;
+            background: #FFFFFF;
+            margin: 10px 10px;
+            padding: 10px;
+        }
+
+        .left_title {
+            font-family: sans-serif,Geneva,Arial,Helvetica;
+            border-top: 1px solid #DEB887;
+            border-left: 1px solid #F5DEB3;
+            border-bottom: 1px solid #F5DEB3;
+            margin: 0px;
+            color: #666666;
+        }
+
+            .left_title th {
+                padding: 3px 5px;
+                border-top: 1px solid #FFFFFF;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 160%;
+                color: #A0522D;
+                background-color: #F5DEB3;
+                text-align: right;
+            }
+
+                .left_title th.bordertop {
+                    border-top-width: 0px;
+                }
+
+            .left_title td {
+                padding: 3px 5px;
+                border-right: 1px solid #F5DEB3;
+                border-top: 1px solid #F5DEB3;
+                font-size: 12px;
+                line-height: 160%;
+            }
+
+                .left_title td.tdright {
+                    text-align: right;
+                }
+
+                .left_title td.tdleft {
+                    text-align: left;
+                }
+        /*--明細列視窗--*/
+        .table01 {
+            font-family: sans-serif,Geneva,Arial,Helvetica;
+            border-top: 1px solid #DEB887;
+            border-right: 1px solid #DDDDDD;
+            margin: 0px;
+            color: #666666;
+        }
+
+            .table01 th {
+                padding: 3px 5px;
+                border-left: 1px solid #FFF;
+                border-bottom: 1px solid #FFF;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 160%;
+                color: #FFFFFF;
+                background-color: #c99040;
+            }
+
+                .table01 th.borderleft {
+                    padding: 3px 5px;
+                    border-left: 1px solid #DEB887;
+                    font-size: 12px;
+                    font-weight: normal;
+                    line-height: 160%;
+                    color: #FFFFFF;
+                    background-color: #c99040;
+                }
+
+            .table01 td {
+                padding: 3px 5px;
+                border-left: 1px solid #DDDDDD;
+                border-bottom: 1px solid #DDDDDD;
+                font-size: 12px;
+                line-height: 160%;
+            }
+
+                .table01 td.tdright {
+                    text-align: right;
+                }
+
+                .table01 td.tdleft {
+                    text-align: left;
+                }
+
+        .OldLace {
+            background-color: #FDF5E6;
+        }
+
+        .Head_style_a {
+            font-size: 15px;
+            color: #A0522D;
+            padding-top: 5px 2px 5px 2px;
+            letter-spacing: 1px;
+        }
+
+        .blue {
+            color: #0066CC;
+        }
+
+        .red {
+            color: #e60012;
+        }
+
+        .printBtn a {
+            display: block;
+            letter-spacing: 1px;
+            width: 200px;
+            height: 30px;
+            line-height: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+            color: #447691;
+            border-radius: 5px;
+            background-color: #8ad3f3;
+            text-decoration: none;
+            border-left: 1px solid #489c9e;
+            border-bottom: 1px solid #489c9e;
+            border-top: 1px solid #b8f1f8;
+            border-right: 1px solid #b8f1f8;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+            .printBtn a:hover {
+                color: #084259;
+                background-color: #8cd6f3;
+                text-decoration: none;
+                border-top: 1px solid #489c9e;
+                border-right: 1px solid #489c9e;
+                border-left: 1px solid #b8f1f8;
+                border-bottom: 1px solid #b8f1f8;
+                box-shadow: -1px 1px 2px #888888;
+            }
+    </style>
+    <title>電子發票系統</title>
+</head>
+<body>
+    <p>親愛的客戶您好：</p>
+    <p>&nbsp;</p>
+    <p>
+        為響應環保及政府無紙化政策，本公司於110年1月1日起將不再提供紙本發票、紙本報表或帳單等。
+        <br />
+        配合財政部B2B電子發票證明聯新格式法規規定，您的發票明細資料將上傳至財政部<a href="https://www.einvoice.nat.gov.tw/portal/btc/audit">電子發票整合服務平台</a>，
+        如需列印，請直接開啟附件之發票列印檔另行列印即可。所列印的電子發票即為電子發票證明聯新格式，特此公告。
+    </p>
+    <p>&nbsp;</p>
+    <p class="red">
+        ※此信件為系統發出信件，請勿直接回覆。
+    </p>
+    <div class="border_gray" style="width:90%;">
+        <!--表格 開始-->
+        @{ await Html.RenderPartialAsync("~/Views/Notification/Module/C0401MailView.cshtml", _model);}
+
+        <!--表格 結束-->
+    </div>
+    <p>
+        <br />
+        有關付款作業，請依照以下指示辦理，再次感謝您的配合。
+        <br />
+        @*一、採用*@銀行電匯款方式：
+        <br />
+        @*匯款人：  @(_model.InvoiceBuyer.CustomerName)
+            <br />*@
+        受款人：  @(_model.InvoiceSeller.CustomerName)
+        <br />
+        受款銀行：台北富邦南門分行(012 - 5103)
+        <br />
+        受款帳號：510102019561
+        <br />
+        <br />
+        @*二、採用支票付款方式：
+            <br />
+            採用支票付款之公司行號，請開立支票掛號郵寄，
+            <br />
+            台北市中正區南海路20號6樓管理部收。
+            <br />
+            <br />*@
+        @if (_model.Organization.OrganizationExtension?.CustomNotification != null)
+        {
+            Write(new HtmlString(System.Web.HttpUtility.HtmlDecode(_model.Organization.OrganizationExtension?.CustomNotification)));
+            <br />
+        }
+        網際優勢－電子發票服務平台感謝您。
+        <br />
+        <br />
+        信件寄送時間：@(DateTime.Now)
+    </p>
+</body>
+</html>

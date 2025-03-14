@@ -1,0 +1,51 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+}
+@{
+    String pdfFile = models.PrepareToDownload(_model, false);
+
+    System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(pdfFile, System.Net.Mime.MediaTypeNames.Application.Octet);
+    ///修改附件檔名為發票號碼
+    ///
+    attachment.Name = String.Format("{0}{1}.pdf", _model.TrackCode, _model.No);
+
+    var mailTo = String.Join(",",
+        models.GetUserListByCompanyID(_model.InvoiceBuyer.BuyerID)
+    .Select(u => u.EMail)
+    .Where(m => m != null));
+}
+@if (!String.IsNullOrEmpty(mailTo))
+{
+    var enterprise = _model.InvoiceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
+    var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+
+    String Subject = $"{(enterprise?.EnterpriseGroup.EnterpriseName)} 發票接收通知(發票號碼:{_model.TrackCode}{_model.No})";
+    String body = Html.Partial("~/Views/Notification/Module/A0401.cshtml", _model).ToString();
+
+    body.SendMailMessage(mailTo, Subject, new System.Net.Mail.Attachment[] { attachment }, smtpSettings);
+}
+

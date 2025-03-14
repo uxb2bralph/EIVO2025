@@ -1,0 +1,399 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    InvoiceViewModel _viewModel;
+
+    ViewBag.ActionName = "首頁 > 電子發票開立";
+    _viewModel = (InvoiceViewModel)ViewBag.ViewModel;
+}
+
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票開立");}
+
+<form role="form" method="post">
+    @{ await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/InvoiceProcessTypeDirection.cshtml");}
+
+    <div class="border_gray">
+        <!--表格 開始-->
+        <h2>營業人</h2>
+        <table class="table table-striped">
+            <tr>
+                <th nowrap="nowrap" width="120">
+                    發票開立人
+                </th>
+                <td class="tdleft">
+                    @{ 
+                        @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent)));
+                    }
+                </td>
+                <th nowrap="nowrap" width="120">
+                    買受人統編
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="BuyerReceiptNo" type="text" onchange="loadCounterpart(this.value);" />
+                    <input type="checkbox" name="Counterpart" value="@($"{true}")" />設為相對營業人
+                    <script>
+                        function loadCounterpart(term) {
+                            showLoading();
+                            $.post('@Html.Raw(Url.Action("GetCounterpart", "Home"))', { 'term': term }, function (data) {
+                                hideLoading();
+                                if ($.isPlainObject(data) && data) {
+                                    $('input[name="BuyerReceiptNo"]').val(data.ReceiptNo);
+                                    $('input[name="BuyerName"]').val(data.CompanyName);
+                                    $('input[name="Address"]').val(data.Addr);
+                                    $('input[name="Phone"]').val(data.Phone);
+                                    $('input[name="EMail"]').val(data.ContactEmail);
+                                } else {
+                                    if (confirm('買受人為新客戶，是否設為相對營業人？')) {
+                                        $('input[name="Counterpart"]').prop('checked', true);
+                                    }
+                                }
+                            });
+                        }
+                    </script>
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" width="120">
+                    買受人名稱
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="BuyerName" type="text" value="@(_viewModel.BuyerName)" />
+                </td>
+                <th nowrap="nowrap" width="120">
+                    買受人地址
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="Address" type="text" value="@(_viewModel.Address)" />
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" width="120">
+                    買受人電話
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="Phone" type="text" value="@(_viewModel.Phone)" />
+                </td>
+                <th nowrap="nowrap" width="120">
+                    買受人email
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="EMail" type="text" value="@(_viewModel.EMail)" />
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" width="120">
+                    發票檢查碼
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="CheckNo" type="text" value="@(_viewModel.CheckNo)" maxlength="10" />
+                </td>
+                <th nowrap="nowrap" width="120">
+                    銷售品項稅額
+                </th>
+                <td class="tdleft">
+                    <input name="TaxCalc" type="radio" value="TaxIncluded" />含稅
+                    <input name="TaxCalc" type="radio" value="NonTaxed" checked="checked" />未稅
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" width="120">
+                    買受人註記
+                </th>
+                <td class="tdleft">
+                    <select name="BuyerRemark">
+                        <option value=""></option>
+                        <option value="1">得抵扣之進貨及費用</option>
+                        <option value="2">得抵扣之固定資產</option>
+                        <option value="3">不得抵扣之進貨及費用</option>
+                        <option value="4">不得抵扣之固定資產</option>
+                    </select>
+                </td>
+                <th nowrap="nowrap">沖帳別</th>
+                <td class="tdleft">
+                    <input class="form-control" name="Category" type="text" value="" maxlength="2" size="2" />
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" width="120">
+                    相關號碼
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="RelateNumber" type="text" value="" maxlength="20" size="20" />
+                </td>
+                <th nowrap="nowrap">總備註</th>
+                <td class="tdleft">
+                    <textarea name="Remark" maxlength="200" cols="56" rows="5"></textarea>
+                </td>
+            </tr>
+        </table>
+        <!--表格 結束-->
+    </div>
+    <div class="border_gray">
+        <!--表格 開始-->
+        <h2>發票</h2>
+        <table class="table table-striped">
+            <tr>
+                <th colspan="4" class="Head_style_a">
+                    新增發票主檔
+                </th>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" width="150">
+                    發票類別
+                </th>
+                <td class="tdleft" colspan="3">
+                    <select class="form-control" name="InvoiceType">
+                        <option value="@((int)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)">@(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)</option>
+                        <option value="@((int)Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)">@(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" width="150">
+                    課稅別
+                </th>
+                <td class="tdleft">
+                    <select class="form-control" name="TaxType">
+                        <option value="1">應稅</option>
+                        <option value="2">零稅率</option>
+                        <option value="3">免稅</option>
+                        <option value="4">特種稅率</option>
+                    </select>
+                </td>
+                <th nowrap="nowrap" width="150">
+                    通關方式註記<br />
+                    (若為零稅率發票，此為必填欄位)
+                </th>
+                <td class="tdleft">
+                    <select name="CustomsClearanceMark">
+                        <option value=""></option>
+                        <option value="1">非經海關出口</option>
+                        <option value="2">經海關出口</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap">
+                    稅率
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="TaxRate" type="text" value="0.05" />
+                </td>
+                <th nowrap="nowrap">
+                    銷售額合計(新台幣)
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="SalesAmount" type="text" value="" />
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap" width="150">
+                    營業稅額
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="TaxAmount" type="text" value="" />
+                </td>
+                <th nowrap="nowrap" width="150">
+                    總計(含稅)
+                </th>
+                <td class="tdleft">
+                    <input class="form-control" name="TotalAmount" type="text" value="" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="border_gray">
+        <!--表格 開始-->
+        <h2>發票明細</h2>
+        <table class="table table-striped table-bordered table-hover dataTable no-footer dtr-inline left_title">
+            <thead>
+                <tr>
+                    <th>產品編號</th>
+                    <th>品名</th>
+                    <th>數量</th>
+                    <th>單價</th>
+                    <th>金額</th>
+                    <th>備註</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ await Html.RenderPartialAsync("~/Views/InvoiceBusiness/InvoiceProduct/AddItem.cshtml");}
+
+            </tbody>
+        </table>
+    </div>
+    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <tbody>
+            <tr>
+                <td class="Bargain_btn">
+                    <button type="button" class="btn" onclick="uiInvoice.sum();">金額</button>
+                    <a class="btn" onclick="uiInvoice.commit(true);">發票預覽</a>
+                    <button type="button" class="btn" onclick="uiInvoice.commit();">發票開立</button>
+                    <button type="reset" class="btn">清除</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="hidden" name="Remark" />
+    @{ 
+        ViewBag.DialogID = "searchDialog";
+        await Html.RenderPartialAsync("~/Views/ProductCatalog/Module/ProductQuickSearch.cshtml");
+    }
+</form>
+<iframe name="commit" width="0" height="0" src="about:blank"></iframe>
+<script>
+    var uiInvoice;
+    $(function () {
+        var preview;
+        uiInvoice = {
+@*preview: function () {
+                //var event = event || window.event;
+                //validateForm($(event.target).parents('form')[0]);
+                if (this.sum()) {
+                    var event = event || window.event;
+                    var $form = $(event.target).parents('form');
+                    var prnWin = window.open('', '_preview', 'toolbar=no,location=no,status=no,menubar=no,scrollbars=auto,resizable=yes,alwaysRaised,dependent,titlebar=no,width=320,height=600');
+                    prnWin.name = '_preview';
+                    $form[0].target = '_preview';
+                    $form.prop('action', '@Html.Raw(Url.Action("PreviewInvoice","InvoiceBusiness"))').submit();
+                }
+            },*@
+            commit: function (forPreview) {
+                if (!confirm('是否計算金額？') || this.sum()) {
+                    var event = event || window.event;
+                    var $form = $(event.target).parents('form');
+                    var $formData = $form.serializeObject();
+                    $formData.ForPreview = forPreview;
+
+                    @*$form.prop('target', 'commit').prop('action', '@Html.Raw(Url.Action("CommitA0401","InvoiceBusiness",new { _viewModel.InvoiceProcessType }))').submit();*@
+                    showLoading();
+                    if (forPreview) {
+                        preview = window.open('', '_blank', 'popup');
+                    }
+
+                    $.post('@Html.Raw(Url.Action(_viewModel.InvoiceProcessType==Naming.InvoiceProcessType.A0401
+                                ? "CommitA0401"
+                                : "CommitA0101", "InvoiceBusiness", new { _viewModel.InvoiceProcessType }))', $formData, function (data) {
+                        hideLoading();
+                        if ($.isPlainObject(data)) {
+                            alert(data.message);
+                        } else {
+                            var $data = $(data);
+                            if (forPreview) {
+                                preview.document.write(data);
+                                //$data.dialog({
+                                //    width: 640,
+                                //    buttons: [
+                                //        {
+                                //            text: "關閉",
+                                //            icons: {
+                                //                primary: "ui-icon-close"
+                                //            },
+                                //            click: function () {
+                                //                $data.dialog("close");
+                                //            }
+                                //        }
+                                //    ]
+                                //});
+                            } else {
+                                $data.find('a').on('click', function (evt) {
+                                    $data.dialog('close');
+                                });
+                                $data.appendTo($('body'));
+                                $data.dialog();
+                            }
+                        }
+                    });
+                }
+            },
+            sum: function () {
+                var event = event || window.event;
+                var $form = $(event.target).parents('form');
+                if (validateForm($(event.target).parents('form')[0])) {
+                    var taxAmt = 0;
+                    var totalAmt = 0;
+                    var salesAmt = 0;
+                    var $piece = $form.find('input[name="Piece"]');
+                    var $unitCost = $form.find('input[name="UnitCost"]');
+                    var $costAmt = $form.find('input[name="CostAmount"]');
+                    var taxIncluded = $form.find('input[name="TaxCalc"]:checked').val()=='TaxIncluded';
+
+                    $piece.each(function (idx) {
+                        var cost = math.multiply(math.number($piece.eq(idx).val()), math.number($unitCost.eq(idx).val()));
+                        $costAmt.eq(idx).val(cost);
+                        totalAmt += cost;
+                    });
+
+                    var taxRate = math.number($form.find('input[name="TaxRate"]').val());
+
+                    if (taxIncluded) {
+                        taxAmt = math.round(math.multiply(math.divide(totalAmt, math.add(1, taxRate)), taxRate));
+                        salesAmt = math.subtract(totalAmt, taxAmt);
+                    } else {
+                        taxAmt = math.round(math.multiply(totalAmt, taxRate));
+                        salesAmt = totalAmt;
+                        totalAmt = math.add(salesAmt, taxAmt);
+                    }
+
+                    $form.find('input[name="TotalAmount"]').val(totalAmt);
+                    $form.find('input[name="TaxAmount"]').val(taxAmt);
+                    $form.find('input[name="SalesAmount"]').val(salesAmt);
+
+                    var remark = '';
+                    $('input[name="ItemRemark"]').each(function (index) {
+                        remark += $(this).val();
+                    });
+                    $form.find('input[name="Remark"]').val(remark);
+
+                    return true;
+                }
+                return false;
+            },
+            addRow: function () {
+                var event = event || window.event;
+                var $tr = $(event.target).parents('tr');
+                var $row = $tr.clone(true);
+                $row.find('input').val('');
+                $tr.after($row);
+                $tr.find('td').last().empty().append($('<a class="btn" onclick="uiInvoice.deleteRow();">刪除</a>'));
+            },
+            deleteRow: function () {
+                if (confirm('確定刪除此項資料?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).parents('tr');
+                    $tr.remove();
+                }
+            },
+            quickSearch: function (element) {
+                var event = event || window.event;
+                var $input = $(element);
+                $global.searchDone = function (item) {
+                    $input.val(item.ProductName);
+                    var $tr = $input.closest('tr');
+                    $tr.find('[name="UnitCost"]').val(item.SalePrice);
+                    $tr.find('[name="ItemRemark"]').val(item.Remark);
+                };
+                $('#searchDialog').dialog({
+                    width: 240,
+                    close: function (event, ui) {
+                        $input.focus();
+                    },
+                });
+            },
+
+        };
+    });
+</script>
+
+

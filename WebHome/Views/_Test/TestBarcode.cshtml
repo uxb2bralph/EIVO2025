@@ -1,0 +1,36 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+}
+
+@section formContent
+{
+    <div>
+        Data:<input id="data" type="text" value="" /> <button type="button" onclick="createBarcode();">generate</button><br />
+        <img id="barCode" src="" />
+    </div>
+    <script>
+        function createBarcode() {
+            $('#barCode').attr('src', '@Html.Raw(Url.Action("BarCode", "TestAll"))' + '?format=bmp&data=' + $('#data').val());
+        }
+    </script>
+}

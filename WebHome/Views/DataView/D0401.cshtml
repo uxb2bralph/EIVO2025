@@ -1,0 +1,56 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+  ModelSource<InvoiceItem> models;
+  InvoiceAllowance _model;
+  QueryViewModel _viewModel;
+
+  models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+  _model = (InvoiceAllowance)this.Model;
+  _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>電子發票系統</title>
+  <link href="../App_Themes/POSAllowance/POS_allowance.css" rel="stylesheet" />
+  <link href="../App_Themes/POSAllowance/POS_allowances_v1.css" rel="stylesheet" />
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+</head>
+
+<body style="margin:0px;font-weight: bold;font-family: monospace;">
+  <form id="theForm">
+    @{
+      await Html.RenderPartialAsync("~/Views/DataView/Module/D0401.cshtml", _model);
+    }
+  </form>
+</body>
+
+</html>
+@if (_viewModel?.ResultMode == Naming.DataResultMode.Print)
+{
+  <script>
+    window.onload = function () {
+      window.print();
+    };
+  </script>
+}

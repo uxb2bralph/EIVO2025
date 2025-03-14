@@ -1,0 +1,52 @@
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using ModelCore.DataExchange
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IEnumerable<InvoiceEntity> _model;
+
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    var profile = Context.GetUser();
+    _model = (IEnumerable<InvoiceEntity>)this.Model;
+}
+
+<table border="0" cellspacing="0" cellpadding="0" width="100%" class="tblAction">
+    <tbody>
+        <tr>
+            <td class="Bargain_btn">
+                @if (_model == null)
+                {
+                    <text>資料讀取失敗!!</text>
+                }
+                else if (_model.Any(i => i.Status == Naming.UploadStatusDefinition.匯入失敗))
+                {
+                    <text>資料匯入處理有錯誤，請取回處理回應檔查明原因。</text><br />
+                    <a href='@(Url.Action("GetResource", "DataExchange", new { path = ((String)ViewBag.ImportFile).EncryptData() }))'>點此下載回應檔</a>
+                }
+                else
+                {
+                    <text>資料匯入完成!!</text>
+                }
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+

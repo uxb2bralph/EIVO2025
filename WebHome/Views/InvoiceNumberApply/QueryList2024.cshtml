@@ -1,0 +1,52 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    IEnumerable<String> _model = this.Model as IEnumerable<String>;
+}
+
+<table class="table table-small-font table-bordered table-striped table01 companyList">
+    <thead>
+        <tr>
+            <th>統一編號</th>
+            <th>最新填表日</th>
+            <th>歸檔</th>
+            <th>轉營業人檔</th>
+            <th>下載Word</th>
+            <!--
+            <th>JSON檔修改</th>
+            -->
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            await Html.RenderPartialAsync("~/Views/InvoiceNumberApply/QueryItemList2024.cshtml");
+        }
+    </tbody>
+</table>
+
+<script>
+    $inquiryAgent.doPage = function (data) {
+        $('table.companyList tbody')
+            .empty()
+            .append(data);
+    };
+</script>
+

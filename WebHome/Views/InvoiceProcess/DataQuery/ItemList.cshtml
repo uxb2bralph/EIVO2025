@@ -1,0 +1,84 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@functions
+{
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceItem> _model;
+    IOrderedQueryable<InvoiceItem> _order;
+    String _dataItemView;
+    InquireInvoiceViewModel _viewModel;
+
+}
+@{
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<InvoiceItem>)this.Model;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/ItemListSorting.cshtml");
+
+    _dataItemView = ViewBag.DataItemView ?? "~/Views/InvoiceProcess/Module/DataItem.cshtml";
+
+    IQueryable<InvoiceItem> items;
+    int pageIndex = _viewModel.PageIndex ?? 0;
+    int pageSize = _viewModel.PageSize ?? 10;
+
+    if (TempData["SortedItems"] == null)
+    {
+        if (_viewModel.Paging == false)
+        {
+            items = _model;
+        }
+        else
+        {
+            items = _model
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize);
+        }
+    }
+    else
+    {
+        if (_viewModel.Paging == false)
+        {
+            items = ((IQueryable<InvoiceItem>)TempData["SortedItems"]);
+        }
+        else
+        {
+            items = ((IQueryable<InvoiceItem>)TempData["SortedItems"])
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize);
+        }
+    }
+
+}
+
+@{
+    int idx = 0;
+}
+@foreach (var item in items)
+{
+    idx++;
+    <tr>
+        @{ await Html.RenderPartialAsync(_dataItemView, item);}
+
+    </tr>
+}
+

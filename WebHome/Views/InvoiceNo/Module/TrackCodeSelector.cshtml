@@ -1,0 +1,42 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+
+@{
+    ModelSource<InvoiceItem> models;
+    InquireNoIntervalViewModel _viewModel;
+    IEnumerable<InvoiceTrackCode> _items;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireNoIntervalViewModel)ViewBag.ViewModel;
+    if (_viewModel != null)
+    {
+        _items = models.GetTable<InvoiceTrackCode>().Where(t => t.Year == _viewModel.Year && t.PeriodNo == _viewModel.PeriodNo);
+    }
+    else
+    {
+        _items = models.GetTable<InvoiceTrackCode>().Where(t => false);
+    }
+}
+<select name="TrackID">
+    @if (_items.Count() > 0 && !String.IsNullOrEmpty(_viewModel.SelectIndication))
+    {
+        <option value="">@(_viewModel.SelectIndication)</option>
+    }
+    @foreach (var item in _items)
+    {
+        <option value="@(item.TrackID)">@(item.TrackCode)</option>
+    }
+</select>
+
+
+
+

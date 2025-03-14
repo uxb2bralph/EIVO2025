@@ -1,0 +1,90 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+}
+<!--交易畫面標題-->
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "一般性發票查詢");}
+
+<div class="border_gray">
+    <!--表格 開始-->
+    <table id="queryArea" class="table table-striped">
+        <tr>
+            <th colspan="2" class="Head_style_a">
+                查詢條件
+            </th>
+        </tr>
+        @{ 
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByInvoiceNo.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByExactInvoiceDate.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByBuyerName.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByRandomNo.cshtml");
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierNo.cshtml");
+            }
+
+        <tr>
+            <th>
+                圖形驗證碼
+            </th>
+            <td class="tdleft">
+                @{ 
+                    await Html.RenderPartialAsync("~/Views/Shared/CaptchaImg.cshtml");
+                }
+            </td>
+        </tr>
+    </table>
+    <!--表格 結束-->
+</div>
+<!--按鈕-->
+<table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
+    <tbody>
+        <tr>
+            <td class="Bargain_btn">
+                <button type="button" onclick="inquireInvoiceModal();">查詢</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<!--表格 開始-->
+@{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");}
+<script>
+    function inquireInvoiceModal() {
+
+        var $formData = $('input,select,textarea').serializeObject();
+
+        clearErrors();
+        showLoading();
+        $.post('@Html.Raw(Url.Action("Inquire", "IndividualProcess"))', $formData, function (data) {
+            if ($.isPlainObject(data)) {
+                hideLoading();
+                alert(data.message);
+            } else {
+                hideLoading();
+                var $data = $(data);
+                $('body').append($data);
+            }
+        });
+    }
+
+</script>

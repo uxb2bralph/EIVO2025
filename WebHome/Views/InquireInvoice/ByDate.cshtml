@@ -1,0 +1,34 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <th>
+        日期區間
+    </th>
+    <td class="tdleft">
+        自&nbsp;<input name="DateFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.DateFrom:yyyy/MM/dd}")" />
+        &nbsp;至&nbsp;
+        <input name="DateTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.DateTo:yyyy/MM/dd}")"  />
+    </td>
+</tr>
+

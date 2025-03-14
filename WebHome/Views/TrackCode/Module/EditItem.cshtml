@@ -1,0 +1,41 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@{
+    TrackCodeQueryViewModel _viewModel;
+    InvoiceTrackCode _model;
+
+
+    _viewModel = (TrackCodeQueryViewModel)ViewBag.ViewModel;
+    _model = (InvoiceTrackCode)this.Model;
+}
+<tr>
+    <td>@(_model.Year-1911)<input name="Year" type="hidden" value="@(_model.Year)" /></td>
+    <td>@(String.Format("{0:00}",_model.PeriodNo*2-1))~@(String.Format("{0:00}",_model.PeriodNo*2))月</td>
+    <td><input type="text" name="TrackCode" class="form-control" placeholder="請輸入字軌" value="@(_model.TrackCode)" data-role="edit" /></td>
+    <td>
+        <select name="InvoiceType">
+            <option value="7" selected="@Html.Raw(_model.InvoiceType == (byte)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)">@Html.Raw(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)</option>
+            <option value="8" selected="@Html.Raw(_model.InvoiceType == (byte)Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)">@Html.Raw(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)</option>
+        </select>
+    </td>
+    <td>
+        <div class="btn-group dropdown" data-toggle="dropdown">
+            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a class="btn" onclick="uiTrackCodeQuery.commitItem(@(_model.TrackID));">確定</a></li>
+                <li><a class="btn" onclick="uiTrackCodeQuery.showItem(@(_model.TrackID));">取消</a></li>
+            </ul>
+        </div>
+    </td>
+</tr>
+
+
+
+

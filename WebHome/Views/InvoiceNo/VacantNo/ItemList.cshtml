@@ -1,0 +1,39 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@{
+
+    IQueryable<UnassignedInvoiceNo> _model = (IQueryable<UnassignedInvoiceNo>)this.Model;
+    ViewBag.DataItems = _model;
+}
+<table class="table table-striped itemList">
+    <thead>
+        <tr>
+            <th style="min-width: 100px">開立人統編</th>
+            <th style="min-width: 100px">發票年度</th>
+            <th style="min-width: 100px">發票期別</th>
+            <th style="min-width: 80px">字軌</th>
+            <th style="min-width: 160px">未使用號碼起</th>
+            <th style="min-width: 160px">未使用號碼迄</th>
+            <th style="min-width: 150px">數量</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ int idx = 0;}
+        @foreach (var item in _model)
+        {
+            idx++;
+            await Html.RenderPartialAsync("~/Views/InvoiceNo/VacantNo/DataItem.cshtml", item);
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="10">&nbsp;</td>
+        </tr>
+    </tfoot>
+</table>
+

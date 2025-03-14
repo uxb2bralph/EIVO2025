@@ -1,0 +1,19 @@
+﻿@{
+    String switchAction = "UploadInvoiceTrackCode";
+    String linkText = "上傳發票字軌號碼";
+}
+
+<div class="border_gray">
+    【@Html.Raw(Html.ActionLink(linkText, switchAction, "InvoiceNo"))】
+    <input type="button" name="btnTrackCodeSample" value="下載範本" />&nbsp;&nbsp;
+
+    <script>
+        $(function () {
+
+            $('input[name="btnTrackCodeSample"]').on('click', function (event) {
+                $('').launchDownload('@Html.Raw(Url.Action("GetUploadInvoiceTrackCodeSample","InvoiceNo"))', {});
+            });
+
+        });
+    </script>
+</div>

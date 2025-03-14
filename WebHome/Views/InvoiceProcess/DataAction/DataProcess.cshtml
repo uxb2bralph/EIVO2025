@@ -1,0 +1,33 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+    InvoiceItem _model;
+    _model = (InvoiceItem)this.Model;
+}
+<div class="btn-group dropdown" data-toggle="dropdown">
+    <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+    <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+    <ul class="dropdown-menu">
+        <li><a class="btn" onclick="uiInvoiceQuery.editBuyer('@(_model.InvoiceID.EncryptKey())');">修改買受人</a></li>
+        <li><a class="btn" onclick="uiInvoiceQuery.arrangeAttachment('@(_model.InvoiceID.EncryptKey())');">附件檔管理</a></li>
+    </ul>
+</div>
+
+
+

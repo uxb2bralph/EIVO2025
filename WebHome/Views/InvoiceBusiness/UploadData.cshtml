@@ -1,0 +1,144 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using WebHome.Controllers
+@using WebHome.Components
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+
+@using ModelCore.Helper
+
+@{
+    Layout = "~/Views/Template/MvcMainPage.cshtml";
+
+    ModelSource<InvoiceItem> models;
+    ModelStateDictionary _modelState;
+    InvoiceViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    _viewModel = (InvoiceViewModel)ViewBag.ViewModel;
+
+    UserProfile _profile = Context.GetUser();
+    ViewBag.ActionName = "首頁 > 上傳開立資料";
+    var _orgItem = models.GetTable<Organization>().Where(c => c.CompanyID == _profile.CurrentUserRole.OrganizationCategory.CompanyID).FirstOrDefault();
+}
+
+@section headContent {
+
+}
+
+@{
+    if (!_viewModel.InvoiceProcessType.HasValue)
+    {
+        _viewModel.InvoiceProcessType = Naming.InvoiceProcessType.C0401;
+    }
+}
+
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "傳送Excel資料");}
+
+<form role="form" method="post">
+    @{ await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/InvoiceProcessTypeDirection.cshtml");}
+
+    <div class="border_gray">
+        <!--表格 開始-->
+        <table class="table table-striped">
+            <tr>
+                <th>
+                    請選擇營業人
+                </th>
+                <td class="tdleft">
+                    @{
+                        @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>(new SellerSelectorViewModel { FieldName = "KeyID", Encrypt = true }));
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    發票開立通知
+                </th>
+                <td class="tdleft">
+                    <input type="radio" name="ConditionID" value="@((int)ProcessRequestCondition.ConditionType.ImmediateIssueNotice)" checked="checked" /> 立即寄送通知&nbsp;&nbsp;
+                    <input type="radio" name="ConditionID" value="@((int)ProcessRequestCondition.ConditionType.DeferredIssueNotice)" /> 等候附件合併通知
+                </td>
+            </tr>
+            @if (((DateTime.Today.Month % 2) == 1 && DateTime.Today.Day < 11) || _profile.IsSystemAdmin())
+            {
+                <tr>
+                    <th>
+                        系統配號
+                    </th>
+                    <td class="tdleft">
+                        <input type="checkbox" name="ConditionID" value="@((int)ProcessRequestCondition.ConditionType.UseLastPeriodTrackCodeNo)" /> 開立上期發票&nbsp;&nbsp;
+                    </td>
+                </tr>
+            }
+            <tr>
+                <th colspan="2" class="Head_style_a">
+                    各項資料
+                </th>
+            </tr>
+            @{
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                    new InvoiceRequestViewModel
+                    {
+                        Comment = "【配號通用格式】",
+                        ProcessType = Naming.InvoiceProcessType.C0401_Xlsx,
+                    });
+                if (_profile.IsSystemAdmin() || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC)
+                {
+                    await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                        new InvoiceRequestViewModel
+                        {
+                            Comment = "【加值中心配號】",
+                            ProcessType = Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC,
+                        });
+                }
+                if (_profile.IsSystemAdmin()
+                    || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer
+                    || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)
+                {
+                    await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                        new InvoiceRequestViewModel
+                        {
+                            Comment = "【開立人配號】",
+                            ProcessType = Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer,
+                        });
+
+                    await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                        new InvoiceRequestViewModel
+                        {
+                            Comment = "【A0401開立人配號】",
+                            ProcessType = Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer,
+                        });
+                }
+
+                if (_profile.IsSystemAdmin() || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.C0401_Xlsx_CBE)
+                {
+
+                    await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                        new InvoiceRequestViewModel
+                        {
+                            Comment = "【境外電商專用】",
+                            ProcessType = Naming.InvoiceProcessType.C0401_Xlsx_CBE,
+                        });
+                }
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidInvoice.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadAllowance.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidAllowance.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadFullAllowance.cshtml");
+            }
+        </table>
+        <!--表格 結束-->
+    </div>
+
+</form>
+
+
+

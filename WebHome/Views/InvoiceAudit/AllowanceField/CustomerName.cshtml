@@ -1,0 +1,84 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+@{
+    Naming.FieldDisplayType? displayType = (Naming.FieldDisplayType?)ViewBag.DisplayType;
+}
+@switch (displayType)
+{
+    case Naming.FieldDisplayType.Header:
+        <a href="javascript:void(0);" onclick="$inquiryAgent.sort('CustomerName',this);">買受人名稱</a>
+        break;
+    case Naming.FieldDisplayType.DataItem:
+        InvoiceAllowance item = this.Model as InvoiceAllowance;
+        var buyer = item.InvoiceAllowanceBuyer;
+        <text>@(buyer.IsB2C() ? null : buyer.CustomerName)</text>
+        break;
+    case Naming.FieldDisplayType.SortBy:
+        InquireInvoiceViewModel viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+        if (viewModel.SortName != null)
+        {
+            int idx = System.Array.IndexOf(viewModel.SortName, "CustomerName");
+            if (idx >= 0)
+            {
+                if (viewModel.SortType[idx] == (int)Naming.SortType.ASC)
+                {
+                    if (TempData["SortedItems"] != null)
+                    {
+                        TempData["SortedItems"] = ((IOrderedQueryable<InvoiceAllowance>)TempData["SortedItems"]).ThenBy(p => p.InvoiceAllowanceBuyer.CustomerName);
+                    }
+                    else
+                    {
+                        TempData["SortedItems"] = ((IQueryable<InvoiceAllowance>)this.Model).OrderBy(p => p.InvoiceAllowanceBuyer.CustomerName);
+                    }
+                }
+                else if (viewModel.SortType[idx] == (int)Naming.SortType.DESC)
+                {
+                    if (TempData["SortedItems"] != null)
+                    {
+                        TempData["SortedItems"] = ((IOrderedQueryable<InvoiceAllowance>)TempData["SortedItems"]).ThenByDescending(p => p.InvoiceAllowanceBuyer.CustomerName);
+                    }
+                    else
+                    {
+                        TempData["SortedItems"] = ((IQueryable<InvoiceAllowance>)this.Model).OrderByDescending(p => p.InvoiceAllowanceBuyer.CustomerName);
+                    }
+                }
+            }
+        }
+        break;
+    case Naming.FieldDisplayType.Query:
+        await Html.RenderPartialAsync("~/Views/InquireInvoice/ByBuyerName.cshtml");
+        break;
+    default:
+        break;
+}
+
+

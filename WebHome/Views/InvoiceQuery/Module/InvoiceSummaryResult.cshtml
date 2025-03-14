@@ -1,0 +1,64 @@
+@using System.IO
+
+@using System.Linq.Expressions
+@using WebHome.Helper
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    InquireInvoiceViewModel _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+    IQueryable<Organization> _model = (IQueryable<Organization>)this.Model;
+}
+
+@{
+    if (_viewModel.InitQuery != true && _viewModel.PageIndex.HasValue)
+    {
+        await Html.RenderPartialAsync("~/Views/InvoiceQuery/Module/TableBody.cshtml", _model);
+    }
+    else
+    {
+        <table class="table table-striped itemList">
+            <thead>
+                <tr>
+                    <th>
+                        @{
+                            await Html.RenderPartialAsync("~/Views/Common/Module/SortableHeader.cshtml", new String[] { "營業人名稱", "營業人名稱" });
+                        }
+                    </th>
+                    <th>
+                        @{
+                            await Html.RenderPartialAsync("~/Views/Common/Module/SortableHeader.cshtml", new String[] { "統一編號", "統一編號" });
+                        }
+                    </th>
+                    <th>資料筆數</th>
+                    <th>註記停用</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    await Html.RenderPartialAsync("~/Views/InvoiceQuery/Module/TableBody.cshtml", _model);
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4">
+                        @*@{ await Html.RenderPartialAsync("~/Views/Module/PrintData.ascx");}
+                        <input type="button" value="Excel下載" name="btnExcel" class="btn" onclick="$('form').prop('action', '@(Url.Action("CreateInvoiceSummaryXlsx"))    ').submit();" />*@
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+}
+
+
+

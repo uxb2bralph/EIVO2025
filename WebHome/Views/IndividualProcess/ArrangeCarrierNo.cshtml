@@ -1,0 +1,143 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using System.Collections.Specialized
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+    ViewBag.ActionName = "首頁 > 大平台歸戶";
+    dynamic _model = this.Model as dynamic;
+
+    String _viewID = $"Q{DateTime.Now.Ticks}";
+
+}
+
+@section headContent {
+
+}
+@section formContent
+{
+
+}
+<div id="@(_viewID)">
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "載具歸戶");
+    }
+    <table id="queryArea" class="table table-striped">
+        <tr>
+            <th colspan="2" class="Head_style_a">
+                請輸入會員資料
+            </th>
+        </tr>
+        <tr>
+            <th>
+                帳號
+            </th>
+            <td class="tdleft">
+                <input name="PID" type="text" class="form-control" value="" size="12" maxlength="64" />
+            </td>
+        </tr>
+        <tr>
+            <th>
+                密碼
+            </th>
+            <td class="tdleft">
+                <input name="Password" type="password" class="form-control" value="" size="12" maxlength="64" />
+            </td>
+        </tr>
+        <tr>
+            <th>
+                圖形驗證碼
+            </th>
+            <td class="tdleft">
+                @{
+                    await Html.RenderPartialAsync("~/Views/Shared/CaptchaImg.cshtml");
+                }
+            </td>
+        </tr>
+    </table>
+    <br />
+    <br />
+</div>
+<script>
+    var dialogButtons = [];
+</script>
+@if (_model?.token == null)
+{
+    <script>
+        dialogButtons.push({
+                        text: "載具歸戶",
+                        icons: {
+                            primary: "ui-icon-close"
+                        },
+                        click: function () {
+                            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                            $formData.Token = '@Html.Raw(_model?.token)';
+                            clearErrors();
+                            showLoading();
+                            $.post('@Html.Raw(Url.Action("ValidateUserCarrier", "IndividualProcess"))', $formData, function (data) {
+                                hideLoading();
+                                if ($.isPlainObject(data)) {
+                                    alertModal(data.message);
+                                } else {
+                                    $(data).appendTo($('body'));
+                                }
+                            });
+                        }
+                    });
+    </script>
+}
+else
+{
+    <script>
+        dialogButtons.push({
+                        text: "登入",
+                        icons: {
+                            primary: "ui-icon-close"
+                        },
+                        click: function () {
+                            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                            $formData.Token = '@Html.Raw(_model?.token)';
+                            clearErrors();
+                            showLoading();
+                            $.post('@Html.Raw(Url.Action("ValidateUserCarrier", "IndividualProcess"))', $formData, function (data) {
+                                hideLoading();
+                                if ($.isPlainObject(data)) {
+                                    alertModal(data.message);
+                                } else {
+                                    $(data).appendTo($('body'));
+                                }
+                            });
+                        }
+                    });
+    </script>
+}
+<script>
+
+    dialogButtons.push({
+        text: "關閉",
+        icons: {
+            primary: "ui-icon-close"
+        },
+        click: function () {
+            $(this).dialog("close");
+        }
+    });
+
+    $(function () {
+        $('#@(_viewID)').dialog({
+            width: 640,
+            buttons: dialogButtons
+        });
+    });
+</script>

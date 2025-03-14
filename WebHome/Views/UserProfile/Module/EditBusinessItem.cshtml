@@ -1,0 +1,39 @@
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    ModelStateDictionary _modelState;
+
+    var profile = Context.GetUser();
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+
+    var item = models.GetTable<Organization>().Where(o => o.CompanyID == profile.CurrentUserRole.OrganizationCategory.CompanyID).FirstOrDefault();
+}
+<!--交易畫面標題-->
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "會員管理-修改營業人資料");
+}
+
+<div class="border_gray">
+    <!--表格 開始-->
+    @{
+        await Html.RenderPartialAsync("~/Views/Organization/Module/BusinessForm.cshtml", item);
+    }
+    <!--表格 結束-->
+</div>
+
+
+

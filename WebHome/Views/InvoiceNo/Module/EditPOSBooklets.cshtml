@@ -1,0 +1,91 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InvoiceNoInterval _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceNoInterval)this.Model;
+}
+
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "POS本組數配置");}
+
+<form id="editItem">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            本組數配置
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <th>
+                            (@(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo))@(_model.InvoiceTrackCodeAssignment.Organization.CompanyName)
+                        </th>
+                        <td>
+                            @(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)年@(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1, _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2))
+                        </td>
+                        <th>
+                            @(_model.StartNo) ~ @(_model.EndNo)
+                        </th>
+                        <td>
+                            共@((_model.EndNo - _model.StartNo + 1) / 50)本
+                        </td>
+                    </tr>
+                    <tr>
+                        <th colspan="1">
+                            POS機號
+                        </th>
+                        <td colspan="3">
+                            本組數
+                        </td>
+                    </tr>
+                    @foreach (var item in _model.InvoiceTrackCodeAssignment.Organization.POSDevice)
+                    {
+                        <tr>
+                            <th colspan="1">
+                                @(item.POSNo)
+                            </th>
+                            <td colspan="3">
+                                <input type="text" class="form-control" name="Booklets" maxlength="6" value='' />
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <td class="Bargain_btn" align="center">
+                            <button type="button" onclick="$global.commitOrganization();" name="UpdateButton" class="btn">確定</button>
+                            &nbsp;
+                            <input name="Reset" type="reset" class="btn" value="重填" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+

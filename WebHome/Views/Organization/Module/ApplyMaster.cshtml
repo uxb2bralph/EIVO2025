@@ -1,0 +1,106 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    OrganizationViewModel _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+}
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "指派主機構");
+}
+
+<form>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            主機構
+        </div>
+        <div class="panel-body col-md-12">
+            @{
+                var items = models.GetTable<Organization>()
+                    .Where(o => o.MasterOrganization != null)
+                    .OrderBy(o => o.ReceiptNo);
+            }
+            @foreach (var item in items)
+            {
+                <label class="col-md-6">
+                    <input type="checkbox" onclick="excludeCheck();" name="masterID" value="@(item.CompanyID)" checked="@(models.GetTable<MasterBranch>().Where(b=>b.MasterID==item.CompanyID).Any(b=>b.BranchID==_model.CompanyID))" />
+                    <i></i> @(String.Concat("(",item.ReceiptNo,")",item.CompanyName))
+                </label>
+            }
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="table-responsive">
+                <!--表格 開始-->
+                <table class="table table-striped table-bordered table-hover">
+                    <tr>
+                        <td class="Bargain_btn" align="center">
+                            <button type="button" onclick="$global.commitMaster();" name="UpdateButton" class="btn">確定</button>
+                            &nbsp;
+                            <input name="Reset" type="reset" class="btn" value="重填" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    $(function () {
+        $global.commitMaster = function () {
+            var event = event || window.event;
+            var $form = $(event.target).closest('form');
+            var viewModel = {
+                'KeyID': '@Html.Raw(_model.CompanyID.EncryptKey())',
+                ...$form.serializeObject()
+            };
+            showLoading();
+            $.post('@(Url.Action("CommitMaster","Organization"))', viewModel, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        if (confirm('資料已儲存，是否關閉？')) {
+                            $global.removeTab('applyMaster');
+                        }
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    $(data).appendTo($('body'));
+                }
+            });
+        };
+    });
+
+    function excludeCheck() {
+        var event = event || window.event;
+        var $this = $(event.target);
+        if ($this.is(':checked')) {
+            $('input[name="masterID"]:checked').prop('checked', false);
+            $this.prop('checked', true);
+        }
+    }
+</script>
+
+

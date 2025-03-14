@@ -1,0 +1,148 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    OrganizationViewModel _viewModel;
+    Organization _model;
+
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+
+}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Apply for Qualification Registration
+    </div>
+    <div class="panel-body">
+        <div class="table-responsive">
+            <!--表格 開始-->
+            <table class="table table-striped table-bordered table-hover">
+                <tr>
+                    <td colspan="4" class="Head_style_a">
+                        Basic Information
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <span style="color: red">*</span>Tax ID Number
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ReceiptNo" value='@(_viewModel.ReceiptNo)' />
+                    </td>
+                    <th>
+                        <span style="color: red">*</span>Company Name
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="CompanyName" value='@(_viewModel.CompanyName)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <span style="color: red">*</span>Correspondence Address
+                    </th>
+                    <td colspan="3">
+                        <input type="text" class="form-control" name="Addr" maxlength="68" value='@(_viewModel.Addr)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <span style="color: red">*</span>Phone
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="Phone" value='@(_viewModel.Phone)' />
+                    </td>
+                    <th>
+                        FAX
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="Fax" value='@(_viewModel.Fax)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Name of representative person
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="UndertakerName" value='@(_viewModel.UndertakerName)' />
+                    </td>
+                    <th>
+                        <span style="color: red">*</span>Category
+                    </th>
+                    <td>
+                        <select name="CategoryID" class="form-control">
+                            <option value="23">cross-border e-commerce</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="Head_style_a">
+                        Contact Information
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Contact Name
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ContactName" value='@(_viewModel.ContactName)' />
+                    </td>
+                    <th>
+                        Contact Title
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ContactTitle" value='@(_viewModel.ContactTitle)' />
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        Contact Telephone
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ContactPhone" value='@(_viewModel.ContactPhone)' />
+                    </td>
+                    <th>
+                        Contact Mobilephone
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ContactMobilePhone" value='@(_viewModel.ContactMobilePhone)' />
+                        &nbsp;
+                    </td>
+                </tr>
+                <tr>
+                    <th>
+                        <span style="color: red">*</span>Contact email
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="ContactEmail" maxlength="512" value='@(_viewModel.ContactEmail)' />
+                    </td>
+                    <th>
+                        Business Contact Phone
+                    </th>
+                    <td>
+                        <input type="text" class="form-control" name="BusinessContactPhone" value='@(_viewModel.BusinessContactPhone)' />
+                        &nbsp;
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+

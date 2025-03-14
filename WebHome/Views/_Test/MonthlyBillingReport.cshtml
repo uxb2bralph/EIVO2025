@@ -1,0 +1,94 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+@using System.Text
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using CommonLib.DataAccess
+@using Newtonsoft.Json
+
+@functions
+{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IQueryable<MonthlyBilling> _items;
+    OrganizationViewModel _viewModel;
+
+    void InquireData()
+    {
+
+        _viewModel.CompanyName = _viewModel.CompanyName.GetEfficientString();
+
+        _items = models.GetTable<MonthlyBilling>()
+            .Join(models.GetTable<Settlement>()
+                .Where(s => s.Year == 2022).Where(s => s.Month == 12),
+                b => b.SettlementID, s => s.SettlementID, (b, s) => b);
+    }
+
+    String GetBillingDescription(Organization orgItem)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("統計開立張數：")
+            .Append(String.Join("、", orgItem.BillingCalculation
+                .Select(b => b.DocumentType.TypeName.Replace("電子", ""))))
+            .Append("\r\n");
+
+        if (orgItem.BillingGrade.Any())
+        {
+            sb.Append("收費級距：\r\n")
+            .Append(String.Join("\r\n", orgItem.BillingGrade.Select(b => $"上限：{b.GradeCount}，{b.BasicFee}元")))
+            .Append("\r\n");
+        }
+
+        if (orgItem.BillingIncrement.Any())
+        {
+            sb.Append("增量收費：\r\n")
+            .Append(String.Join("\r\n", orgItem.BillingIncrement.Select(b => $"大於{b.UpperBound}，單價{b.UnitFee}")));
+        }
+
+        return sb.ToString();
+    }
+}
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _viewModel = new OrganizationViewModel { };
+    await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<OrganizationViewModel>(_viewModel);
+
+    InquireData();
+
+    var items = _items.ToList().Select(b => new
+    {
+        會員名稱 = b.Organization.CompanyName,
+        統編 = b.Organization.ReceiptNo,
+        帳單月份 = $"{b.Settlement.Year}/{b.Settlement.Month}",
+        開立張數 = b.TotalIssueCount,
+        帳單金額 = b.IssueChargeAmount,
+        帳單日期 = $"{b.BillSubmission?.BillDate:yyyy/MM/dd}",
+        計價規則 = GetBillingDescription(b.Organization),
+    });
+
+    using (DataSet ds = new DataSet())
+    {
+        var table = items.ToDataTable();
+        table.TableName = $"帳單週期{2022}-{12}";
+        ds.Tables.Add(table);
+
+        using (var xls = ds.ConvertToExcel())
+        {
+            await xls.SaveAsExcelAsync(ViewContext.HttpContext.Response, $"attachment;filename={System.Web.HttpUtility.UrlEncode($"{2022}-{12}帳單.xlsx")}");
+        }
+    }
+}

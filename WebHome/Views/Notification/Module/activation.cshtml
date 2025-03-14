@@ -1,0 +1,59 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem>
+    models;
+    UserProfile _model;
+    UserProfileViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (UserProfile)this.Model;
+    _viewModel = (UserProfileViewModel)ViewBag.ViewModel;
+}
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title></title>
+</head>
+<body>
+    <form>
+        本信件由 電子發票系統 寄出，@(_viewModel.ResetPass == true ? "為本站之密碼變更通知信" : "為本站之會員註冊確認信")。<br />
+        <br />
+        (本信件為系統自動發出，請勿回覆本信件。)<br />
+        請立即透過下面帳號啟用連結登入 電子發票系統 變更密碼 。<br />
+        <br />
+        @if (_viewModel.ResetPass == true)
+        {
+            <span>密碼變更連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ResetPassword","UserProfile",new { _viewModel.ResetID })}")'> 會員密碼變更 </a>
+        }
+        else
+        {
+            <span>帳號啟用連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ResetPassword","UserProfile",new { _viewModel.ResetID })}")'> 會員帳號啟用 </a>
+        }
+        <br />
+        <br />
+        電子發票系統 感謝您的加入
+    </form>
+</body>
+</html>
+
+

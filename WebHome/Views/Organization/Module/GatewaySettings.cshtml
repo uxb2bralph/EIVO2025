@@ -1,0 +1,79 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    OrganizationViewModel _viewModel;
+    Organization _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+    _model = (Organization)this.Model;
+
+    String _viewID = $"GW{DateTime.Now.Ticks}";
+
+}
+    <table id="@(_viewID)" class="table table-striped table-bordered table-hover">
+        <tr>
+            <td colspan="2" class="Head_style_a">
+                用戶端G/W設定
+            </td>
+        </tr>
+        <tr>
+            <th>
+                選擇傳送Excel發票開立方式：
+            </th>
+            <td>
+                <select class="form-control" name="DefaultProcessType">
+                    @*<option value="">請選擇...</option>*@
+                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx)">Excel通用格式</option>
+                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC)">Excel格式加值中心配號</option>
+                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer)">Excel格式開立人配號</option>
+                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_CBE)">Excel格式境外電商專用</option>
+                    <option value="@((int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)">Excel格式A0401開立人配號</option>
+                </select>
+                    <script>
+                        $(function () {
+                            var $select = $('#@(_viewID) select[name="DefaultProcessType"]');
+                            $select.val('@(_model.OrganizationStatus.InvoiceClientDefaultProcessType)');
+                            $select.on('change', function (element) {
+                                commitAction('@Html.Raw(Url.Action("CommitDefaultProcessType","Organization",new { KeyID = _model.CompanyID.EncryptKey() }))', { 'DefaultProcessType': $select.val() },
+                                    function (result) {
+                                        if (result.result) {
+                                            alert('OK!');
+                                        }
+                                    });
+                            });
+                        });
+                    </script>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">
+                <a class="btn" onclick="applyCertificate(@(_model.CompanyID));">建立憑證資訊</a>
+            </th>
+        </tr>
+    </table>
+
+
+

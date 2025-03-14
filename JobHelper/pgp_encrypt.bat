@@ -1,0 +1,1 @@
+"C:\Program Files (x86)\GnuPG\bin\gpg.exe" --homedir C:\Project\Security\PGP --passphrase 70762419 --default-key 946833AC --pinentry-mode loopback --group google="DBA8C6C3 49942EF5 F94A0A32 32931EC7 946833AC C778FA76" -r google --batch --sign --yes --trust-model always -o %2 -e %1

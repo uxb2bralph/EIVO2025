@@ -1,0 +1,183 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    RenderStyleViewModel _viewModel;
+
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    InvoiceProductItem[] _productItem;
+    InvoiceBuyer _buyer;
+    Organization _buyerOrg;
+    bool _isDuplicatedPrint = false;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+
+    _productItem = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
+        .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+        .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, i => i.ProductID, (p, i) => i).ToArray();
+
+    _buyer = _model.InvoiceBuyer;
+    if (_buyer != null && _buyer.BuyerID.HasValue)
+    {
+        _buyerOrg = _buyer.Organization;
+    }
+
+    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Organization.OrganizationStatus.EntrustToPrint != true;
+
+}
+@if (_model != null)
+{
+    <div>
+        <div class="container">
+            <table>
+                <tr>
+                    <td>
+                        <div class="cutfield">
+                            <h3 style="width: 6.8cm; margin-bottom:10px;">@(_model.InvoiceSeller.CustomerName)</h3>
+                            <h2 style="font-size: small;color: red; padding-bottom:15px;">*此為發票開立通知，非正式發票*</h2>
+                            <h2 style="padding-bottom:15px;">@(_model.InvoiceDate.Value.Year - 1911)年@((_model.InvoiceDate.Value.Month % 2).Equals(0) ? String.Format("{0:00}-{1:00}", _model.InvoiceDate.Value.Month - 1, _model.InvoiceDate.Value.Month) : String.Format("{0:00}-{1:00}", _model.InvoiceDate.Value.Month, _model.InvoiceDate.Value.Month + 1))月 </h2>
+                            <h2 style="padding-bottom:15px;">@(_model.TrackCode + "-" + _model.No)</h2>
+                            <div style="font-size:8pt;margin-left:4px;margin-right:4px;">
+                                <div>
+                                    @(String.Format("{0:yyyy-MM-dd HH:mm:ss}", _model.InvoiceDate.Value)) @(_buyer.IsB2C()
+                                          ? ""
+                                          : _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4
+                                              ? "不得扣抵"
+                                              : String.Format("格式 {0}", ((int)_model.InvoiceType.Value).InvoiceTypeToFormat()))
+                                </div>
+                                <div style="float:left;">
+                                    隨機碼 @(_model.RandomNo)&nbsp;&nbsp;&nbsp;&nbsp;
+                                </div>
+                                <div style="text-align:right;">
+                                    總計 @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))
+                                </div>
+                                <div>
+                                    賣方@(_model.Organization.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="vertical-align: top;border: 1px solid #808080;">
+                        <table class="listfield" style="width:100%">
+                            <tr>
+                                <td colspan="4">
+                                    <div style="text-align: center; font-weight: bolder;">銷貨明細</div>
+                                </td>
+                            </tr>
+                            <tr class="content_box">
+                                <td style="width:360px;"><p class="productname">品名</p></td>
+                                <td style="width:80px;"><p class="quantity">數量</p></td>
+                                <td style="width:180px;"><p class="price">單價</p></td>
+                                <td style="width:180px;"><p class="totalPrice">金額</p></td>
+                            </tr>
+                            @{ int _itemIdx;}
+                            @for (_itemIdx = 0; _productItem != null && _itemIdx < _productItem.Length; _itemIdx++)
+                            {
+                                var item = _productItem[_itemIdx];
+                                <tr class="content_box">
+                                    <td style="width:360px;"><p class="productname">@(item.InvoiceProduct.Brief)</p></td>
+                                    <td style="width:80px;"><p class="quantity">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</p></td>
+                                    <td style="width:180px;"><p class="price">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</p></td>
+                                    <td style="width:180px;"><p class="totalPrice">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</p></td>
+                                </tr>
+                            }
+                            @if (_productItem != null && _productItem.Length > 0)
+                            {
+                                <tr class="content_box">
+                                    <td colspan="4" style="border-top: 1px dotted #808080;">
+                                        <div style="font-size: 12pt; font-weight: bold; width:210px;float:left;">
+                                            總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;
+                                        </div>
+                                        <div style="font-size: 12pt; font-weight: bold; width:210px;float:right;">
+                                            金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))&nbsp;&nbsp;
+                                            @*@(_model.InvoiceAmountType.CurrencyID.HasValue ? $"幣別：{_model.InvoiceAmountType.CurrencyType.AbbrevName}" : null)*@
+                                        </div>
+                                        <div>
+                                            課稅別：@(_model.InvoiceAmountType.TaxTypeString)&nbsp;&nbsp;
+                                        </div>
+                                        @if (!_buyer.IsB2C())
+                                        {
+                                            <text>
+                                                應稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == 1 || _model.InvoiceAmountType.TaxType == 9
+                                                                      ? _model.InvoiceAmountType.SalesAmount
+                                                                      : _model.InvoiceAmountType.TaxType == 4
+                                                                          ? _model.InvoiceAmountType.TotalAmount
+                                                                          : 0)) <br /><br />
+                                                零稅率銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)2 ? _model.InvoiceAmountType.SalesAmount : 0)) <br /><br />
+                                                免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)3 ? _model.InvoiceAmountType.SalesAmount : 0)) <br /><br />
+                                                稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4 ? 0 : _model.InvoiceAmountType.TaxAmount)) <br /><br />
+                                            </text>
+                                        }
+                                        <div>
+                                            備註：<br />
+                                        </div>
+                                        @*退貨請憑電子發票證明聯辦理*@
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="font-size: 10pt;">
+            @if (_model.InvoiceDonation == null)
+            {
+                <text>
+                    本公司依據財政部「電子發票實施作業要點」使用雲端發票，您的發票明細資料將上傳至財政部<a href="https://www.einvoice.nat.gov.tw/portal/btc/audit">電子發票整合服務平台</a>，無論是個人載具發票或是會員載具託管發票，將不再另行寄送紙本發票。若會員載具託管發票中獎，本公司將依法於開獎日翌日起10日內以電子郵件通知發票中獎訊息，並提供電子發票證明聯紙本作為兌獎憑證。您可於發票開立48小時後，至財政部<a href="https://www.einvoice.nat.gov.tw/portal/btc/audit">電子發票整合服務平台</a>進行發票資料查詢。公司用電子發票證明聯亦請自行於財政部<a href="https://www.einvoice.nat.gov.tw/portal/btc/audit">電子發票整合服務平台</a>下載列印。
+                </text>
+            }
+            else
+            {
+                <text>
+                    本公司依據財政部「電子發票實施作業要點」使用雲端發票，您所捐贈的發票明細資料將上傳至財政部電子發票整合服務平台，自動捐贈至其指定捐贈對象。捐贈雲端發票於發票開立完成時，即發生捐贈效力，不得撤銷亦無法索回。您可於發票開立48小時後，至<a href="https://www.einvoice.nat.gov.tw/APCONSUMER/BTC602W/">財政部電子發票整合服務平台</a>進行捐贈資料查詢。
+                </text>
+            }
+
+        </div>
+        <br />
+        <div style="font-size: 10pt;">
+            <div>若您尚有需要服務的地方，隨時歡迎來電或來信電子發票客服信箱。</div>
+            <div>委外客服信箱：<a href="mailto:ifs_service@uxb2b.com">ifs_service@uxb2b.com</a></div>
+            @*<div>委外客服電話：0800-010-626</div>*@
+            <div style="color:red;">
+                @if (_model.InvoiceDonation == null)
+                {
+                    <text>※本電子信箱為系統發送通知使用，不可兌獎，亦請勿直接回覆。</text>
+                }
+                else
+                {
+                    <text>※本電子信箱為系統發送通知使用，亦請勿直接回覆。</text>
+                }
+
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+

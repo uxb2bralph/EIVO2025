@@ -1,0 +1,45 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Helper
+
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using WebHome.Helper
+@{
+    UserProfileViewModel _viewModel;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile;
+    UserProfile _model = this.Model as UserProfile;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (UserProfileViewModel)ViewBag.ViewModel;
+    _profile = Context.GetUser();
+}
+
+<tr>
+    <th>
+        <font color="red">*</font>密　　碼
+    </th>
+    <td class="tdleft">
+        <input class="form-control" name="Password" type="password" placeholder="" />
+    <td rowspan="2" class="tdleft" style="color: red;">
+        長度最少需要 6 個字元，由英文、數字組成。<br />
+        密碼欄位若保持空白，更新後不修改原密碼。
+    </td>
+</tr>
+<tr>
+    <th>
+        <font color="red">*</font>請再確認密碼
+    </th>
+    <td class="tdleft">
+        <input class="form-control" name="Password1" type="password" placeholder="" />
+    </td>
+</tr>
+
+
+

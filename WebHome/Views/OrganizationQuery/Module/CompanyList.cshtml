@@ -1,0 +1,64 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+    IQueryable<Organization> _model = (IQueryable<Organization>)this.Model;
+
+}
+
+<table class="table table-small-font table-bordered table-striped table01 companyList">
+    <thead>
+        <tr>
+            <th>
+                <a href="javascript:void(0);" onclick="$inquiryAgent.sort('CompanyName',this);">營業人名稱</a>
+            </th>
+            <th>
+                <a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">統一編號</a>
+            </th>
+            <th>負責人姓名</th>
+            <th>電子郵件</th>
+            <th>營業人狀態</th>
+            <th style="white-space: nowrap; min-width: 150px;">管理</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/CompanyItemList.cshtml");
+        }
+    </tbody>
+
+    <tfoot>
+        <tr>
+            <td colspan="6">
+                <a class="btn" onclick="createCompany();">新增開立人</a>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+<script>
+    $inquiryAgent.doPage = function (data) {
+        $('table.companyList tbody')
+            .empty()
+            .append(data);
+    };
+</script>
+

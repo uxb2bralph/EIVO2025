@@ -1,0 +1,91 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    Layout = "~/Views/Common/QueryIndex.cshtml";
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+
+    ProcessRequestQueryViewModel _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
+    _viewModel.UrlAction = Url.Action("InquireRequest", "ProcessRequest");
+}
+@section QueryForm
+{
+    <!--交易畫面標題-->
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "工作清單");
+    }
+    @{
+        ViewBag.DisplayType = Naming.FieldDisplayType.Query;
+    }
+    <div class="border_gray" id="queryArea">
+        <table class="table table-striped">
+            <tr>
+                <th colspan="2" class="Head_style_a">查詢條件</th>
+            </tr>
+            @{
+                await Html.RenderPartialAsync("~/Views/ProcessRequest/DataField/Sender.cshtml");
+                await Html.RenderPartialAsync("~/Views/ProcessRequest/DataField/SubmitDate.cshtml");
+                await Html.RenderPartialAsync("~/Views/ProcessRequest/DataField/ProcessStart.cshtml");
+                await Html.RenderPartialAsync("~/Views/ProcessRequest/DataField/ProcessComplete.cshtml");
+            }
+            <tr>
+                <td colspan="2" style="text-align:center;">
+                    <input name="btnQuery" class="btn" type="button" value="查詢" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();" />
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+    $(function () {
+        $inquiryAgent.deleteItem = function (keyID) {
+            if (confirm('確定刪除此項目?')) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                $.post('@($"/{WebHome.Properties.Settings.Default.TaskCenter}/InvoiceData/DeleteProcessRequest")', { 'keyID': keyID }, function (data) {
+                    if (data.result) {
+                        alert('資料已刪除!!')
+                        $tr.remove();
+                    } else {
+                        reportError(data);
+                    }
+                });
+            }
+        };
+    });
+
+    </script>
+    @if (_viewModel.StartQuery == true)
+    {
+        <script>
+            $(function () {
+                $('input[name="btnQuery"]').click();
+            });
+        </script>
+    }
+
+}

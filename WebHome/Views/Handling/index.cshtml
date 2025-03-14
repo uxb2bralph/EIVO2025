@@ -1,0 +1,8 @@
+
+@using WebHome.Helper
+
+<script>
+    $(function () {
+        alert('@(System.Web.HttpUtility.JavaScriptStringEncode((String)ViewBag.Message))');
+    });
+</script>

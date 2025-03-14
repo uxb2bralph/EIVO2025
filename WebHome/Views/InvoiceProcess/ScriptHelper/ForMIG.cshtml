@@ -1,0 +1,62 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+}
+
+<script>
+    $(function () {
+        var $postForm;
+        var $postFrame = $('<iframe name="dataFrame" width="0" height="0">').appendTo($('body'));
+        if (!window.uiInvoiceQuery) {
+            window.uiInvoiceQuery = {};
+        }
+        window.uiInvoiceQuery.C0401 = function () {
+
+            if (!$('input[name="chkItem"]').is(':checked')) {
+                alert('請選擇重送資料!!');
+                return false;
+            }
+
+            var $formData = $('input[name="chkItem"]:checked').serializeObject();
+            $('').launchDownload('@(Url.Action("DownloadC0401", "InvoiceProcess"))', $formData);
+
+            //showLoading();
+        };
+
+        window.uiInvoiceQuery.C0701 = function () {
+            if (!$('input[name="chkItem"]').is(':checked')) {
+                alert('請選擇重送資料!!');
+                return false;
+            }
+
+            var $formData = $('input[name="chkItem"]:checked').serializeObject();
+            $('').launchDownload('@(Url.Action("DownloadC0701", "InvoiceProcess"))', $formData);
+
+            //showLoading();
+        };
+        window.uiInvoiceQuery.C0501 = function () {
+            if (!$('input[name="chkItem"]').is(':checked')) {
+                alert('請選擇重送資料!!');
+                return false;
+            }
+
+            var $formData = $('input[name="chkItem"]:checked').serializeObject();
+            $('').launchDownload('@(Url.Action("DownloadC0501", "InvoiceProcess"))', $formData);
+
+            //showLoading();
+        };
+    });
+</script>

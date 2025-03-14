@@ -1,0 +1,54 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+
+    RenderStyleViewModel _viewModel;
+
+
+    _viewModel = (RenderStyleViewModel)ViewBag.ViewModel;
+    _viewModel.PrintCuttingLine = true;
+    _viewModel.CreateNew = true;
+    _viewModel.UseCustomView = true;
+    _viewModel.IsPDF = true;
+}
+<div>
+    <a href="@(Url.Action(_viewModel.ProcessType == Naming.InvoiceProcessType.A0401
+            ? "PrintA0401AsPDF"
+            : "PrintC0401AsPDF","DataView",_viewModel))" target="_blank">列印資料下載(PDF合併)</a>
+    <a href='javascript:$("").launchDownload("@(Url.Action("ZipInvoicePDF","DataView"))", @Html.Raw(_viewModel.JsonStringify()), "report", true);'>列印資料下載(ZIP)</a>
+    <br />
+    <a href='javascript:uiInvoiceQuery.submitTask(@Html.Raw(_viewModel.JsonStringify()));'>列印資料(ZIP)提交工作項</a>
+    <br />
+    @{ 
+        _viewModel.IsPDF = false;
+    }
+    <a href="@(Url.Action(_viewModel.ProcessType == Naming.InvoiceProcessType.A0401
+            ? "PrintA0401"
+            : "PrintC0401","DataView",_viewModel))" target="_blank">網頁列印</a>
+    @if (_viewModel.PrintBack == true)
+    {
+        <br />
+        <span style="color: blue;">***列印時請記得選取雙面列印模式***</span>
+    }
+</div>
+
+

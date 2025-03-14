@@ -1,0 +1,64 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    UploadInvoiceTrackCodeModel _model;
+    _model = (UploadInvoiceTrackCodeModel)this.Model;
+}
+<tr>
+    <td>
+        @(_model.ReceiptNo)
+        @{
+            var orgItem = models.GetTable<Organization>().Where(o => o.ReceiptNo == _model.ReceiptNo).FirstOrDefault();
+            if (orgItem?.OrganizationExtension?.ExpirationDate.HasValue == true)
+            {
+                <text>(註記停用:@($"{orgItem.OrganizationExtension.ExpirationDate:yyyy/MM/dd}"))</text>
+            }
+        }
+    </td>
+    <td>@(_model.Year)</td>
+    <td>@(String.Format("{0:00}-{1:00}月", _model.PeriodNo * 2 - 1, _model.PeriodNo * 2))</td>
+    <td>@(_model.TrackCode)</td>
+    <td>
+        @(String.Format("{0:00000000}",_model.StartNo))
+    </td>
+    <td>
+        @(String.Format("{0:00000000}",_model.EndNo))
+    </td>
+    <td>
+        @if (_model.Message == null)
+        {
+            <input type="hidden" name="KeyItems" value="@(JsonConvert.SerializeObject(_model).EncryptData())" />
+            <button class="btn" type="button" onclick="$(this).closest('tr').remove();">刪除</button>
+        }
+        else
+        {
+            <span>@(_model.Message)</span>
+        }
+    </td>
+</tr>
+
+
+
+

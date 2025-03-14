@@ -1,0 +1,72 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+
+
+<script>
+    debugger;
+    var $inquiryAgent = {
+        viewModel: @Html.Raw(_viewModel.JsonStringify()),
+        initQuery: false,
+        columns: null,
+        $queryResult: null,
+        sort: function (name, target) {
+            if (!$inquiryAgent.viewModel.SortName) {
+                $inquiryAgent.viewModel.SortName = [];
+            }
+            if (!$inquiryAgent.viewModel.SortType) {
+                $inquiryAgent.viewModel.SortType = [];
+            }
+            var sortType = 1;
+            var idx = $inquiryAgent.viewModel.SortName.indexOf(name);
+            if (idx >= 0) {
+                sortType = ($inquiryAgent.viewModel.SortType[idx] + 2) % 3 - 1;
+                $inquiryAgent.viewModel.SortType[idx] = sortType;
+            } else {
+                $inquiryAgent.viewModel.SortName.push(name);
+                $inquiryAgent.viewModel.SortType.push(sortType);
+            }
+
+            var $target = $(target);
+            $target.find('i').remove();
+            if (sortType == 1) {
+                $target.append('<i class="fa fa-sort-asc" aria-hidden="true"></i>');
+            } else if (sortType == -1) {
+                $target.append('<i class="fa fa-sort-desc" aria-hidden="true"></i>');
+            }
+            $inquiryAgent.inquire(-1);
+        },
+        pageIndex: 0,
+        doPage: function (data) {
+        },
+        onBodyLoad: function () {
+        },
+        onQueryDone: null,
+    };
+
+</script>

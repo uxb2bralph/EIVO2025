@@ -1,0 +1,72 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+
+@using ModelCore.Helper
+@using WebHome.Controllers
+@{
+    CDS_Document _model = this.Model as CDS_Document;
+    int? _idx = (TempData["ImportData"] as int?) ?? 0;
+    TempData["ImportData"] = _idx + 1;
+
+}
+
+<tr>
+    <th>
+        上傳發票附件檔
+    </th>
+    <td class="tdleft">
+        <input type="button" id="@($"btnImportData{_idx}")" value="立即傳送" />
+        <script>
+            $(function () {
+
+                var $btn = $('#@($"btnImportData{_idx}")');
+                var $file = $('<input name="theFile" type="file" style="display: none;" />');
+                $btn.before($file);
+
+                $btn.click(function () {
+                    $file.val('');
+                    $file.click();
+                });
+
+                var $result;
+
+                $file.on('change', function (event) {
+                    clearErrors();
+                    var $formData = { 'DocID':@(_model?.DocID)};
+                    uploadFile($file, $formData, '@Html.Raw(Url.Action("UploadAttachment", "InvoiceProcess"))',
+                        function (data) {
+                            $btn.before($file);
+                            if ($.isPlainObject(data)) {
+                                if (data.result) {
+                                    if ($global.onAttached) {
+                                        $global.onAttached();
+                                    }
+                                } else {
+                                    alert(data.message);
+                                }
+                            } else {
+                                if ($result) {
+                                    $result.remove();
+                                }
+                                $result = $(data);
+                                $('body').append($result);
+                            }
+                        },
+                        function () {
+                            $btn.before($file);
+                        });
+                });
+            });
+        </script>
+    </td>
+</tr>
+

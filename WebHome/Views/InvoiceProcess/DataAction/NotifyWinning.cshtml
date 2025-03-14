@@ -1,0 +1,30 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@using ModelCore.Helper
+@{
+    InvoiceItem _model;
+    _model = (InvoiceItem)this.Model;
+}
+
+@if (_model.InvoiceCancellation == null && _model.InvoiceDonation == null
+    && _model.PrintMark == "N" && (_model.Organization.OrganizationStatus.InvoiceNoticeSetting & (int)Naming.InvoiceNoticeStatus.Winning) > 0
+    && _model.InvoiceWinningNumber != null)
+{
+    <a class="btn" onclick="uiInvoiceQuery.notifyWinning('@(_model.InvoiceID.EncryptKey())');">通知中獎</a>
+}

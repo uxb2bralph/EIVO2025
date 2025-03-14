@@ -1,0 +1,62 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    ProcessRequest _model;
+    ProcessRequestQueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (ProcessRequest)this.Model;
+    _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
+}
+
+@if (_viewModel.ForTest == true)
+{
+    await Html.RenderPartialAsync("~/Views/Notification/Module/NotifyProcessException.cshtml", _model);
+}
+else
+{
+    var items = _model.ProcessExceptionNotification.ToArray();
+    if (items.Length == 0)
+    {
+        return;
+    }
+
+    var mailing = models.GetUserListByCompanyID(items.Select(p => p.CompanyID).ToArray())
+            .Select(u => u.EMail).ToList();
+
+    var mailTo = String.Join(",",
+        mailing.Where(m => m != null));
+
+    if (!String.IsNullOrEmpty(mailTo))
+    {
+
+        String subject = $"UXB2B eGUI Exception Notification";
+        String body = Html.Partial("~/Views/Notification/Module/NotifyProcessException.cshtml", _model).ToString();
+        body.SendMailMessage(mailTo, subject);
+
+    }
+    models.ExecuteCommand(@"Delete [proc].ProcessExceptionNotification where TaskID = {0}", _model.TaskID);
+
+}
+

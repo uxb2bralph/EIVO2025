@@ -1,0 +1,24 @@
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@{
+    Layout = "~/Views/Template/ContentPage.cshtml";
+    ModelSource<InvoiceItem> models;
+    IQueryable<ExceptionLog> _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _model = (IQueryable<ExceptionLog>)this.Model;
+
+}
+@section headContent {
+
+}
+@section formContent {
+    @{
+        await Html.RenderPartialAsync("~/Views/Notification/Module/UploadDataExceptionNotification.cshtml", _model);
+    }
+}
+
+

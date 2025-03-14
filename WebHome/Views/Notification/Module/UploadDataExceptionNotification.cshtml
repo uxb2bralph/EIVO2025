@@ -1,0 +1,43 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    IQueryable<ExceptionLog> _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<ExceptionLog>)this.Model;
+
+}
+
+@*發票錯誤訊息*@
+<div align="center">
+    下列資料由商家上傳時,發生錯誤,請處理!!
+</div>
+@{ await Html.RenderPartialAsync("~/Views/Notification/Module/InvoiceException.cshtml", _model.Where(g => g.TypeID == (int)Naming.DocumentTypeDefinition.E_Invoice));}
+
+@{ await Html.RenderPartialAsync("~/Views/Notification/Module/InvoiceCancellationException.cshtml", _model.Where(g => g.TypeID == (int)Naming.DocumentTypeDefinition.E_InvoiceCancellation));}
+
+@{ await Html.RenderPartialAsync("~/Views/Notification/Module/AllowanceException.cshtml", _model.Where(g => g.TypeID == (int)Naming.DocumentTypeDefinition.E_Allowance));}
+
+@{ await Html.RenderPartialAsync("~/Views/Notification/Module/AllowanceCancellationException.cshtml", _model.Where(g => g.TypeID == (int)Naming.DocumentTypeDefinition.E_Allowance));}
+
+
+

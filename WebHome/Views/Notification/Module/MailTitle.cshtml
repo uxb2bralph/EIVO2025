@@ -1,0 +1,47 @@
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    Organization _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (Organization)this.Model;
+
+}
+<div>
+    @if (_model.LogoURL != null)
+    {
+        <img id="logo" style="max-width: 200px; height: auto;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" +_model.LogoURL))' />
+    }
+    @if (_model.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCustomStyle))
+    {
+        <span style="white-space: nowrap; color: #4E158A;font-size:xx-large;font-weight:bold;position:absolute;">@(ViewBag.MailTitle)</span>
+    }
+    else
+    {
+        <span style="white-space: nowrap;"><strong>@(_model.CompanyName)@(ViewBag.MailTitle)</strong></span>
+    }
+</div>
+
+
+

@@ -1,0 +1,79 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+
+    ModelSource<InvoiceItem> models;
+    String _trID = $"tr{DateTime.Now.Ticks}";
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+}
+
+<tr id="@(_trID)">
+    <td>
+        @{ await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/GroupMemberSelector.cshtml",
+                     new InputViewModel
+                     {
+                         Name = "CompanyID"
+                     });}
+</td>
+<td>
+    <input type="text" name="CompanyName" placeholder="請輸入相對營業人名稱" value="" />
+</td>
+<td style="white-space: nowrap;">
+    <input type="text" name="ReceiptNo" placeholder="請輸入統一編號" value="" />
+    <a href="javascript:loadCompany();"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+    <script>
+            function loadCompany() {
+                showLoading();
+                $.post('@(Url.Action("GetCompany", "Home"))', { 'term': $('#@(_trID) input[name="ReceiptNo"]').val() }, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data) && data) {
+                        $('#@(_trID) input[name="ReceiptNo"]').val(data.ReceiptNo);
+                        $('#@(_trID) input[name="CompanyName"]').val(data.CompanyName);
+                        $('#@(_trID) input[name="Addr"]').val(data.Addr);
+                        $('#@(_trID) input[name="Phone"]').val(data.Phone);
+                        $('#@(_trID) input[name="ContactEmail"]').val(data.ContactEmail);
+                    }
+                });
+            }
+    </script>
+</td>
+<td>
+    @{ 
+        ViewBag.FieldName = "BusinessType";
+        await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelector.cshtml",typeof(Naming.InvoiceCenterBusinessType));
+    }
+</td>
+<td>
+    <input type="text" name="ContactEmail" placeholder="請輸入聯絡人電子郵件" value="" />
+</td>
+<td>
+    <input type="text" name="Addr" placeholder="請輸入地址" value="" />
+</td>
+<td>
+    <input type="text" name="Phone" placeholder="請輸入電話" value="" />
+</td>
+<td>
+    @*<input type="text" name="CustomerNo" placeholder="請輸入店號" value="" />*@
+    新增完相對營業人後，請再從編輯功能維護分店資料。
+</td>
+<td>
+    @*<uc1:EnumSelector runat="server" ID="levelSelector" FieldName="CompanyStatus" TypeName="ModelCore.Locale.Naming+BusinessRelationshipStatus, Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />*@
+    <input type="hidden" name="CompanyStatus" value="1103" />
+</td>
+<td>
+    <a class="btn" onclick="uiInquireBusiness.commitItem();">新增相對營業人</a>
+</td>
+</tr>
+
+
+
+

@@ -1,0 +1,311 @@
+﻿
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+
+@using WebHome.Properties
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    RenderStyleViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@RenderSection("InvoiceTitle")</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <style type="text/css">
+        @@page {
+            /*size: portrait;*/
+            /* 直向 */
+            /*size: A4 portrait;*/
+            /* 混合使用 */
+            size: 5.8cm 28cm;
+            margin: 0cm;
+            /* 邊界與內容的距離 */
+        }
+
+        @@media print {
+            body {
+                zoom: @($"{_viewModel?.Zoom ?? AppSettings.Default.Zoom}%");
+            }
+        }
+
+        p {
+            /*font-weight: bolder;*/
+        }
+
+        body {
+            margin:0px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .container {
+            display: block;
+            width: 100%;
+            height: @(_viewModel.IsPDF == true ? "9cm" : "13.2cm" );
+            border-top: 1px dotted #999;
+            border-bottom: 1px dotted #999;
+            @* padding-top: 0.3cm; *@
+        }
+
+            .container .cutfield {
+                @* border: 1px dashed #808080; *@
+                display: block;
+                /*width:5.7cm;*/
+                /*height:9cm;*/
+                overflow: hidden;
+                float: left;
+            }
+
+        .container .cutfield h2 {
+            font-size: 20pt;
+            line-height: 1;
+            @* letter-spacing: -1px; *@
+            /*text-align:center;*/
+            padding: 0;
+            margin-left: 5px;
+            margin-top: 0;
+            margin-right: 0;
+            margin-bottom: 0;
+        }
+
+                .container .cutfield h3 {
+                    width: 5.5cm;
+                    font-size: 13pt;
+                    line-height: 1.4;
+                    @* text-align: center;
+                    padding: 0;
+                    padding-top: 1cm; *@
+                    /*padding-bottom:0.2cm;*/
+                    margin: 0 auto;
+                }
+
+                    .container .cutfield h3.notop {
+                        font-size: 12pt;
+                        line-height: 1.4;
+                        text-align: center;
+                        padding: 0;
+                        padding-top: 5px;
+                        padding-bottom: 0px;
+                        margin: 0;
+                    }
+
+        .container .cutfield p {
+            font-size: 12pt;
+            line-height: 1;
+            padding: 0;
+            /*padding-top: 0.1cm;*/
+            padding-left: 0.1cm;
+            padding-right: 0.2cm;
+            margin: 0;
+        }
+
+                    .container .cutfield p.sign {
+                        font-size: 10pt;
+                        line-height: 1.5;
+                        padding: 0;
+                        padding-top: 2px;
+                        padding-bottom: 2px;
+                        padding-left: 0.2cm;
+                        padding-right: 0.2cm;
+                        margin: 0;
+                        border-top: 1px dashed #808080;
+                        border-bottom: 1px dashed #808080;
+                    }
+
+                    .container .cutfield p.rule1 {
+                        font-size: 9pt;
+                    }
+
+                    .container .cutfield p.rule {
+                        font-size: 9pt;
+                        padding: 0;
+                        padding-top: 2px;
+                        padding-bottom: 2px;
+                        padding-left: 0.2cm;
+                        padding-right: 0.2cm;
+                        margin: 0;
+                        margin-left: 2em;
+                        text-indent: -2em;
+                    }
+
+                .container .cutfield .code1 {
+                    /*text-align:center;*/
+                    padding: 0;
+                    padding-top: @(_viewModel.IsPDF == true ? "0.2cm" : "0.5cm" );
+                    margin: 0;
+                }
+
+                .container .cutfield .code2 {
+                    text-align:center;
+                    padding: 0;
+                    padding-top: @(_viewModel.IsPDF == true ? "0.2cm" : "1.0cm" );
+                    margin: 0;
+                }
+
+                    .container .cutfield .code2 img {
+                        /*margin:0 0.3cm 0 0.3cm;*/
+                        border: none;
+                    }
+        /*交易明細*/
+        div.listfield {
+            /*display:block;*/
+            width: 720px;
+            /*height:400px;*/
+            margin-left: 0.1cm;
+            padding: 0;
+            /*overflow: hidden;*/
+            /*float:left;*/
+            /*-moz-column-count:2;*/ /* Firefox */
+            /*-webkit-column-count:2;*/ /* Safari and Chrome */
+            /*column-count:2;*/
+            -moz-column-gap: 6px; /* Firefox */
+            -webkit-column-gap: 6px; /* Safari and Chrome */
+            column-gap: 6px;
+            -moz-column-rule: 1px solid #999; /* Firefox */
+            -webkit-column-rule: 1px solid #999; /* Safari and Chrome */
+            column-rule: 1px solid #999;
+        }
+
+        .listfield .content_box {
+            /*clear:both;*/
+            /*width:240px;*/
+            display: inline-block;
+            padding: 2px 0px;
+            margin: 0;
+            /*overflow:hidden;*/
+            font-size: 8pt;
+            line-height: 1.5;
+        }
+
+            .listfield .content_box p.productname {
+                width: 280px;
+                display: inline-block;
+                float: left;
+            }
+
+            .listfield .content_box p.quantity {
+                width: 50px;
+                display: inline-block;
+                text-align: right;
+                float: left;
+            }
+
+            .listfield .content_box p.price {
+                width: 140px;
+                display: inline-block;
+                text-align: right;
+                float: left;
+            }
+
+            .listfield .content_box p.totalPrice {
+                width: 100px;
+                display: inline-block;
+                text-align: right;
+                /*margin-left: 6px;*/
+                float: right;
+            }
+
+        .listfield h3 {
+            font-size: 12pt;
+            line-height: 1.4;
+            text-align: left;
+            padding: 0.2cm 0.3cm;
+            margin: 0;
+        }
+
+        .listfield p {
+            /*font-size:10pt;*/
+            line-height: 1.4;
+            padding: 0;
+            padding-top: 0.1cm;
+            padding-left: 0.2cm;
+            padding-right: 0.2cm;
+            margin: 0;
+        }
+
+        /***共用***/
+
+
+        .company .title {
+            margin: 0px;
+            padding: 0px;
+            font-size: 15pt;
+            font-family: 標楷體;
+            font-weight: normal;
+        }
+
+        .company p {
+            margin: 0px;
+            padding: 0px;
+            font-size: 9pt;
+            font-family: 標楷體;
+        }
+
+        .customer {
+            margin: 80px 0px 0px 180px;
+            padding: 0px;
+            color: #000;
+        }
+
+            .customer .title {
+                margin: 0px;
+                padding: 0px;
+                font-size: 15pt;
+                font-family: 標楷體;
+            }
+
+            .customer p {
+                margin: 0px;
+                padding: 0px;
+                font-size: 15pt;
+                font-family: 標楷體;
+            }
+
+
+        div.fspace {
+            height: 8.8cm;
+        }
+
+        div.bspace {
+            height: 8.9cm;
+        }
+
+        body,
+        td,
+        th {
+            /* font-family: Verdana, Arial, Helvetica, sans-serif, "細明體", "新細明體"; */
+        }
+    </style>
+</head>
+<body style="margin:0px;font-weight: bold;font-family: monospace;">
+    <form id="theForm">
+        @RenderSection("InvoiceContent")
+    </form>
+</body>
+</html>
+
+
+
+

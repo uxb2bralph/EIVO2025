@@ -1,0 +1,41 @@
+﻿
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/Notification/Custom/InvoiceNotificationTemplate.cshtml";
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+    RenderStyleViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+    _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
+    if (_viewModel == null)
+    {
+        _viewModel = new RenderStyleViewModel
+        {
+
+        };
+        ViewBag.ViewModel = _viewModel;
+    }
+}
+@{
+    await Html.RenderPartialAsync("~/Views/Notification/Custom/72936680/C0401_CBE.cshtml", _model);
+}

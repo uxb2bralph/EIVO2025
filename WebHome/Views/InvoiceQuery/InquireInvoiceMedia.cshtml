@@ -1,0 +1,254 @@
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using System.IO
+@using System.Linq.Expressions
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<InvoiceItem>)this.Model;
+    _items = (IQueryable<InvoiceAllowance>)ViewBag.AllowanceItems;
+    _viewModel = (TaxMediaQueryViewModel)ViewBag.ViewModel;
+
+    var Response = ViewContext.HttpContext.Response;
+
+    Response.Clear();
+
+    Response.Headers.Clear();
+    Response.ContentType = "application/octet-stream";
+    Response.Headers.Append("Cache-control", "max-age=1");
+    Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", System.Web.HttpUtility.UrlEncode((String)ViewBag.FileName)));
+
+    if (_model != null && _model.Count() > 0)
+    {
+        decimal? taxFreeAmt = null;
+        foreach (var item in _model)
+        {
+            if (item.InvoiceCancellation == null)
+            {
+                if (item.InvoiceAmountType.TaxType == (byte)Naming.TaxTypeDefinition.混合稅率)
+                {
+                    writeInvoiceItem(item, ref taxFreeAmt, Naming.TaxTypeDefinition.混合稅率);
+                    if (taxFreeAmt > 0)
+                    {
+                        writeInvoiceItem(item, ref taxFreeAmt, Naming.TaxTypeDefinition.免稅);
+                    }
+                }
+                else
+                {
+                    writeInvoiceItem(item, ref taxFreeAmt);
+                }
+            }
+            else
+            {
+                Output.Write("35");     //	格式代號	X(002)	1	2
+                Output.Write(String.Format("{0,9}", _viewModel.TaxNo));       //	申報營業人稅籍編號	X(009)	3	11
+                Output.Write(String.Format("{0:d7}", idx++));       //	流水號	X(007)	12	18
+                Output.Write(String.Format("{0:d3}", item.InvoiceDate.Value.Year - 1911));       //	資料所屬年度	9(003)	19	20
+                Output.Write(String.Format("{0:MM}", item.InvoiceDate));       //	資料所屬月份	9(002)	21	22
+                Output.Write(String.Format("{0,8}", ""));       //	買受人統一編號	X(008)	23	30
+                Output.Write(item.InvoiceSeller.ReceiptNo);       //	銷售人統一編號	X(008)	31	38
+                Output.Write(item.TrackCode);       //	發票字軌	X(002)	39	40
+                Output.Write(item.No?.Replace("*", ""));       //	發票(起)號碼	9(008)	41	48
+                Output.Write("000000000000");       //	銷售金額	9(012)	49	60
+                Output.Write("F");       //	課稅別	X(001)	61	61
+                Output.Write("0000000000");       //	營業稅額	9(010)	62	71
+                Output.Write(" ");       //	扣抵代號	X(001)	72	72
+                Output.Write("     ");       //	空白	X(005)	73	77
+                Output.Write(" ");       //	特種稅額稅率	X(001)	78	78
+                Output.Write(" ");       //	彙加註記	X(001)	79	79
+                Output.WriteLine(" ");       //	通關方式註記	X(001)	80	80
+            }
+        }
+    }
+    if (_items != null && _items.Count() > 0)
+    {
+        var details = _items.Join(models.GetTable<InvoiceAllowanceDetail>(), a => a.AllowanceID, d => d.AllowanceID, (a, d) => d)
+                .Select(d => d.InvoiceAllowanceItem)
+                .GroupBy(i => i.InvoiceNo);
+
+        foreach (var item in details)
+        {
+            var allowance = item.First().InvoiceAllowanceDetail.First().InvoiceAllowance;
+            Output.Write("33");     //	格式代號	X(002)	1	2
+            Output.Write(String.Format("{0,9}", _viewModel.TaxNo));       //	申報營業人稅籍編號	X(009)	3	11
+            Output.Write(String.Format("{0:d7}", idx++));       //	流水號	X(007)	12	18
+            Output.Write(String.Format("{0:d3}", allowance.AllowanceDate.Value.Year - 1911));       //	資料所屬年度	9(003)	19	20
+            Output.Write(String.Format("{0:MM}", allowance.AllowanceDate));       //	資料所屬月份	9(002)	21	22
+            Output.Write(String.Format("{0,8}", allowance.InvoiceAllowanceBuyer.IsB2C() ? "" : allowance.InvoiceAllowanceBuyer.ReceiptNo));       //	買受人統一編號	X(008)	23	30
+            Output.Write(allowance.InvoiceAllowanceSeller.ReceiptNo);       //	銷售人統一編號	X(008)	31	38
+            Output.Write(item.Key);       //	發票字軌	X(002)	39	40
+                                          //Output.Write(item.No);       //	發票(起)號碼	9(008)	41	48
+            writeAmount(item);
+            Output.Write(" ");       //	扣抵代號	X(001)	72	72
+            Output.Write("     ");       //	空白	X(005)	73	77
+            Output.Write(" ");       //	特種稅額稅率	X(001)	78	78
+            Output.Write(" ");       //	彙加註記	X(001)	79	79
+            Output.WriteLine(" ");       //	通關方式註記	X(001)	80	80
+
+            //else
+            //{
+            //    Output.Write("33");     //	格式代號	X(002)	1	2
+            //    Output.Write(String.Format("{0,9}", _viewModel.TaxNo));       //	申報營業人稅籍編號	X(009)	3	11
+            //    Output.Write(String.Format("{0:d7}", idx++));       //	流水號	X(007)	12	18
+            //    Output.Write(String.Format("{0:d3}", item.AllowanceDate.Value.Year - 1911));       //	資料所屬年度	9(003)	19	20
+            //    Output.Write(String.Format("{0:MM}", item.AllowanceDate));       //	資料所屬月份	9(002)	21	22
+            //    Output.Write(String.Format("{0,8}", ""));       //	買受人統一編號	X(008)	23	30
+            //    Output.Write(item.InvoiceAllowanceSeller.ReceiptNo);       //	銷售人統一編號	X(008)	31	38
+            //    Output.Write(d.InvoiceAllowanceItem.InvoiceNo);       //	發票字軌	X(002)	39	40
+            //                                                                                             //Output.Write(item.No);       //	發票(起)號碼	9(008)	41	48
+            //    Output.Write("000000000000");       //	銷售金額	9(012)	49	60
+            //    Output.Write("F");       //	課稅別	X(001)	61	61
+            //    Output.Write("0000000000");       //	營業稅額	9(010)	62	71
+            //    Output.Write(" ");       //	扣抵代號	X(001)	72	72
+            //    Output.Write("     ");       //	空白	X(005)	73	77
+            //    Output.Write(" ");       //	特種稅額稅率	X(001)	78	78
+            //    Output.Write(" ");       //	彙加註記	X(001)	79	79
+            //    Output.WriteLine(" ");       //	通關方式註記	X(001)	80	80
+            //}
+
+        }
+    }
+
+    //
+    //
+}
+@functions
+{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceItem> _model;
+    IQueryable<InvoiceAllowance> _items;
+    TaxMediaQueryViewModel _viewModel;
+    int idx = 1;
+
+    void writeInvoiceItem(InvoiceItem item, ref decimal? taxFreeAmt, Naming.TaxTypeDefinition? forTax = null)
+    {
+        Output.Write("35");     //	格式代號	X(002)	1	2
+        Output.Write(String.Format("{0,9}", _viewModel.TaxNo));       //	申報營業人稅籍編號	X(009)	3	11
+        Output.Write(String.Format("{0:d7}", idx++));       //	流水號	X(007)	12	18
+        Output.Write(String.Format("{0:d3}", item.InvoiceDate.Value.Year - 1911));       //	資料所屬年度	9(003)	19	20
+        Output.Write(String.Format("{0:MM}", item.InvoiceDate));       //	資料所屬月份	9(002)	21	22
+        Output.Write(String.Format("{0,8}", item.InvoiceBuyer.IsB2C() ? "" : item.InvoiceBuyer.ReceiptNo));       //	買受人統一編號	X(008)	23	30
+        Output.Write(item.InvoiceSeller.ReceiptNo);       //	銷售人統一編號	X(008)	31	38
+        Output.Write(item.TrackCode);       //	發票字軌	X(002)	39	40
+        Output.Write(item.No?.Replace("*", ""));       //	發票(起)號碼	9(008)	41	48
+        writeAmount(item, ref taxFreeAmt, forTax);
+
+        Output.Write(" ");       //	扣抵代號	X(001)	72	72
+        Output.Write("     ");       //	空白	X(005)	73	77
+        Output.Write(" ");       //	特種稅額稅率	X(001)	78	78
+        Output.Write(" ");       //	彙加註記	X(001)	79	79
+        Output.WriteLine(" ");       //	通關方式註記	X(001)	80	80
+    }
+
+    void writeAmount(InvoiceItem item, ref decimal? taxFreeAmt, Naming.TaxTypeDefinition? forTax = null)
+    {
+        if (forTax.HasValue)
+        {
+            if (forTax == Naming.TaxTypeDefinition.混合稅率)
+            {
+                if (item.InvoiceBuyer.IsB2C())
+                {
+                    if (_viewModel.AdjustTax == true)
+                    {
+                        Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.TotalAmount));       //	銷售金額	9(012)	49	60
+                        Output.Write(String.Format("{0,1}", (int)Naming.TaxTypeDefinition.應稅));       //	課稅別	X(001)	61	61
+                        Output.Write("0000000000");       //	營業稅額	9(010)	62	71
+                    }
+                    else
+                    {
+                        //taxFreeAmt = item.InvoiceAmountType.TotalAmount - item.InvoiceAmountType.TaxAmount * 20;
+                        taxFreeAmt = item.InvoiceAmountType.FreeTaxSalesAmount ?? 0;
+                        if (taxFreeAmt < 0)
+                        {
+                            taxFreeAmt = 0;
+                        }
+                        Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.TotalAmount - taxFreeAmt));       //	銷售金額	9(012)	49	60
+                        Output.Write(String.Format("{0,1}", (int)Naming.TaxTypeDefinition.應稅));       //	課稅別	X(001)	61	61
+                        Output.Write("0000000000");       //	營業稅額	9(010)	62	71
+                    }
+                }
+                else
+                {
+                    if (_viewModel.AdjustTax == true)
+                    {
+                        Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.SalesAmount));       //	銷售金額	9(012)	49	60
+                        Output.Write(String.Format("{0,1}", (int)Naming.TaxTypeDefinition.應稅));       //	課稅別	X(001)	61	61
+                        Output.Write(String.Format("{0:0000000000}", item.InvoiceAmountType.SalesAmount * 0.05m));       //	營業稅額	9(010)	62	71
+                    }
+                    else
+                    {
+                        //taxFreeAmt = item.InvoiceAmountType.SalesAmount - item.InvoiceAmountType.TaxAmount * 20;
+                        taxFreeAmt = item.InvoiceAmountType.FreeTaxSalesAmount ?? 0;
+                        if (taxFreeAmt < 0)
+                        {
+                            taxFreeAmt = 0;
+                        }
+                        Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.SalesAmount));       //	銷售金額	9(012)	49	60
+                        Output.Write(String.Format("{0,1}", (int)Naming.TaxTypeDefinition.應稅));       //	課稅別	X(001)	61	61
+                        Output.Write(String.Format("{0:0000000000}", item.InvoiceAmountType.TaxAmount));       //	營業稅額	9(010)	62	71
+                    }
+                }
+            }
+            else if (forTax == Naming.TaxTypeDefinition.免稅)
+            {
+                Output.Write(String.Format("{0:000000000000}", taxFreeAmt));       //	銷售金額	9(012)	49	60
+                Output.Write(String.Format("{0,1}", (int)forTax));       //	課稅別	X(001)	61	61
+                Output.Write("0000000000");       //	營業稅額	9(010)	62	71
+            }
+        }
+        else
+        {
+            if (item.InvoiceBuyer.IsB2C())
+            {
+                Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.TotalAmount));       //	銷售金額	9(012)	49	60
+                Output.Write(String.Format("{0,1}", item.InvoiceAmountType.TaxType));       //	課稅別	X(001)	61	61
+                Output.Write("0000000000");       //	營業稅額	9(010)	62	71
+            }
+            else
+            {
+                switch ((Naming.TaxTypeDefinition?)item.InvoiceAmountType.TaxType)
+                {
+                    case Naming.TaxTypeDefinition.應稅:
+                        Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.SalesAmount ?? 0));       //	銷售金額	9(012)	49	60
+                        break;
+                    case Naming.TaxTypeDefinition.零稅率:
+                        Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.ZeroTaxSalesAmount ?? 0));       //	銷售金額	9(012)	49	60
+                        break;
+                    case Naming.TaxTypeDefinition.免稅:
+                        Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.FreeTaxSalesAmount ?? 0));       //	銷售金額	9(012)	49	60
+                        break;
+                    default:
+                        Output.Write(String.Format("{0:000000000000}", item.InvoiceAmountType.TotalAmount ?? 0));       //	銷售金額	9(012)	49	60
+                        break;
+                }
+                Output.Write(String.Format("{0,1}", item.InvoiceAmountType.TaxType));       //	課稅別	X(001)	61	61
+                Output.Write(String.Format("{0:0000000000}", item.InvoiceAmountType.TaxAmount ?? 0));       //	營業稅額	9(010)	62	71
+            }
+        }
+    }
+
+    void writeAmount(IEnumerable<InvoiceAllowanceItem> items)
+    {
+        //if (item.InvoiceAllowanceBuyer.IsB2C())
+        //{
+        //    Output.Write(String.Format("{0:000000000000}", item.TotalAmount));       //	銷售金額	9(012)	49	60
+        //    Output.Write("1");       //	課稅別	X(001)	61	61
+        //    Output.Write("0000000000");       //	營業稅額	9(010)	62	71
+        //}
+        //else
+        {
+            Output.Write(String.Format("{0:000000000000}", items.Sum(a => a.Amount)));       //	銷售金額	9(012)	49	60
+            Output.Write("1");       //	課稅別	X(001)	61	61
+            Output.Write(String.Format("{0:0000000000}", items.Sum(a => a.Tax)));      //	營業稅額	9(010)	62	71
+        }
+    }
+
+}

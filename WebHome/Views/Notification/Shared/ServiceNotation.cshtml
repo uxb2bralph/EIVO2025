@@ -1,0 +1,52 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    ModelSource<InvoiceItem> models;
+    Organization _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (Organization)this.Model;
+
+}
+@if (_model.OrganizationStatus?.NotificationFooterView != null)
+{
+    await Html.RenderPartialAsync(_model.OrganizationStatus?.NotificationFooterView, _model);
+}
+else
+{
+    <p>
+        若您對此發票內容或消費有任何疑問，請連絡@(_model.CompanyName)
+        @if (!String.IsNullOrEmpty(_model.OrganizationExtension.BusinessContactPhone))
+        {
+            <text>(@(_model.OrganizationExtension.BusinessContactPhone))</text>
+        }
+        else if (!String.IsNullOrEmpty(_model.ContactEmail))
+        {
+            <text>(@(_model.ContactEmail))</text>
+        }
+        。
+    </p>
+    @*<p>
+            委外客服電話：<span class="blue">0800-010-626</span>
+        </p>*@
+    <p class="red">
+        ※此信件為系統發出信件，請勿直接回覆。
+    </p>
+}

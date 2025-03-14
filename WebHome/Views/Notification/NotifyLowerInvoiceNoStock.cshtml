@@ -1,0 +1,54 @@
+
+
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    Organization _model;
+    OrganizationViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (Organization)this.Model;
+    _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
+
+}
+
+@{
+    var mailing = models.GetUserListByCompanyID(_model.CompanyID)
+            .Select(u => u.EMail).ToList();
+    mailing.Add(_model.ContactEmail);
+    mailing.Add( ModelExtension.Properties.AppSettings.Default.WebMaster);
+    var mailTo = String.Join(",",
+            mailing.Where(m => m != null));
+
+    if (!String.IsNullOrEmpty(mailTo))
+    {
+        var smtpSettings = _model.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+
+        String subject = $"{_model.CompanyName}({_model.ReceiptNo}) 電子發票可用開立號碼存量不足通知";
+        String body = Html.Partial("~/Views/Notification/Module/AlertInvoiceNoSafetyStock.cshtml", _model).ToString();
+        body.SendMailMessage(mailTo, subject, smtpSettings);
+    }
+
+}
+
+
+

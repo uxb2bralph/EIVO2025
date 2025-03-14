@@ -1,0 +1,44 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using WebHome.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <th>
+        發票號碼
+    </th>
+    <td class="tdleft">
+        <div class="input-group text-nowrap">
+            <input name="InvoiceNo" type="text" class="form-control" value="@(_viewModel?.InvoiceNo)" size="12" maxlength="12" />
+            <label class="label">～</label>
+            <input name="EndNo" type="text" class="form-control" value="@(_viewModel?.EndNo)" size="12" maxlength="12" />
+        </div>
+    </td>
+</tr>
+<tr>
+    <th>
+        單據號碼
+    </th>
+    <td class="tdleft">
+        <input name="DataNo" type="text" class="form-control" value="@(_viewModel?.DataNo)" size="32" maxlength="64" />
+    </td>
+</tr>
+

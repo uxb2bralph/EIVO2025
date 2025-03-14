@@ -1,0 +1,56 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@{
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    UserProfile _profile = Context.GetUser();
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    IQueryable<ProcessRequest> _model = (IQueryable<ProcessRequest>)this.Model;
+    ProcessRequestQueryViewModel _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
+}
+@{
+    String currentID = $"table{DateTime.Now.Ticks}";
+    ViewBag.TableColumns = new string[]
+    {
+            "~/Views/ProcessRequest/DataField/Sender.cshtml",
+            "~/Views/ProcessRequest/DataField/SubmitDate.cshtml",
+            "~/Views/ProcessRequest/DataField/ProcessType.cshtml",
+            "~/Views/ProcessRequest/DataField/ProcessStart.cshtml",
+            "~/Views/ProcessRequest/DataField/ProcessComplete.cshtml",
+            "~/Views/ProcessRequest/DataField/ProcessDescription.cshtml",
+            "~/Views/ProcessRequest/DataField/RequestPath.cshtml",
+            "~/Views/ProcessRequest/DataField/ResponsePath.cshtml",
+            "~/Views/ProcessRequest/DataField/ExceptionContent.cshtml",
+            "~/Views/ProcessRequest/DataField/ProcessAction.cshtml",
+            };
+}
+@if (_viewModel.PageIndex.HasValue)
+{
+    await Html.RenderPartialAsync("~/Views/Common/Module/TableBody.cshtml", _model);
+}
+else
+{
+    ViewBag.TableFooter = "~/Views/ProcessRequest/Module/ProcessRequestTableFooter.cshtml";
+    await Html.RenderPartialAsync("~/Views/Common/Module/TableSkeleton.cshtml", _model);
+}
+

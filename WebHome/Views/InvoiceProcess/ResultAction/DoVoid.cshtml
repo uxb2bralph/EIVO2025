@@ -1,0 +1,49 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+    <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td>
+                <button type="button" class="btn" name="btnVoid" onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.註銷重開));">註銷發票</button>&nbsp;&nbsp;
+                <button type="button" class="btn" name="btnVoidCancellation" onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.註銷作廢));">註銷作廢發票</button>
+                <button type="button" class="btn" name="btnRequestPrint" onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.索取紙本));">索取紙本</button>
+            </td>
+        </tr>
+    </table>
+    <script>
+        window.uiInvoiceQuery.voidInvoice = function (mode) {
+            if (!$('input[name="chkItem"]').is(':checked')) {
+                alert('請選擇註銷資料!!');
+                return false;
+            }
+
+            if (!confirm('確定註銷選取的發票？')) {
+                return false;
+            }
+
+            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+            $formData = {
+                ...$formData,
+                ...$('#queryResult').find('input,select,textarea').serializeObject(),
+                mode: mode,
+            };
+
+            doPost('@(Url.Action("VoidInvoice", "InvoiceProcess"))', $formData, function (data) {
+                var $data = $(data);
+                $('body').append($data);
+                $data.remove();
+            });
+
+        };
+
+    </script>
+
