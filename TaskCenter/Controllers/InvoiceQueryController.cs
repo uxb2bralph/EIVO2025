@@ -120,7 +120,7 @@ namespace TaskCenter.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateInvoiceMIG(true)).ToList();
+                var dataItems = items.Select(c => c.CreateF0401(true)).ToList();
                 return Content(dataItems.JsonStringify(), "application/json");
             }
         }
@@ -144,7 +144,7 @@ namespace TaskCenter.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateInvoiceCancellationMIG(true)).ToList();
+                var dataItems = items.Select(c => c.CreateF0501(true)).ToList();
                 return Content(dataItems.JsonStringify(), "application/json");
             }
         }
@@ -166,7 +166,7 @@ namespace TaskCenter.Controllers
                     items = items.Skip((viewModel.PageIndex.Value - 1) * viewModel.PageSize.Value)
                         .Take(viewModel.PageSize.Value);
                 }
-                var dataItems = items.Select(c => c.CreateAllowanceMIG(models, true)).ToList();
+                var dataItems = items.Select(c => c.CreateG0401(models, true)).ToList();
                 return Content(dataItems.JsonStringify().Replace(".00000", ""), "application/json");
             }
         }
@@ -190,7 +190,7 @@ namespace TaskCenter.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateAllowanceCancellationMIG(true)).ToList();
+                var dataItems = items.Select(c => c.CreateG0501(true)).ToList();
                 return Content(dataItems.JsonStringify(), "application/json");
 
             }

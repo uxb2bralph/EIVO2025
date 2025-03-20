@@ -130,7 +130,6 @@ namespace ModelCore.DataEntity
         public Naming.Truth? DisableE0501AutoUpdate { get; set; }
         public Naming.Truth? E0501InitialLock { get; set; }
         public int? E0501ReservedBooklets { get; set; }
-        public Naming.Truth? ApplyDefaultTaxRate { get; set; }
     }
 
     public partial class CategoryDefinition

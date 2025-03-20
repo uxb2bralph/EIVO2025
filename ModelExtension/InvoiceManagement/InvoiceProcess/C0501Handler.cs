@@ -26,7 +26,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
     {
         static C0501Handler()
         {
-            ModelExtension.Properties.AppSettings.Default.C0501Outbound.CheckStoredPath();
+            ModelExtension.Properties.AppSettings.Default.F0501Outbound.CheckStoredPath();
         }
 
         private GenericManager<EIVOEntityDataContext> models;
@@ -64,8 +64,8 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
                     try
                     {
-                        var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.C0501Outbound, $"INV0501-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
-                        var xmlMIG = invoiceItem.CreateInvoiceCancellationMIG().ConvertToXml();
+                        var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0501Outbound, $"INV0501-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                        var xmlMIG = invoiceItem.CreateF0501().ConvertToXml();
                         item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
                         models.SubmitChanges();
                         xmlMIG.Save(fileName);

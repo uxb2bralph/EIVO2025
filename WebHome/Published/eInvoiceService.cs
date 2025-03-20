@@ -37,6 +37,7 @@ using CommonLib.Utility;
 using CommonLib.Core.Utility;
 using ModelCore.Notification;
 using ModelCore.Service;
+using ModelCore.InvoiceManagement.InvoiceProcess;
 
 namespace WebHome.Published
 {
@@ -3209,8 +3210,7 @@ namespace WebHome.Published
                                     TrackBlank = item
                                 };
 
-                                ModelCore.InvoiceManagement.EIVOPlatformManager Platform = new ModelCore.InvoiceManagement.EIVOPlatformManager();
-                                Platform.saveBranchTrackBlankToPlatform(TurnkeyResult.ConvertToXml());
+                                E0402Handler.WriteToTurnkey(TurnkeyResult);
                                 result.Result.value = 1;
                             }
                         }
@@ -3481,7 +3481,7 @@ namespace WebHome.Published
                             if (items.Count() > 0)
                             {
                                 var item = items.First();
-                                var result = item.DerivedDocument.ParentDocument.InvoiceItem.CreateB2BInvoiceCancellationMIG();
+                                var result = item.DerivedDocument.ParentDocument.InvoiceItem.CreateF0501();
 
                                 item.MoveToNextStep(mgr);
 
@@ -3528,7 +3528,7 @@ namespace WebHome.Published
                             if (items.Count() > 0)
                             {
                                 var item = items.First();
-                                var result = item.DerivedDocument.ParentDocument.InvoiceAllowance.CreateB2BAllowanceCancellationMIG();
+                                var result = item.DerivedDocument.ParentDocument.InvoiceAllowance.CreateG0501();
 
                                 item.MoveToNextStep(mgr);
 

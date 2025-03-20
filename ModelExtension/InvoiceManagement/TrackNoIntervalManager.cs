@@ -72,24 +72,25 @@ namespace ModelCore.InvoiceManagement
             SettleUnassignedInvoiceNO(assignment);
         }
 
-        public void SettleUnassignedInvoiceNOPeriodically(int year, int periodNo, int? sellerID = null)
+        public IQueryable<InvoiceTrackCodeAssignment> SettleUnassignedInvoiceNOPeriodically(int year, int periodNo, int? sellerID = null)
         {
-            IQueryable<InvoiceTrackCodeAssignment> trackCodeAssignment = this.GetTable<InvoiceTrackCodeAssignment>();
+            IQueryable<InvoiceTrackCodeAssignment> trackCodeAssignment =
+                this.GetTable<InvoiceTrackCodeAssignment>()
+                .Join(this.GetTable<InvoiceTrackCode>()
+                        .Where(t => t.Year == year)
+                        .Where(t => t.PeriodNo == periodNo),
+                    a => a.TrackID, t => t.TrackID, (a, t) => a);
+
             if (sellerID.HasValue)
             {
                 trackCodeAssignment = trackCodeAssignment.Where(t => t.SellerID == sellerID);
             }
 
-            var items = this.GetTable<InvoiceTrackCode>()
-                .Where(t => t.Year == year)
-                .Where(t => t.PeriodNo == periodNo)
-                .Join(trackCodeAssignment,
-                    t => t.TrackID, a => a.TrackID, (t, a) => a);
-
-            foreach (var item in items)
+            foreach (var item in trackCodeAssignment)
             {
                 SettleUnassignedInvoiceNO(item);
             }
+            return trackCodeAssignment;
         }
 
         public IQueryable<InvoiceTrackCodeAssignment> PromptTrackCodeAssignment(int year, int periodNo)

@@ -37,19 +37,18 @@
     @*var data = "Hello, Line Notify...".PushToLineNotify();
         @Html.Raw(data);*@
     @*@Html.Raw(Request["Token"]);*@
-if (_viewModel.ChkItem?.Length > 0)
-{
-    foreach (var id in _viewModel.ChkItem)
+    if (_viewModel.ChkItem?.Length > 0)
     {
-        var invoice = models.GetTable<InvoiceItem>().Where(i => i.InvoiceID == id).FirstOrDefault();
-        if (invoice != null)
+        foreach (var id in _viewModel.ChkItem)
         {
-            await Html.RenderPartialAsync("~/Views/Notification/IssueC0701.cshtml", invoice);
-            Logger.Debug($"Notify Issuing C0701: {id}, {invoice.TrackCode}{invoice.No}");
+            var invoice = models.GetTable<InvoiceItem>().Where(i => i.InvoiceID == id).FirstOrDefault();
+            if (invoice != null)
+            {
+                await Html.RenderPartialAsync("~/Views/Notification/IssueC0701.cshtml", invoice);
+                Logger.Debug($"Notify Issuing C0701: {id}, {invoice.TrackCode}{invoice.No}");
+            }
         }
     }
-}
-    @(global::ModelExtension.Properties.AppSettings.Default.UseMIG40)
     ExternalPdfWrapper.AppSettings.Default.UseSelenium = false;
     ExternalPdfWrapper.AppSettings.Default.Save();
     var pdf = new ExternalPdfWrapper.PdfUtility();

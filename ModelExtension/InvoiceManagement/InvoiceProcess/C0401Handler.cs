@@ -28,7 +28,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
     {
         static C0401Handler()
         {
-            ModelExtension.Properties.AppSettings.Default.C0401Outbound.CheckStoredPath();
+            ModelExtension.Properties.AppSettings.Default.F0401Outbound.CheckStoredPath();
         }
 
         private GenericManager<EIVOEntityDataContext> models;
@@ -115,11 +115,11 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.CDS_Document.InvoiceItem;
             try
             {
-                var xmlMIG = invoiceItem.CreateInvoiceMIG().ConvertToXml();
+                var xmlMIG = invoiceItem.CreateF0401().ConvertToXml();
                 item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
                 models.SubmitChanges();
 
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.C0401Outbound, $"INV0401-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0401Outbound, $"INV0401-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
                 xmlMIG.Save(fileName);
 
                 if (invoiceItem.Organization.OrganizationStatus.SubscribeB2BInvoicePDF == true

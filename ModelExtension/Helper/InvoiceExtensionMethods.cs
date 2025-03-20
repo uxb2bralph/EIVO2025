@@ -929,7 +929,7 @@ namespace ModelCore.Helper
             var item = request.CDS_Document.InvoiceItem;
             request.InvoiceContent = item.GetJsonString();
 
-            var c0401 = item.CreateInvoiceMIG().ConvertToXml();
+            var c0401 = item.CreateF0401().ConvertToXml();
             models.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
             {
                 DataContent = c0401.OuterXml,

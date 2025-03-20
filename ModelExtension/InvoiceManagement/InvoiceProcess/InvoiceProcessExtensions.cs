@@ -48,5 +48,10 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             return seller.OrganizationSettings.Any(s => s.Settings == "ForcedAuditNo");
         }
 
+        public static bool UseDefaultTaxRate(this Organization seller)
+        {
+            return seller.OrganizationSettings.Any(s => s.Settings == "UseDefaultTaxRate");
+        }
+
     }
 }

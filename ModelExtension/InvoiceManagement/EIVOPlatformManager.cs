@@ -27,13 +27,13 @@ namespace ModelCore.InvoiceManagement
         {
         }
 
-        public void TransmitInvoice()
-        {
-            using (InvoiceManager mgr = new InvoiceManager())
-            {
-                saveToPlatform(mgr);
-            }
-        }
+        //public void TransmitInvoice()
+        //{
+        //    using (InvoiceManager mgr = new InvoiceManager())
+        //    {
+        //        SaveToPlatform(mgr);
+        //    }
+        //}
 
         class _key
         {
@@ -207,79 +207,72 @@ namespace ModelCore.InvoiceManagement
 
         //}
 
-        private void saveToPlatform(InvoiceManager mgr)
-        {
-            //Settings.Default.A1401Outbound.CheckStoredPath();
-            //int invoiceCounter = Directory.GetFiles(Settings.Default.A1401Outbound).Length;
-            //Settings.Default.B1401Outbound.CheckStoredPath();
-            //int allowanceCounter = Directory.GetFiles(Settings.Default.B1401Outbound).Length;
-            ModelExtension.Properties.AppSettings.Default.A0501Outbound.CheckStoredPath();
-            int cancellationCounter = Directory.GetFiles(ModelExtension.Properties.AppSettings.Default.A0501Outbound).Length;
-            ModelExtension.Properties.AppSettings.Default.B0501Outbound.CheckStoredPath();
-            int allowanceCancellationCounter = Directory.GetFiles(ModelExtension.Properties.AppSettings.Default.B0501Outbound).Length;
+        //private void SaveToPlatform(InvoiceManager mgr)
+        //{
+        //    //Settings.Default.A1401Outbound.CheckStoredPath();
+        //    //int invoiceCounter = Directory.GetFiles(Settings.Default.A1401Outbound).Length;
+        //    //Settings.Default.B1401Outbound.CheckStoredPath();
+        //    //int allowanceCounter = Directory.GetFiles(Settings.Default.B1401Outbound).Length;
+        //    ModelExtension.Properties.AppSettings.Default.A0501Outbound.CheckStoredPath();
+        //    int cancellationCounter = Directory.GetFiles(ModelExtension.Properties.AppSettings.Default.A0501Outbound).Length;
+        //    ModelExtension.Properties.AppSettings.Default.B0501Outbound.CheckStoredPath();
+        //    int allowanceCancellationCounter = Directory.GetFiles(ModelExtension.Properties.AppSettings.Default.B0501Outbound).Length;
 
-            var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待傳送);
+        //    var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待傳送);
 
-            if (items.Count() > 0)
-            {
-                String fileName;
-                foreach (var item in items)
-                {
-                    try
-                    {
-                        switch ((Naming.DocumentTypeDefinition)item.DocType.Value)
-                        {
-                            case Naming.DocumentTypeDefinition.E_Invoice:
-                                //if (item.InvoiceItem.InvoiceSeller.Organization.OrganizationStatus != null && item.InvoiceItem.InvoiceSeller.Organization.OrganizationStatus.IronSteelIndustry == true)
-                                //{
-                                //    fileName = Path.Combine(Settings.Default.A1401Outbound, String.Format("A1401-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, invoiceCounter++));
-                                //    item.InvoiceItem.CreateA1401().ConvertToXml().Save(fileName);
-                                //}
-                                //else
-                                {
-                                    fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0401Outbound, $"A0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.InvoiceItem.TrackCode}{item.InvoiceItem.No}.xml");
-                                    item.InvoiceItem.CreateB2BInvoiceMIG().ConvertToXml().Save(fileName);
-                                }
-                                break;
-                            case Naming.DocumentTypeDefinition.E_Allowance:
-                                //if (item.InvoiceAllowance.InvoiceAllowanceSeller.Organization.OrganizationStatus != null && item.InvoiceAllowance.InvoiceAllowanceSeller.Organization.OrganizationStatus.IronSteelIndustry == true)
-                                //{
-                                //    fileName = Path.Combine(Settings.Default.B1401Outbound, String.Format("B1401-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, allowanceCounter++));
-                                //    item.InvoiceAllowance.CreateB1401().ConvertToXml().Save(fileName);
-                                //}
-                                //else
-                                {
-                                    fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0401Outbound, $"B0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.InvoiceAllowance.AllowanceNumber}.xml");
-                                    item.InvoiceAllowance.CreateB2BAllowanceMIG().ConvertToXml().Save(fileName);
-                                }
-                                break;
-                            case Naming.DocumentTypeDefinition.E_InvoiceCancellation:
-                                fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0501Outbound, String.Format("A0501-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, cancellationCounter++));
-                                item.DerivedDocument.ParentDocument.InvoiceItem.CreateB2BInvoiceCancellationMIG().ConvertToXml().Save(fileName);
-                                break;
-                            case Naming.DocumentTypeDefinition.E_AllowanceCancellation:
-                                fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0501Outbound, String.Format("B0501-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, allowanceCancellationCounter++));
-                                item.DerivedDocument.ParentDocument.InvoiceAllowance.CreateB2BAllowanceCancellationMIG().ConvertToXml().Save(fileName);
-                                break;
-                        }
+        //    if (items.Count() > 0)
+        //    {
+        //        String fileName;
+        //        foreach (var item in items)
+        //        {
+        //            try
+        //            {
+        //                switch ((Naming.DocumentTypeDefinition)item.DocType.Value)
+        //                {
+        //                    case Naming.DocumentTypeDefinition.E_Invoice:
+        //                        //if (item.InvoiceItem.InvoiceSeller.Organization.OrganizationStatus != null && item.InvoiceItem.InvoiceSeller.Organization.OrganizationStatus.IronSteelIndustry == true)
+        //                        //{
+        //                        //    fileName = Path.Combine(Settings.Default.A1401Outbound, String.Format("A1401-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, invoiceCounter++));
+        //                        //    item.InvoiceItem.CreateA1401().ConvertToXml().Save(fileName);
+        //                        //}
+        //                        //else
+        //                        {
+        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0401Outbound, $"A0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.InvoiceItem.TrackCode}{item.InvoiceItem.No}.xml");
+        //                            item.InvoiceItem.CreateB2BInvoiceMIG().ConvertToXml().Save(fileName);
+        //                        }
+        //                        break;
+        //                    case Naming.DocumentTypeDefinition.E_Allowance:
+        //                        //if (item.InvoiceAllowance.InvoiceAllowanceSeller.Organization.OrganizationStatus != null && item.InvoiceAllowance.InvoiceAllowanceSeller.Organization.OrganizationStatus.IronSteelIndustry == true)
+        //                        //{
+        //                        //    fileName = Path.Combine(Settings.Default.B1401Outbound, String.Format("B1401-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, allowanceCounter++));
+        //                        //    item.InvoiceAllowance.CreateB1401().ConvertToXml().Save(fileName);
+        //                        //}
+        //                        //else
+        //                        {
+        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0401Outbound, $"B0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.InvoiceAllowance.AllowanceNumber}.xml");
+        //                            item.InvoiceAllowance.CreateG0401().ConvertToXml().Save(fileName);
+        //                        }
+        //                        break;
+        //                    case Naming.DocumentTypeDefinition.E_InvoiceCancellation:
+        //                        fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0501Outbound, String.Format("A0501-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, cancellationCounter++));
+        //                        item.DerivedDocument.ParentDocument.InvoiceItem.CreateF0501().ConvertToXml().Save(fileName);
+        //                        break;
+        //                    case Naming.DocumentTypeDefinition.E_AllowanceCancellation:
+        //                        fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0501Outbound, String.Format("B0501-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, allowanceCancellationCounter++));
+        //                        item.DerivedDocument.ParentDocument.InvoiceAllowance.CreateG0501().ConvertToXml().Save(fileName);
+        //                        break;
+        //                }
 
-                        transmit(mgr, item);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                    }
-                }
-            }
-        }
-        public void saveBranchTrackBlankToPlatform(XmlDocument Doc)
-        {
-            String fileName;
-            ModelExtension.Properties.AppSettings.Default.E0402Outbound.CheckStoredPath();
-            int counter = Directory.GetFiles(ModelExtension.Properties.AppSettings.Default.E0402Outbound).Length;
-            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.E0402Outbound, String.Format("E0402-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, counter++));
-            Doc.Save(fileName);
-        }
+        //                transmit(mgr, item);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Logger.Error(ex);
+        //            }
+        //        }
+        //    }
+        //}
+
         public void CommissionedToReceive()
         {
             using (InvoiceManager mgr = new InvoiceManager())

@@ -55,33 +55,28 @@ namespace ModelExtension.Properties
         public String AttachmentTempStore { get; set; } = "TempAttachment";
         public String A0101Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2BSTORAGE\\A0101\\SRC";
         public String A0201Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2BSTORAGE\\A0201\\SRC";
-        public String A0401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2BSTORAGE\\A0401\\SRC";
-        public String A0501Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2BSTORAGE\\A0501\\SRC";
         public String A1401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2BSTORAGE\\A1401\\SRC";
-        public String B0401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2BSTORAGE\\B0401\\SRC";
-        public String B0501Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2BSTORAGE\\B0501\\SRC";
         public String B1401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2BSTORAGE\\B1401\\SRC";
-        public String C0401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2CSTORAGE\\C0401\\SRC";
-        public String C0501Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2CSTORAGE\\C0501\\SRC";
-        public String D0401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2CSTORAGE\\D0401\\SRC";
-        public String D0501Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2CSTORAGE\\D0501\\SRC";
+        public String F0401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2SSTORAGE\\F0401\\SRC";
+        public String F0501Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2SSTORAGE\\F0501\\SRC";
+        public String G0401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2SSTORAGE\\G0401\\SRC";
+        public String G0501Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2SSTORAGE\\G0501\\SRC";
         public String E0401Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2CSTORAGE\\E0401\\SRC";
         public String E0402Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2CSTORAGE\\E0402\\SRC";
-        public String C0701Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2CSTORAGE\\C0701\\SRC";
+        public String F0701Outbound { get; set; } = "C:\\EINVTurnkey\\UpCast\\B2SSTORAGE\\F0701\\SRC";
         public string UploadedFilePath { get; set; } = "TempForPDF";
         public string A0101Receipt { get; set; } = "C:\\EINVTurnkey\\RecvTarget\\A0101";
         public int CommonParallelProcessCount { get; set; } = 100;
         public int TaskDelayInMilliseconds { get; set; } = 5000;
         public double SessionTimeout { get; set; } = 20;
         public String EINVTurnkeyRoot { get; set; } = "C:\\EINVTurnkey";
-        public bool UseMIG40 { get; set; } = false;
         public int UserPasswordValidDays { get; set; } = 180;
         public string EV8D_ID { get; set; } = "";
         public string EV8D_PASSWORD { get; set; } = "";
         public String EV8D_SMS { get; set; } = "http://api.every8d.com/API21/SOAP/SMS.asmx";
         public double MinimumCreditAlert { get; set; } = 100;
         public String HostUrl { get; set; } = "http://localhost:2598";
-        public decimal? DefaultTaxRate { get; set; } = 0.05M;
+        public decimal DefaultTaxRate { get; set; } = 0.05M;
 
     }
 }

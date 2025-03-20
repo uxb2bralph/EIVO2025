@@ -43,17 +43,6 @@ namespace ModelCore.Helper
             return result;
         }
 
-        public static Object CreateB2BInvoiceCancellationMIG(this InvoiceItem item)
-        {
-            if (ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateF0501();
-            }
-            else
-            {
-                return item.CreateA0501();
-            }
-        }
         public static ModelCore.Schema.TurnKey.A0501.CancelInvoice CreateA0501(this InvoiceItem item)
         {
             InvoiceCancellation cancelItem = item.InvoiceCancellation;
@@ -100,18 +89,6 @@ namespace ModelCore.Helper
             return result;
         }
 
-        public static Object CreateB2BAllowanceCancellationMIG(this InvoiceAllowance item)
-        {
-            if (ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateG0501();
-            }
-            else
-            {
-                return item.CreateB0501();
-            }
-        }
-
         public static ModelCore.Schema.TurnKey.B0501.CancelAllowance CreateB0501(this InvoiceAllowance item)
         {
             InvoiceAllowanceCancellation cancelItem = item.InvoiceAllowanceCancellation;
@@ -132,18 +109,6 @@ namespace ModelCore.Helper
             };
 
             return result;
-        }
-
-        public static Object CreateB2BInvoiceMIG(this InvoiceItem item)
-        {
-            if (ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateF0401();
-            }
-            else
-            {
-                return item.CreateA0401();
-            }
         }
 
         public static ModelCore.Schema.TurnKey.A0401.Invoice CreateA0401(this InvoiceItem item)
@@ -266,18 +231,6 @@ namespace ModelCore.Helper
                 }
             }
             return items.ToArray();
-        }
-
-        public static Object CreateB2BAllowanceMIG(this InvoiceAllowance item)
-        {
-            if (ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateG0401();
-            }
-            else
-            {
-                return item.CreateB0401();
-            }
         }
 
         public static ModelCore.Schema.TurnKey.B0401.Allowance CreateB0401(this InvoiceAllowance item)

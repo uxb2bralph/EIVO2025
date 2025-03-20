@@ -1205,7 +1205,7 @@ namespace WebHome.Controllers
 
         //    foreach (var item in items)
         //    {
-        //        item.CreateVoidInvoiceMIG().ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.C0701Outbound, "INV0701_" + item.TrackCode + item.No + ".xml"));
+        //        item.CreateF0701().ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.C0701Outbound, "INV0701_" + item.TrackCode + item.No + ".xml"));
         //    }
 
         //    if (mode == Naming.VoidActionMode.註銷作廢 
@@ -1223,7 +1223,7 @@ namespace WebHome.Controllers
         //                models.SubmitChanges();
         //            }
 
-        //            var c0401 = item.CreateInvoiceMIG().ConvertToXml();
+        //            var c0401 = item.CreateF0401().ConvertToXml();
         //            c0401.Save(System.IO.Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
 
         //            models.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
@@ -1274,7 +1274,7 @@ namespace WebHome.Controllers
         //        String storedPath = Path.Combine(Logger.LogPath, "Archive").CheckStoredPath();
         //        foreach (var item in items)
         //        {
-        //            var c0401 = item.CreateInvoiceMIG().ConvertToXml();
+        //            var c0401 = item.CreateF0401().ConvertToXml();
         //            c0401.Save(System.IO.Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
 
         //            models.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
@@ -1298,7 +1298,7 @@ namespace WebHome.Controllers
 
         private void doVoidInvoice(IEnumerable<InvoiceItem> items, Naming.VoidActionMode? mode)
         {
-            ModelExtension.Properties.AppSettings.Default.C0701Outbound.CheckStoredPath();
+            ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
 
             foreach (var item in items)
             {
@@ -1320,7 +1320,7 @@ namespace WebHome.Controllers
                     models.SubmitChanges();
                 }
 
-                item.CreateVoidInvoiceMIG().ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.C0701Outbound, "INV0701_" + item.TrackCode + item.No + ".xml"));
+                item.CreateF0701().ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "INV0701_" + item.TrackCode + item.No + ".xml"));
             }
         }
 
@@ -1343,7 +1343,7 @@ namespace WebHome.Controllers
             if (chkItem != null && chkItem.Count() > 0)
             {
                 var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
-                return zipItems(items, i => i.CreateInvoiceMIG().ConvertToXml(), "INV0401");
+                return zipItems(items, i => i.CreateF0401().ConvertToXml(), "INV0401");
             }
             else
             {
@@ -1358,7 +1358,7 @@ namespace WebHome.Controllers
             if (chkItem != null && chkItem.Count() > 0)
             {
                 var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
-                return zipItems(items, i => i.CreateVoidInvoiceMIG().ConvertToXml(), "INV0701");
+                return zipItems(items, i => i.CreateF0701().ConvertToXml(), "INV0701");
             }
             else
             {
@@ -1372,7 +1372,7 @@ namespace WebHome.Controllers
             if (chkItem != null && chkItem.Count() > 0)
             {
                 var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
-                return zipItems(items, i => i.CreateInvoiceCancellationMIG().ConvertToXml(), "INV0501");
+                return zipItems(items, i => i.CreateF0501().ConvertToXml(), "INV0501");
             }
             else
             {

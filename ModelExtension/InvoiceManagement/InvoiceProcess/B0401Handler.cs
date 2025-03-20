@@ -26,7 +26,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
     {
         static B0401Handler()
         {
-            AppSettings.Default.B0401Outbound.CheckStoredPath();
+            AppSettings.Default.G0401Outbound.CheckStoredPath();
         }
 
         private GenericManager<EIVOEntityDataContext> models;
@@ -56,8 +56,8 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                     var allowance = item.CDS_Document.InvoiceAllowance;
                     try
                     {
-                        var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0401Outbound, $"B0401-{allowance.AllowanceID}-{allowance.AllowanceNumber}.xml");
-                        var xmlMIG = allowance.CreateB2BAllowanceMIG().ConvertToXml();
+                        var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.G0401Outbound, $"G0401-{allowance.AllowanceID}-{allowance.AllowanceNumber}.xml");
+                        var xmlMIG = allowance.CreateG0401().ConvertToXml();
                         item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
                         models.SubmitChanges();
                         xmlMIG.Save(fileName);

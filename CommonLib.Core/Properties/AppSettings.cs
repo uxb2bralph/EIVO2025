@@ -36,6 +36,7 @@ namespace CommonLib.Core.Properties
         public bool EnableJobScheduler { get; set; } = true;
         public String LogPath { get; set; }
         public bool IgnoreCertificateRevoked { get; set; } = true;
+        public bool SqlLogIgnoreSelect { get; internal set; } = true;
     }
 
 }

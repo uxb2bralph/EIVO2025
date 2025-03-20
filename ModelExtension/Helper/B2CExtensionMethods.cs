@@ -9,6 +9,7 @@ using ModelCore.Locale;
 
 using ModelCore.Properties;
 using CommonLib.DataAccess;
+using ModelCore.InvoiceManagement.InvoiceProcess;
 
 namespace ModelCore.Helper
 {
@@ -22,18 +23,6 @@ namespace ModelCore.Helper
         public static decimal ToFix(this decimal? decVal, int decimals = 2)
         {
             return decVal.HasValue ? Math.Round(decVal.Value, decimals) : 0;
-        }
-
-        public static Object CreateInvoiceMIG(this InvoiceItem item, bool withExtension = false)
-        {
-            if(ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateF0401(withExtension);
-            }
-            else
-            {
-                return item.CreateC0401(withExtension);
-            }
         }
 
         public static ModelCore.Schema.TurnKey.C0401.Invoice CreateC0401(this InvoiceItem item, bool withExtension = false)
@@ -190,18 +179,6 @@ namespace ModelCore.Helper
             return items.ToArray();
         }
 
-        public static Object CreateInvoiceCancellationMIG(this InvoiceItem item, bool withExtension = false)
-        {
-            if (ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateF0501(withExtension);
-            }
-            else
-            {
-                return item.CreateC0501(withExtension);
-            }
-        }
-
         public static ModelCore.Schema.TurnKey.C0501.CancelInvoice CreateC0501(this InvoiceItem item, bool withExtension = false)
         {
             InvoiceCancellation cancellation = item.InvoiceCancellation;
@@ -262,18 +239,6 @@ namespace ModelCore.Helper
             }
 
             return result;
-        }
-
-        public static Object CreateAllowanceMIG(this InvoiceAllowance item, GenericManager<EIVOEntityDataContext> models = null, bool withExtension = false)
-        {
-            if (ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateG0401(models, withExtension);
-            }
-            else
-            {
-                return item.CreateD0401(models, withExtension);
-            }
         }
 
         public static ModelCore.Schema.TurnKey.D0401.Allowance CreateD0401(this InvoiceAllowance item, GenericManager<EIVOEntityDataContext> models = null, bool withExtension = false)
@@ -427,17 +392,6 @@ namespace ModelCore.Helper
             return result;
         }
 
-        public static Object CreateAllowanceCancellationMIG(this InvoiceAllowance item, bool withExtension = false)
-        {
-            if (ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateG0501(withExtension);
-            }
-            else
-            {
-                return item.CreateD0501(withExtension);
-            }
-        }
 
         public static ModelCore.Schema.TurnKey.D0501.CancelAllowance CreateD0501(this InvoiceAllowance item, bool withExtension = false)
         {
@@ -507,9 +461,9 @@ namespace ModelCore.Helper
             {
                 Main = new Schema.TurnKey.E0402.Main
                 {
-                    HeadBan = item.Organization.ReceiptNo,
+                    HeadBan = item.Organization.AsInvoiceIssuer.Where(a => a.RelationType == (int)InvoiceIssuerAgent.Relationship.MasterBranch).FirstOrDefault()?.InvoiceAgent.ReceiptNo ?? item.Organization.ReceiptNo,
                     BranchBan = item.Organization.ReceiptNo,
-                    InvoiceType = (Schema.TurnKey.E0402.InvoiceTypeEnum)item.Organization.OrganizationStatus.SettingInvoiceType.Value,
+                    InvoiceType = item.InvoiceTrackCode .InvoiceType == (byte)Schema.TurnKey.E0402.InvoiceTypeEnum.Item08 ? Schema.TurnKey.E0402.InvoiceTypeEnum.Item08 : Schema.TurnKey.E0402.InvoiceTypeEnum.Item07,
                     YearMonth = String.Format("{0:000}{1:00}", item.InvoiceTrackCode.Year - 1911, item.InvoiceTrackCode.PeriodNo * 2),
                     InvoiceTrack = item.InvoiceTrackCode.TrackCode
                 },
@@ -532,18 +486,6 @@ namespace ModelCore.Helper
                 );
             }
             return items.ToArray();
-        }
-
-        public static Object CreateVoidInvoiceMIG(this InvoiceItem item)
-        {
-            if (ModelExtension.Properties.AppSettings.Default.UseMIG40)
-            {
-                return item.CreateF0701();
-            }
-            else
-            {
-                return item.CreateC0701();
-            }
         }
 
         public static ModelCore.Schema.TurnKey.C0701.VoidInvoice CreateC0701(this InvoiceItem item)
@@ -674,8 +616,12 @@ namespace ModelCore.Helper
                     FreeTaxSalesAmount = item.InvoiceAmountType.FreeTaxSalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0),
                     ZeroTaxSalesAmount = item.InvoiceAmountType.ZeroTaxSalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0),
                     TaxAmount = item.InvoiceBuyer.IsB2C() ? 0 : item.InvoiceAmountType.TaxAmount.ToFix(0 /*item.InvoiceAmountType.CurrencyType?.Decimals ?? 0*/),
-                    TaxRate = item.InvoiceAmountType.TaxRate.HasValue ? item.InvoiceAmountType.TaxRate.ToFix(2) : 0.05m,
-                    TaxType = (Schema.TurnKey.F0401.TaxTypeEnum)((int)item.InvoiceAmountType.TaxType.Value),
+                    TaxRate = item.InvoiceSeller.Organization?.UseDefaultTaxRate() == true && item.InvoiceAmountType.TaxType == (byte)Naming.TaxTypeDefinition.應稅
+                                    ? ModelExtension.Properties.AppSettings.Default.DefaultTaxRate 
+                                    : item.InvoiceAmountType.TaxRate.HasValue 
+                                        ? item.InvoiceAmountType.TaxRate.ToFix(2) 
+                                        : ModelExtension.Properties.AppSettings.Default.DefaultTaxRate,
+                    TaxType = (Schema.TurnKey.F0401.TaxTypeEnum?)((int?)item.InvoiceAmountType.TaxType) ?? Schema.TurnKey.F0401.TaxTypeEnum.Item1,
                     TotalAmount = item.InvoiceAmountType.TotalAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0)
                 },
             };
@@ -751,7 +697,7 @@ namespace ModelCore.Helper
             return items.ToArray();
         }
 
-        public static ModelCore.Schema.TurnKey.F0501.CancelInvoice CreateF0501(this InvoiceItem item, bool withExtension = false)
+        public static ModelCore.Schema.TurnKey.F0501.CancelInvoice? CreateF0501(this InvoiceItem item, bool withExtension = false)
         {
             InvoiceCancellation cancellation = item.InvoiceCancellation;
             if (cancellation == null)

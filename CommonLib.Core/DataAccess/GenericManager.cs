@@ -10,6 +10,7 @@ using CommonLib.Utility;
 using System.Linq.Expressions;
 using System.Collections;
 using CommonLib.Logger;
+using CommonLib.Core.Properties;
 
 namespace CommonLib.DataAccess
 {
@@ -145,9 +146,9 @@ namespace CommonLib.DataAccess
             _db = db;
             _db.Log = log;
 
-            if (_db.Log == null /*&& Settings.Default.SqlLog*/)
+            if (_db.Log == null && AppSettings.Default.SqlLog)
             {
-                _logWriter = new SqlLogger { /*IgnoreSelect = Settings.Default.SqlLogIgnoreSelect*/ }; 
+                _logWriter = new SqlLogger { IgnoreSelect = AppSettings.Default.SqlLogIgnoreSelect }; 
                 _db.Log = _logWriter;
             }
         }

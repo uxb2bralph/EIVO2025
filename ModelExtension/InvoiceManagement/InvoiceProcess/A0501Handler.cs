@@ -26,7 +26,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
     {
         static A0501Handler()
         {
-            ModelExtension.Properties.AppSettings.Default.A0501Outbound.CheckStoredPath();
+            ModelExtension.Properties.AppSettings.Default.F0501Outbound.CheckStoredPath();
         }
 
         private GenericManager<EIVOEntityDataContext> models;
@@ -56,18 +56,21 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                     var invoiceItem = item.CDS_Document.DerivedDocument.ParentDocument.InvoiceItem;
                     try
                     {
-                        var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0501Outbound, $"A0501-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
-                        var xmlMIG = invoiceItem.CreateB2BInvoiceCancellationMIG().ConvertToXml();
+                        var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0501Outbound, $"A0501-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                        var xmlMIG = invoiceItem.CreateF0501()?.ConvertToXml();
 
-                        item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
-                        item.CDS_Document.CurrentStep = (int)Naming.InvoiceStepDefinition.已接收;
-                        models.SubmitChanges();
-                        xmlMIG.Save(fileName);
-
-                        if (invoiceItem.Organization.OrganizationStatus.DownloadDispatch == true)
+                        if (xmlMIG != null)
                         {
-                            PushStepQueueOnSubmit(models, item.CDS_Document, Naming.InvoiceStepDefinition.回傳MIG);
+                            item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
+                            item.CDS_Document.CurrentStep = (int)Naming.InvoiceStepDefinition.已接收;
                             models.SubmitChanges();
+                            xmlMIG.Save(fileName);
+
+                            if (invoiceItem.Organization.OrganizationStatus.DownloadDispatch == true)
+                            {
+                                PushStepQueueOnSubmit(models, item.CDS_Document, Naming.InvoiceStepDefinition.回傳MIG);
+                                models.SubmitChanges();
+                            }
                         }
 
                         models.ExecuteCommand("delete [proc].A0501DispatchQueue where DocID={0} and StepID={1}",

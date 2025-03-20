@@ -62,14 +62,14 @@ namespace CommonLib.Utility
 
         public static String GetXml<T>(this T entData)
         {
-            //XmlSerializer serializer = new XmlSerializer(typeof(T));
             XmlSerializer serializer = new XmlSerializer(entData.GetType());
             StringBuilder sb = new StringBuilder();
             using (StringWriter sw = new StringWriter(sb))
             {
-                serializer.Serialize(sw, entData);
-                sw.Flush();
-                sw.Close();
+                using (XmlWriter xmlWriter = XmlWriter.Create(sw, new XmlWriterSettings { CheckCharacters = false }))
+                {
+                    serializer.Serialize(xmlWriter, entData);
+                }
             }
             return sb.ToString();
         }
@@ -78,11 +78,12 @@ namespace CommonLib.Utility
         {
             XmlSerializer serializer = new XmlSerializer(entData.GetType());
             XmlDocument docMsg = new XmlDocument();
-            //docMsg.PreserveWhitespace = true;
-
             using (MemoryStream ms = new MemoryStream())
             {
-                serializer.Serialize(ms, entData);
+                using (XmlWriter xmlWriter = XmlWriter.Create(ms, new XmlWriterSettings { CheckCharacters = false }))
+                {
+                    serializer.Serialize(xmlWriter, entData);
+                }
                 ms.Flush();
                 ms.Seek(0, SeekOrigin.Begin);
                 docMsg.Load(ms);
@@ -93,14 +94,14 @@ namespace CommonLib.Utility
         public static Stream ConvertToXmlStream<T>(this T entData)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(T));
-            //docMsg.PreserveWhitespace = true;
-
             MemoryStream ms = new MemoryStream();
-            serializer.Serialize(ms, entData);
+            using (XmlWriter xmlWriter = XmlWriter.Create(ms, new XmlWriterSettings { CheckCharacters = false }))
+            {
+                serializer.Serialize(xmlWriter, entData);
+            }
             ms.Flush();
             ms.Seek(0, SeekOrigin.Begin);
             return ms;
-
         }
 
 
