@@ -21,21 +21,21 @@ namespace WebHome.Models.ViewModel
 
         [Display(Name = "ValidCode")]
         [CaptchaValidation("EncryptedCode", ErrorMessage = "驗證碼錯誤!!")]
-        public string ValidCode { get; set; }
+        public string? ValidCode { get; set; }
 
         [Display(Name = "EncryptedCode")]
-        public string EncryptedCode { get; set; }
+        public string? EncryptedCode { get; set; }
 
-        public String Token { get; set; }
-        public string CardNo1 { get; set; }
-        public string CardNo2 { get; set; }
-        public string CardType { get; set; }
-        public string Signature { get; set; }
+        public String? Token { get; set; }
+        public string? CardNo1 { get; set; }
+        public string? CardNo2 { get; set; }
+        public string? CardType { get; set; }
+        public string? Signature { get; set; }
     }
 
     public class TwoFactorViewModel : QueryViewModel
     {
         public int? UID { get; set; }
-        public String CodeDigit { get; set; }
+        public String? CodeDigit { get; set; }
     }
 }
