@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Text
 @using System.Linq.Expressions
@@ -9,17 +8,20 @@
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
 @{
+  String _validCode;
+  String _encryptedCode;
 
-    String _validCode;
-    String _encryptedCode;
-
-    _validCode = ValidityAgent.CreateRandomStringCode(6);
-    _encryptedCode = Convert.ToBase64String(AppResource.Instance.Encrypt(Encoding.Default.GetBytes(_validCode)));
+  _validCode = ValidityAgent.CreateRandomStringCode(6);
+  _encryptedCode = Convert.ToBase64String(AppResource.Instance.Encrypt(Encoding.Default.GetBytes(_validCode)));
 }
 
-<img id="imgNum" src="@(Url.Action("CaptchaImg", "Account", new { code = _encryptedCode }))" align="absmiddle" />
-<input name="ValidCode" type="text" value="" placeholder="請輸入圖片中的文字或數字" />
+<div class="d-flex">
+  <div class="me-2"
+    style="background-image: url('@(Url.Action("CaptchaImg", "Account", new { code = _encryptedCode }))');display: block;width:150px;background-position: center; height: 38px; background-size:contain ;">
+  </div>
+  <div>
+    <input type="text" name="ValidCode" class="mb-0 form-control" id="ValidCode" autocomplete="false"
+      placeholder="請輸入驗證碼">
+  </div>
+</div>
 <input name="EncryptedCode" type="hidden" value="@(_encryptedCode)" />
-
-
-

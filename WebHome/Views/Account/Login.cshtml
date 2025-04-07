@@ -14,117 +14,105 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 @{
-    Layout = "~/Views/Template/ContentPage.cshtml";
+  Layout = "~/Views/Template/ContentPage.cshtml";
 
-    ModelSource<InvoiceItem> models;
-    ModelStateDictionary _modelState;
+  ModelSource<InvoiceItem> models;
+  ModelStateDictionary _modelState;
 
-    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+  models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
-    LoginViewModel _viewModel = ViewBag.ViewModel as LoginViewModel;
-    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+  LoginViewModel _viewModel = ViewBag.ViewModel as LoginViewModel;
+  _modelState = (ModelStateDictionary)ViewBag.ModelState;
 }
-<link href="~/App_Themes/Login/login.css" rel="stylesheet" />
 
-<div class="container" style="background:white;">
-    <div class="row">
-        <img class="mx-auto d-block logosize" src="~/images/index_bg.jpg" alt="" />
-    </div>
-    <div class="row">
-        <div class="col-md-8 col-md-offset-4">
-            <div class="panel-default">
-                <div class="panel-body">
-                    <form id="loginForm" method="post">
-                        <input name="ReturnUrl" type="hidden" value="@(_viewModel.ReturnUrl)" />
-                        <table border="0" cellspacing="0" cellpadding="0" class="sign_in">
-                            <tr>
-                                <td>
-                                    <span>帳號：</span><br />
-                                    <input name="PID" type="text" placeholder="請輸入帳號!!" required />
-                                </td>
-                                <td>
-                                    <span>密碼：</span><br />
-                                    <input name="Password" type="password" placeholder="請輸入密碼!!" required />
+<div class="px-0 eivo__signin-wrapper">
+  <main class="eivo__signin-form">
+    <form id="loginForm" method="post">
+      <div class="text-center pb-2">
+        <img class="mb-2 eivo__logo" src="/images/uxb2b_logo.png" alt="網際優勢 Logo">
+        <div class="align-text-top fs-3 fw-bold custom-element" style="color: #2a91bc;">
+          電子發票平台
+        </div>
+      </div>
 
-                                </td>
-                                <td>
-                                    <a onclick="javascript:login();">
-                                        <img onmouseout="this.src='@(VirtualPathUtility.ToAbsolute("~/images/login_button_up.gif"))'" onmouseover="this.src='@(VirtualPathUtility.ToAbsolute("~/images/login_button_over.gif"))'" src="@(VirtualPathUtility.ToAbsolute("~/images/login_button_up.gif"))" />
-                                    </a>
-                                </td>
-                                <td valign="bottom">
-                                    <span class="forget_pw">[ <a href="@(Url.Action("ForgetPassword","Account"))">忘記密碼</a> ]</span>
-                                </td>
-                            </tr>
-                        </table>
-                        <table border="0" cellspacing="0" cellpadding="0" class="verifyno">
-                            <tr>
-                                <td>
-                                    @{ await Html.RenderPartialAsync("~/Views/Shared/CaptchaImg.cshtml");}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="@(Url.Action("Index","IndividualProcess"))">發票查詢</a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <a href="@(VirtualPathUtility.ToAbsolute("~/Published/InvoiceClient.zip"))">電子發票傳輸用戶端下載</a><br />
-                                    <a href="@(VirtualPathUtility.ToAbsolute("~/Published/InvoiceClient(XP-Win2003).zip"))">電子發票傳輸用戶端下載(Windows XP、Windows 2003)</a>
-                                </td>
-                            </tr>
-                        </table>
-                        <table border="0" cellspacing="0" cellpadding="0" class="err01">
-                            <tr>
-                                <td>
-                                </td>
-                            </tr>
-                        </table>
-                    </form>
-                </div>
-            </div>
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-pid">
+              <i class="fas fa-user"></i>
+            </span>
+            <input type="text" name="PID" class="mb-0 form-control" placeholder="帳號" aria-label="帳號" autocomplete="off"
+              aria-describedby="basic-pid">
+          </div>
+          <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-password">
+              <i class="fas fa-key"></i>
+            </span>
+            <input type="password" name="Password" class="mb-0 form-control" placeholder="密碼" aria-label="密碼"
+              autocomplete="off" aria-describedby="basic-password">
+          </div>
+          <div class="form-floating">
+            @{
+              await Html.RenderPartialAsync("~/Views/Shared/CaptchaImg.cshtml");
+            }
+          </div>
+          <button id="signIn" class="mt-3 w-100 btn btn-lg btn-primary" type="button" onclick="login()">登入</button>
+          <div class="py-2 text-end eivo__link--noLine">
+            <i class="fas fa-question-circle"></i>
+            <a href="@(Url.Action("ForgetPassword", "Account"))">忘記密碼</a>
+          </div>
         </div>
-    </div>
-    <div class="row">
-        @{
-            var data = models.GetTable<SystemMessage>().Where(s => s.AlwaysShow || (s.StartDate <= DateTime.Now && s.EndDate.Value.AddDays(1) > DateTime.Now));
-        }
-        @if (data.Any())
-        {
-            <div class="run">
-                <!--跑馬燈開始-->
-                <marquee class="notice" scrollamount="2">
-                    @foreach (var item in data)
-                    {
-                        <text>
-                            ‧系統公告：
-                            <FONT color="#434343">
-                                @Html.Raw(item.MessageContents)
-                            </FONT>
-                        </text>
-                    }
-                </marquee>
-                <!--跑馬燈結束-->
-            </div>
-        }
-    </div>
-    <div class="row">
-        <div class="copyright">
-            Powered by
-            UXB2B
+      </div>
+
+      <div class="py-2">
+        <ul>
+          <li class="eivo__link--noLine">
+            <a href="@(Url.Action("Index", "IndividualProcess"))">發票查詢</a>
+          </li>
+          <li class="eivo__link--noLine">
+            <a href="@(VirtualPathUtility.ToAbsolute("~/Published/InvoiceClient.zip"))">電子發票傳輸用戶端下載</a>
+          </li>
+          @* <li>
+            <a href="@(VirtualPathUtility.ToAbsolute("~/Published/InvoiceClient(XP-Win2003).zip"))">電子發票傳輸用戶端下載(Windows
+              XP、Windows 2003)</a>
+          </li> *@
+        </ul>
+      </div>
+
+      @{
+        var data = models.GetTable<SystemMessage>().Where(s => s.AlwaysShow || (s.StartDate <= DateTime.Now &&
+        s.EndDate.Value.AddDays(1) > DateTime.Now));
+      }
+      @if (data.Any())
+      {
+        <div class="mb-0 pb-2 alert alert-warning" role="alert">
+          <!--跑馬燈開始-->
+          <marquee class="notice" scrollamount="2">
+            @foreach (var item in data)
+            {
+              <text>
+                <i class="far fa-info-square"></i>
+                系統公告：
+                <span color="#434343">
+                  @Html.Raw(item.MessageContents)
+                </span>
+              </text>
+            }
+          </marquee>
+          <!--跑馬燈結束-->
         </div>
-    </div>
+      }
+
+      <div class="py-4 text-muted text-center">
+        Copyright © UXB2B. All rights reserved.
+      </div>
+    </form>
+  </main>
 </div>
 
-
 <script>
-    $(function () {
-        $('input:text').addClass('form-control textfield');
-    });
-    function login() {
-        var event = event || window.event;
-        $('form').prop('action','@(Url.Action("Login","Account"))').submit();
-    }
+  function login() {
+    var event = event || window.event;
+    $('form').prop('action', '@(Url.Action("Login", "Account"))').submit();
+  }
 </script>
-
