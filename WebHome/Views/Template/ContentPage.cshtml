@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -6,32 +5,37 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>電子發票系統</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="~/Content/eivo-bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="~/css/rwd-table.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/body.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/content.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/header.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/left-menu.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/paper.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/StyleSheet.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/table.css" rel="stylesheet" />    
-    @{ 
-        await Html.RenderPartialAsync("~/Views/Shared/CommonScriptInclude.cshtml");
-    }
-    @RenderSection("headContent", false)
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>網際優勢 - 電子發票平台</title>
+  <link rel="shortcut icon" href="~/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="~/css/Font-Awesome/all.min.css">
+  <link rel="stylesheet" href="~/css/bootstrap.min.css">
+  <link rel="stylesheet" href="~/css/custom.min.css">
+  @{
+    await Html.RenderPartialAsync("~/Views/Shared/CommonScriptInclude.cshtml");
+  }
+
+  @RenderSection("headContent", false)
 </head>
+
 <body>
-    <form id="theForm">
-        @RenderSection("formContent", false)
-    </form>
-    @RenderBody()
+  <form id="theForm">
+    @RenderSection("formContent", false)
+  </form>
+  @RenderBody()
 </body>
+
 </html>
-@{ await Html.RenderPartialAsync("~/Views/Shared/GlobalScript.cshtml");}
-@{ await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml");}
-@{ await Html.RenderPartialAsync("~/Views/Shared/ReportInputError.cshtml");}
+@{
+  await Html.RenderPartialAsync("~/Views/Shared/GlobalScript.cshtml");
+}
+@{
+  await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml");
+}
+@{
+  await Html.RenderPartialAsync("~/Views/Shared/ReportInputError.cshtml");
+}
