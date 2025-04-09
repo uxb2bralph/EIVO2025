@@ -49391,6 +49391,8 @@ namespace ModelCore.DataEntity
 		
 		private string _InvoiceNo;
 		
+		private string _ReviseContent;
+		
 		private EntityRef<CDS_Document> _CDS_Document;
 		
     #region 擴充性方法定義
@@ -49413,6 +49415,8 @@ namespace ModelCore.DataEntity
     partial void OnReviseContentChanged();
     partial void OnInvoiceNoChanging(string value);
     partial void OnInvoiceNoChanged();
+    partial void OnReviseContentChanging(string value);
+    partial void OnReviseContentChanged();
     #endregion
 		
 		public VoidInvoiceRequest()
@@ -49588,6 +49592,27 @@ namespace ModelCore.DataEntity
 					this._InvoiceNo = value;
 					this.SendPropertyChanged("InvoiceNo");
 					this.OnInvoiceNoChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReviseContent", DbType="NVarChar(MAX)")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=7)]
+		public string ReviseContent
+		{
+			get
+			{
+				return this._ReviseContent;
+			}
+			set
+			{
+				if ((this._ReviseContent != value))
+				{
+					this.OnReviseContentChanging(value);
+					this.SendPropertyChanging();
+					this._ReviseContent = value;
+					this.SendPropertyChanged("ReviseContent");
+					this.OnReviseContentChanged();
 				}
 			}
 		}
