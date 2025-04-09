@@ -110,7 +110,7 @@
         $('input[name="btnBuyerSample"]').on('click',function(evt) {
             prepareTarget();
             $data.val('InvoiceBuyer');
-            $formDownload.prop('action', '@(VirtualPathUtility.ToAbsolute("~/Helper/GetSample.ashx"))');
+            $formDownload.prop('action', '../Helper/GetSample.ashx');
             $formDownload.submit();
             $formDownload.prop('action',$oriAction);
         });
@@ -130,7 +130,7 @@
         $('input[name="btnTrackCodeSample"]').on('click', function (evt) {
             prepareTarget();
             $data.val('TrackCode');
-            $formDownload.prop('action', '@(VirtualPathUtility.ToAbsolute("~/Helper/GetSample.ashx"))');
+            $formDownload.prop('action', '../Helper/GetSample.ashx');
             $formDownload.submit();
             $formDownload.prop('action', $oriAction);
         });

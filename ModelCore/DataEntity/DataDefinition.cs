@@ -260,4 +260,9 @@ namespace ModelCore.DataEntity
 
     }
 
+    public partial class ReviseInvoiceContent
+    {
+        public String? ReceiptNo { get; set; }
+        public String? SellerName { get; set; }
+    }
 }

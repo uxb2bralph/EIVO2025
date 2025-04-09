@@ -64,7 +64,7 @@ namespace TaskCenter.Helper.RequestAction
         }
 
 
-        public static ProcessRequest SaveProcessRequest(this InvoiceRequestViewModel viewModel, SampleController controller)
+        public static ProcessRequest? SaveProcessRequest(this InvoiceRequestViewModel viewModel, SampleController controller)
         {
             var ModelState = controller.ModelState;
             var ViewBag = controller.ViewBag;
@@ -74,7 +74,7 @@ namespace TaskCenter.Helper.RequestAction
 
             Organization item = viewModel.CheckRequest(controller);
 
-            String requestPath = null;
+            String? requestPath = null;
             if (Request.Form.Files.Count == 0)
             {
                 ModelState.AddModelError("E1002", ErrorMessage.E1002);
@@ -102,7 +102,7 @@ namespace TaskCenter.Helper.RequestAction
                 return null;
             }
 
-            Naming.InvoiceProcessType processType = viewModel.ProcessType.Value;
+            Naming.InvoiceProcessType processType = viewModel.ProcessType!.Value;
             var processItem = new ProcessRequest
             {
                 AgentID = item.CompanyID,

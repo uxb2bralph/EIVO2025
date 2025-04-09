@@ -1,0 +1,70 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using ModelCore.DataExchange
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Mvc
+
+@{
+    Layout = "~/Views/Shared/Module/MessageDialog.cshtml";
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    CommonQueryViewModel? _viewModel = this.Model as CommonQueryViewModel ?? ViewBag.ViewModel as CommonQueryViewModel;
+
+    if (_viewModel == null)
+    {
+        _viewModel = new CommonQueryViewModel();
+        ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+
+    _viewModel.DialogID = $"dialog{DateTime.Now.Ticks}";
+}
+
+<div class="border_gray">
+    <label for="uniformNumber">@Html.Raw(_viewModel.ActionTitle)</label>
+    <input type="text" name="@Html.Raw(_viewModel.FieldName)" class="text ui-widget-content ui-corner-all" />
+</div>
+
+<script>
+    dialogButtons.push({
+        text: "確定",
+        icons: {
+            primary: "ui-icon-close"
+        },
+        click: function () {
+            var $formData = $('#@(_viewModel.DialogID)').find('input,select,textarea').serializeObject();
+            if (typeof $global.dialogCallback === 'function') {
+                $global.dialogCallback($formData);
+            }
+            $(this).dialog("close");
+        }
+    });
+
+    //dialogButtons.push({
+    //    text: "關閉",
+    //    icons: {
+    //        primary: "ui-icon-close"
+    //    },
+    //    click: function () {
+    //        $(this).dialog("close");
+    //    }
+    //});
+</script>
+
+
+

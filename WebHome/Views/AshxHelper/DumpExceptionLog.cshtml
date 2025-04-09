@@ -39,7 +39,7 @@
     _viewModel = ViewBag.ViewModel as DocumentQueryViewModel;
     if (_viewModel == null)
     {
-        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]!).PrepareViewModelAsync<DocumentQueryViewModel>(_viewModel);
+        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]!).PrepareViewModelAsync<DocumentQueryViewModel>();
         ViewBag.ViewModel = _viewModel;
     }
 

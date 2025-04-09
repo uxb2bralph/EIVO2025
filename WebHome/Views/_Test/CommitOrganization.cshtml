@@ -29,7 +29,7 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState ?? ViewContext.ViewData.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
-    _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<OrganizationViewModel[]>(_viewModel);
+    _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<OrganizationViewModel[]>();
     var Response = Context.Response;
     List<String> result = new List<string>();
 

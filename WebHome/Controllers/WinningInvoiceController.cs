@@ -28,6 +28,7 @@ using ModelCore.Schema.TurnKey.E0402;
 using CommonLib.Utility;
 using Microsoft.Net.Http.Headers;
 using WebHome.Helper.Security.Authorization;
+using ModelCore.Models;
 
 namespace WebHome.Controllers
 {

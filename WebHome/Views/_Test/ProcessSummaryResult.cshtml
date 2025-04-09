@@ -29,7 +29,7 @@
     if(_viewModel == null)
     {
         _viewModel = new InquireInvoiceViewModel();
-        await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<InquireInvoiceViewModel>(_viewModel);
+        _viewModel = await((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<InquireInvoiceViewModel>();
         ViewBag.ViewModel = _viewModel;
     }
     DateTime startDate = _viewModel.DateFrom ?? DateTime.Today;

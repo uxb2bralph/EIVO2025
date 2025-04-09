@@ -170,7 +170,7 @@
 
     function disableCompany(value) {
         if (confirm('確認停用此筆資料?')) {
-            invokeAction('@(VirtualPathUtility.ToAbsolute("~/Handling/DisableCompany"))',
+            invokeAction('../Handling/DisableCompany',
                 { 'companyID': value },
                 function () {
                     inquireCompany(pageNum, function (data) {
@@ -182,7 +182,7 @@
 
     function enableCompany(value) {
         if (confirm('確認啟用此筆資料?')) {
-            invokeAction('@(VirtualPathUtility.ToAbsolute("~/Handling/EnableCompany"))',
+            invokeAction('../Handling/EnableCompany',
                 { 'companyID': value },
                 function () {
                     inquireCompany(pageNum, function (data) {
@@ -236,7 +236,7 @@
 
         function applyRelationship(value) {
             if (confirm('確認設定此開立人為B2B營業人?')) {
-                invokeAction('@(VirtualPathUtility.ToAbsolute("~/Handling/ApplyRelationship"))',
+                invokeAction('../Handling/ApplyRelationship',
                     { 'companyID': value },
                     function () {
                         $inquiryAgent.inquire();
@@ -246,7 +246,7 @@
 
         function commitMaster(keyID, action) {
             if (confirm(action)) {
-                invokeAction('@(VirtualPathUtility.ToAbsolute("~/Handling/CommitMasterOrganization"))',
+                invokeAction('../Handling/CommitMasterOrganization',
                     { 'KeyID': keyID },
                     function (resultValue) {
                         if (resultValue.result) {

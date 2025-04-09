@@ -46,6 +46,7 @@ Use command:
                 {
                     //Console.WriteLine("Hello, World!");
                     EIVOTurnkeyFactory.Notify();
+                    JobHelper.Tasks.CheckTurnkeyLog.Notify();
                 }));
             }
         }

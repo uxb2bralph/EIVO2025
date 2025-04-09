@@ -77,8 +77,8 @@
 
     function showLoadingModal() {
         var $body = $('body');
-        //var $modal = $('<div style="position: absolute;top: 0;left: 0;z-index: 1000;width: 100%;opacity: 0.5;filter: Alpha(opacity=50);background: gray;"><img src="@(VirtualPathUtility.ToAbsolute("~/images/loading.gif"))" style="position: absolute;top:0;left:0;right:0;bottom:0;margin:auto;max-height:100%;max-width:100%;"></div>');
-        var $modal = $('<div style="position: absolute;top: 0;left: 0;z-index: 1000;width: 100%;opacity: 0.5;filter: Alpha(opacity=50);background: gray;"><img src="@(VirtualPathUtility.ToAbsolute("~/images/loading.gif"))" style="position: absolute;"></div>');
+        //var $modal = $('<div style="position: absolute;top: 0;left: 0;z-index: 1000;width: 100%;opacity: 0.5;filter: Alpha(opacity=50);background: gray;"><img src="../images/loading.gif" style="position: absolute;top:0;left:0;right:0;bottom:0;margin:auto;max-height:100%;max-width:100%;"></div>');
+        var $modal = $('<div style="position: absolute;top: 0;left: 0;z-index: 1000;width: 100%;opacity: 0.5;filter: Alpha(opacity=50);background: gray;"><img src="../images/loading.gif" style="position: absolute;"></div>');
         var $img = $modal.find('img');
         $modal.css('height', $body.css('height'));
         $img.css('top', $body.scrollTop() + screen.height / 2 - 48);

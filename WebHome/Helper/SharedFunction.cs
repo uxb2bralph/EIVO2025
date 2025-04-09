@@ -129,9 +129,9 @@ namespace WebHome.Helper
             });
         }
 
-        public static void SendMailMessage(this String body, String mailTo, String subject, CustomSmtpHost smtpSettings = null, params String[] attachment)
+        public static void SendMailMessage(this String body, String mailTo, String subject, CustomSmtpHost? smtpSettings = null, params String[] attachment)
         {
-            System.Net.Mail.Attachment[] items = null;
+            System.Net.Mail.Attachment[]? items = null;
 
             if (attachment != null && attachment.Length > 0)
             {

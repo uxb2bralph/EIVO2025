@@ -1,0 +1,125 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+
+@using WebHome.Models
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
+@using WebHome.Controllers
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@functions
+{
+    UserProfile? profile;
+    static void DoProcess(int taskID, ReviseInvoiceViewModel viewModel, UserProfile? profile)
+    {
+        Task.Run(() =>
+        {
+            try
+            {
+                using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
+                {
+                    db.BuildInvoiceQuery(viewModel, profile, null);
+                    Exception? exception = null;
+
+                    String stageF0401 = System.IO.Path.Combine(Logger.LogPath, "Stage1", "F0401").CheckStoredPath();
+                    String stageF0501 = System.IO.Path.Combine(Logger.LogPath, "Stage2", "F0501").CheckStoredPath();
+                    String stageF0701 = ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
+                    try
+                    {
+                        foreach (var item in db.Items)
+                        {
+                            db.ProcessVoidInvoiceRequest(Naming.VoidActionMode.修改營業人資料, viewModel, item);
+                            item.CreateF0701().ConvertToXml().Save(System.IO.Path.Combine(stageF0701, "INV0701_" + item.TrackCode + item.No + ".xml"));
+
+                            item.InvoiceSeller.CustomerName = viewModel.ReviseContent?.SellerName;
+                            item.InvoiceSeller.Name = viewModel.ReviseContent?.SellerName;
+                            db.SubmitChanges();
+
+                            item.CreateF0401().ConvertToXml().Save(System.IO.Path.Combine(stageF0401, "INV0401_" + item.TrackCode + item.No + ".xml"));
+                            if (item.InvoiceCancellation != null)
+                            {
+                                item.CreateF0501().ConvertToXml().Save(System.IO.Path.Combine(stageF0501, "INV0501_" + item.TrackCode + item.No + ".xml"));
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                        exception = ex;
+                    }
+
+                    ProcessRequest taskItem = db.GetTable<ProcessRequest>()
+                        .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                    if (taskItem != null)
+                    {
+                        if (exception != null)
+                        {
+                            var logItem = new ExceptionLog
+                            {
+                                DataContent = exception.Message,
+                                LogTime = DateTime.Now,
+                            };
+                            db.GetTable<ExceptionLog>().InsertOnSubmit(logItem);
+                            db.SubmitChanges();
+
+                            taskItem.LogID = logItem.LogID;
+                        }
+
+                        taskItem.ProcessComplete = DateTime.Now;
+                        db.SubmitChanges();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+        });
+
+    }
+}
+@{
+
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    ReviseInvoiceViewModel _viewModel = ViewBag.ViewModel as ReviseInvoiceViewModel;
+    if (_viewModel == null)
+    {
+        _viewModel = new ReviseInvoiceViewModel();
+        _viewModel = await((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<ReviseInvoiceViewModel>();
+    }
+
+    profile = Context.GetUser();
+
+    ProcessRequest processItem = new ProcessRequest
+    {
+        Sender = profile?.UID,
+        SubmitDate = DateTime.Now,
+        ProcessStart = DateTime.Now,
+        ViewModel = _viewModel.JsonStringify(),
+    };
+    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.SubmitChanges();
+
+    DoProcess(processItem.TaskID, _viewModel, profile);
+
+    await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckTask.cshtml",
+    new AttachmentViewModel
+    {
+        TaskID = processItem.TaskID,
+    });
+}

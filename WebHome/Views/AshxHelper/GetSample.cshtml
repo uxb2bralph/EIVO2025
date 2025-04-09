@@ -29,7 +29,7 @@
     QueryViewModel? _viewModel = ViewBag.ViewModel as QueryViewModel;
     if (_viewModel == null)
     {
-        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<QueryViewModel>(_viewModel);
+        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<QueryViewModel>();
         ViewBag.ViewModel = _viewModel;
     }
     var Response = Context.Response;

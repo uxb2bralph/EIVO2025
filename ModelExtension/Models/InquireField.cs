@@ -6,8 +6,6 @@ using System.Linq.Expressions;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
 //using Microsoft.AspNetCore.Mvc.Html;
-using WebHome.Helper;
-using WebHome.Models.ViewModel;
 using ModelCore.Models.ViewModel;
 
 using ModelCore.DataEntity;
@@ -17,8 +15,9 @@ using CommonLib.Utility;
 using CommonLib.DataAccess;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ModelCore.Helper;
 
-namespace WebHome.Models
+namespace ModelCore.Models
 {
     public partial class CommonInquiry<TEntity,TViewModel> : ModelSourceInquiry<TEntity>
         where TEntity : class, new()
@@ -196,9 +195,9 @@ namespace WebHome.Models
 
     public partial class InquireInvoiceByRole : CommonInquiry<InvoiceItem, InquireInvoiceViewModel>
     {
-        protected UserProfile _userProfile;
+        protected UserProfile? _userProfile;
 
-        public InquireInvoiceByRole(UserProfile profile)
+        public InquireInvoiceByRole(UserProfile? profile)
         {
             _userProfile = profile;
         }

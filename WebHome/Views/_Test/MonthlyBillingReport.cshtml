@@ -65,7 +65,7 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
     _viewModel = new OrganizationViewModel { };
-    await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<OrganizationViewModel>(_viewModel);
+    _viewModel = await((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<OrganizationViewModel>();
 
     InquireData();
 

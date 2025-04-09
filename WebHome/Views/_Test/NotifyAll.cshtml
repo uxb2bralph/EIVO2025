@@ -26,7 +26,7 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
     DocumentQueryViewModel _viewModel = new DocumentQueryViewModel();
-    await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<DocumentQueryViewModel>(_viewModel);
+    _viewModel = await((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<DocumentQueryViewModel>();
     ViewBag.ViewModel = _viewModel;
 
 }

@@ -690,7 +690,7 @@ namespace ModelCore.Helper
                         SequenceNumber = String.Format("{0:00}", productItem.No),
                         Unit = productItem.PieceUnit,
                         UnitPrice = productItem.UnitCost ?? 0m, //productItem.UnitCost.HasValue ? productItem.UnitCost.Value.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0) : 0,
-                        TaxType = (Schema.TurnKey.F0401.TaxTypeEnum?)productItem.TaxType ?? Schema.TurnKey.F0401.TaxTypeEnum.Item1,
+                        TaxType = productItem.TaxType.HasValue && Enum.IsDefined(typeof(Schema.TurnKey.F0401.TaxTypeEnum), (int)productItem.TaxType) ? (Schema.TurnKey.F0401.TaxTypeEnum)productItem.TaxType : Schema.TurnKey.F0401.TaxTypeEnum.Item1,
                     });
                 }
             }

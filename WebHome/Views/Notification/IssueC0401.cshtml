@@ -74,8 +74,8 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
         {
 
             String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
-                ? Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model).ToString()
-                : Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model).ToString();
+                ? (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model)).ToString()
+                : (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model)).ToString();
 
             if (_viewModel.AppendAttachment == true)
             {
