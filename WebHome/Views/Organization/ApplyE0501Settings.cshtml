@@ -28,7 +28,7 @@
     OrganizationQueryViewModel _viewModel = this.Model as OrganizationQueryViewModel ?? ViewBag.ViewModel as OrganizationQueryViewModel;
     if (_viewModel == null)
     {
-        await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<OrganizationQueryViewModel>(_viewModel);
+        _viewModel = await((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<OrganizationQueryViewModel>();
         ViewBag.ViewModel = _viewModel;
     }
 

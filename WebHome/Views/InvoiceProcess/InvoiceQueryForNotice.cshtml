@@ -110,7 +110,7 @@
                         <button type="button" name="btnBuyerSample" onclick="getSample();">下載範本</button>&nbsp;&nbsp;
                         <script>
                             function getSample() {
-                                $('').launchDownload('@(VirtualPathUtility.ToAbsolute("~/Helper/GetSample.ashx"))', { 'data': 'InvoiceBuyer' });
+                                $('').launchDownload('../Helper/GetSample.ashx', { 'data': 'InvoiceBuyer' });
                             }
                         </script>
                         @{

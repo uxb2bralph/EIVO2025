@@ -229,7 +229,7 @@
                 });
             },
             edit: function (value) {
-                actionHandler('@(VirtualPathUtility.ToAbsolute("~/Helper/EditCompany.aspx"))',
+                actionHandler('../Helper/EditCompany.aspx',
                     { 'companyID': value },
                     function () {
                         uiInquireBusiness.inquireBusiness();

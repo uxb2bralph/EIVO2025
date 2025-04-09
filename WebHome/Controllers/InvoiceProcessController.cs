@@ -35,6 +35,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using CommonLib.Core.Utility;
 using WebHome.Helper.Security.Authorization;
+using ModelCore.Resource;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace WebHome.Controllers
 {
@@ -50,22 +52,7 @@ namespace WebHome.Controllers
         public static ModelSourceInquiry<InvoiceItem> CreateInvoiceItemInquiry(Controller controller, InquireInvoiceViewModel? viewModel)
         {
             var profile = controller.HttpContext.GetUser();
-
-            var inquireConsumption = new InquireInvoiceConsumption { QueryViewModel = viewModel };
-            //inquireConsumption.Append(new InquireInvoiceConsumptionExtensionToPrint { });
-
-            return (ModelSourceInquiry<InvoiceItem>)(new InquireEffectiveInvoice { QueryViewModel = viewModel })
-                .Append(new InquireInvoiceByRole(profile) { QueryViewModel = viewModel })
-                .Append(inquireConsumption)
-                .Append(new InquireInvoiceSeller { QueryViewModel = viewModel })
-                .Append(new InquireInvoiceBuyer { QueryViewModel = viewModel })
-                .Append(new InquireInvoiceBuyerByName { QueryViewModel = viewModel })
-                .Append(new InquireCustomerID { QueryViewModel = viewModel })
-                .Append(new InquireInvoiceDate { QueryViewModel = viewModel })
-                .Append(new InquireInvoiceAttachment { QueryViewModel = viewModel })
-                .Append(new InquireInvoiceNo { QueryViewModel = viewModel })
-                .Append(new InquireInvoiceAgent { QueryViewModel = viewModel })
-                .Append(new InquireWinningInvoice { QueryViewModel = viewModel });
+            return viewModel.CreateInvoiceInquiry(profile);
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
@@ -189,7 +176,7 @@ namespace WebHome.Controllers
             ViewResult result = (ViewResult)Index(viewModel);
             result.ViewName = "Index2023";
             viewModel.ResultAction = "Void";
-            ViewBag.Title = "註銷發票(C0701)";
+            ViewBag.Title = "註銷發票(F0701)";
             //ViewBag.InquiryView = "~/Views/InvoiceProcess/InvoiceQueryForNotice.cshtml";
 
             return result;
@@ -226,12 +213,12 @@ namespace WebHome.Controllers
             //models.DataContext.LoadOptions = ops;
 
             ViewBag.ViewModel = viewModel;
-
-            BuildQuery(viewModel);
+            var profile = HttpContext.GetUser();
+            DataSource.BuildInvoiceQuery(viewModel, profile, viewModel?.ResultAction);
 
             ViewBag.DataItemView = "~/Views/InvoiceProcess/DataQuery/PrepareInvoiceQueryDataItem.cshtml";
 
-            if (viewModel.PageIndex.HasValue)
+            if (viewModel!.PageIndex.HasValue)
             {
                 viewModel.PageIndex--;
                 return View("~/Views/InvoiceProcess/DataQuery/InvoiceQueryList.cshtml", DataSource.Items);
@@ -241,60 +228,6 @@ namespace WebHome.Controllers
                 viewModel.PageIndex = 0;
                 //checkQueryAction(viewModel.ResultAction);
                 return View("~/Views/InvoiceProcess/Module/InvoiceQueryResult.cshtml", DataSource.Items);
-            }
-        }
-
-        private void BuildQuery(InquireInvoiceViewModel viewModel)
-        {
-            DataSource.Inquiry = CreateInvoiceItemInquiry(this, viewModel);
-            DataSource.BuildQuery();
-            checkQueryExtension(viewModel.ResultAction, viewModel);
-
-            if (!String.IsNullOrEmpty(viewModel.PrintMark))
-            {
-                DataSource.Items = DataSource.Items.Where(i => i.PrintMark == viewModel.PrintMark);
-            }
-
-            IQueryable<InvoiceCarrier> carrierItems = null;
-            if (!String.IsNullOrEmpty(viewModel.CarrierType))
-            {
-                carrierItems = models.GetTable<InvoiceCarrier>().Where(c => c.CarrierType == viewModel.CarrierType);
-            }
-
-            viewModel.CarrierNo = viewModel.CarrierNo.GetEfficientString();
-            if (viewModel.CarrierNo != null)
-            {
-                if (carrierItems == null)
-                    carrierItems = models.GetTable<InvoiceCarrier>();
-                carrierItems = carrierItems.Where(c => c.CarrierNo == viewModel.CarrierNo || c.CarrierNo2 == viewModel.CarrierNo);
-            }
-
-            if (carrierItems != null)
-            {
-                DataSource.Items = DataSource.Items.Join(carrierItems, i => i.InvoiceID, c => c.InvoiceID, (i, c) => i);
-            }
-
-            if (!String.IsNullOrEmpty(viewModel.PrintMark))
-            {
-                DataSource.Items = DataSource.Items.Where(i => i.PrintMark == viewModel.PrintMark);
-            }
-
-            if (viewModel.Printed.HasValue)
-            {
-                var logs = models.GetTable<DocumentPrintLog>();
-                if (viewModel.Printed == true)
-                {
-                    DataSource.Items = DataSource.Items.Where(i => logs.Any(l => l.DocID == i.InvoiceID));
-                }
-                else
-                {
-                    DataSource.Items = DataSource.Items.Where(i => !logs.Any(l => l.DocID == i.InvoiceID));
-                }
-            }
-
-            if (viewModel.HasAddr == true)
-            {
-                DataSource.Items = DataSource.Items.Where(i => i.InvoiceBuyer.Address != null);
             }
         }
 
@@ -334,37 +267,6 @@ namespace WebHome.Controllers
                     return;
             }
         }
-
-        private void checkQueryExtension(String resultAction, InquireInvoiceViewModel viewModel)
-        {
-            switch (resultAction)
-            {
-                case "Allow":
-                    DataSource.Items = DataSource.Items.Where(i => i.AuthorizeToVoid != null);
-                    break;
-
-                case "Print":
-                    DataSource.Items = DataSource.Items.Where(i => i.InvoiceBuyer.ReceiptNo != "0000000000"
-                        || (i.InvoiceBuyer.ReceiptNo == "0000000000"
-                            && i.InvoiceDonation == null
-                            && (i.InvoiceCarrier == null
-                                || (i.InvoiceCarrier.CarrierType == ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType && i.InvoiceWinningNumber != null))));
-
-                    break;
-
-                case "Notify":
-                    if (viewModel.IsNoticed == false)
-                    {
-                        DataSource.Items = DataSource.Items.Where(i => !models.GetTable<IssuingNotice>().Any(n => n.DocID == i.InvoiceID && n.IssueDate.HasValue));
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-
-        }
-
 
         //public ActionResult InvoiceAttachment()
         //{
@@ -1160,7 +1062,7 @@ namespace WebHome.Controllers
 
                 //models.DeleteAny<AuthorizeToVoid>(i => chkItem.Contains(i.InvoiceID));
 
-                return View("~/Views/InvoiceProcess/ResultAction/VoidDone.ascx");
+                return View("~/Views/InvoiceProcess/ResultAction/VoidDone.cshtml");
             }
             else
             {
@@ -1170,31 +1072,48 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult VoidInvoice(int[] chkItem, Naming.VoidActionMode? mode)
+        public ActionResult VoidInvoice(ReviseInvoiceViewModel viewModel)
         {
-            if (chkItem != null && chkItem.Count() > 0)
+            ViewBag.ViewModel = viewModel;
+            IQueryable<InvoiceItem>? items = null;
+            if (viewModel?.ChkItem?.Length > 0)
             {
 
                 var profile = HttpContext.GetUser();
                 //if (profile.IsSystemAdmin())
                 //{
-                var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
-                doVoidInvoice(items, mode);
-                //}
-                //else
-                //{
-                //    var items = models.GetTable<InvoiceItem>()
-                //        .Where(i => i.AuthorizeToVoid == null)
-                //        .Where(i => chkItem.Contains(i.InvoiceID));
-                //    authorizeToVoid(items, mode);
-                //}
+                items = models!.GetTable<InvoiceItem>().Where(i => viewModel.ChkItem.Contains(i.InvoiceID));
 
+                if(!items.Any())
+                {
+                    ModelState.AddModelError("Message", "註銷發票不存在!!");
+                }
+                else
+                {
+                    if (viewModel.Mode == Naming.VoidActionMode.修正)
+                    {
+                        if (viewModel?.ReviseContent?.ReceiptNo.CheckRegno() != true)
+                        {
+                            ModelState.AddModelError("Message", "公司統一編號錯誤!!");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("Message", "請選擇註銷資料!!");
+                ViewBag.Message = "請選擇註銷資料!!";
+                return View("~/Views/Shared/AlertMessage.cshtml");
+            }
+
+            if(ModelState.IsValid)
+            {
+                doVoidInvoice(items, viewModel?.Mode, viewModel);
                 return View("~/Views/InvoiceProcess/ResultAction/VoidDone.cshtml");
             }
             else
             {
-                ViewBag.Message = "請選擇註銷資料!!";
-                return View("~/Views/Shared/AlertMessage.cshtml");
+                return View("~/Views/Shared/AlertMessage.cshtml", ModelState.ErrorMessage());
             }
 
         }
@@ -1296,7 +1215,7 @@ namespace WebHome.Controllers
         //    }
         //}
 
-        private void doVoidInvoice(IEnumerable<InvoiceItem> items, Naming.VoidActionMode? mode)
+        private void doVoidInvoice(IEnumerable<InvoiceItem> items, Naming.VoidActionMode? mode, ReviseInvoiceViewModel? viewModel = null)
         {
             ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
 
@@ -1304,25 +1223,13 @@ namespace WebHome.Controllers
             {
                 lock(typeof(InvoiceProcessController))
                 {
-                    var request = item.CDS_Document.VoidInvoiceRequest;
-                    if (request == null)
-                    {
-                        request = new VoidInvoiceRequest
-                        {
-                        };
-                        item.CDS_Document.VoidInvoiceRequest = request;
-                    }
-
-                    request.VoidDate = DateTime.Now;
-                    request.Reason = mode.HasValue ? $"{mode}" : "註銷重開";
-                    request.RequestType = (int?)mode;
-                    request.CommitDate = null;
-                    models.SubmitChanges();
+                    models!.ProcessVoidInvoiceRequest(mode, viewModel, item);
                 }
 
                 item.CreateF0701().ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "INV0701_" + item.TrackCode + item.No + ".xml"));
             }
         }
+
 
         private void authorizeToVoid(IEnumerable<InvoiceItem> items, Naming.VoidActionMode? mode)
         {

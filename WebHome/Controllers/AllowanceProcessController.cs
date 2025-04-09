@@ -29,6 +29,7 @@ using ModelCore.InvoiceManagement;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using CommonLib.DataAccess;
+using ModelCore.Models;
 
 namespace WebHome.Controllers
 {

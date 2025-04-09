@@ -15,21 +15,22 @@
 
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    QueryViewModel _model;
+    QueryViewModel? _model;
 
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _model = this.Model as QueryViewModel ?? ViewBag.ViewModel as QueryViewModel;
 
-    String _dialogID = "message" + DateTime.Now.Ticks;
-    JObject options = ViewBag.DialogOptions as JObject;
+    String _dialogID = _model?.DialogID ?? $"message{DateTime.Now.Ticks}";
+    JObject? options = ViewBag.DialogOptions as JObject;
 
 }
 
 <div id="@(_dialogID)">
-
+    <script>
+        var dialogButtons = [];
+    </script>
     @RenderBody()
-
     <script>
         $('#@(_dialogID)').dialog({
             //autoOpen: false,
@@ -37,8 +38,7 @@
             resizable: true,
             //modal: true,
             title: "<div class='modal-title'><h4><i class='fa fa-clock-o'></i> @(_model?.ActionTitle ?? "訊息")</h4></div>",
-            buttons: [
-            ],
+            buttons: dialogButtons,
             close: function (event, ui) {
                 $('#@(_dialogID)').remove();
             }

@@ -5,6 +5,7 @@ using System.Web;
 using ModelCore.DataEntity;
 using CommonLib.Utility;
 using ModelCore.Models.ViewModel;
+using ModelCore.Models;
 
 namespace WebHome.Models
 {

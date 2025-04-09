@@ -43,49 +43,49 @@
                 <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>系統管理維護<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/TrackCode/Index"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票字軌維護</a>
+                        <a href="../TrackCode/Index"><i class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票字軌維護</a>
                     </li>
                     <li>
                         <a href="@(Url.Action("Index","PeriodicalExchangeRate"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>期別匯率維護</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/WinningNumber/Index"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票中獎號碼維護</a>
+                        <a href="../WinningNumber/Index"><i class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票中獎號碼維護</a>
                     </li>
                     @*<li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/UnusedInvoiceList.aspx"))">上期發票空白號碼查詢</a>
+                            <a href="../SYS/UnusedInvoiceList.aspx">上期發票空白號碼查詢</a>
                         </li>
                         <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/Inquiry/InquireInvoice.aspx"))">查詢發票/折讓</a>
+                            <a href="../Inquiry/InquireInvoice.aspx">查詢發票/折讓</a>
                         </li>*@
                     <li>
                         <a href="@Html.Raw(Url.Action("MailTracking", "Handling"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>登錄掛號郵件號碼</a>
                     </li>
                     @*<li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/EIVO/WebDownloadMIG.aspx"))">下載MIG檔案</a>
+                            <a href="../EIVO/WebDownloadMIG.aspx">下載MIG檔案</a>
                         </li>*@
                     @*<li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/Inquiry/PrintInvoices.aspx"))">發票列印</a>
+                            <a href="../Inquiry/PrintInvoices.aspx">發票列印</a>
                         </li>
                         <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SAM/ResendInvoicesMail.aspx"))">重送開立發票通知</a>
+                            <a href="../SAM/ResendInvoicesMail.aspx">重送開立發票通知</a>
                         </li>*@
                     @*<li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/UploadQRCodeKey.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>QR Code金鑰維護</a>
+                            <a href="../SYS/UploadQRCodeKey.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>QR Code金鑰維護</a>
                         </li>*@
                     @*<li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SAM/queryCALog_list.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>查詢憑證使用記錄</a>
+                            <a href="../SAM/queryCALog_list.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>查詢憑證使用記錄</a>
                         </li>*@
                     @*<li>
                             <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>系統監控 <span class="fa arrow"></span></a>
                             <ul class="nav nav-third-level">
                                 <li>
-                                    <a href="@(VirtualPathUtility.ToAbsolute("~/SAM/SystemErrorLog.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>異常記錄查詢</a>
+                                    <a href="../SAM/SystemErrorLog.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>異常記錄查詢</a>
                                 </li>
                                 <li>
-                                    <a href="@(VirtualPathUtility.ToAbsolute("~/SAM/SystemMonitor.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>用戶端連線狀態</a>
+                                    <a href="../SAM/SystemMonitor.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>用戶端連線狀態</a>
                                 </li>
                                 <li>
-                                    <a href="@(VirtualPathUtility.ToAbsolute("~/SAM/CheckSequentialInvoiceNo.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票號連號檢查</a>
+                                    <a href="../SAM/CheckSequentialInvoiceNo.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票號連號檢查</a>
                                 </li>
                             </ul>
                         </li>*@
@@ -93,18 +93,18 @@
                             <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>TurnKey監控 <span class="fa arrow"></span></a>
                             <ul class="nav nav-third-level">
                                 <li>
-                                    <a href="@(VirtualPathUtility.ToAbsolute("~/SAM/TurnKeyMonitor.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>TurnKey傳送狀態</a>
+                                    <a href="../SAM/TurnKeyMonitor.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>TurnKey傳送狀態</a>
                                 </li>
                                 <li>
-                                    <a href="@(VirtualPathUtility.ToAbsolute("~/SAM/TurnKeyLog.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>TurnKey發票傳送紀錄</a>
+                                    <a href="../SAM/TurnKeyLog.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>TurnKey發票傳送紀錄</a>
                                 </li>
                             </ul>
                         </li>*@
                     @*<li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/MaintainSystemMessage.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>跑馬燈訊息維護</a>
+                            <a href="../SYS/MaintainSystemMessage.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>跑馬燈訊息維護</a>
                         </li>*@
                     @*<li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SMS/DynamicSendSMSMessage.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>客服訊息</a>
+                            <a href="../SMS/DynamicSendSMSMessage.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>客服訊息</a>
                         </li>*@
                 </ul>
                 <!-- /.nav-second-level -->
@@ -116,19 +116,19 @@
                         <a href="@Html.Raw(Url.Action("AccountIndex","Account"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>使用者帳號管理</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/OrganizationQuery/Index"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>營業人資料管理</a>
+                        <a href="../OrganizationQuery/Index"><i class="fa fa-hand-o-right" aria-hidden="true"></i>營業人資料管理</a>
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("InquireToProcess", "InvoiceProcess"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>買受人資料管理</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/BusinessRelationship/MaintainRelationship"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>相對營業人資料管理</a>
+                        <a href="../BusinessRelationship/MaintainRelationship"><i class="fa fa-hand-o-right" aria-hidden="true"></i>相對營業人資料管理</a>
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("QueryIndex","InvoiceNumberApply"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>新登錄營業人資料受理</a>
                     </li>
                     @*<li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SAM/SocialWelfareAgenciesManger.aspx"))">社福機構資料管理</a>
+                            <a href="../SAM/SocialWelfareAgenciesManger.aspx">社福機構資料管理</a>
                         </li>*@
                 </ul>
                 <!-- /.nav-second-level -->
@@ -137,28 +137,28 @@
                 <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>發票作業<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceNo/MaintainInvoiceNoInterval"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票號碼維護</a>
+                        <a href="../InvoiceNo/MaintainInvoiceNoInterval"><i class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票號碼維護</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/Index"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>資料查詢／列印／匯出</a>
+                        <a href="../InvoiceProcess/Index"><i class="fa fa-hand-o-right" aria-hidden="true"></i>資料查詢／列印／匯出</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceBusiness/CreateInvoice"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上開立發票</a>
+                        <a href="../InvoiceBusiness/CreateInvoice"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上開立發票</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToCancel"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上作廢發票</a>
+                        <a href="../InvoiceProcess/InquireToCancel"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上作廢發票</a>
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("InquireToIssueAllowance", "InvoiceProcess"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上開立折讓證明</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceNo/VacantNoIndex"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>上期發票空白號碼查詢／匯出</a>
+                        <a href="../InvoiceNo/VacantNoIndex"><i class="fa fa-hand-o-right" aria-hidden="true"></i>上期發票空白號碼查詢／匯出</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToMIG"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>下載MIG檔案</a>
+                        <a href="../InvoiceProcess/InquireToMIG"><i class="fa fa-hand-o-right" aria-hidden="true"></i>下載MIG檔案</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToAuthorize"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>核准重印發票</a>
+                        <a href="../InvoiceProcess/InquireToAuthorize"><i class="fa fa-hand-o-right" aria-hidden="true"></i>核准重印發票</a>
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("InquireToVoid", "InvoiceProcess"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>註銷發票</a>
@@ -170,7 +170,7 @@
                         <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>資料管理 <span class="fa arrow"></span></a>
                         <ul class="nav nav-third-level">
                             <li>
-                                <a href="@(VirtualPathUtility.ToAbsolute("~/DataExchange/Index"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>資料管理</a>
+                                <a href="../DataExchange/Index"><i class="fa fa-hand-o-right" aria-hidden="true"></i>資料管理</a>
                             </li>
                         </ul>
                     </li>
@@ -180,7 +180,7 @@
                 <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>發票通知<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/IssuingNotice"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>重送開立發票通知</a>
+                        <a href="../InvoiceProcess/IssuingNotice"><i class="fa fa-hand-o-right" aria-hidden="true"></i>重送開立發票通知</a>
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("InquireToNotifyWinning", "InvoiceProcess"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>重送發票中獎通知</a>
@@ -191,25 +191,25 @@
                 <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>統計報表<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/InvoiceReport"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票明細查詢</a>
+                        <a href="../InvoiceQuery/InvoiceReport"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票明細查詢</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/InvoiceSummary"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票統計表</a>
+                        <a href="../InvoiceQuery/InvoiceSummary"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票統計表</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/WinningInvoice/ReportIndex"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>中獎統計表</a>
+                        <a href="../WinningInvoice/ReportIndex"><i class="fa fa-hand-o-right" aria-hidden="true"></i>中獎統計表</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/DonatedInvoice/ReportIndex"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>捐贈統計表</a>
+                        <a href="../DonatedInvoice/ReportIndex"><i class="fa fa-hand-o-right" aria-hidden="true"></i>捐贈統計表</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/InvoiceAttachment"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>附件檔查詢＼下載</a>
+                        <a href="../InvoiceQuery/InvoiceAttachment"><i class="fa fa-hand-o-right" aria-hidden="true"></i>附件檔查詢＼下載</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/InvoiceMediaReport"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>媒體申報檔匯出</a>
+                        <a href="../InvoiceQuery/InvoiceMediaReport"><i class="fa fa-hand-o-right" aria-hidden="true"></i>媒體申報檔匯出</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/MonthlyReport"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>下載發票月報表</a>
+                        <a href="../InvoiceQuery/MonthlyReport"><i class="fa fa-hand-o-right" aria-hidden="true"></i>下載發票月報表</a>
                     </li>
                 </ul>
             </li>
@@ -217,22 +217,22 @@
                     <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>系統維護<span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level">
                         <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/MaintainUserRoleDefinition.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>角色定義維護</a>
+                            <a href="../SYS/MaintainUserRoleDefinition.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>角色定義維護</a>
                         </li>
                         <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/MaintainCategoryDefinition.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>組織單位類別維護</a>
+                            <a href="../SYS/MaintainCategoryDefinition.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>組織單位類別維護</a>
                         </li>
                         <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/MaintainMenuControl.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>工作選單維護</a>
+                            <a href="../SYS/MaintainMenuControl.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>工作選單維護</a>
                         </li>
                         <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/ApplyUserMenu.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>工作選單套用維護</a>
+                            <a href="../SYS/ApplyUserMenu.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>工作選單套用維護</a>
                         </li>
                         <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/MaintainOrganizationCategory.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>公司類別套用維護</a>
+                            <a href="../SYS/MaintainOrganizationCategory.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>公司類別套用維護</a>
                         </li>
                         <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute("~/SYS/MaintainUserProfile.aspx"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>使用者角色維護</a>
+                            <a href="../SYS/MaintainUserProfile.aspx"><i class="fa fa-hand-o-right" aria-hidden="true"></i>使用者角色維護</a>
                         </li>
                     </ul>
                 </li>*@

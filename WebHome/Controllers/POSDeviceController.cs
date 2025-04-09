@@ -1,35 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using ClosedXML.Excel;
+using CommonLib.Core.Utility;
+using CommonLib.Utility;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ModelCore.DataEntity;
-using WebHome.Helper;
-using WebHome.Models;
-
-
-using System.Text;
+using ModelCore.Helper;
+using ModelCore.InvoiceManagement;
+using ModelCore.InvoiceManagement.Validator;
 using ModelCore.Locale;
-
+using ModelCore.Models.ViewModel;
+using ModelCore.Schema.EIVO;
+using ModelCore.Security;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Linq;
+using System.Data.SqlClient;
 using System.IO;
 using System.IO.Compression;
-using CommonLib.Utility;
+using System.Linq;
+using System.Text;
 using System.Threading;
-using System.Data.SqlClient;
-using System.Data;
-using ClosedXML.Excel;
-using System.Data.Linq;
-using WebHome.Models.ViewModel;
-using ModelCore.Models.ViewModel;
-using ModelCore.InvoiceManagement;
-using Newtonsoft.Json;
+using System.Web;
 using System.Xml;
 using System.Xml.Linq;
-using ModelCore.Schema.EIVO;
-using Microsoft.AspNetCore.Http;
-using CommonLib.Core.Utility;
-using ModelCore.Security;
-using ModelCore.InvoiceManagement.Validator;
+using WebHome.Helper;
+using WebHome.Models;
+using WebHome.Models.ViewModel;
 
 
 namespace WebHome.Controllers

@@ -12,6 +12,7 @@ using ModelCore.DataEntity;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
+using Newtonsoft.Json;
 
 namespace ModelCore.Helper
 {
@@ -869,6 +870,20 @@ namespace ModelCore.Helper
                                 .OrderByDescending(i => i.AllowanceID)
                                 .FirstOrDefault();
 
+                        if(allowance == null)
+                        {
+                            if (no?.Length >= 10)
+                            {
+                                var allowanceItem = models.GetTable<InvoiceAllowanceItem>()
+                                    .Where(i => i.InvoiceNo == no.Substring(0, 10))
+                                    .FirstOrDefault();
+                                if (allowanceItem != null && no == $"{allowanceItem.InvoiceNo}{allowanceItem.InvoiceAllowanceDetail.First().AllowanceID % 1000000:000000}")
+                                {
+                                    allowance = allowanceItem.InvoiceAllowanceDetail.First().InvoiceAllowance;
+                                }
+                            }
+                        }
+
                         if (allowance != null)
                         {
                             if (code == "C")
@@ -943,7 +958,8 @@ namespace ModelCore.Helper
 
             Naming.VoidActionMode? mode = (Naming.VoidActionMode?)request.RequestType;
             if (mode == Naming.VoidActionMode.註銷作廢
-                || mode == Naming.VoidActionMode.索取紙本)
+                || mode == Naming.VoidActionMode.索取紙本
+                || mode == Naming.VoidActionMode.修正)
             {
                 if (mode == Naming.VoidActionMode.索取紙本
                     && item.InvoiceCancellation == null)
@@ -951,6 +967,17 @@ namespace ModelCore.Helper
                     item.PrintMark = "Y";
                     models.DeleteAnyOnSubmit<InvoiceCarrier>(c => c.InvoiceID == item.InvoiceID);
                     models.SubmitChanges();
+                }
+
+                if (mode == Naming.VoidActionMode.修正
+                    && request.ReviseContent?.Length > 0)
+                {
+                    ReviseInvoiceContent? revise = JsonConvert.DeserializeObject<ReviseInvoiceContent>(request.ReviseContent);
+                    if ((revise?.ReceiptNo != null))
+                    {
+                        item.InvoiceBuyer.ReceiptNo = revise.ReceiptNo;
+                        models.SubmitChanges();
+                    }
                 }
 
                 C0401Handler.PushStepQueueOnSubmit(models, request.CDS_Document, Naming.InvoiceStepDefinition.已開立);

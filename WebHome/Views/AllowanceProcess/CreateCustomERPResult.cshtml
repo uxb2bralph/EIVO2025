@@ -93,7 +93,7 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
     InquireInvoiceViewModel _viewModel = new InquireInvoiceViewModel();
-    await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<InquireInvoiceViewModel>(_viewModel);
+    _viewModel = await((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<InquireInvoiceViewModel>();
 
     var profile = Context.GetUser();
 

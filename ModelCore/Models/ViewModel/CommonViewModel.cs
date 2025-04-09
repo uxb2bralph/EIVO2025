@@ -40,28 +40,24 @@ namespace ModelCore.Models.ViewModel
         public String? CustomerID { get; set; }
         public Naming.InvoiceProcessType? ProcessType { get; set; }
         public int? Attachment { get; set; }
-        [JsonIgnore]
         public DateTime? InvoiceDateFrom
         {
             get => DateFrom;
             set => DateFrom = value;
         }
 
-        [JsonIgnore]
         public DateTime? AllowanceDateFrom
         {
             get => DateFrom;
             set => DateFrom = value;
         }
 
-        [JsonIgnore]
         public DateTime? InvoiceDateTo
         {
             get => DateTo;
             set => DateTo = value;
         }
 
-        [JsonIgnore]
         public DateTime? AllowanceDateTo
         {
             get => DateTo;

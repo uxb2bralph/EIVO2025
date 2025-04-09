@@ -207,6 +207,20 @@ namespace WebHome.Controllers
             return Json(new { result = false, KeyID = viewModel.JsonStringify().EncryptData() });
         }
 
+        public ActionResult CheckProcessRequest(AttachmentViewModel viewModel)
+        {
+            if (viewModel.KeyID != null)
+            {
+                viewModel.TaskID = viewModel.DecryptKeyValue();
+            }
+
+            ViewBag.ViewModel = viewModel;
+            var item = models!.GetTable<ProcessRequest>().Where(p => p.TaskID == viewModel.TaskID).FirstOrDefault();
+            return Json(new { result = item?.ProcessComplete.HasValue, item?.ProcessComplete });
+
+        }
+
+
         public async Task<ActionResult> ImportInvoice()
         {
             var userProfile = HttpContext.GetUser();

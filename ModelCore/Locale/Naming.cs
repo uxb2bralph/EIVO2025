@@ -499,6 +499,8 @@ namespace ModelCore.Locale
             註銷重開 = 0,
             註銷作廢 = 1,
             索取紙本= 2,
+            修正 = 3,
+            修改營業人資料 = 4,
         }
 
         public enum InvoiceProcessType

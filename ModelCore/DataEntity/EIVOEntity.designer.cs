@@ -49387,6 +49387,8 @@ namespace ModelCore.DataEntity
 		
 		private System.Nullable<System.DateTime> _CommitDate;
 		
+		private string _ReviseContent;
+		
 		private EntityRef<CDS_Document> _CDS_Document;
 		
     #region 擴充性方法定義
@@ -49405,6 +49407,8 @@ namespace ModelCore.DataEntity
     partial void OnInvoiceContentChanged();
     partial void OnCommitDateChanging(System.Nullable<System.DateTime> value);
     partial void OnCommitDateChanged();
+    partial void OnReviseContentChanging(string value);
+    partial void OnReviseContentChanged();
     #endregion
 		
 		public VoidInvoiceRequest()
@@ -49538,6 +49542,27 @@ namespace ModelCore.DataEntity
 					this._CommitDate = value;
 					this.SendPropertyChanged("CommitDate");
 					this.OnCommitDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReviseContent", DbType="NVarChar(MAX)")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=7)]
+		public string ReviseContent
+		{
+			get
+			{
+				return this._ReviseContent;
+			}
+			set
+			{
+				if ((this._ReviseContent != value))
+				{
+					this.OnReviseContentChanging(value);
+					this.SendPropertyChanging();
+					this._ReviseContent = value;
+					this.SendPropertyChanged("ReviseContent");
+					this.OnReviseContentChanged();
 				}
 			}
 		}

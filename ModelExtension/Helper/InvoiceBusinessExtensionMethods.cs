@@ -19,7 +19,7 @@ using ModelCore.Service;
 using CommonLib.Utility;
 
 
-namespace WebHome.Helper
+namespace ModelCore.Helper
 {
     public static class InvoiceBusinessExtensionMethods
     {
@@ -34,9 +34,9 @@ namespace WebHome.Helper
         }
 
 
-        public static IQueryable<InvoiceItem> FilterInvoiceByRole(this GenericManager<EIVOEntityDataContext> models, UserProfile profile, IQueryable<InvoiceItem> items)
+        public static IQueryable<InvoiceItem> FilterInvoiceByRole(this GenericManager<EIVOEntityDataContext> models, UserProfile? profile, IQueryable<InvoiceItem> items)
         {
-            switch ((Naming.CategoryID)profile.CurrentUserRole.OrganizationCategory.CategoryID)
+            switch ((Naming.CategoryID?)profile?.CurrentUserRole?.OrganizationCategory.CategoryID)
             {
                 case Naming.CategoryID.COMP_SYS:
                 case Naming.CategoryID.COMP_WELFARE:

@@ -59,20 +59,17 @@ namespace CommonLib.Core.Controllers
             }
         }
 
-        public async Task<T> PrepareViewModelAsync<T>(T? viewModel)
+        public async Task<T> PrepareViewModelAsync<T>()
             where T : class
         {
+            T? viewModel;
             if (Request.ContentType?.Contains("application/json", StringComparison.InvariantCultureIgnoreCase) == true)
             {
                 viewModel = JsonConvert.DeserializeObject<T>(RequestBody)!;
             }
             else
             {
-                if (viewModel == null)
-                {
-                    viewModel = Activator.CreateInstance<T>();
-                }
-
+                viewModel = Activator.CreateInstance<T>();
                 await this.TryUpdateModelAsync<T>(viewModel);
             }
 

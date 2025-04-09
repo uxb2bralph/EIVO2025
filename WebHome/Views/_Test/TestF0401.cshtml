@@ -55,9 +55,9 @@
         _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
         if (_viewModel == null)
         {
-            _viewModel = new InquireInvoiceViewModel();
-            var t = ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).TryUpdateModelAsync<InquireInvoiceViewModel>(_viewModel);
+            var t = ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<InquireInvoiceViewModel>();
             t.Wait();
+            _viewModel = t.Result;
         }
 
         String invoiceNo = _viewModel.InvoiceNo.GetEfficientString();
