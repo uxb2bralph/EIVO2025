@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -20,15 +19,14 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 }
 <ul>
-    @{ var count = models.GetTable<AuthorizeToVoid>().Count();}
+    @{
+        var count = models.GetTable<AuthorizeToVoid>().Count();
+    }
     @if (count > 0)
     {
         <li>
-            <a href="@(Url.Action("AllowToVoid", "InvoiceProcess"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>營業人已送出@(count)筆註銷發票待核准</a>
+            <a href="@(Url.Action("AllowToVoid", "InvoiceProcess"))"><i class="fa fa-hand-o-right"
+                    aria-hidden="true"></i>營業人已送出@(count)筆註銷發票待核准</a>
         </li>
     }
 </ul>
-
-
-
-

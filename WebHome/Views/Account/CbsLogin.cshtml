@@ -19,59 +19,72 @@
 
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>電子發票系統</title>
-    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/css/CBSLogin.css" rel="stylesheet" />
-    <style>
-        .error {
-            color: red;
-            font-style: italic;
-            border: 1px dotted red;
-        }
-    </style>
-    @{ await Html.RenderPartialAsync("~/Views/Shared/CommonScriptInclude.cshtml"); }
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>網際優勢 - 電子發票加值中心</title>
+    <link rel="shortcut icon" href="~/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="~/css/Font-Awesome/all.min.css">
+    <link rel="stylesheet" href="~/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/custom.min.css">
+    @{
+        await Html.RenderPartialAsync("~/Views/Shared/CommonScriptInclude.cshtml");
+    }
 </head>
+
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 col-md-offset-4">
-                <div class="panel-default">
-                    <div class="panel-body">
-                        <form id="form1" accept-charset="UTF-8" role="form" method="post">
-                            <fieldset>
-                                <img class="mx-auto d-block logosize" src="~/images/e-GUIplatform.png" alt="" style="max-width:300px; " />
-                                <div class="form-group prompt">
-                                    <label for="user_login">ID</label>
-                                    <input class="form-control" name="PID" type="text" required autofocus>
-                                </div>
-                                <div class="form-group prompt">
-                                    <label>Password</label>
-                                    <a class="form-sublink" href="@(Url.Action("ForgetPassword","Account"))">Forgot password</a>
-                                    <input class="form-control" name="Password" type="password" value="" required>
-                                </div>
-                                <button id="btn" type="button" class="btn btn-inverted btn-block mb-4">Sign In</button>
-                                <div class="form-group">
-
-                                </div>
-                            </fieldset>
-                        </form>
-
-                    </div>
+    <div class="px-0 eivo__signin-wrapper">
+        <main class="eivo__signin-form">
+            <div class="text-center pb-2">
+                <img class="mb-3 eivo__logo" src="/images/uxb2b_logo.png" alt="網際優勢 Logo">
+                <div class="mb-3 align-text-top fw-bold custom-element" style="color: #2a91bc;">
+                    <span class="fs-3">電子發票加值中心</span><br>
+                    <span class="fs-6">E-Invoice Value-Added Service Center</span>
                 </div>
             </div>
-        </div>
+            <form id="loginForm" method="post">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-pid">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" name="PID" class="mb-0 form-control" placeholder="帳號 / ID"
+                                aria-label="帳號" autocomplete="off" aria-describedby="basic-pid">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-password">
+                                <i class="fas fa-key"></i>
+                            </span>
+                            <input type="password" name="Password" class="mb-0 form-control" placeholder="密碼 / Password"
+                                aria-label="密碼" autocomplete="off" aria-describedby="basic-password">
+                        </div>
+                        <button id="signIn" class="mt-3 w-100 btn btn-lg btn-primary" type="button" onclick="login()">
+                            登入 / signIn
+                        </button>
+                        <div class="py-2 text-end eivo__link--noLine">
+                            <i class="fas fa-question-circle"></i>
+                            <a href="@(Url.Action("ForgetPassword", "Account"))">忘記密碼</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-4 text-muted text-center">
+                    Copyright © UXB2B. All rights reserved.
+                </div>
+            </form>
+        </main>
     </div>
 </body>
+
 </html>
-@{ await Html.RenderPartialAsync("~/Views/Shared/ReportInputError.cshtml");}
+@{
+    await Html.RenderPartialAsync("~/Views/Shared/ReportInputError.cshtml");
+}
 
 <script>
-    $(function () {
-        $('input:text').addClass('form-control textfield');
-    });
-    $('#btn').click(function () {
-        var event = event || window.event;
-        $('form').prop('action', '@(Url.Action("CbsLogin","Account"))').submit();
-    });
+    function login() {
+        $('form').prop('action', '@(Url.Action("CbsLogin", "Account"))').submit();
+    };
 </script>

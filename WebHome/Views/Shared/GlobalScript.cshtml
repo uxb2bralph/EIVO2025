@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -88,7 +87,7 @@
         return $modal;
     }
 
-    function actionHandler(url, data, done, width, height,dialogTitle) {
+    function actionHandler(url, data, done, width, height, dialogTitle) {
         showLoading();
         $.post(url, data, function (html) {
             hideLoading();
@@ -117,7 +116,7 @@
                     }
                 }
             });
-        });
+    });
     }
 
     function commitAction(url, data, done) {
@@ -136,7 +135,7 @@
     }
 
     function reportError(result) {
-        actionHandler('@Html.Raw(Url.Action("ReportError","Home"))', result, function () { }, 'auto', 'auto');
+        actionHandler('@Html.Raw(Url.Action("ReportError", "Home"))', result, function () { }, 'auto', 'auto');
     }
 
     function invokeAction(url, data, done) {
@@ -178,6 +177,38 @@
         return isValid;
     }
 
+    // 側選單切換
+    function urlHandler(url) {
+        window.location.href = url;
+    }
+
+    // 頁面載入時的狀態顯示
+    window.addEventListener('load', () => {
+        // 找出群組名稱: groupName及選項名稱: tabName
+        const url = window.location.href;
+        let githubURL = new URL(url);
+        const { pathname, searchParams } = githubURL;
+        const groupName = searchParams.get('group');
+        const pathArray = pathname.split('/');
+        pathArray.shift();
+        let tabName = null;
+        const hasReportIndex = pathArray.includes('ReportIndex');
+        const hasQueryIndex = pathArray.includes('QueryIndex');
+        if (hasReportIndex || hasQueryIndex) {
+            tabName = pathArray[0];
+        } else {
+            tabName = pathArray.length > 1 ? pathArray[1] : pathArray[0];
+        };
+        console.log(pathArray, tabName, groupName);
+        // 顯示狀態
+        if (groupName) {
+            this[groupName] = document.querySelector(`.${groupName}`);
+            this[groupName].classList.remove('collapsed');
+            this[groupName] = document.querySelector(`#${groupName}`);
+            this[groupName].classList.add('show');
+
+            this[tabName] = document.querySelector(`#${tabName}`);
+            this[tabName].classList.add('active');
+        }
+    });
 </script>
-
-

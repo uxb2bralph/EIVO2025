@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -16,86 +15,301 @@
 @using ModelCore.Helper
 
 
-<div class="navbar-default sidebar" role="navigation">
+<nav id="sidebarMenu" class="pb-4 d-block sidebar">
+    <div class="accordion" id="accordionSideMenu">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading_01">
+                <button class="system_01 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
+                    data-bs-toggle="collapse" data-bs-target="#system_01" aria-expanded="false"
+                    aria-controls="system_01">
+                    系統使用設定
+                </button>
+            </h2>
+            <div id="system_01" class="accordion-collapse collapse" aria-labelledby="heading_01"
+                data-bs-parent="#accordionSideMenu">
+                <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("EditMySelf", "UserProfile", new { group = "system_01" }))')"
+                            id="EditMySelf" class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            帳號管理
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("EditMyBusiness", "UserProfile", new { group = "system_01" }))')"
+                            id="EditMyBusiness"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            營業人資料管理
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("AccountIndex", "Account", new { group = "system_01" }))')"
+                            id="AccountIndex"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            使用者管理
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("MaintainRelationship", "BusinessRelationship", new { group = "system_01" }))')"
+                            id="MaintainRelationship"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            相對營業人資料維護
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("QueryIndex", "ProductCatalog", new { group = "system_01" }))')"
+                            id="ProductCatalog"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            常用品項維護
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading_02">
+                <button class="system_02 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
+                    data-bs-toggle="collapse" data-bs-target="#system_02" aria-expanded="false"
+                    aria-controls="system_02">
+                    發票開立
+                </button>
+            </h2>
+            <div id="system_02" class="accordion-collapse collapse" aria-labelledby="heading_02"
+                data-bs-parent="#accordionSideMenu">
+                <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("MaintainInvoiceNoInterval", "InvoiceNo", new { group = "system_02" }))')"
+                            id="MaintainInvoiceNoInterval"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            電子發票號碼維護
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("CreateInvoice", "InvoiceBusiness", new { group = "system_02" }))')"
+                            id="CreateInvoice"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            線上開立發票
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InquireToCancel", "InvoiceProcess", new { group = "system_02" }))')"
+                            id="InquireToCancel"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            線上作廢發票
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InquireToIssueAllowance", "InvoiceProcess", new { group = "system_02" }))')"
+                            id="InquireToIssueAllowance"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            線上開立折讓證明
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InquireToVoid", "InvoiceProcess", new { group = "system_02" }))')"
+                            id="InquireToVoid"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            線上註銷發票
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading_03">
+                <button class="system_03 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
+                    data-bs-toggle="collapse" data-bs-target="#system_03" aria-expanded="false"
+                    aria-controls="system_03">
+                    查詢與報表
+                </button>
+            </h2>
+            <div id="system_03" class="accordion-collapse collapse" aria-labelledby="heading_03"
+                data-bs-parent="#accordionSideMenu">
+                <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("Index", "InvoiceProcess", new { group = "system_03" }))')"
+                            id="InvoiceProcess"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            資料查詢／列印／匯出
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("VacantNoIndex", "InvoiceNo", new { group = "system_03" }))')"
+                            id="VacantNoIndex"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            上期發票空白號碼查詢／匯出
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InvoiceMediaReport", "InvoiceQuery", new { group = "system_03" }))')"
+                            id="InvoiceMediaReport"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            發票媒體申報檔查詢／匯出
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InquireToMIG", "InvoiceProcess", new { group = "system_03" }))')"
+                            id="InquireToMIG"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            下載MIG檔案
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InvoiceSummary", "InvoiceQuery", new { group = "system_03" }))')"
+                            id="InvoiceSummary"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            發票統計表
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading_04">
+                <button class="system_04 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
+                    data-bs-toggle="collapse" data-bs-target="#system_04" aria-expanded="false"
+                    aria-controls="system_04">
+                    訊息通知
+                </button>
+            </h2>
+            <div id="system_04" class="accordion-collapse collapse" aria-labelledby="heading_04"
+                data-bs-parent="#accordionSideMenu">
+                <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("IssuingNotice", "InvoiceProcess", new { group = "system_04" }))')"
+                            id="IssuingNotice"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            重送開立發票通知
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InquireToAuthorize", "InvoiceProcess", new { group = "system_04" }))')"
+                            id="InquireToAuthorize"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            核准重印發票
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("QueryIndex", "ProcessRequest", new { group = "system_04" }))')"
+                            id="ProcessRequest"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            工作清單
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+
+<div class="navbar-default sidebar" role="navigation" style="display: none;">
     <div class="sidebar-nav navbar-collapse">
         <ul class="nav" id="side-menu">
             <li>
-                <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>系統使用設定<span class="fa arrow"></span></a>
+                <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>系統使用設定<span
+                        class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/UserProfile/EditMySelf"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>帳號管理</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/UserProfile/EditMySelf"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>帳號管理</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/UserProfile/EditMyBusiness"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>營業人資料管理</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/UserProfile/EditMyBusiness"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>營業人資料管理</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/Account/AccountIndex"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>使用者管理</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/Account/AccountIndex"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>使用者管理</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/BusinessRelationship/MaintainRelationship"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>相對營業人資料維護</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/BusinessRelationship/MaintainRelationship"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>相對營業人資料維護</a>
                     </li>
                     <li>
-                        <a href="@Html.Raw(Url.Action("QueryIndex","ProductCatalog"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>常用品項維護</a>
+                        <a href="@Html.Raw(Url.Action("QueryIndex", "ProductCatalog"))"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>常用品項維護</a>
                     </li>
                 </ul>
             </li>
             <li>
-                <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>發票開立<span class="fa arrow"></span></a>
+                <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>發票開立<span
+                        class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceNo/MaintainInvoiceNoInterval"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票號碼維護</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceNo/MaintainInvoiceNoInterval"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票號碼維護</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceBusiness/CreateInvoice"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上開立發票</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceBusiness/CreateInvoice"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>線上開立發票</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToCancel"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上作廢發票</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToCancel"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>線上作廢發票</a>
                     </li>
                     <li>
-                        <a href="@Html.Raw(Url.Action("InquireToIssueAllowance","InvoiceProcess"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上開立折讓證明</a>
+                        <a href="@Html.Raw(Url.Action("InquireToIssueAllowance", "InvoiceProcess"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>線上開立折讓證明</a>
                     </li>
                     <li>
-                        <a href="@Html.Raw(Url.Action("InquireToVoid","InvoiceProcess"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上註銷發票</a>
+                        <a href="@Html.Raw(Url.Action("InquireToVoid", "InvoiceProcess"))"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>線上註銷發票</a>
                     </li>
                 </ul>
             </li>
             <li>
-                <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>查詢與報表<span class="fa arrow"></span></a>
+                <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>查詢與報表<span
+                        class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/Index"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>資料查詢／列印／匯出</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/Index"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>資料查詢／列印／匯出</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceNo/VacantNoIndex"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>上期發票空白號碼查詢／匯出</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceNo/VacantNoIndex"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>上期發票空白號碼查詢／匯出</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/InvoiceMediaReport"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票媒體申報檔查詢／匯出</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/InvoiceMediaReport"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>發票媒體申報檔查詢／匯出</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToMIG"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>下載MIG檔案</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToMIG"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>下載MIG檔案</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/InvoiceSummary"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票統計表</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceQuery/InvoiceSummary"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>發票統計表</a>
                     </li>
                 </ul>
             </li>
             <li>
-                <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>訊息通知<span class="fa arrow"></span></a>
+                <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>訊息通知<span
+                        class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/IssuingNotice"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>重送開立發票通知</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/IssuingNotice"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>重送開立發票通知</a>
                     </li>
                     <li>
-                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToAuthorize"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>核准重印發票</a>
+                        <a href="@(VirtualPathUtility.ToAbsolute("~/InvoiceProcess/InquireToAuthorize"))"><i
+                                class="fa fa-hand-o-right" aria-hidden="true"></i>核准重印發票</a>
                     </li>
                     <li>
-                        <a href="@Html.Raw(Url.Action("QueryIndex","ProcessRequest"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>工作清單</a>
+                        <a href="@Html.Raw(Url.Action("QueryIndex", "ProcessRequest"))"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>工作清單</a>
                     </li>
                 </ul>
             </li>
         </ul>
     </div>
-    <!-- /.sidebar-collapse -->
 </div>
-
-
