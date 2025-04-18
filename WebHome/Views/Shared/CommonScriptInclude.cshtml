@@ -367,8 +367,8 @@
 
     function buildSort(inquire, currentPageIndex, offset) {
 
-        var chkBox = $(".itemList input[name='chkAll']");
-        var chkItem = $(".itemList input[name='chkItem']");
+        var chkBox = $("#itemList input[name='chkAll']");
+        var chkItem = $("#itemList input[name='chkItem']");
         chkBox.click(function () {
             chkItem.prop('checked', chkBox.is(':checked'));
         });
@@ -379,23 +379,26 @@
             }
         });
 
-        $('.itemList th').each(function (idx, elmt) {
+        $('#itemList th').each(function (idx, elmt) {
             var $this = $(this);
             if (!$this.is('[aria-sort="other"]')) {
+                // 需排序的欄位加箭頭圖示
                 if (!$this.is('[aria-sort]')) {
-                    $this.append('<i class="fa fa-sort" aria-hidden="true"></i>')
+                    $this.append('<i class="fa fa-sort ms-1" aria-hidden="true"></i>')
                         .append('<input type="hidden" name="sort"/>');
                     $this.attr('aria-sort', 'none');
-                }
+                };
+
                 $this.on('click', function (evt) {
                     var $target = $(this);
+
                     $target.find('i').remove();
                     if ($target.is('[aria-sort="none"]')) {
-                        $target.append('<i class="fa fa-sort-asc" aria-hidden="true"></i>');
+                        $target.append('<i class="fas fa-sort-down" aria-hidden="true"></i>');
                         $target.attr('aria-sort', 'ascending');
                         $target.find('input[name="sort"]').val(idx + offset);
                     } else if ($target.is('[aria-sort="ascending"]')) {
-                        $target.append('<i class="fa fa-sort-desc" aria-hidden="true"></i>');
+                        $target.append('<i class="fas fa-sort-up" aria-hidden="true"></i>');
                         $target.attr('aria-sort', 'descending');
                         $target.find('input[name="sort"]').val(-idx - offset);
                     } else {
@@ -403,10 +406,11 @@
                         $target.attr('aria-sort', 'none');
                         $target.find('input[name="sort"]').val('');
                     }
+
                     inquire(currentPageIndex, function (data) {
-                        var $node = $('.itemList').next();
-                        $('.itemList').remove();
-                        $node.before(data);
+                        var $node = $('#itemList').parent('#queryArea');
+                        $('#itemList').remove();
+                        $node.append(data);
                     });
                 });
             }

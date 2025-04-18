@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -10,32 +9,42 @@
     TrackCodeQueryViewModel _viewModel;
     InvoiceTrackCode _model;
 
-
     _viewModel = (TrackCodeQueryViewModel)ViewBag.ViewModel;
     _model = (InvoiceTrackCode)this.Model;
 }
 <tr>
-    <td>@(_model.Year-1911)<input name="Year" type="hidden" value="@(_model.Year)" /></td>
-    <td>@(String.Format("{0:00}",_model.PeriodNo*2-1))~@(String.Format("{0:00}",_model.PeriodNo*2))月</td>
-    <td><input type="text" name="TrackCode" class="form-control" placeholder="請輸入字軌" value="@(_model.TrackCode)" data-role="edit" /></td>
-    <td>
-        <select name="InvoiceType">
-            <option value="7" selected="@Html.Raw(_model.InvoiceType == (byte)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)">@Html.Raw(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)</option>
-            <option value="8" selected="@Html.Raw(_model.InvoiceType == (byte)Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)">@Html.Raw(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)</option>
+    <td class="text-center">
+        @(_model.Year - 1911)
+        <input name="Year" type="hidden" value="@(_model.Year)" />
+    </td>
+    <td class="text-center">
+        @(String.Format("{0:00}", _model.PeriodNo * 2 - 1))~@(String.Format("{0:00}", _model.PeriodNo * 2))月
+    </td>
+    <td class="text-center">
+        <input type="text" name="TrackCode" class="form-control" placeholder="請輸入字軌" value="@(_model.TrackCode)"
+            data-role="edit" />
+    </td>
+    <td class="text-center">
+        <select name="InvoiceType" class="form-select">
+            <option value="7"
+                selected="@Html.Raw(_model.InvoiceType == (byte)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)">
+                @Html.Raw(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)
+            </option>
+            <option value="8"
+                selected="@Html.Raw(_model.InvoiceType == (byte)Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)">
+                @Html.Raw(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)
+            </option>
         </select>
     </td>
-    <td>
-        <div class="btn-group dropdown" data-toggle="dropdown">
-            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-            <ul class="dropdown-menu">
-                <li><a class="btn" onclick="uiTrackCodeQuery.commitItem(@(_model.TrackID));">確定</a></li>
-                <li><a class="btn" onclick="uiTrackCodeQuery.showItem(@(_model.TrackID));">取消</a></li>
-            </ul>
-        </div>
-    </td>
+    <td class="text-center">
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--check"
+            onclick="uiTrackCodeQuery.commitItem(@(_model.TrackID));">
+            <i class="fas fa-check"></i>
+            確定
+        </button>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--cancel"
+            onclick="uiTrackCodeQuery.showItem(@(_model.TrackID));">
+            <i class="far fa-times"></i>
+            取消
+        </button>
 </tr>
-
-
-
-

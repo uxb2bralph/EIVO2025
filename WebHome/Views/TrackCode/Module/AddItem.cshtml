@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -7,15 +6,16 @@
 @using WebHome.Models.ViewModel
 @using ModelCore.Models.ViewModel
 @{
-
     TrackCodeQueryViewModel _viewModel;
-
     _viewModel = (TrackCodeQueryViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <td>@(_viewModel.Year-1911)<input name="Year" type="hidden" value="@(_viewModel.Year)" /></td>
-    <td>
-        <select name="PeriodNo" class="addNew">
+<tr class="eivo__list--add">
+    <td class="text-center">
+        @(_viewModel.Year - 1911)
+        <input name="Year" type="hidden" value="@(_viewModel.Year)" />
+    </td>
+    <td class="text-center">
+        <select name="PeriodNo" class="form-select addNew">
             <option value="1">01-02月</option>
             <option value="2">03-04月</option>
             <option value="3">05-06月</option>
@@ -24,26 +24,25 @@
             <option value="6">11-12月</option>
         </select>
         <script>
-                        $(function () {
-                            $('select[name="PeriodNo"].addNew').val(@((DateTime.Now.Month+1)/2));
-                        });
+            $(function () {
+                $('select[name="PeriodNo"].addNew').val(@((DateTime.Now.Month + 1) / 2));
+            });
         </script>
     </td>
-    <td>
+    <td class="text-center">
         <input type="text" name="TrackCode" class="form-control" placeholder="請輸入字軌" value="" data-role="add" />
     </td>
-    <td>
-        <select name="InvoiceType">
+    <td class="text-center">
+        <select name="InvoiceType" class="form-select">
             <option value="7">@(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)</option>
             <option value="8">@(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)</option>
         </select>
     </td>
-    <td>
-        <a class="btn" onclick="uiTrackCodeQuery.commitItem();">新增字軌</a>
+    <td class="text-center">
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--default"
+            onclick="uiTrackCodeQuery.commitItem();">
+            <i class="fas fa-plus"></i>
+            新增字軌
+        </button>
     </td>
 </tr>
-
-
-
-
-

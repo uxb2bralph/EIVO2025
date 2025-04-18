@@ -316,21 +316,26 @@ footer {
 
     &__list {
         color: $eivo-text-color;
+
+        &--add {
+            background-color: #d1e7dd;
+        }
     }
 
     &__table {
-        border: 1px solid #a6c2d1;
-        border-bottom: 2px #a6c2d1 solid;
-
-        th,
-        td {
-            border: 1px solid #a6c2d1;
-            padding: 6px 5px;
-            vertical-align: middle;
+        th {
+            padding: 10px 5px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #333333;
+            background-color: #fecba1;
         }
 
-        > :not(:last-child)> :last-child>* {
-            border-bottom-color: inherit;
+        td {
+            //border: 1px solid #a6c2d1;
+            padding: 6px 5px;
+            vertical-align: middle;
         }
 
         &-print {
@@ -358,13 +363,6 @@ footer {
         border: 1px solid #a6c2d1;
     }
 
-    &__tbhd {
-        text-align: center;
-        color: #1b3f53;
-        font-weight: bold;
-        background: #fff url(../images/tb1_hd.gif) repeat-x bottom;
-    }
-
     &__tbhd2 {
         background-color: #eef2f4 !important;
         color: #25424e;
@@ -380,53 +378,62 @@ footer {
     }
 
     &__btn {
-        &-default {
-            background: url(../images/btn2.gif) repeat-x top;
-            border: 1px solid #4297cc;
+        &--default {
+            background-color: #3d8bfd;
+            border: 1px solid #3d8bfd;
             color: #ffffff;
 
             &:hover {
-                background-position: bottom;
+                background-color: #0d6efd;
                 color: #ffffff;
             }
         }
 
-        &-red {
-            background: url(../images/btn-red.gif) repeat-x top;
+        &--red {
+            background-color: #cf5c39;
             border: 1px solid #cf5c39;
             color: #ffffff;
 
             &:hover {
-                background-position: bottom;
+                background-color: #dc3545;
                 color: #ffffff;
             }
         }
 
-        &-reset {
-            background: url(../images/cancel.gif) repeat-x top;
-            border: 1px solid #999999;
+        &--check {
+            background-color: #479f76;
+            border: 1px solid #479f76;
+            color: #ffffff;
+
+            &:hover {
+                background-color: #198754;
+                color: #ffffff;
+            }
+        }
+
+        &--reset {
+            background-color: #ced4da;
+            border: 1px solid #ced4da;
             color: #333333;
 
             &:hover {
-                background-position: bottom;
+                background-color: #adb5bd;
                 color: #333333;
             }
         }
 
-        &-cancel {
-            color: #5e5e5e;
-            min-width: 50px;
-            text-shadow: 0px 1px 0px #ffffff;
-            border: 1px solid #999;
-            background: url(../images/cancel.gif) repeat-x top;
+        &--cancel {
+            background-color: #ced4da;
+            border: 1px solid #ced4da;
+            color: #333333;
 
             &:hover {
-                background-position: bottom;
-                color: #5e5e5e;
+                background-color: #adb5bd;
+                color: #333333;
             }
         }
 
-        &-confirm {
+        &--confirm {
             text-align: center;
             min-width: 50px;
             color: #ffffff;
@@ -440,7 +447,7 @@ footer {
             }
         }
 
-        &-close {
+        &--close {
             width: 30px;
             height: 24px;
             background: url(../images/btn_pop_close.gif) no-repeat left top;

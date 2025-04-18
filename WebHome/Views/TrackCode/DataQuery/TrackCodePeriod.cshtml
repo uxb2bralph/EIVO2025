@@ -1,5 +1,3 @@
-
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -20,39 +18,41 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 }
 
-<tr>
-    <th nowrap="nowrap" width="180">
-        <span class="red">*</span> 發票年度（民國年）
-    </th>
-    <td class="tdleft">
-        <select name="year">
-            @for (int yy = 2012; yy <= DateTime.Now.Year + 1; yy++)
-            {
-                <option value="@(yy)">@(yy-1911)</option>
-            }
-        </select>
-        <script>
-            $(function () {
-                $('select[name="year"]').val(@(DateTime.Now.Year));
-            });
-        </script>
-    </td>
-</tr>
-<tr>
-    <th>期別</th>
-    <td class="tdleft">
-        <select name="PeriodNo">
-            <option value="">全部</option>
-            <option value="1">01-02月</option>
-            <option value="2">03-04月</option>
-            <option value="3">05-06月</option>
-            <option value="4">07-08月</option>
-            <option value="5">09-10月</option>
-            <option value="6">11-12月</option>
-        </select>
-    </td>
-</tr>
-
-
-
-
+<div class="col">
+    <div class="row">
+        <label for="year" class="col-auto col-form-label">
+            <span class="text-danger">*</span> 發票年度（民國年）
+        </label>
+        <div class="col">
+            <select class="form-select" id="year" name="year">
+                @for (int yy = 2012; yy <= DateTime.Now.Year + 1; yy++)
+                {
+                    <option value="@(yy)">@(yy - 1911)</option>
+                }
+            </select>
+            <script>
+                $(function () {
+                    $('#year').val(@(DateTime.Now.Year));
+                });
+            </script>
+        </div>
+    </div>
+</div>
+<div class="col">
+    <div class="row">
+        <label for="PeriodNo" class="col-auto col-form-label">
+            期別
+        </label>
+        <div class="col">
+            <select class="form-select" id="PeriodNo" name="PeriodNo">
+                <option value="">全部</option>
+                <option value="1">01-02月</option>
+                <option value="2">03-04月</option>
+                <option value="3">05-06月</option>
+                <option value="4">07-08月</option>
+                <option value="5">09-10月</option>
+                <option value="6">11-12月</option>
+            </select>
+        </div>
+    </div>
+</div>

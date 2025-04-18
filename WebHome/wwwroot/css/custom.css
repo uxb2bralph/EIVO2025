@@ -267,18 +267,20 @@ footer {
 .eivo__list {
   color: #3e7db2;
 }
-.eivo__table {
-  border: 1px solid #a6c2d1;
-  border-bottom: 2px #a6c2d1 solid;
+.eivo__list--add {
+  background-color: #d1e7dd;
 }
-.eivo__table th,
+.eivo__table th {
+  padding: 10px 5px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #333333;
+  background-color: #fecba1;
+}
 .eivo__table td {
-  border: 1px solid #a6c2d1;
   padding: 6px 5px;
   vertical-align: middle;
-}
-.eivo__table > :not(:last-child) > :last-child > * {
-  border-bottom-color: inherit;
 }
 .eivo__table-print {
   border: 1px solid #333333;
@@ -300,12 +302,6 @@ footer {
   padding: 4px 5px;
   border: 1px solid #a6c2d1;
 }
-.eivo__tbhd {
-  text-align: center;
-  color: #1b3f53;
-  font-weight: bold;
-  background: #fff url(../images/tb1_hd.gif) repeat-x bottom;
-}
 .eivo__tbhd2 {
   background-color: #eef2f4 !important;
   color: #25424e;
@@ -318,45 +314,52 @@ footer {
   text-align: center;
   font-weight: bold;
 }
-.eivo__btn-default {
-  background: url(../images/btn2.gif) repeat-x top;
-  border: 1px solid #4297cc;
+.eivo__btn--default {
+  background-color: #3d8bfd;
+  border: 1px solid #3d8bfd;
   color: #ffffff;
 }
-.eivo__btn-default:hover {
-  background-position: bottom;
+.eivo__btn--default:hover {
+  background-color: #0d6efd;
   color: #ffffff;
 }
-.eivo__btn-red {
-  background: url(../images/btn-red.gif) repeat-x top;
+.eivo__btn--red {
+  background-color: #cf5c39;
   border: 1px solid #cf5c39;
   color: #ffffff;
 }
-.eivo__btn-red:hover {
-  background-position: bottom;
+.eivo__btn--red:hover {
+  background-color: #dc3545;
   color: #ffffff;
 }
-.eivo__btn-reset {
-  background: url(../images/cancel.gif) repeat-x top;
-  border: 1px solid #999999;
+.eivo__btn--check {
+  background-color: #479f76;
+  border: 1px solid #479f76;
+  color: #ffffff;
+}
+.eivo__btn--check:hover {
+  background-color: #198754;
+  color: #ffffff;
+}
+.eivo__btn--reset {
+  background-color: #ced4da;
+  border: 1px solid #ced4da;
   color: #333333;
 }
-.eivo__btn-reset:hover {
-  background-position: bottom;
+.eivo__btn--reset:hover {
+  background-color: #adb5bd;
   color: #333333;
 }
-.eivo__btn-cancel {
-  color: #5e5e5e;
-  min-width: 50px;
-  text-shadow: 0px 1px 0px #ffffff;
-  border: 1px solid #999;
-  background: url(../images/cancel.gif) repeat-x top;
+.eivo__btn--cancel {
+  background-color: #ced4da;
+  border: 1px solid #ced4da;
+  color: #333333;
 }
-.eivo__btn-cancel:hover {
-  background-position: bottom;
-  color: #5e5e5e;
+.eivo__btn--cancel:hover {
+  background-color: #adb5bd;
+  color: #333333;
 }
-.eivo__btn-confirm {
+.eivo__btn--confirm {
   text-align: center;
   min-width: 50px;
   color: #ffffff;
@@ -364,11 +367,11 @@ footer {
   border: 1px solid #1b4075;
   background: #2B6398 url(../images/comfirm.gif) repeat-x top;
 }
-.eivo__btn-confirm:hover {
+.eivo__btn--confirm:hover {
   background: #367CB3 url(../images/comfirm_hover.gif) repeat-x top;
   color: #ffffff;
 }
-.eivo__btn-close {
+.eivo__btn--close {
   width: 30px;
   height: 24px;
   background: url(../images/btn_pop_close.gif) no-repeat left top;
@@ -378,7 +381,7 @@ footer {
   opacity: 1;
   border-radius: 0 0 0.25rem 0.25rem;
 }
-.eivo__btn-close:hover {
+.eivo__btn--close:hover {
   opacity: 0.9;
 }
 .eivo__switch:checked {

@@ -12,37 +12,44 @@
     UserProfile _userProfile;
     IQueryable<SystemMessage> _items;
     _userProfile = Context.GetUser();
-    _items = models.GetTable<SystemMessage>().Where(s => s.AlwaysShow || (s.StartDate <= DateTime.Now && s.EndDate.Value.AddDays(1) > DateTime.Now));
+    _items = models.GetTable<SystemMessage>().Where(s => s.AlwaysShow || (s.StartDate <= DateTime.Now &&
+    s.EndDate.Value.AddDays(1) > DateTime.Now));
 }
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <title>電子發票系統</title>
+    <title>網際優勢 - 電子發票加值中心 E-Invoice Value-Added Service Center</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="" />
     <meta name="author" content="" />
+    <link rel="shortcut icon" href="~/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="~/css/Font-Awesome/all.min.css">
+    <link rel="stylesheet" href="~/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/custom.min.css">
 
-    <link href="~/Content/eivo-bootstrap.css" rel="stylesheet" type="text/css" />
-    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" type="text/css" />
-    <link href="~/css/rwd-table.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/body.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/content.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/header.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/left-menu.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/paper.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/StyleSheet.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/table.css" rel="stylesheet" />    @*<!--Bootstrap Core CSS -->
+    @* <link href="~/Content/eivo-bootstrap.css" rel="stylesheet" type="text/css" />
+  <link href="~/Content/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+  <link href="~/css/rwd-table.min.css" rel="stylesheet" type="text/css" />
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
+  <link href="~/App_Themes/Visitor/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
+  <link href="~/App_Themes/Visitor/body.css" rel="stylesheet" />
+  <link href="~/App_Themes/Visitor/content.css" rel="stylesheet" />
+  <link href="~/App_Themes/Visitor/header.css" rel="stylesheet" />*@
+    @* <link href="~/App_Themes/Visitor/left-menu.css" rel="stylesheet" /> *@
+    @* <link href="~/App_Themes/Visitor/paper.css" rel="stylesheet" />
+  <link href="~/App_Themes/Visitor/StyleSheet.css" rel="stylesheet" />
+  <link href="~/App_Themes/Visitor/table.css" rel="stylesheet" />  *@
+    @*<!--Bootstrap Core CSS -->
         <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">*@
 
     <!-- MetisMenu CSS -->
-    <link href="~/vendor/metisMenu/metisMenu.min.css" rel="stylesheet" type="text/css" />
+    @* <link href="~/vendor/metisMenu/metisMenu.min.css" rel="stylesheet" type="text/css" /> *@
 
     <!-- Custom CSS -->
-    <link href="~/css/sb-admin-2.css" rel="stylesheet" type="text/css" />
+    @* <link href="~/css/sb-admin-2.css" rel="stylesheet" type="text/css" /> *@
 
     <!-- Custom Fonts -->
     @*
@@ -55,7 +62,7 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <link href="~/css/eivo.css" rel="stylesheet" type="text/css" />
+    @* <link href="~/css/eivo.css" rel="stylesheet" type="text/css" /> *@
     @{
         await Html.RenderPartialAsync("~/Views/Shared/CommonScriptInclude.cshtml");
         //await Html.RenderPartialAsync("~/Views/Shared/JsGrid.ascx");
@@ -63,345 +70,125 @@
     @RenderSection("headContent", false)
 
 </head>
+
 <body>
+    <header class="navbar eivo__header sticky-top flex-nowrap border-bottom p-0 shadow-sm">
+        <div class="me-0 py-0 px-3 navbar-brand">
+            <a class="d-flex align-center" href="@Url.Action("MainPage", "Home")">
+                <img class="pe-2 eivo__logo" src="/images/uxb2b_logo.png" alt="網際優勢 Logo">
+                <span class="align-text-top fs-4 fw-bold custom-element" style="color: #2a91bc;"> 電子發票系統 </span>
+            </a>
+        </div>
+        <nav class="d-inline-flex align-items-center me-4">
+            <!--系統公告-->
+            @if (_items.Count() > 0)
+            {
+                <div class="mx-2 mb-0 py-2 alert alert-warning eivo__alert" role="alert">
+                    <!--跑馬燈開始-->
+                    <marquee class="notice" scrollamount="2">
+                        @foreach (var item in _items)
+                        {
+                            <text>
+                                <i class="far fa-info-square"></i>
+                                系統公告：
+                                <span color="#434343">
+                                    @Html.Raw(item.MessageContents)
+                                </span>
+                            </text>
+                        }
+                    </marquee>
+                    <!--跑馬燈結束-->
+                </div>
+            }
 
-    <div id="wrapper">
-
-        <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
+            <span class="px-2 eivo__text fw-bolder"> Linda 您好，歡迎使用本系統</span>
+            <span class="px-2">|</span>
+            <a id="todoList" class="eivo__link-tab mx-2" href="@(Url.Action("QueryIndex", "ProcessRequest"))">工作清單</a>
+            <!-- User Manager -->
+            <div class="mx-2 btn-group">
+                <button type="button" class="btn eivo__user--btn dropdown-toggle" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    <i class="fas fa-user-circle"></i>
                 </button>
-                <a class="navbar-brand" href="@(VirtualPathUtility.ToAbsolute("~/Home/MainPage"))">電子發票系統</a>
-            </div>
-            <!-- /.navbar-header -->
-
-            <ul class="nav navbar-top-links navbar-right">
-                @if (_items.Count() > 0)
-                {
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                     <li>
-                        ‧系統公告：
-                        <marquee class="notice" scrollamount="2">
-                            @foreach (var item in _items)
-                            {
-                                <font color="#434343">@item.MessageContents</font>
-                            }
-                        </marquee>
+                        <a class="dropdown-item" href="@(Url.Action("EditMySelf", "UserProfile"))">
+                            <i class="fas fa-user"></i>
+                            帳號管理
+                        </a>
                     </li>
-                }
-                @*<li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-language fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-messages">
-                        <li>
-                            <a href="javascript:changeLanguage('zh-TW');">
-                                繁體中文
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:changeLanguage('en-US');">
-                                English
-                            </a>
-                        </li>
-                    </ul>
-                    <!-- /.dropdown-messages -->
-                    <script>
-                            function changeLanguage(lang) {
-                                $.post('@(Url.Action("ChangeLanguage", "Account"))', { 'lang': lang }, function (data) {
-                                    if ($.isPlainObject(data)) {
-                                        if (data.result) {
-                                            window.location.reload();
-                                        }
-                                    } else {
-                                        $(data).appendTo($('body'));
-                                    }
-                                });
-                            }
-                    </script>
-                </li>*@
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-envelope fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    @*<ul class="dropdown-menu dropdown-messages">
-                <li>
-                    <a href="#">
-                        <div>
-                            <strong>John Smith</strong>
-                            <span class="pull-right text-muted">
-                                <em>Yesterday</em>
-                            </span>
-                        </div>
-                        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <strong>John Smith</strong>
-                            <span class="pull-right text-muted">
-                                <em>Yesterday</em>
-                            </span>
-                        </div>
-                        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <strong>John Smith</strong>
-                            <span class="pull-right text-muted">
-                                <em>Yesterday</em>
-                            </span>
-                        </div>
-                        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a class="text-center" href="#">
-                        <strong>Read All Messages</strong>
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                </li>
-            </ul>*@
-                    <!-- /.dropdown-messages -->
-                </li>
-                <!-- /.dropdown -->
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-tasks fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    @*<ul class="dropdown-menu dropdown-tasks">
-                <li>
-                    <a href="#">
-                        <div>
-                            <p>
-                                <strong>Task 1</strong>
-                                <span class="pull-right text-muted">40% Complete</span>
-                            </p>
-                            <div class="progress progress-striped active">
-                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-                                    <span class="sr-only">40% Complete (success)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <p>
-                                <strong>Task 2</strong>
-                                <span class="pull-right text-muted">20% Complete</span>
-                            </p>
-                            <div class="progress progress-striped active">
-                                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-                                    <span class="sr-only">20% Complete</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <p>
-                                <strong>Task 3</strong>
-                                <span class="pull-right text-muted">60% Complete</span>
-                            </p>
-                            <div class="progress progress-striped active">
-                                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-                                    <span class="sr-only">60% Complete (warning)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <p>
-                                <strong>Task 4</strong>
-                                <span class="pull-right text-muted">80% Complete</span>
-                            </p>
-                            <div class="progress progress-striped active">
-                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-                                    <span class="sr-only">80% Complete (danger)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a class="text-center" href="#">
-                        <strong>See All Tasks</strong>
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                </li>
-            </ul>*@
-                    <!-- /.dropdown-tasks -->
-                </li>
-                <!-- /.dropdown -->
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-bell fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-alerts">
-                        <li>
-                            <a href="@(Url.Action("QueryIndex","ProcessRequest"))">
-                                <div>
-                                    <i class="fa fa-tasks fa-fw"></i>工作清單
-                                    <span class="pull-right text-muted small"></span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        @*<li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-comment fa-fw"></i>New Comment
-                            <span class="pull-right text-muted small">4 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-twitter fa-fw"></i>3 New Followers
-                            <span class="pull-right text-muted small">12 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-envelope fa-fw"></i>Message Sent
-
-                            <span class="pull-right text-muted small">4 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-tasks fa-fw"></i>New Task
-
-                            <span class="pull-right text-muted small">4 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-upload fa-fw"></i>Server Rebooted
-
-                            <span class="pull-right text-muted small">4 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a class="text-center" href="#">
-                        <strong>See All Alerts</strong>
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                </li>*@
-                    </ul>
-                    <!-- /.dropdown-alerts -->
-                </li>
-                <!-- /.dropdown -->
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-user">
-                        <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute(" ~/UserProfile/EditMySelf"))"><i class="fa fa-user fa-fw"></i>帳號管理</a>
-                        </li>
-                        @*<li>
-                    <a href="#"><i class="fa fa-gear fa-fw"></i>Settings</a>
-                </li>*@
-                        <li class="divider"></li>
-                        <li>
-                            <a href="@(VirtualPathUtility.ToAbsolute(" ~/Logout.aspx"))"><i class="fa fa-sign-out fa-fw"></i>登出</a>
-                        </li>
-                    </ul>
-                    <!-- /.dropdown-user -->
-                </li>
-                <!-- /.dropdown -->
-            </ul>
-            <!-- /.navbar-top-links -->
-            @{ await Html.RenderPartialAsync("~/Views/SiteAction/PageMenuBar.cshtml"); }
-            <!-- /.navbar-static-side -->
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="@(Url.Action("Login", "Account"))">
+                            <i class="fas fa-sign-out"></i>
+                            登出
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </nav>
+    </header>
 
-        <!-- Page Content -->
-        <div id="page-wrapper">
-
+    <div class="container-fluid px-0">
+        <!--SideBar Menu-->
+        @{
+            await Html.RenderPartialAsync("~/Views/SiteAction/PageMenuBar.cshtml");
+        }
+        <!--Page Content-->
+        <main class="content__wrapper">
             <ul class="nav nav-tabs" role="tablist" id="masterTab">
-                <li role="presentation" class="active">
-                    <a href="#masterHome" class="tab-link" aria-controls="masterHome" role="tab" data-toggle="tab">@(ViewBag.ActionName ?? "首頁") <i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+                <li role="presentation">
+                    @* @(ViewBag.ActionName ?? "首頁") *@
                 </li>
             </ul>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("MainPage", "Home")">首頁</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        @(ViewBag.ActionName)
+                    </li>
+                </ol>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="container-fluid">
+                <form id="theForm" method="post" role="form" enctype="multipart/form-data">
+                    @RenderSection("formContent", false)
+                </form>
+                @* <div class="row"> *@
+                @RenderBody()
+                @* </div> *@
+            </div>
 
             <!-- Tab panes -->
             <div class="tab-content" id="masterTabContent">
                 <div role="tabpanel" class="tab-pane active" id="masterHome">
-                    <div class="container-fluid">
-                        @if (ViewBag.ActionName != null)
-                        {
-                            @*<div class="row">
-                                    <div class="col-lg-12">
-                                        <h2 class="page-header">@ViewBag.ActionName</h2>
-                                    </div>
-                                </div>*@
-                        }
-                        <h2><br /></h2>
+                    @* <div class="container-fluid">
                         <form id="theForm" method="post" role="form" enctype="multipart/form-data">
                             @RenderSection("formContent", false)
                         </form>
                         <div class="row">
                             @RenderBody()
                         </div>
-                        <!-- /.row -->
-                    </div>
+                    </div> *@
                 </div>
             </div>
-
-            <!-- /.container-fluid -->
-        </div>
-        <!-- /#page-wrapper -->
+        </main>
     </div>
-
-    <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#c5e08a" id="footer">
-        <tr>
-            <td width="208" height="26" bgcolor="#d9e28e">
-                &nbsp;
-            </td>
-            <td align="right">
-                <span class="copyright">Powered by UXB2B</span>
-            </td>
-        </tr>
-    </table>
-
+    <div id="footer" class="eivo__footer">
+        <span class="text-muted">Copyright © UXB2B. All rights reserved.</span>
+    </div>
 </body>
+
 </html>
-@{ await Html.RenderPartialAsync("~/Views/Shared/GlobalScript.cshtml");}
-@{ await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml");}
-@{ await Html.RenderPartialAsync("~/Views/Shared/ReportInputError.cshtml");}
+@{
+    await Html.RenderPartialAsync("~/Views/Shared/GlobalScript.cshtml");
+}
+@{
+    await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml");
+}
+@{
+    await Html.RenderPartialAsync("~/Views/Shared/ReportInputError.cshtml");
+}

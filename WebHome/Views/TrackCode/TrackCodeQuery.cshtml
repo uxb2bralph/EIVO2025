@@ -1,5 +1,3 @@
-
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -15,48 +13,42 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 @{
-
     ModelSource<InvoiceItem> models;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     ModelCore.Models.ViewModel.QueryViewModel? _viewModel = ViewBag.ViewModel as ModelCore.Models.ViewModel.QueryViewModel;
 }
 <!--交易畫面標題-->
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票字軌維護");}
-
-<div class="border_gray">
-    <!--表格 開始-->
-    <table id="queryArea" class="table table-striped">
-        <tr>
-            <th colspan="2" class="Head_style_a">
-                查詢條件
-            </th>
-        </tr>
-        @{ 
-            await Html.RenderPartialAsync("~/Views/TrackCode/DataQuery/TrackCodePeriod.cshtml");
-        }
-        <tr>
-            <th>
-                每頁資料筆數
-            </th>
-            <td class="tdleft" colspan="3">
-                <input name="pageSize" type="text" value="@(_viewModel?.PageSize ?? ModelCore.Properties.AppSettings.Default.PageSize)" />
-            </td>
-        </tr>
-    </table>
-    <!--表格 結束-->
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票字軌維護");
+}
+<!-- 查詢框 -->
+<div id="searchArea" class="mb-4 card">
+    <div class="card-body">
+        <div class="row row-cols-3">
+            @{
+                await Html.RenderPartialAsync("~/Views/TrackCode/DataQuery/TrackCodePeriod.cshtml");
+            }
+            <div class="col">
+                <div class="row">
+                    <label for="pageSize" class="col-auto col-form-label">
+                        每頁資料筆數
+                    </label>
+                    <div class="col">
+                        <input id="pageSize" name="pageSize" type="text" class="form-control"
+                            value="@(_viewModel?.PageSize ?? ModelCore.Properties.AppSettings.Default.PageSize)">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--按鈕-->
+        <div class="mt-3 d-block text-end">
+            <button type="button" class="mx-1 px-3 btn btn-sm eivo__btn--default" onclick="uiTrackCodeQuery.inquire();">
+                查詢
+            </button>
+        </div>
+    </div>
 </div>
-<!--按鈕-->
-<table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
-    <tbody>
-        <tr>
-            <td class="Bargain_btn">
-                <button type="button" onclick="uiTrackCodeQuery.inquire();">查詢</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<!--表格 開始-->
-@{ await Html.RenderPartialAsync("~/Views/TrackCode/ScriptHelper/Common.cshtml");}
 
-
-
+@{
+    await Html.RenderPartialAsync("~/Views/TrackCode/ScriptHelper/Common.cshtml");
+}
