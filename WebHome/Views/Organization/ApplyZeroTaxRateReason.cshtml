@@ -1,0 +1,108 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Locale
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@using WebHome.Models.ViewModel
+@using ModelCore.DataExchange
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using ModelCore.Helper
+@using Newtonsoft.Json.Linq
+@{
+    Layout = "~/Views/Shared/Module/MessageDialog.cshtml";
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    ViewBag.DialogOptions = JObject.FromObject(new { Width = 480 });
+
+    OrganizationQueryViewModel _viewModel = this.Model as OrganizationQueryViewModel ?? ViewBag.ViewModel as OrganizationQueryViewModel;
+    if (_viewModel == null)
+    {
+        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<OrganizationQueryViewModel>();
+        ViewBag.ViewModel = _viewModel;
+    }
+
+    int? companyID = null;
+    if (_viewModel.KeyID != null)
+    {
+        companyID = _viewModel.DecryptKeyValue();
+    }
+
+    var item = models.GetTable<Organization>().Where(o => o.CompanyID == companyID).FirstOrDefault();
+
+    String _viewID = $"check{DateTime.Now.Ticks}";
+}
+@if (_viewModel.CustomSettings != null)
+{
+    if (item != null)
+    {
+        var custSettings = item.OrganizationCustomSetting;
+        if (custSettings == null)
+        {
+            custSettings = item.OrganizationCustomSetting = new OrganizationCustomSetting { };
+        }
+        custSettings.Settings.ZeroTaxRateReason = _viewModel.CustomSettings.ZeroTaxRateReason;
+        custSettings.Accept();
+        models.SubmitChanges();
+
+        await ViewContext.HttpContext.Response.RenderJsonResultAsync(new { result = true });
+    }
+    else
+    {
+        await ViewContext.HttpContext.Response.RenderJsonResultAsync(new { result = false, message = "資料錯誤!!" });
+    }
+}
+else
+{
+    var currentValue = item?.OrganizationCustomSetting?.Settings?.ZeroTaxRateReason;
+    <div class="border_gray" id="@(_viewID)">
+        <div class="container mt-4">
+            <div class="row mb-3">
+                <label class="col-sm-6 col-form-label">預設零稅率原因</label>
+                <select name="ZeroTaxRateReason" class="form-control">
+                    <option value="">取消預設</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item71)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item71)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item71)</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item72)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item72)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item72)</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item73)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item73)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item73)</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item74)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item74)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item74)</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item75)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item75)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item75)</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item76)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item76)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item76)</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item77)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item77)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item77)</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item78)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item78)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item78)</option>
+                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item79)" value="@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item79)">@((int)ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum.Item79)</option>
+                </select>
+            </div>
+        </div>
+        <script>
+
+            $(function () {
+                $('#@(_viewID)').find('input,select,textarea').on('change', function (event) {
+                    clearErrors();
+                    var settings = $('#@(_viewID)').find('input,select,textArea').serializeObject();
+                    var viewModel = {
+                        'KeyID': '@Html.Raw((item?.CompanyID ?? -1).EncryptKey())',
+                        'CustomSettings': settings
+                    };
+
+                    doPost('@Html.Raw(Url.Action("ApplyZeroTaxRateReason", "Organization"))', viewModel, function (data) {
+                    });
+
+                });
+            });
+        </script>
+    </div>
+}
+
+
+
+

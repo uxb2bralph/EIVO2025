@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace WebHome
 {
@@ -30,6 +31,17 @@ namespace WebHome
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    services.AddControllers(options =>
+                    {
+                        options.InputFormatters.Add(new XmlSerializerInputFormatter(options));
+                        options.OutputFormatters.Add(new XmlSerializerOutputFormatter());
+                        options.FormatterMappings.SetMediaTypeMappingForFormat("xml", "application/xml");
+                    })
+                    .AddXmlSerializerFormatters()
+                    .AddXmlDataContractSerializerFormatters();
                 });
     }
 }

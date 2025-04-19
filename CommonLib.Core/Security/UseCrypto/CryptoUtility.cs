@@ -21,9 +21,9 @@ namespace CommonLib.Security.UseCrypto
     {
         static CryptoUtility()
         {
-            CryptoConfig.AddAlgorithm(
-                        typeof(RSAPKCS1SHA256SignatureDescription),
-                        "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+            //CryptoConfig.AddAlgorithm(
+            //            typeof(RSAPKCS1SHA256SignatureDescription),
+            //            "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
         }
 
         public CryptoUtility() : base() { }
@@ -204,11 +204,22 @@ namespace CommonLib.Security.UseCrypto
                 XmlElement elmt = (XmlElement)doc.GetElementsByTagName("Signature", "http://www.w3.org/2000/09/xmldsig#")[0];
                 signedXml.LoadXml(elmt);
 
-                _cert = new X509Certificate2(Convert.FromBase64String(signedXml.KeyInfo.GetXml().GetElementsByTagName("X509Certificate")[0].InnerText));
+                // 確保 KeyInfo 包含有效的證書
+                var certNode = signedXml.KeyInfo.GetXml().GetElementsByTagName("X509Certificate")[0];
+                if (certNode == null)
+                {
+                    throw new InvalidOperationException("X509Certificate element not found in KeyInfo.");
+                }
+                _cert = new X509Certificate2(Convert.FromBase64String(certNode.InnerText));
+                
+                // 確保 SigningKey 正確設置
+                //signedXml.SigningKey = _cert.PublicKey.Key;
+
+                //_cert = new X509Certificate2(Convert.FromBase64String(signedXml.KeyInfo.GetXml().GetElementsByTagName("X509Certificate")[0].InnerText));
                 //X509Certificate2 cert2 = new X509Certificate2(_cert);
                 beforeVerify(doc, _cert);
 
-                if (signedXml.CheckSignature())
+                if (signedXml.CheckSignatureReturningKey(out AsymmetricAlgorithm? key))
                 {
                     if (VerifySignatureOnly)
                         result = true;

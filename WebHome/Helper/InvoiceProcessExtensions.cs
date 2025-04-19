@@ -15,6 +15,7 @@ namespace WebHome.Helper
             {
                 request = new VoidInvoiceRequest
                 {
+                    InvoiceNo = $"{item.TrackCode}{item.No}",
                 };
                 item.CDS_Document.VoidInvoiceRequest = request;
             }

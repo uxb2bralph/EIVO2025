@@ -75,7 +75,7 @@ Use command:
             {
                 if(assignment.UnassignedInvoiceNo.Any())
                 {
-                    E0402Handler.WriteToTurnkey(assignment.BuildE0402());
+                    E0402Handler.WriteToTurnkey(assignment.CreateE0402());
                 }
             }
 

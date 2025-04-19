@@ -1,0 +1,50 @@
+@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+
+@using CommonLib.DataAccess
+@{
+    IQueryable<InvoiceTrackCode> _model;
+    QueryViewModel _viewModel;
+
+    _model = (IQueryable<InvoiceTrackCode>)this.Model;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+<table class="table table-striped itemList">
+    <thead>
+        <tr>
+            <th style="min-width: 120px;" aria-sort="other">發票年度</th>
+            <th style="min-width: 120px;">發票期別</th>
+            <th style="min-width: 120px;">字軌</th>
+            <th style="min-width: 120px;">類別</th>
+            <th style="min-width: 150px" aria-sort="other">管理</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            await Html.RenderPartialAsync("~/Views/TrackCode/Module/ItemList.cshtml", _model);
+        }
+    </tbody>
+    <tfoot>
+        @{
+            await Html.RenderPartialAsync("~/Views/TrackCode/Module/AddItem.cshtml");
+        }
+    </tfoot>
+</table>
+

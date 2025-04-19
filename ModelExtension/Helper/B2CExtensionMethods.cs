@@ -455,13 +455,13 @@ namespace ModelCore.Helper
             return result;
         }
 
-        public static ModelCore.Schema.TurnKey.E0402.BranchTrackBlank BuildE0402(this InvoiceTrackCodeAssignment item)
+        public static ModelCore.Schema.TurnKey.E0402.BranchTrackBlank CreateE0402(this InvoiceTrackCodeAssignment item)
         {
             var result = new ModelCore.Schema.TurnKey.E0402.BranchTrackBlank
             {
                 Main = new Schema.TurnKey.E0402.Main
                 {
-                    HeadBan = item.Organization.AsInvoiceIssuer.Where(a => a.RelationType == (int)InvoiceIssuerAgent.Relationship.MasterBranch).FirstOrDefault()?.InvoiceAgent.ReceiptNo ?? item.Organization.ReceiptNo,
+                    HeadBan = item.Organization.Headquarter?.ReceiptNo ?? item.Organization.ReceiptNo,
                     BranchBan = item.Organization.ReceiptNo,
                     InvoiceType = item.InvoiceTrackCode .InvoiceType == (byte)Schema.TurnKey.E0402.InvoiceTypeEnum.Item08 ? Schema.TurnKey.E0402.InvoiceTypeEnum.Item08 : Schema.TurnKey.E0402.InvoiceTypeEnum.Item07,
                     YearMonth = String.Format("{0:000}{1:00}", item.InvoiceTrackCode.Year - 1911, item.InvoiceTrackCode.PeriodNo * 2),
@@ -629,6 +629,12 @@ namespace ModelCore.Helper
             {
                 result.Amount.CurrencySpecified = true;
                 result.Amount.Currency = (Schema.TurnKey.F0401.CurrencyCodeEnum)Enum.Parse(typeof(Schema.TurnKey.C0401.CurrencyCodeEnum), item.InvoiceAmountType.CurrencyType.AbbrevName);
+            }
+            if(item.InvoiceAmountType.TaxType == (byte)Naming.TaxTypeDefinition.零稅率
+                && item.Organization.OrganizationCustomSetting?.Settings?.ZeroTaxRateReason.HasValue == true)
+            {
+                result.Main.ZeroTaxRateReason = item.Organization.OrganizationCustomSetting.Settings.ZeroTaxRateReason.Value;
+                result.Main.ZeroTaxRateReasonSpecified = true;
             }
 
             if (withExtension)

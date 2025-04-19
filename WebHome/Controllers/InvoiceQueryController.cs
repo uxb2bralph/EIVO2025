@@ -22,7 +22,6 @@ using System.Data.Linq;
 using WebHome.Models.ViewModel;
 using ModelCore.Models.ViewModel;
 using ModelCore.Helper;
-using ModelCore.Helper;
 using System.Threading.Tasks;
 using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -31,9 +30,12 @@ using CommonLib.Core.Utility;
 using CommonLib.Core.Helper;
 using CommonLib.DataAccess;
 using ModelCore.Models;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebHome.Controllers
 {
+    [Authorize]
     public class InvoiceQueryController : SampleController<InvoiceItem>
     {
         protected UserProfile _userProfile;
@@ -42,25 +44,25 @@ namespace WebHome.Controllers
         {
         }
 
-        protected ModelSourceInquiry<InvoiceItem> createModelInquiry()
-        {
-            _userProfile = HttpContext.GetUser();
+        //protected ModelSourceInquiry<InvoiceItem> createModelInquiry()
+        //{
+        //    _userProfile = HttpContext.GetUser();
 
-            var inquireConsumption = new InquireInvoiceConsumption { ControllerName = "InquireInvoice", ActionName = "ByConsumption" };
-            //inquireConsumption.Append(new InquireInvoiceConsumptionExtensionToPrint { });
+        //    var inquireConsumption = new InquireInvoiceConsumption { ControllerName = "InquireInvoice", ActionName = "ByConsumption" };
+        //    //inquireConsumption.Append(new InquireInvoiceConsumptionExtensionToPrint { });
 
-            return (ModelSourceInquiry<InvoiceItem>)(new InquireEffectiveInvoice { })
-                .Append(new InquireInvoiceByRole(_userProfile) { })
-                .Append(inquireConsumption)
-                .Append(new InquireInvoiceSeller { ControllerName = "InquireInvoice", ActionName = "BySeller", /*QueryRequired = true, AlertMessage = "請選擇公司名稱!!",*/  })
-                .Append(new InquireInvoiceBuyer { ControllerName = "InquireInvoice", ActionName = "ByBuyer" })
-                .Append(new InquireInvoiceBuyerByName { ControllerName = "InquireInvoice", ActionName = "ByBuyerName" })
-                .Append(new InquireInvoiceDate { ControllerName = "InquireInvoice", ActionName = "ByInvoiceDate" })
-                .Append(new InquireInvoiceAttachment { ControllerName = "InquireInvoice", ActionName = "ByAttachment" })
-                .Append(new InquireInvoiceNo { })
-                .Append(new InquireInvoiceAgent { ControllerName = "InquireInvoice", ActionName = "ByAgent" })
-                .Append(new InquireWinningInvoice { });
-        }
+        //    return (ModelSourceInquiry<InvoiceItem>)(new InquireEffectiveInvoice { })
+        //        .Append(new InquireInvoiceByRole(_userProfile) { })
+        //        .Append(inquireConsumption)
+        //        .Append(new InquireInvoiceSeller { ControllerName = "InquireInvoice", ActionName = "BySeller", /*QueryRequired = true, AlertMessage = "請選擇公司名稱!!",*/  })
+        //        .Append(new InquireInvoiceBuyer { ControllerName = "InquireInvoice", ActionName = "ByBuyer" })
+        //        .Append(new InquireInvoiceBuyerByName { ControllerName = "InquireInvoice", ActionName = "ByBuyerName" })
+        //        .Append(new InquireInvoiceDate { ControllerName = "InquireInvoice", ActionName = "ByInvoiceDate" })
+        //        .Append(new InquireInvoiceAttachment { ControllerName = "InquireInvoice", ActionName = "ByAttachment" })
+        //        .Append(new InquireInvoiceNo { })
+        //        .Append(new InquireInvoiceAgent { ControllerName = "InquireInvoice", ActionName = "ByAgent" })
+        //        .Append(new InquireWinningInvoice { });
+        //}
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS })]
         public ActionResult InvoiceReport(InquireInvoiceViewModel viewModel)
@@ -69,8 +71,8 @@ namespace WebHome.Controllers
             ViewBag.QueryAction = "Inquire";
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
-
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             return View(DataSource.Inquiry);
         }
 
@@ -360,7 +362,8 @@ namespace WebHome.Controllers
             ViewBag.PrintAction = "PrintResult";
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             return View("InquiryResult",DataSource.Inquiry);
@@ -373,7 +376,8 @@ namespace WebHome.Controllers
             ViewBag.QueryAction = "InquireAttachment";
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
 
             return View("InvoiceReport", DataSource.Inquiry);
         }
@@ -383,7 +387,8 @@ namespace WebHome.Controllers
             //ViewBag.HasQuery = true;
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             return View("AttachmentResult", DataSource.Inquiry);
@@ -394,7 +399,8 @@ namespace WebHome.Controllers
             //ViewBag.HasQuery = true;
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             if (index > 0)
@@ -412,7 +418,8 @@ namespace WebHome.Controllers
             //ViewBag.HasQuery = true;
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             if (index > 0)
@@ -428,7 +435,8 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             var mediaType = new MediaTypeHeaderValue("application/octet-stream")
@@ -492,7 +500,8 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             String resultFile = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx");
@@ -531,7 +540,8 @@ namespace WebHome.Controllers
         public ActionResult PrintResult(InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
             ((ModelSource<InvoiceItem>)models).ResultModel = Naming.DataResultMode.Print;
 
@@ -584,7 +594,8 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             return zipAttachment(DataSource.Items);
@@ -637,7 +648,8 @@ namespace WebHome.Controllers
             ViewBag.QueryAction = "InquireSummary";
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
 
             return View("InvoiceReport", DataSource.Inquiry);
         }
@@ -671,8 +683,7 @@ namespace WebHome.Controllers
             }
 
             var profile = HttpContext.GetUser();
-
-            DataSource.Inquiry = createModelInquiry();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             var orgaCate = models.GetTable<OrganizationCategory>().Where(c => AvailableMemberCategory.Contains(c.CategoryID));
@@ -849,7 +860,8 @@ namespace WebHome.Controllers
             //ViewBag.HasQuery = true;
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
             if (index > 0)
@@ -868,7 +880,8 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
             ((ModelSource<InvoiceItem>)models).ResultModel = Naming.DataResultMode.Print;
 

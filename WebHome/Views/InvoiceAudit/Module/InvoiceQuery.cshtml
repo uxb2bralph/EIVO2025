@@ -9,7 +9,6 @@
 @using WebHome.Models
 @using WebHome.Controllers
 @using ModelCore.DataEntity
-@using ModelCore.Helper
 @using ModelCore.Locale
 @using ModelCore.Security.MembershipManagement
 @using ModelCore.Models.ViewModel
@@ -29,6 +28,8 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
 
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+    _viewModel.UrlAction = Url.Action("InquireInvoice", "InvoiceAudit");
+
 }
 <!--交易畫面標題-->
 @{ 
@@ -73,45 +74,6 @@
     </table>
 </div>
 
-<script>
-    $(function () {
-        $inquiryAgent.inquire = function (pageNum) {
-            var $this = $inquiryAgent;
-            var $placement = $('input[value="查詢"]').closest('table');
-            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
-
-            if (isNaN(pageNum)) {
-                $inquiryAgent.viewModel.PageIndex = null;
-            }
-            else {
-                $inquiryAgent.viewModel.PageIndex = pageNum;
-            }
-            $formData = $.extend($inquiryAgent.viewModel, $formData);
-
-            showLoading();
-            $.post('@Html.Raw(Url.Action("InquireInvoice", "InvoiceAudit"))', $formData, function (data) {
-                hideLoading();
-                if ($.isPlainObject(data)) {
-                    alert(data.message);
-                } else {
-                    if ($this.initQuery) {
-                        if ($this.$queryResult) {
-                            $this.$queryResult.remove();
-                        }
-
-                        $this.$queryResult = $(data);
-                        $('#queryArea').after($this.$queryResult);
-                        $this.initQuery = false;
-
-                    } else {
-                        $this.doPage(data);
-                    }
-                }
-            });
-        };
-    });
-
-</script>
 @if (_viewModel.StartQuery == true)
 {
     <script>

@@ -18,7 +18,12 @@
 @{
     Layout = "~/Views/Template/QueryIndex.cshtml";
     ViewBag.ActionName = "首頁 > 每月統計報表";
-    MonthlyReportQueryViewModel _viewModel = ViewBag.ViewModel as MonthlyReportQueryViewModel;
+    MonthlyReportQueryViewModel? _viewModel = ViewBag.ViewModel as MonthlyReportQueryViewModel;
+    if (_viewModel == null)
+    {
+        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<MonthlyReportQueryViewModel>();
+        ViewBag.ViewModel = _viewModel;
+    }
 
     _viewModel.UrlAction = Url.Action("InquireMonthlyReport", "InvoiceQuery");
 }

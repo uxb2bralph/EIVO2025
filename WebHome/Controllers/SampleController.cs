@@ -92,6 +92,7 @@ namespace WebHome.Controllers
             }
             else
             {
+                viewModel.PageIndex = 0;
                 if (viewModel.QueryResult == null)
                 {
                     viewModel.QueryResult = "~/Views/Common/Module/QueryResult.cshtml";

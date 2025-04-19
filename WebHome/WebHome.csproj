@@ -39,9 +39,10 @@
     <PackageReference Include="CoreWCF.Http" Version="1.7.0" />
     <PackageReference Include="CoreWCF.Primitives" Version="1.7.0" />
     <PackageReference Include="GoogleAuthenticator" Version="3.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.4" />
     <PackageReference Include="PDFsharp" Version="6.1.1" />
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0.2" />
+    <PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.10" />
   </ItemGroup>
 

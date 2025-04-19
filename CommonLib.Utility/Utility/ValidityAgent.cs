@@ -373,9 +373,9 @@ namespace CommonLib.Utility
             return path;
         }
 
-        public static String ToHexString(this byte[] data, String delimiter = "")
+        public static String ToHexString(this byte[] data, String format = "X2", String delimiter = "")
         {
-            return String.Join(delimiter, data.Select(b => b.ToString("X2")));
+            return String.Join(delimiter, data.Select(b => b.ToString(format)));
         }
 
         public static string ConvertToHalfWidthString(this string str)
