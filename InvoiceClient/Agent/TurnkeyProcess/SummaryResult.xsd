@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="SummaryResult">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="RoutingInfo">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="From">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="PartyId" type="xs:unsignedInt" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="FromVAC">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="RoutingId" type="xs:string" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="To">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="PartyId" type="xs:unsignedInt" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="ToVAC">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="RoutingId" type="xs:unsignedInt" />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="DetailList">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element maxOccurs="unbounded" name="Message">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="Info">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Id" type="xs:string" />
+													<xs:element name="Size" type="xs:unsignedInt" />
+													<xs:element name="MessageType" type="xs:string" />
+													<xs:element name="Service" type="xs:string" />
+													<xs:element name="Action" type="xs:string" />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+										<xs:element name="ResultType">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="Total">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="ResultDetailType">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Count" type="xs:unsignedInt" />
+																			<xs:element name="Invoices">
+																				<xs:complexType>
+																					<xs:sequence>
+																						<xs:element maxOccurs="unbounded" name="Invoice">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="ReferenceNumber" type="xs:string" />
+																									<xs:element name="InvoiceDate" type="xs:unsignedInt" />
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																					</xs:sequence>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="Good">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="ResultDetailType">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Count" type="xs:unsignedInt" />
+																			<xs:element name="Invoices">
+																				<xs:complexType>
+																					<xs:sequence>
+																						<xs:element maxOccurs="unbounded" name="Invoice">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="ReferenceNumber" type="xs:string" />
+																									<xs:element name="InvoiceDate" type="xs:unsignedInt" />
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																					</xs:sequence>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+													<xs:element name="Failed">
+														<xs:complexType>
+															<xs:sequence>
+																<xs:element name="ResultDetailType">
+																	<xs:complexType>
+																		<xs:sequence>
+																			<xs:element name="Count" type="xs:unsignedInt" />
+																			<xs:element minOccurs="0" name="Invoices">
+																				<xs:complexType>
+																					<xs:sequence>
+																						<xs:element maxOccurs="unbounded" name="Invoice">
+																							<xs:complexType>
+																								<xs:sequence>
+																									<xs:element name="ReferenceNumber" type="xs:string" />
+																									<xs:element name="InvoiceDate" type="xs:unsignedInt" />
+																								</xs:sequence>
+																							</xs:complexType>
+																						</xs:element>
+																					</xs:sequence>
+																				</xs:complexType>
+																			</xs:element>
+																		</xs:sequence>
+																	</xs:complexType>
+																</xs:element>
+															</xs:sequence>
+														</xs:complexType>
+													</xs:element>
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

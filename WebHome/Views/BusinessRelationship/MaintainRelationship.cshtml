@@ -12,7 +12,7 @@
 @using ModelCore.DataEntity
 @using WebHome.Controllers
 @{
-    Layout = "~/Views/Common/QueryIndex.cshtml";
+    Layout = "~/Views/Template/QueryIndex.cshtml";
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _modelState = (ModelStateDictionary)ViewBag.ModelState;

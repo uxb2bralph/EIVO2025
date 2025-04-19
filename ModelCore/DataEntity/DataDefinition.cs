@@ -130,6 +130,7 @@ namespace ModelCore.DataEntity
         public Naming.Truth? DisableE0501AutoUpdate { get; set; }
         public Naming.Truth? E0501InitialLock { get; set; }
         public int? E0501ReservedBooklets { get; set; }
+        public ModelCore.Schema.TurnKey.F0401.ZeroTaxRateReasonEnum? ZeroTaxRateReason { get; set; }
     }
 
     public partial class CategoryDefinition
@@ -169,6 +170,11 @@ namespace ModelCore.DataEntity
         public IEnumerable<InvoiceIssuerAgent> BranchRelation
         {
             get => this.InvoiceIssuerAgent.Where(a => a.RelationType == (int)ModelCore.DataEntity.InvoiceIssuerAgent.Relationship.MasterBranch);
+        }
+
+        public Organization? Headquarter
+        {
+            get => this.AsInvoiceIssuer.Where(a => a.RelationType == (int)ModelCore.DataEntity.InvoiceIssuerAgent.Relationship.MasterBranch).FirstOrDefault()?.InvoiceAgent;
         }
     }
 

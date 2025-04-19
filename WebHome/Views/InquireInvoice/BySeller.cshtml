@@ -8,7 +8,6 @@
 @using WebHome.Controllers
 @using WebHome.Models.ViewModel
 @using ModelCore.DataEntity
-@using ModelCore.Helper
 @using ModelCore.Locale
 @using ModelCore.Security.MembershipManagement
 @using ModelCore.Models.ViewModel
@@ -23,7 +22,7 @@
     SellerSelectorViewModel _viewModel = (SellerSelectorViewModel)ViewBag.ViewModel;
 }
 <tr>
-    <th>@(ViewBag.Title ?? "開立人統編")</th>
+    <th>營業人統編</th>
     <td class="tdleft">
         @{ 
             ViewBag.SelectorIndication = "全部";

@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="EIVO03" Class="SampleEIVODataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=172.16.2.23\sqlexpress,1433;Initial Catalog=EIVO03;Integrated Security=True" SettingsObjectName="TestConsole.Properties.Settings" SettingsPropertyName="EIVO03ConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.InvoiceAllowance" Member="InvoiceAllowance">
+    <Type Name="InvoiceAllowance">
+      <Column Name="AllowanceID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="AllowanceNumber" Type="System.String" DbType="NVarChar(16)" CanBeNull="true" />
+      <Column Name="AllowanceType" Type="System.Byte" DbType="TinyInt" CanBeNull="true" />
+      <Column Name="AllowanceDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="TotalAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="TaxAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="InvoiceID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="SellerId" Type="System.String" DbType="NVarChar(10)" CanBeNull="true" />
+      <Column Name="BuyerId" Type="System.String" DbType="NVarChar(10)" CanBeNull="true" />
+      <Column Name="CurrencyID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="CurrencyType_InvoiceAllowance" Member="CurrencyType" ThisKey="CurrencyID" OtherKey="CurrencyID" Type="CurrencyType" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.CurrencyType" Member="CurrencyType">
+    <Type Name="CurrencyType">
+      <Column Name="CurrencyID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="CurrencyName" Type="System.String" DbType="NVarChar(64)" CanBeNull="true" />
+      <Column Name="AbbrevName" Type="System.String" DbType="NVarChar(16)" CanBeNull="true" />
+      <Association Name="CurrencyType_InvoiceAllowance" Member="InvoiceAllowance" ThisKey="CurrencyID" OtherKey="CurrencyID" Type="InvoiceAllowance" />
+    </Type>
+  </Table>
+</Database>

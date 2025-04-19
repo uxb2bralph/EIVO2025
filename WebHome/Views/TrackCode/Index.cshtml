@@ -12,15 +12,20 @@
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
 
-@using WebHome.Helper
 @{
-    Layout = "~/Views/Template/MvcMainPage.cshtml";
+    Layout = "~/Views/Template/QueryIndex.cshtml";
     ViewBag.ActionName = "首頁 > 系統管理維護";
-}
-@section headContent {
+
+    var _inquiryView = (String)ViewBag.InquiryView ?? "~/Views/InvoiceProcess/Module/InvoiceQuery.cshtml";
 
 }
-@{ await Html.RenderPartialAsync("~/Views/TrackCode/TrackCodeQuery.cshtml");}
+
+@section QueryForm {
+    @{
+        await Html.RenderPartialAsync("~/Views/TrackCode/TrackCodeQuery.cshtml");
+    }
+}
+
 
 
 

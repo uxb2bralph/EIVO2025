@@ -19,7 +19,7 @@
 @using Newtonsoft.Json
 @{
 
-    Layout = "~/Views/Template/MvcMainPage.cshtml";
+    Layout = "~/Views/Template/QueryIndex.cshtml";
 
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
@@ -29,47 +29,8 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
 }
+
 @{
     await Html.RenderPartialAsync(_viewModel.QueryForm);
 }
-<script>
-    debugger;
-    var $inquiryAgent = {
-        viewModel: @(Html.Raw(JsonConvert.SerializeObject(_viewModel))),
-        initQuery: false,
-        columns: null,
-        $queryResult: null,
-        sort: function (name, target) {
-            if (!$inquiryAgent.viewModel.SortName) {
-                $inquiryAgent.viewModel.SortName = [];
-            }
-            if (!$inquiryAgent.viewModel.SortType) {
-                $inquiryAgent.viewModel.SortType = [];
-            }
-            var sortType = 1;
-            var idx = $inquiryAgent.viewModel.SortName.indexOf(name);
-            if (idx >= 0) {
-                sortType = ($inquiryAgent.viewModel.SortType[idx] + 2) % 3 - 1;
-                $inquiryAgent.viewModel.SortType[idx] = sortType;
-            } else {
-                $inquiryAgent.viewModel.SortName.push(name);
-                $inquiryAgent.viewModel.SortType.push(sortType);
-            }
 
-            var $target = $(target);
-            $target.find('i').remove();
-            if (sortType == 1) {
-                $target.append('<i class="fa fa-sort-asc" aria-hidden="true"></i>');
-            } else if (sortType == -1) {
-                $target.append('<i class="fa fa-sort-desc" aria-hidden="true"></i>');
-            }
-            $inquiryAgent.inquire(1);
-        },
-        pageIndex: 0,
-        doPage: function (data) {
-        },
-        onBodyLoad: function () {
-        },
-    };
-
-</script>

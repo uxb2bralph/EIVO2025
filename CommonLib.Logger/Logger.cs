@@ -29,13 +29,13 @@ namespace CommonLib.Logger
             //
             // TODO: 在此加入建構函式的程式碼
             //
-            if (!String.IsNullOrEmpty(Settings.Default.LogPath))
-                _path = Settings.Default.LogPath;
-            else
-                _path = Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "logs");
+            if (String.IsNullOrEmpty(AppSettings.Default.LogPath))
+            {
+                AppSettings.Default.LogPath = Path.Combine(Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory), "logs");
+                AppSettings.Default.Save();
+            }
 
-            if (!Directory.Exists(_path))
-                Directory.CreateDirectory(_path);
+            _path = AppSettings.Default.LogPath.CheckStoredPath();
 
             _dbg = new LogWriter(this, "SystemLog.dbg");
             _err = new LogWriter(this, "SystemLog.err");

@@ -108,10 +108,19 @@
                     <td>
                         @if (_model != null)
                         {
-                            <button type="button" class="btn" onclick="applyE0501();">E0501取號設定</button>
+                            <button type="button" class="btn mr-2" onclick="applyE0501();">E0501取號設定</button>
                             <script>
                                 function applyE0501() {
                                     doPost('@Html.Raw(Url.Action("ApplyE0501Settings", "Organization"))', { 'KeyID': '@Html.Raw(_model.CompanyID.EncryptKey())' }, function (data) {
+                                        var $data = $(data);
+                                        $('body').append($data);
+                                    });
+                                }
+                            </script>
+                            <button type="button" class="btn mr-2" onclick="applyZeroTaxRateReason();">預設零稅率原因</button>
+                            <script>
+                                function applyZeroTaxRateReason() {
+                                    doPost('@Html.Raw(Url.Action("ApplyZeroTaxRateReason", "Organization"))', { 'KeyID': '@Html.Raw(_model.CompanyID.EncryptKey())' }, function (data) {
                                         var $data = $(data);
                                         $('body').append($data);
                                     });
@@ -400,42 +409,42 @@
                     </td>
                 </tr>
                 @*<tr>
-                        <th>上傳系統格式
-                        </th>
-                        <td >
-                            <select name="uploadType">
-                                <option>XML</option>
-                                <option>CSV</option>
-                                <option>MIG</option>
-                                <option>XML(含折讓單)</option>
-                            </select>
-                        </td>
-                        @if (_viewModel.LogoURL!= null)
-                            {
-                        <th>公司LOGO</th>
-                        <td>
-                            <img id="logo" style="width: 300px;" src="@(_viewModel.LogoURL != null ? VirtualPathUtility.ToAbsolute("~/" + _viewModel.LogoURL) : null)" />
-                            <input type="file" id="fileLogo" style="display: inline;" name="fileLogo" />
-                        </td>
-                        }
-                    </tr>
-                    <tr>
-                        <th>G/W發票存放資料夾
-                        </th>
-                        <td  colspan="3">
-                            <input type="text" size="68" name="txnPath" value="@(Request["txnPath"]!=null ? Request["txnPath"] : "C:\\UXB2B_EIVO")" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th >系統
-                        </th>
-                        <td colspan="3" >
-                            <select name="svcType">
-                                <option value="0">測試機</option>
-                                <option value="1">正式機</option>
-                            </select>
-                        </td>
-                    </tr>*@
+            <th>上傳系統格式
+            </th>
+            <td >
+                <select name="uploadType">
+                    <option>XML</option>
+                    <option>CSV</option>
+                    <option>MIG</option>
+                    <option>XML(含折讓單)</option>
+                </select>
+            </td>
+            @if (_viewModel.LogoURL!= null)
+                {
+            <th>公司LOGO</th>
+            <td>
+                <img id="logo" style="width: 300px;" src="@(_viewModel.LogoURL != null ? VirtualPathUtility.ToAbsolute("~/" + _viewModel.LogoURL) : null)" />
+                <input type="file" id="fileLogo" style="display: inline;" name="fileLogo" />
+            </td>
+            }
+        </tr>
+        <tr>
+            <th>G/W發票存放資料夾
+            </th>
+            <td  colspan="3">
+                <input type="text" size="68" name="txnPath" value="@(Request["txnPath"]!=null ? Request["txnPath"] : "C:\\UXB2B_EIVO")" />
+            </td>
+        </tr>
+        <tr>
+            <th >系統
+            </th>
+            <td colspan="3" >
+                <select name="svcType">
+                    <option value="0">測試機</option>
+                    <option value="1">正式機</option>
+                </select>
+            </td>
+        </tr>*@
                 <tr>
                     <td colspan="4" class="Head_style_a">
                         訊息通知

@@ -9,6 +9,7 @@
 @using ModelCore.DataEntity
 @using ModelCore.Helper
 @using ModelCore.Locale
+@using ModelCore.Models.ViewModel
 @using CommonLib.Core.Utility
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -18,7 +19,9 @@
 
     ModelSource<InvoiceItem> models;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    ModelCore.Models.ViewModel.QueryViewModel? _viewModel = ViewBag.ViewModel as ModelCore.Models.ViewModel.QueryViewModel;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+
+    _viewModel.UrlAction = Url.Action("Inquire", "TrackCode", new { resultAction = ViewBag.ResultAction });
 }
 <!--交易畫面標題-->
 @{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票字軌維護");}
@@ -31,17 +34,9 @@
                 查詢條件
             </th>
         </tr>
-        @{ 
+        @{
             await Html.RenderPartialAsync("~/Views/TrackCode/DataQuery/TrackCodePeriod.cshtml");
         }
-        <tr>
-            <th>
-                每頁資料筆數
-            </th>
-            <td class="tdleft" colspan="3">
-                <input name="pageSize" type="text" value="@(_viewModel?.PageSize ?? ModelCore.Properties.AppSettings.Default.PageSize)" />
-            </td>
-        </tr>
     </table>
     <!--表格 結束-->
 </div>
@@ -50,7 +45,7 @@
     <tbody>
         <tr>
             <td class="Bargain_btn">
-                <button type="button" onclick="uiTrackCodeQuery.inquire();">查詢</button>
+                <button type="button" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">查詢</button>
             </td>
         </tr>
     </tbody>

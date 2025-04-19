@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="SampleEIVO">
+  <DataContextMoniker Name="/SampleEIVODataContext" />
+  <nestedChildShapes>
+    <classShape Id="9d015c44-f204-4642-9335-16ff399df09c" absoluteBounds="3.5, 1, 2, 2.7324039713541666">
+      <DataClassMoniker Name="/SampleEIVODataContext/InvoiceAllowance" />
+      <nestedChildShapes>
+        <elementListCompartment Id="74c23bd4-c42a-426d-a120-a49c414b445f" absoluteBounds="3.515, 1.46, 1.9700000000000002, 2.1724039713541665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="5aa025c0-04ea-4cd3-b29d-1604ee5b846b" absoluteBounds="0.75, 1.625, 2, 1.3862939453124998">
+      <DataClassMoniker Name="/SampleEIVODataContext/CurrencyType" />
+      <nestedChildShapes>
+        <elementListCompartment Id="35feb09e-e016-47ba-b2b4-89a6702203e3" absoluteBounds="0.765, 2.085, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(2.75 : 2.31814697265625); (3.5 : 2.31814697265625)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/SampleEIVODataContext/CurrencyType/CurrencyType_InvoiceAllowance" />
+      <nodes>
+        <classShapeMoniker Id="5aa025c0-04ea-4cd3-b29d-1604ee5b846b" />
+        <classShapeMoniker Id="9d015c44-f204-4642-9335-16ff399df09c" />
+      </nodes>
+    </associationConnector>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

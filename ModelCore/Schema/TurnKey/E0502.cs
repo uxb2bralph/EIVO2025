@@ -225,7 +225,7 @@ namespace ModelCore.Schema.TurnKey.E0502 {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlEnumAttribute("71")]
-        Item71,
+        Item71 = 71,
         
         /// <remarks/>
         [System.Xml.Serialization.XmlEnumAttribute("72")]

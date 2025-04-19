@@ -120,6 +120,14 @@ namespace WebHome
             services.AddServiceModelServices();
             services.AddServiceModelMetadata();
             services.AddSingleton<IServiceBehavior, UseRequestHeadersForMetadataAddressBehavior>();
+
+            // 錯誤示範：僅註冊接口
+            //services.AddSingleton<IShipperAsnService, ShipperAsnService>();
+
+            // 正確做法：同時註冊實現類
+            services.AddSingleton<eInvoiceService>(); // 必須註冊具體類
+            //services.AddSingleton<IShipperAsnService>(provider =>
+            //    provider.GetRequiredService<ShipperAsnService>()); // 可選（若需接口解析）
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -178,7 +186,10 @@ namespace WebHome
             // 配置 CoreWCF 端點
             app.UseServiceModel(builder =>
             {
-                builder.AddService<eInvoiceService>();
+                builder.AddService<eInvoiceService>(serviceOptions => 
+                {
+                    serviceOptions.DebugBehavior.IncludeExceptionDetailInFaults = true;
+                });
                 builder.AddServiceEndpoint<eInvoiceService>(
                     typeof(eInvoiceService),
                     new BasicHttpBinding(),

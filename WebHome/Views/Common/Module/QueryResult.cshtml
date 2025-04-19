@@ -43,7 +43,14 @@
         }
         else
         {
-            <font color="red">查無資料!!</font>
+            if (_viewModel.ResultView != null)
+            {
+                await Html.RenderPartialAsync((String)_viewModel.ResultView);
+            }
+            else
+            {
+                <font color="red">查無資料!!</font>
+            }
         }
     }
 </div>

@@ -59,22 +59,9 @@ namespace WebHome.Controllers
             }
 
             viewModel.ResultView = "~/Views/TrackCode/Module/ItemList.cshtml";
+            viewModel.QueryResult = "~/Views/TrackCode/Module/QueryResult.cshtml";
             return PageResult(viewModel, items);
 
-            //ViewBag.PageSize = viewModel.PageSize.HasValue && viewModel.PageSize > 0 ? viewModel.PageSize.Value : ModelCore.Properties.AppSettings.Default.PageSize;
-
-            //if (viewModel.PageIndex.HasValue)
-            //{
-            //    if (viewModel.Sort != null && viewModel.Sort.Length > 0)
-            //        ViewBag.Sort = viewModel.Sort.Where(s => s.HasValue).Select(s => s.Value).ToArray();
-            //    ViewBag.PageIndex = viewModel.PageIndex - 1;
-            //    return View("~/Views/TrackCode/Module/ItemList.cshtml", items);
-            //}
-            //else
-            //{
-            //    ViewBag.PageIndex = 0;
-            //    return View("~/Views/TrackCode/Module/QueryResult.cshtml", items);
-            //}
         }
 
         public ActionResult EditItem(int? id)
