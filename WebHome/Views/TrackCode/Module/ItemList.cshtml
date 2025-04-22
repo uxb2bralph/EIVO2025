@@ -25,6 +25,7 @@
     _viewModel = (QueryViewModel)ViewBag.ViewModel;
     _sort = (int[])ViewBag.Sort;
     _pageSize = _viewModel.PageSize ?? 10;
+    _viewModel.PageIndex = _viewModel.PageIndex ?? 0;
 
     if (_sort != null && _sort.Length > 0)
     {
@@ -33,22 +34,23 @@
         if (_order == null)
         {
             _items = _model.Skip(_viewModel.PageIndex.Value * _pageSize)
-                .Take(_pageSize);
+            .Take(_pageSize);
         }
         else
         {
             _items = _order.Skip(_viewModel.PageIndex.Value * _pageSize)
-                .Take(_pageSize);
+            .Take(_pageSize);
         }
     }
     else
     {
         _items = _model.Skip(_viewModel.PageIndex.Value * _pageSize)
-            .Take(_pageSize);
+        .Take(_pageSize);
     }
 }
-
-@{ int idx = 0;}
+@{
+    int idx = 0;
+}
 @foreach (var item in _items)
 {
     idx++;
