@@ -45,7 +45,7 @@ namespace WebHome.Controllers
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            if (_dbInstance && models!=null)
+            if (_dbInstance && models != null)
             {
                 models.Dispose();
             }

@@ -203,90 +203,98 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading_04">
-            <button class="system_04 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#system_04" aria-expanded="false" aria-controls="system_04">
-                發票通知
-            </button>
-        </h2>
-        <div id="system_04" class="accordion-collapse collapse" aria-labelledby="heading_01"
-            data-bs-parent="#accordionSideMenu">
-            <div class="accordion-body p-0">
-                <div class="list-group list-group-flush">
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("IssuingNotice", "InvoiceProcess", new { group = "system_04" }))')"
-                        id="IssuingNotice" class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        重送開立發票通知
-                    </a>
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("InquireToNotifyWinning", "InvoiceProcess", new { group = "system_04" }))')"
-                        id="InquireToNotifyWinning"
-                        class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        重送發票中獎通知
-                    </a>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading_04">
+                <button class="system_04 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
+                    data-bs-toggle="collapse" data-bs-target="#system_04" aria-expanded="false"
+                    aria-controls="system_04">
+                    發票通知
+                </button>
+            </h2>
+            <div id="system_04" class="accordion-collapse collapse" aria-labelledby="heading_01"
+                data-bs-parent="#accordionSideMenu">
+                <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("IssuingNotice", "InvoiceProcess", new { group = "system_04" }))')"
+                            id="IssuingNotice"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            重送開立發票通知
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InquireToNotifyWinning", "InvoiceProcess", new { group = "system_04" }))')"
+                            id="InquireToNotifyWinning"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            重送發票中獎通知
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading_05">
-            <button class="system_05 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#system_05" aria-expanded="false" aria-controls="system_05">
-                統計報表
-            </button>
-        </h2>
-        <div id="system_05" class="accordion-collapse collapse" aria-labelledby="heading_01"
-            data-bs-parent="#accordionSideMenu">
-            <div class="accordion-body p-0">
-                <div class="list-group list-group-flush">
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("InvoiceReport", "InvoiceQuery", new { group = "system_05" }))')"
-                        id="InvoiceReport" class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        發票明細查詢
-                    </a>
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("InvoiceSummary", "InvoiceQuery", new { group = "system_05" }))')"
-                        id="InvoiceSummary" class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        發票統計表
-                    </a>
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("ReportIndex", "WinningInvoice", new { group = "system_05" }))')"
-                        id="WinningInvoice" class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        中獎統計表
-                    </a>
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("ReportIndex", "DonatedInvoice", new { group = "system_05" }))')"
-                        id="DonatedInvoice" class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        捐贈統計表
-                    </a>
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("InvoiceAttachment", "InvoiceQuery", new { group = "system_05" }))')"
-                        id="InvoiceAttachment"
-                        class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        附件檔查詢＼下載
-                    </a>
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("InvoiceMediaReport", "InvoiceQuery", new { group = "system_05" }))')"
-                        id="InvoiceMediaReport"
-                        class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        媒體申報檔匯出
-                    </a>
-                    <a href="#"
-                        onclick="urlHandler('@(Url.Action("MonthlyReport", "InvoiceQuery", new { group = "system_05" }))')"
-                        id="MonthlyReport" class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
-                        <i class="fas fa-angle-right me-1"></i>
-                        下載發票月報表
-                    </a>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading_05">
+                <button class="system_05 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
+                    data-bs-toggle="collapse" data-bs-target="#system_05" aria-expanded="false"
+                    aria-controls="system_05">
+                    統計報表
+                </button>
+            </h2>
+            <div id="system_05" class="accordion-collapse collapse" aria-labelledby="heading_01"
+                data-bs-parent="#accordionSideMenu">
+                <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InvoiceReport", "InvoiceQuery", new { group = "system_05" }))')"
+                            id="InvoiceReport"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            發票明細查詢
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InvoiceSummary", "InvoiceQuery", new { group = "system_05" }))')"
+                            id="InvoiceSummary"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            發票統計表
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("ReportIndex", "WinningInvoice", new { group = "system_05" }))')"
+                            id="WinningInvoice"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            中獎統計表
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("ReportIndex", "DonatedInvoice", new { group = "system_05" }))')"
+                            id="DonatedInvoice"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            捐贈統計表
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InvoiceAttachment", "InvoiceQuery", new { group = "system_05" }))')"
+                            id="InvoiceAttachment"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            附件檔查詢＼下載
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("InvoiceMediaReport", "InvoiceQuery", new { group = "system_05" }))')"
+                            id="InvoiceMediaReport"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            媒體申報檔匯出
+                        </a>
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("MonthlyReport", "InvoiceQuery", new { group = "system_05" }))')"
+                            id="MonthlyReport"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            下載發票月報表
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

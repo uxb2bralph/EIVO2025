@@ -28,30 +28,29 @@
     QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
 }
 
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果"); }
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+}
 
-<div class="border_gray">
-    @{
-        var recordCount = _viewModel.RecordCount;
-        if (recordCount > 0 || ViewBag.CreateNew != null)
+@{
+    var recordCount = _viewModel.RecordCount;
+    if (recordCount > 0 || ViewBag.CreateNew != null)
+    {
+        await Html.RenderPartialAsync("~/Views/Common/Module/QueryPaging.cshtml", _model);
+        if (_viewModel.ResultAction != null)
         {
-            await Html.RenderPartialAsync("~/Views/Common/Module/QueryPaging.cshtml", _model);
-            if (_viewModel.ResultAction != null)
-            {
-                await Html.RenderPartialAsync((String)_viewModel.ResultAction);
-            }
+            await Html.RenderPartialAsync((String)_viewModel.ResultAction);
+        }
+    }
+    else
+    {
+        if (_viewModel.ResultView != null)
+        {
+            await Html.RenderPartialAsync((String)_viewModel.ResultView);
         }
         else
         {
-            if (_viewModel.ResultView != null)
-            {
-                await Html.RenderPartialAsync((String)_viewModel.ResultView);
-            }
-            else
-            {
-                <font color="red">查無資料!!</font>
-            }
+            <font color="red">查無資料!!</font>
         }
     }
-</div>
-
+}

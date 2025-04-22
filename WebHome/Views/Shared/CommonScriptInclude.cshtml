@@ -19,9 +19,9 @@
 
 @using Newtonsoft.Json
 
-<script type="text/javascript" src="~/Scripts/jquery-3.7.1.js"></script>
+<script src="~/js/jquery-3.7.1.js"></script>
+<script src="~/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="../Scripts/jquery-ui-1.13.2.js"></script>
-<script type="text/javascript" src="../Scripts/bootstrap.bundle.js?1.1"></script>
 <script type="text/javascript" src="../Scripts/jquery.ui.datepicker-zh-TW.js"></script>
 <script type="text/javascript" src="../Scripts/jquery.form.js"></script>
 <script type="text/javascript" src="../Scripts/uxeivo.js"></script>
@@ -321,7 +321,7 @@
 
     function showLoading(autoHide, onBlock) {
         $.blockUI({
-            message:  '<img src="../images/loading.gif" /><h1>Loading</h1>',
+            message: '<img src="../images/loading.gif" /><h1>Loading</h1>',
             css: {
                 border: 'none',
                 padding: '15px',

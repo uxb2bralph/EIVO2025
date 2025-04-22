@@ -153,13 +153,11 @@
             </nav>
 
             <!-- Content Area -->
-            <div class="container-fluid">
+            <div id="masterContent" class="container-fluid">
                 <form id="theForm" method="post" role="form" enctype="multipart/form-data">
                     @RenderSection("formContent", false)
                 </form>
-                @* <div class="row"> *@
                 @RenderBody()
-                @* </div> *@
             </div>
 
             <!-- Tab panes -->

@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Models
@@ -27,8 +26,9 @@
 
 <script>
     $(function () {
-        $inquiryAgent.viewModel.Paging = @(_viewModel.Paging==false ? "false" : "true");
+        $inquiryAgent.viewModel.Paging = @(_viewModel.Paging == false ? "false" : "true");
         $inquiryAgent.inquire = function (pageNum) {
+            console.log({ $inquiryAgent, pageNum });
             var $this = $inquiryAgent;
             var $placement = $('#queryArea');
             var $formData = $placement.find('input,select,textarea').serializeObject();
@@ -46,6 +46,7 @@
             clearErrors();
             showLoading();
             $.post('@Html.Raw(_viewModel.UrlAction)', $formData, function (data) {
+                console.log({ data })
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     alert(data.message);
@@ -57,10 +58,13 @@
 
                         //$this.$queryResult = $(data);
                         //$placement.after($this.$queryResult);
-                        $global.createTab('queryResult', '查詢', data, true);
+                        //$global.createTab('queryResult', '查詢', data, true);
+                        $('#resultList').empty(data);
+                        $('#resultList').append(data);
                         $this.initQuery = false;
 
                     } else {
+                        console.log({ data });
                         $this.doPage(data);
                     }
                     if ($this.onQueryDone) {
