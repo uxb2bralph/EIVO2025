@@ -103,6 +103,12 @@ footer {
   justify-content: end;
   background-color: #c5e08a;
 }
+.eivo__queryArea {
+  border: 2px solid #afd0ff;
+}
+.eivo__listArea {
+  border: 2px solid #dcdcdc;
+}
 
 /*
  * Sidebar

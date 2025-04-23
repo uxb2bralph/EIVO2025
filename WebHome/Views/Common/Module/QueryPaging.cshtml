@@ -46,7 +46,7 @@
         </script>
         <!-- 查詢列表 -->
         <div id="@(_listID)" class="query_result">
-            <div class="mb-4 card shadow-sm">
+            <div class="mb-3 card shadow-sm">
                 <div id="queryArea" class="card-body">
                     @{
                         await Html.RenderPartialAsync(_viewModel.ResultView, _model);
@@ -58,11 +58,13 @@
     if (recordCount > 0)
     {
         <!-- 查詢分頁 -->
-        <nav aria-label="Page navigation">
-            <ul class="pagination pagination-sm" id="@(_paginationID)"></ul>
-            <div class="col-2 input-group">
-                每頁筆數：
-                <select name="PageSize" class="form-select form-control-sm" onchange="resetPageSize();">
+        <div class="d-flex align-items-center">
+            <nav aria-label="Page navigation">
+                <ul id="@(_paginationID)" class="mb-0 pagination align-items-center"></ul>
+            </nav>
+            <div class="ms-4 d-flex align-items-center flex-nowrap">
+                <label for="PageSize" class="text-nowrap">每頁筆數：</label>
+                <select id="PageSize" name="PageSize" class="form-select form-control-sm" onchange="resetPageSize();">
                     <option>10</option>
                     <option>30</option>
                     <option>50</option>
@@ -106,18 +108,17 @@
                     </script>
                 }
             </div>
-        </nav>
+        </div>
         <script>
             $(function () {
-
-                var obj = $('#@(_paginationID)').twbsPagination({
+                $('#@(_paginationID)').twbsPagination({
                     totalPages: @((recordCount + _viewModel.PageSize - 1) / _viewModel.PageSize),
                     totalRecordCount: @(recordCount),
                     visiblePages: 10,
                     first: '<i class="fas fa-arrow-alt-to-left"></i>',
-                    prev: '<',
-                    next: '>',
-                    last: '最後一頁',
+                    prev: '<i class="fas fa-arrow-alt-left"></i>',
+                    next: '<i class="fas fa-arrow-alt-right"></i>',
+                    last: '<i class="fas fa-arrow-alt-to-right"></i>',
                     initiateStartPageClick: false,
                     startPage: @((_viewModel.PageIndex ?? 0) + 1),
                     onPageClick: function (event, page) {
