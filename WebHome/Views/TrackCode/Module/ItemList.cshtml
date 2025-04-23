@@ -50,11 +50,20 @@
 }
 @{
     int idx = 0;
-}
-@foreach (var item in _items)
-{
-    idx++;
-    await Html.RenderPartialAsync("~/Views/TrackCode/Module/DataItem.cshtml", item);
+    int itemCount = _items.Count();
+
+    if (itemCount > 0)
+    {
+        @foreach (var item in _items)
+        {
+            idx++;
+            await Html.RenderPartialAsync("~/Views/TrackCode/Module/DataItem.cshtml", item);
+        }
+    }
+    else
+    {
+        @Html.Raw("<tr><td colspan=\"5\" class=\"py-3 text-center\">尚無資料</td></tr>")
+    }
 }
 
 @functions

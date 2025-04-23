@@ -129,6 +129,14 @@ footer {
         justify-content: end;
         background-color: #c5e08a;
     }
+
+    &__queryArea {
+        border: 2px solid #afd0ff;
+    }
+
+    &__listArea {
+        border: 2px solid #dcdcdc;
+    }
 }
 
 /*
