@@ -20,11 +20,11 @@
 
 <div class="col">
     <div class="row">
-        <label for="year" class="col-auto col-form-label">
+        <label for="year" class="col col-md-4 col-lg-6 col-xl-7 col-xxl-7 col-form-label text-end">
             <span class="text-danger">*</span> 發票年度（民國年）
         </label>
         <div class="col">
-            <select class="form-select" id="year" name="year">
+            <select class="form-select form-select-sm" id="year" name="year">
                 @for (int yy = 2012; yy <= DateTime.Now.Year + 1; yy++)
                 {
                     <option value="@(yy)">@(yy - 1911)</option>
@@ -40,11 +40,11 @@
 </div>
 <div class="col">
     <div class="row">
-        <label for="PeriodNo" class="col-auto col-form-label">
+        <label for="PeriodNo" class="col col-md-4 col-form-label text-end">
             期別
         </label>
         <div class="col">
-            <select class="form-select" id="PeriodNo" name="PeriodNo">
+            <select class="form-select form-select-sm" id="PeriodNo" name="PeriodNo">
                 <option value="">全部</option>
                 <option value="1">01-02月</option>
                 <option value="2">03-04月</option>

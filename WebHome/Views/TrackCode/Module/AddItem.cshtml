@@ -15,7 +15,7 @@
         <input name="Year" type="hidden" value="@(_viewModel.Year)" />
     </td>
     <td class="text-center">
-        <select name="PeriodNo" class="form-select addNew">
+        <select name="PeriodNo" class="form-select form-select-sm addNew">
             <option value="1">01-02月</option>
             <option value="2">03-04月</option>
             <option value="3">05-06月</option>
@@ -30,10 +30,11 @@
         </script>
     </td>
     <td class="text-center">
-        <input type="text" name="TrackCode" class="form-control" placeholder="請輸入字軌" value="" data-role="add" />
+        <input type="text" name="TrackCode" class="form-control form-control-sm" placeholder="請輸入字軌" value=""
+            data-role="add" />
     </td>
     <td class="text-center">
-        <select name="InvoiceType" class="form-select">
+        <select name="InvoiceType" class="form-select form-select-sm">
             <option value="7">@(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)</option>
             <option value="8">@(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)</option>
         </select>

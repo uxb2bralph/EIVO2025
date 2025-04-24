@@ -21,11 +21,11 @@
         @(String.Format("{0:00}", _model.PeriodNo * 2 - 1))~@(String.Format("{0:00}", _model.PeriodNo * 2))月
     </td>
     <td class="text-center">
-        <input type="text" name="TrackCode" class="form-control" placeholder="請輸入字軌" value="@(_model.TrackCode)"
-            data-role="edit" />
+        <input type="text" name="TrackCode" class="form-control form-control-sm" placeholder="請輸入字軌"
+            value="@(_model.TrackCode)" data-role="edit" />
     </td>
     <td class="text-center">
-        <select name="InvoiceType" class="form-select">
+        <select name="InvoiceType" class="form-select form-select-sm">
             <option value="7"
                 selected="@Html.Raw(_model.InvoiceType == (byte)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)">
                 @Html.Raw(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)
