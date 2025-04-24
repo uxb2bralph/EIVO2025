@@ -28,7 +28,6 @@
     $(function () {
         $inquiryAgent.viewModel.Paging = @(_viewModel.Paging == false ? "false" : "true");
         $inquiryAgent.inquire = function (pageNum) {
-            console.log({ $inquiryAgent, pageNum });
             var $this = $inquiryAgent;
             var $placement = $('#queryArea');
             var $formData = $placement.find('input,select,textarea').serializeObject();

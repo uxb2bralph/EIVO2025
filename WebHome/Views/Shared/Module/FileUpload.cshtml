@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -18,7 +17,11 @@
     TempData["FileUpload"] = _idx + 1;
 }
 
-<button type="button" id="@($"btnUpload_{_idx}")" value="">@(_model?.ButtonField ?? "立即傳送")</button>
+<button type="button" id="@($"btnUpload_{_idx}")" value="" class="px-3 btn btn-sm eivo__btn--check">
+    <i class=" fas fa-paper-plane"></i>
+    @(_model?.ButtonField ?? _model.ButtonField)
+</button>
+
 <script>
     $(function () {
 
@@ -61,5 +64,3 @@
         });
     });
 </script>
-
-

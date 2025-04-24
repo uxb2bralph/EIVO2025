@@ -13,10 +13,9 @@
 
 @{
     Layout = "~/Views/Template/MvcMainPage.cshtml";
+    ViewBag.ActionName = "首頁 / 系統管理維護";
 
     String _inquiryView;
-
-    ViewBag.ActionName = "首頁 / 系統管理維護";
     _inquiryView = (String)ViewBag.InquiryView ?? "~/Views/InvoiceProcess/InvoiceQuery.cshtml";
 }
 
@@ -27,5 +26,4 @@
     @{
         await Html.RenderPartialAsync(_inquiryView);
     }
-
 }

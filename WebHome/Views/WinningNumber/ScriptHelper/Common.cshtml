@@ -35,7 +35,7 @@
                     $('input[name="sort"]').remove();
                 }
                 $('#theForm').ajaxForm({
-                    url: "@(Url.Action("Inquire","WinningNumber",new { resultAction = ViewBag.ResultAction }))",
+                    url: "@(Url.Action("Inquire", "WinningNumber", new { resultAction = ViewBag.ResultAction }))",
                     beforeSubmit: function () {
                         showLoading();
                     },
@@ -60,7 +60,7 @@
             editItem: function (value) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("EditItem","WinningNumber"))', 'id=' + value, function (data) {
+                $.post('@(Url.Action("EditItem", "WinningNumber"))', 'id=' + value, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -77,7 +77,7 @@
                 if (confirm('確定刪除此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("DeleteItem","WinningNumber"))', { 'id': value }, function (data) {
+                    $.post('@(Url.Action("DeleteItem", "WinningNumber"))', { 'id': value }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -92,7 +92,7 @@
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
                 clearErrors();
-                $.post('@(Url.Action("CommitItem","WinningNumber"))', 'WinningID=' + (value ? value : '') + '&Year=' + year + '&Period=' + period + '&' + $.param($tr.find('input,select,textarea')), function (data) {
+                $.post('@(Url.Action("CommitItem", "WinningNumber"))', 'WinningID=' + (value ? value : '') + '&Year=' + year + '&Period=' + period + '&' + $.param($tr.find('input,select,textarea')), function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -111,7 +111,7 @@
             showItem: function (value) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("DataItem","WinningNumber"))', 'id=' + value, function (data) {
+                $.post('@(Url.Action("DataItem", "WinningNumber"))', 'id=' + value, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -139,5 +139,3 @@
         };
     });
 </script>
-
-

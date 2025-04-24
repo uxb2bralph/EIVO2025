@@ -29,7 +29,7 @@
         }
         uiWinningNo.match = function () {
             $('#theForm').ajaxForm({
-                url: "@(Url.Action("MatchWinningInvoiceNo","WinningNumber",new { resultAction = ViewBag.ResultAction }))",
+                url: "@(Url.Action("MatchWinningInvoiceNo", "WinningNumber", new { resultAction = ViewBag.ResultAction }))",
                 beforeSubmit: function () {
                     showLoading();
                 },
@@ -48,7 +48,7 @@
         };
         uiWinningNo.resetWinning = function () {
             $('#theForm').ajaxForm({
-                url: "@(Url.Action("ClearWinningInvoiceNo","WinningNumber",new { resultAction = ViewBag.ResultAction }))",
+                url: "@(Url.Action("ClearWinningInvoiceNo", "WinningNumber", new { resultAction = ViewBag.ResultAction }))",
                 beforeSubmit: function () {
                     showLoading();
                 },
@@ -67,5 +67,3 @@
         };
     });
 </script>
-
-
