@@ -26,7 +26,7 @@
     _viewModel.EmptyKeyID = (new { PeriodID = -1, CurrencyID = -1 }).JsonStringify().EncryptData();
 }
 
-<div class="py-2 d-flex align-items-center justify-content-between">
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     <div>
         <!--交易畫面標題-->
         @{
@@ -41,7 +41,7 @@
     </div>
 </div>
 <!-- 查詢框 -->
-<div id="queryArea" class="mb-4 card shadow-sm">
+<div id="queryArea" class="mb-4 card shadow-sm border-2 rounded-3">
     <div class="card-body">
         <!-- 查詢條件 -->
         <div class="row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4">
@@ -50,7 +50,7 @@
             }
             <div class="col">
                 <div class="row">
-                    <label for="Currency" class="col col-md-4 col-form-label text-end">
+                    <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
                         幣別
                     </label>
                     <div class="col">
@@ -61,7 +61,7 @@
             </div>
             <div class="col">
                 <div class="row">
-                    <label for="pageSize" class="col col-md-4 col-xl-5 col-xxl-5 col-form-label text-end">
+                    <label for="pageSize" class="col col-md-4 col-xl-5 col-xxl-5 col-form-label fw-bold text-nowrap">
                         每頁資料筆數
                     </label>
                     <div class="col">

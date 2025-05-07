@@ -19,9 +19,11 @@
     ModelSource<InvoiceItem> models;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
-    object[] paramItems = ViewBag.ParamItems = new object[] { "ExclusiveReceiptNo", UserProfileProperty.PropertyType.ExclusiveBuyerMail, null };
+    object[] paramItems = ViewBag.ParamItems = new object[] { "ExclusiveReceiptNo",
+UserProfileProperty.PropertyType.ExclusiveBuyerMail, null };
 }
 @section DataField
 {
-    <textarea id="ExclusiveReceiptNo" name="ExclusiveReceiptNo" class="form-control" rows="5">@Html.Raw(paramItems[2])</textarea>
+    <textarea id="ExclusiveReceiptNo" name="ExclusiveReceiptNo" class="form-control form-control-sm"
+    rows="4">@Html.Raw(paramItems[2])</textarea>
 }

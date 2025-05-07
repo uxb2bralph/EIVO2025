@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -15,11 +14,13 @@
 
 @{
     Layout = "~/Views/Template/MvcMainPage.cshtml";
-    ViewBag.ActionName = "首頁 > 發票作業";
+    ViewBag.ActionName = "系統管理維護";
 }
 
 @section headContent {
 
 }
 
-@{ await Html.RenderPartialAsync("~/Views/Handling/MailTracking/MailTrackingMessage.cshtml");}
+@{
+    await Html.RenderPartialAsync("~/Views/Handling/MailTracking/MailTrackingMessage.cshtml");
+}

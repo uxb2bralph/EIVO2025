@@ -46,7 +46,7 @@
         </script>
         <!-- 查詢列表 -->
         <div id="@(_listID)" class="query_result">
-            <div class="mb-3 card shadow-sm">
+            <div class="my-3 card shadow-sm border-2 rounded-3">
                 <div id="queryArea" class="card-body">
                     @{
                         await Html.RenderPartialAsync(_viewModel.ResultView, _model);
@@ -60,10 +60,10 @@
         <!-- 查詢分頁 -->
         <div class="d-flex align-items-center">
             <nav aria-label="Page navigation">
-                <ul id="@(_paginationID)" class="mb-0 pagination align-items-center"></ul>
+                <ul id="@(_paginationID)" class="mb-0 pagination eivo__pagination align-items-center"></ul>
             </nav>
             <div class="ms-4 d-flex align-items-center flex-nowrap">
-                <label for="PageSize" class="text-nowrap">每頁筆數：</label>
+                <label for="PageSize" class="fw-bold text-nowrap">每頁筆數：</label>
                 <select id="PageSize" name="PageSize" class="form-select form-select-sm" onchange="resetPageSize();">
                     <option>10</option>
                     <option>30</option>

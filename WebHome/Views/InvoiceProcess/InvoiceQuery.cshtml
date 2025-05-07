@@ -20,7 +20,7 @@
     QueryViewModel _viewModel = ViewBag.ViewModel as QueryViewModel;
 }
 
-<div class="py-2 d-flex align-items-center justify-content-between">
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     <div>
         <!--交易畫面標題-->
         @{
@@ -39,13 +39,20 @@
         @{
             await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/QueryDirective.cshtml", 0);
             ViewBag.QueryAll = true;
-            @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>());
-            @(await Component.InvokeAsync<InquireCustomerIDViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireCustomerIDViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>())
+            ;
         }
 
         @{

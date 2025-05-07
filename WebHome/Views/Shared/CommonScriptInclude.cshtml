@@ -21,6 +21,9 @@
 
 <script src="~/js/jquery-3.7.1.js"></script>
 <script src="~/js/bootstrap.bundle.min.js"></script>
+<!-- flatpick plugin -->
+<script src="~/js/flatpickr/flatpickr.js"></script>
+<script src="~/js/flatpickr/zh-tw.js"></script>
 <script type="text/javascript" src="../Scripts/jquery-ui-1.13.2.js"></script>
 <script type="text/javascript" src="../Scripts/jquery.ui.datepicker-zh-TW.js"></script>
 <script type="text/javascript" src="../Scripts/jquery.form.js"></script>
@@ -318,18 +321,21 @@
     }
 
 
-
+    // Dialog 遮罩
     function showLoading(autoHide, onBlock) {
         $.blockUI({
-            message: '<img src="../images/loading.gif" /><h1>Loading</h1>',
+            message: `<i class="my-2 fas fa-cog fa-spin" style="font-size:2.5rem"></i><h4>Loading...</h4>`,
             css: {
                 border: 'none',
-                padding: '15px',
+                padding: '15px 20px',
                 backgroundColor: '#000',
-                '-webkit-border-radius': '10px',
-                '-moz-border-radius': '10px',
-                opacity: .5,
-                color: '#fff'
+                'border-radius': '10px',
+                opacity: .45,
+                color: '#fff',
+                width: '15%',
+                top: '50%',
+                left: '50%',
+                transform: `translate(-50%, -50%)`,
             },
             // 背景圖層
             overlayCSS: {
@@ -470,16 +476,17 @@
         });
     }
 
-    function datepicker($items) {
-        $items.datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '2012:+1' });
-    }
+    // 日期選擇器
+    //function datepicker($items) {
+    //    $items.datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '2012:+1' });
+    //}
 
-    $(function () {
-        $('input[type="button"]').addClass('btn');
-        $('button').addClass('btn');
-        //$.datepicker.setDefaults($.datepicker.regional['zh-tw']);
-        datepicker($('.form_date'));
-    });
+    //$(function () {
+    //    $('input[type="button"]').addClass('btn');
+    //    $('button').addClass('btn');
+    //    //$.datepicker.setDefaults($.datepicker.regional['zh-tw']);
+    //    datepicker($('.form_date'));
+    //});
 
     $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
         _title: function (title) {
@@ -490,6 +497,43 @@
             }
         }
     }));
+
+    // 日期選擇器
+    //const currentTime = new Date()
+    const config = {
+        locale: 'zh_tw',
+        //enableTime: true, //可選時與分
+        dateFormat: "Y/m/d", //時間格式
+        time_24hr: true, //24 時制
+        minuteIncrement: 15, //分鐘每次選擇間隔單位
+        allowInput: true, //可輸入控制
+        //minDate: "today", //可選最小時間，可直接接受 'today' 字串
+        //maxDate: currentTime.setMonth(currentTime.getMonth() + 1), //可選最大時間，從今天起一個月
+        onChange: function (selectedDates, dateStr, instance) {
+            console.log(`你現在點選的是 ${instance.input.id}，時間為 ${selectedDates} / ${dateStr}`);
+            checkDateTime(dateStr, instance.input.id);
+        }
+    };
+    let startDateValue = null
+    let endDateValue = null
+
+    // 辨別結束日期須晚於開始日期
+    function checkDateTime(dateStr, id) {
+        if (id === "DateFrom") {
+            startDateValue = dateStr
+        }
+
+        if (id === "DateTo") {
+            endDateValue = dateStr
+        }
+
+        if (startDateValue > endDateValue) {
+            dateAlert.classList.remove("d-none");
+        } else {
+            dateAlert.classList.add("d-none");
+        }
+    };
+
 
     function uploadFile($file, postData, url, callback, errorback) {
 
@@ -511,6 +555,7 @@
             }).submit();
     }
 
+    // 訊息視窗
     function alertModal(alertMessage) {
         $('<div>' + alertMessage + '</div>')
             .dialog({ "title": "<div class='modal-title'><h4><i class='fa fa-clock-o'></i>訊息</h4></div>" });

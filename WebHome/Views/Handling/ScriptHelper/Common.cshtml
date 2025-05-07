@@ -40,32 +40,36 @@
                 var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
 
                 clearErrors();
-                //showLoading();
-                $.post('@Html.Raw(Url.Action("InquireToTrackMail","Handling",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+                showLoading();
+                $.post('@Html.Raw(Url.Action("InquireToTrackMail", "Handling", new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
                     if ($.isPlainObject(data)) {
                         //hideLoading();
-                        $('#loadingOverlay1').css('display', 'none');
+                        //$('#loadingOverlay1').css('display', 'none');
+                        console.log('data', data);
+
                         alert(data.message);
                     } else {
                         var $data = $(data);
+                        console.log('data', data);
                         $('body').append($data);
                         //hideLoading();
-                        $('#loadingOverlay1').css('display', 'none');
+                        //$('#loadingOverlay1').css('display', 'none');
                         //$data.remove();
-                    }
+                    };
+                    hideLoading();
                 });
             },
 
             showDetails: function () {
                 var items = Enumerable.From(uiHandling.items);
                 if (!uiHandling.$result) {
-                    $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = true }))', { 'id': items.Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
+                    $.post('@Html.Raw(Url.Action("InvoiceMailItems", "Handling", new { showTable = true }))', { 'id': items.Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
                         uiHandling.$result = $(data);
                         $('.queryAction').after(uiHandling.$result);
                         uiHandling.$result = uiHandling.$result.find('table.itemList > tbody');
                     });
                 } else {
-                    $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = false }))', { 'id': Enumerable.From(uiHandling.items).Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
+                    $.post('@Html.Raw(Url.Action("InvoiceMailItems", "Handling", new { showTable = false }))', { 'id': Enumerable.From(uiHandling.items).Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
                         $(data).appendTo(uiHandling.$result);
                     });
                 }
@@ -92,7 +96,7 @@
                         });
                 });
 
-                $.post('@Html.Raw(Url.Action("PackInvoice","Handling"))', { 'id': items }, function (data) {
+                $.post('@Html.Raw(Url.Action("PackInvoice", "Handling"))', { 'id': items }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -125,7 +129,7 @@
                     items.push(current.InvoiceID);
                 });
 
-                $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = false }))', { 'id': items, 'packageID': items }, function (data) {
+                $.post('@Html.Raw(Url.Action("InvoiceMailItems", "Handling", new { showTable = false }))', { 'id': items, 'packageID': items }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -202,7 +206,7 @@
             checkPostdataCompletion: function () {
                 var isCompleted = true;
                 var DeliveryDate = $('input[name="DeliveryDate"]');
-                var MailNo1      = $('input[name="MailNo1"]');
+                var MailNo1 = $('input[name="MailNo1"]');
                 var MailNo2 = $('input[name="MailNo2"]');
 
                 MailNo1.each(function () {
@@ -256,12 +260,12 @@
                 var items = Enumerable.From(uiHandling.items).GroupBy(function (i) { return i.PackageID; })
                     .Select(function (g) {
                         return {
-                            'PackageID'   : g.Key(),
+                            'PackageID': g.Key(),
                             'DeliveryDate': dateItems.First(function (c) { return c.key == g.Key(); }).value,
-                            'MailNo1'     : mailNo1.First(function (c) { return c.key == g.Key(); }).value,
-                            'MailNo2'     : mailNo2.First(function (c) { return c.key == g.Key(); }).value,
-                            'MailNo3'     : MailNo3,
-                            'InvoiceID'   : g.Select(function (v) { return v.InvoiceID; }).ToArray()
+                            'MailNo1': mailNo1.First(function (c) { return c.key == g.Key(); }).value,
+                            'MailNo2': mailNo2.First(function (c) { return c.key == g.Key(); }).value,
+                            'MailNo3': MailNo3,
+                            'InvoiceID': g.Select(function (v) { return v.InvoiceID; }).ToArray()
                         };
                     }).ToArray();
 
@@ -305,14 +309,14 @@
                         return {
                             'PackageID': g.Key(),
                             'DeliveryDate': dateItems.First(function (c) { return c.key == g.Key(); }).value,
-                            'MailNo1'     : mailNo1.First(function (c)   { return c.key == g.Key(); }).value,
-                            'MailNo2'     : mailNo2.First(function (c)   { return c.key == g.Key(); }).value,
-                            'MailNo3'     : MailNo3,
-                            'InvoiceID'   : g.Select(function (v)        { return v.InvoiceID; }).ToArray()
+                            'MailNo1': mailNo1.First(function (c) { return c.key == g.Key(); }).value,
+                            'MailNo2': mailNo2.First(function (c) { return c.key == g.Key(); }).value,
+                            'MailNo3': MailNo3,
+                            'InvoiceID': g.Select(function (v) { return v.InvoiceID; }).ToArray()
                         };
                     }).ToArray();
 
-                $('').launchDownload('@Html.Raw(Url.Action("DownloadXlsx","Handling"))', { 'jsonData': JSON.stringify(items) });
+                $('').launchDownload('@Html.Raw(Url.Action("DownloadXlsx", "Handling"))', { 'jsonData': JSON.stringify(items) });
 
                 @*$postForm = $('<form method="post" />').prop('action', '@Html.Raw(Url.Action("DownloadXlsx","Handling"))')
                     .css('display', 'none').appendTo($('body'));
@@ -343,11 +347,11 @@
                     }).ToArray();
 
                 var viewModel = @Html.Raw((new RenderStyleViewModel
-                               {
-                                   PaperStyle = "A4",
-                                   PrintCuttingLine = true,
-                                   ProcessType = Naming.InvoiceProcessType.C0401,
-                                   CreateNew = true,
+                    {
+                                                               PaperStyle = "A4",
+                                                               PrintCuttingLine = true,
+                                                               ProcessType = Naming.InvoiceProcessType.C0401,
+                                                               CreateNew = true,
                                }).JsonStringify());
                 viewModel.jsonData = JSON.stringify(items);
                 viewModel.ForMailingPackage = true;

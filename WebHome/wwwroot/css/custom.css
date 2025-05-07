@@ -179,6 +179,7 @@ footer {
   margin-left: 275px;
   overflow: hidden;
   overflow-y: scroll;
+  background-color: #f2f2f2;
 }
 
 .fs-1-5 {
@@ -190,6 +191,9 @@ footer {
 }
 
 .eivo__title {
+  height: 50px;
+}
+.eivo__subTitle {
   padding-left: 10px;
   color: #3e7db2;
   border-left: 5px solid #3e7db2;
@@ -404,6 +408,16 @@ footer {
   color: #fff;
   background-color: #08a3d6;
   border-color: #08a3d6;
+}
+.eivo__pagination li:nth-last-child(1) {
+  margin-right: 10px;
+  margin-left: 10px;
+  font-weight: bold;
+}
+.eivo__pagination li:nth-last-child(2) {
+  margin-right: 10px;
+  margin-left: 10px;
+  font-weight: bold;
 }
 .eivo__menu-title:not(.collapsed) {
   color: #034c74;

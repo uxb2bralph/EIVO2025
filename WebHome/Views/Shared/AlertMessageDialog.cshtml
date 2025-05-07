@@ -8,6 +8,6 @@
 {
     <script>
         $('@Html.Raw($"<div>{System.Web.HttpUtility.JavaScriptStringEncode(_message)}</div>")')
-            .dialog({ "title": "<div class='modal-title'><h4><i class='fa fa-clock-o'></i>訊息</h4></div>" });
+            .dialog({ "title": "<div class='modal-title'><h4><i class='fa fa-clock-o'></i>訊息</h4>@(@Html.Raw(_message))</div> " });
     </script>
 }
