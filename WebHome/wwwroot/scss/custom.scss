@@ -216,6 +216,10 @@ footer {
     }
 }
 
+.fs-875 {
+    font-size: 0.875rem !important;
+}
+
 .fs-1-5 {
     font-size: 1.15rem !important;
 }
@@ -424,6 +428,17 @@ footer {
             }
         }
 
+        &--print {
+            background-color: #fba12c;
+            border: 1px solid #fba12c;
+            color: #ffffff;
+
+            &:hover {
+                background-color: #e0840a;
+                color: #ffffff;
+            }
+        }
+
         &--reset {
             background-color: #ced4da;
             border: 1px solid #ced4da;
@@ -461,17 +476,13 @@ footer {
         }
 
         &--close {
-            width: 30px;
-            height: 24px;
-            background: url(../images/btn_pop_close.gif) no-repeat left top;
-            position: absolute;
-            top: 0;
-            right: 10px;
-            opacity: 1;
-            border-radius: 0 0 0.25rem 0.25rem;
+            background-color: #ced4da;
+            border: 1px solid #ced4da;
+            color: #333333;
 
             &:hover {
-                opacity: 0.9;
+                background-color: #adb5bd;
+                color: #333333;
             }
         }
     }

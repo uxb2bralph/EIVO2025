@@ -177,11 +177,11 @@
                         發票種類
                     </label>
                     <div class="col pt-1">
-                        <div class="form-check form-check-inline">
+                        <div class="form-check form-check-inline EivoType">
                             <input class="form-check-input" type="radio" id="UserTypeN" name="UserType" value="0">
                             <label class="form-check-label text-nowrap" for="UserTypeN">一般用戶</label>
                         </div>
-                        <div class="form-check form-check-inline">
+                        <div class="form-check form-check-inline EivoType">
                             <input class="form-check-input" type="radio" id="UserTypeV" name="UserType" value="1">
                             <label class="form-check-label text-nowrap" for="UserTypeV">VIP用戶</label>
                         </div>
@@ -202,7 +202,6 @@
         </div>
     </div>
 </div>
-<div id="resultList"></div>
 
 @{
     await Html.RenderPartialAsync("~/Views/Handling/ScriptHelper/Common.cshtml");
@@ -214,7 +213,7 @@
         <div class="spinner-border text-primary" role="status" style="font-size: 50px;">
             <span class="sr-only">Loading...</span>
         </div>
-        <p style="font-size: 50px; color: brown; ">Loading...111</p>
+        <p style="font-size: 50px; color: brown; ">Loading...</p>
     </div>
 </div>
 

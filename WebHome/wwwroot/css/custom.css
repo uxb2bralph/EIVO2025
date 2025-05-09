@@ -182,6 +182,10 @@ footer {
   background-color: #f2f2f2;
 }
 
+.fs-875 {
+  font-size: 0.875rem !important;
+}
+
 .fs-1-5 {
   font-size: 1.15rem !important;
 }
@@ -351,6 +355,15 @@ footer {
   background-color: #198754;
   color: #ffffff;
 }
+.eivo__btn--print {
+  background-color: #fba12c;
+  border: 1px solid #fba12c;
+  color: #ffffff;
+}
+.eivo__btn--print:hover {
+  background-color: #e0840a;
+  color: #ffffff;
+}
 .eivo__btn--reset {
   background-color: #ced4da;
   border: 1px solid #ced4da;
@@ -382,17 +395,13 @@ footer {
   color: #ffffff;
 }
 .eivo__btn--close {
-  width: 30px;
-  height: 24px;
-  background: url(../images/btn_pop_close.gif) no-repeat left top;
-  position: absolute;
-  top: 0;
-  right: 10px;
-  opacity: 1;
-  border-radius: 0 0 0.25rem 0.25rem;
+  background-color: #ced4da;
+  border: 1px solid #ced4da;
+  color: #333333;
 }
 .eivo__btn--close:hover {
-  opacity: 0.9;
+  background-color: #adb5bd;
+  color: #333333;
 }
 .eivo__switch:checked {
   background-color: #08a3d6;

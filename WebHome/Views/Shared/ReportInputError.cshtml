@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -36,42 +35,42 @@
                 $scope = $('body');
             }
             console.log('@(_modelState.ErrorMessage())');
-                @foreach (var key in _modelState.Keys.Where(k => _modelState[k].Errors.Count > 0))
+                                @foreach (var key in _modelState.Keys.Where(k => _modelState[k].Errors.Count > 0))
                 {
                     if (String.IsNullOrEmpty(_dataRole))
                     {
                         if (key.IndexOf(',') >= 0)
                         {
                             var keys = key.Split(',');
-                        <text>
-            $scope.find('[name="@(keys[0])"]:enabled').eq(@(keys[1])).addClass('error').after($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
-                        </text>
-                        }
+                            <text>
+                                $scope.find('[name="@(keys[0])"]:enabled').eq(@(keys[1])).addClass('error').after($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
+                            </text>
+                    }
                         else
                         {
-                        <text>
-            $scope.find('[name="@(key)"]:enabled').addClass('error').after($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
-                        </text>
-                        }
+                            <text>
+                                $scope.find('.@(key)').append($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
+                            </text>
+                    }
                     }
                     else
                     {
                         if (key.IndexOf(',') >= 0)
                         {
                             var keys = key.Split(',');
-                        <text>
-            $scope.find('[name="@(keys[0])"][data-role="@(_dataRole)"]:enabled').eq(@(keys[1]))).addClass('error').after($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
-                        </text>
-                        }
+                            <text>
+                                $scope.find('[name="@(keys[0])"][data-role="@(_dataRole)"]:enabled').eq(@(keys[1]))).addClass('error').after($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
+                            </text>
+                    }
                         else
                         {
-                        <text>
-            $scope.find('[name="@(key)"][data-role="@(_dataRole)"]:enabled').addClass('error').after($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
-                        </text>
-                        }
+                            <text>
+                                $scope.find('[name="@(key)"][data-role="@(_dataRole)"]:enabled').addClass('error').after($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
+                            </text>
+                    }
                     }
                 }
-        });
+                        });
     </script>
 
     if (_modelState.ContainsKey("Message"))
@@ -80,5 +79,3 @@
         await Html.RenderPartialAsync("~/Views/Shared/AlertMessageDialog.cshtml", message);
     }
 }
-
-

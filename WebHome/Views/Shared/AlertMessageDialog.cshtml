@@ -6,8 +6,30 @@
 
 @if (_message != null)
 {
-    <script>
-        $('@Html.Raw($"<div>{System.Web.HttpUtility.JavaScriptStringEncode(_message)}</div>")')
-            .dialog({ "title": "<div class='modal-title'><h4><i class='fa fa-clock-o'></i>訊息</h4>@(@Html.Raw(_message))</div> " });
-    </script>
+    <div class="modal fade" id="errorMessage" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="py-2 modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold text-primary">
+                        訊息
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="py-2 modal-body">
+                    <p class="text-center">
+                        <i class="me-1 fas fa-exclamation-circle text-danger fs-5"></i>
+                        <span class="fs-6">@Html.Raw(_message)</span>
+                    </p>
+                </div>
+                <div class="py-2 modal-footer border-top-0">
+                    <button type="button" class="px-3 btn btn-sm eivo__btn--close" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
+<script>
+    $(function () {
+        $('#errorMessage').modal('show');
+    });
+</script>

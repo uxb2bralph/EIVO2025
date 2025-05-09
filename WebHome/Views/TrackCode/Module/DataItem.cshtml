@@ -14,12 +14,12 @@
     <td class="text-center">@(_model.TrackCode)</td>
     <td class="text-center">@($"{(Naming.InvoiceTypeDefinition?)_model.InvoiceType}")</td>
     <td class="text-center">
-        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--default"
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--default text-nowrap"
             onclick="uiTrackCodeQuery.edit(@(_model.TrackID));">
             <i class="fal fa-edit"></i>
             編輯
         </button>
-        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--red"
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--red text-nowrap"
             onclick="uiTrackCodeQuery.delete(@(_model.TrackID));">
             <i class="fal fa-trash-alt"></i>
             刪除

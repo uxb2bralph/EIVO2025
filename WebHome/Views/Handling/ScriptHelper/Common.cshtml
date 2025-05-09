@@ -27,7 +27,7 @@
         uiHandling = {
             items: [],
             reset: function () {
-                $('.queryAction').next().remove();
+                $('#queryResult').remove();
                 uiHandling.items = [];
                 uiHandling.$result = null;
             },
@@ -43,16 +43,13 @@
                 showLoading();
                 $.post('@Html.Raw(Url.Action("InquireToTrackMail", "Handling", new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
                     if ($.isPlainObject(data)) {
-                        //hideLoading();
+                        $('#queryArea').after(data);
                         //$('#loadingOverlay1').css('display', 'none');
-                        console.log('data', data);
 
                         alert(data.message);
                     } else {
                         var $data = $(data);
-                        console.log('data', data);
                         $('body').append($data);
-                        //hideLoading();
                         //$('#loadingOverlay1').css('display', 'none');
                         //$data.remove();
                     };
@@ -65,7 +62,7 @@
                 if (!uiHandling.$result) {
                     $.post('@Html.Raw(Url.Action("InvoiceMailItems", "Handling", new { showTable = true }))', { 'id': items.Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
                         uiHandling.$result = $(data);
-                        $('.queryAction').after(uiHandling.$result);
+                        $('#queryArea').after(uiHandling.$result);
                         uiHandling.$result = uiHandling.$result.find('table.itemList > tbody');
                     });
                 } else {
@@ -346,13 +343,12 @@
                         };
                     }).ToArray();
 
-                var viewModel = @Html.Raw((new RenderStyleViewModel
-                    {
-                                                               PaperStyle = "A4",
-                                                               PrintCuttingLine = true,
-                                                               ProcessType = Naming.InvoiceProcessType.C0401,
-                                                               CreateNew = true,
-                               }).JsonStringify());
+                var viewModel = @Html.Raw((new RenderStyleViewModel {
+                    PaperStyle = "A4",
+                    PrintCuttingLine = true,
+                    ProcessType = Naming.InvoiceProcessType.C0401,
+                    CreateNew = true,
+                }).JsonStringify());
                 viewModel.jsonData = JSON.stringify(items);
                 viewModel.ForMailingPackage = true;
 
@@ -374,9 +370,7 @@
             },
         };
     });
-
-</script>
-<script>
+    
     //Amy-1121116-查詢/資料逐筆放入UI
     ShowOverlay_1 = function (dataTimer) {
         // Show loading overlay
@@ -396,7 +390,6 @@
         //    }
         //}, 1000);
     };
-
 
     //Amy-1121117-郵政資料寫入DB/資料逐筆放入UI
     ShowOverlay_2 = function (dataTimer) {
@@ -424,7 +417,4 @@
             uiHandling.processPack();
         }, 20000);*@
     }
-
-
-
 </script>

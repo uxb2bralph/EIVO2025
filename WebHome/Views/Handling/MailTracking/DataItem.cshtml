@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -14,20 +13,27 @@
     _model = (InvoiceItem)this.Model;
 }
 <tr>
-    <td>
-        <input name="DeliveryDate" class="form_date" type="text" data-package="@(_model.InvoiceID)" />
+    <td class="text-center">
+        <input name="DeliveryDate" class="form_date form-control form-control-sm" type="text"
+            data-package="@(_model.InvoiceID)" />
     </td>
-    <td>@(_model.InvoiceBuyer.CustomerID)</td>
-    <td>@(_model.TrackCode + _model.No)</td>
-    <td><input name="MailNo1" type="text" data-package="@(_model.InvoiceID)" />-<input name="MailNo2" type="text" data-package="@(_model.InvoiceID)" /></td>
-    <td>@(_model.InvoiceBuyer.ContactName)</td>
-    <td>@(_model.InvoiceBuyer.Address)</td>
-    <td>@(_model.InvoiceBuyer.ReceiptNo)</td>
-    <td>
-        <input name="PackageID" type="checkbox" value="@(_model.InvoiceID)" />
+    <td class="text-center">@(_model.InvoiceBuyer.CustomerID)</td>
+    <td class="text-center">@(_model.TrackCode + _model.No)</td>
+    <td class="text-center">
+        <div class="d-flex align-items-center justify-content-center">
+            <input name="MailNo1" type="text" class="form-control form-control-sm" data-package="@(_model.InvoiceID)" />
+            <span class="px-2">-</span>
+            <input name="MailNo2" type="text" class="form-control form-control-sm" data-package="@(_model.InvoiceID)" />
+        </div>
     </td>
-    <td>@(((Naming.ChannelIDType?)_model.CDS_Document.ChannelID).ToString())</td>
-    <td>
+    <td class="text-center">@(_model.InvoiceBuyer.ContactName)</td>
+    <td class="text-center">@(_model.InvoiceBuyer.Address)</td>
+    <td class="text-center">@(_model.InvoiceBuyer.ReceiptNo)</td>
+    <td class="text-center">
+        <input name="PackageID" type="checkbox" class="form-check-input" value="@(_model.InvoiceID)" />
+    </td>
+    <td class="text-center">@(((Naming.ChannelIDType?)_model.CDS_Document.ChannelID).ToString())</td>
+    <td class="text-center">
         @{
             int pageCount = _model.InvoiceID.GetAttachedPdfPageCount(models);
             if (pageCount > 0)
@@ -36,14 +42,15 @@
             }
         }
     </td>
-    <td>
-        <div class="btn-group dropdown" data-toggle="dropdown">
-            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-            <ul class="dropdown-menu">
-                <li><a class="btn" onclick="uiHandling.pack();">合併</a></li>
-                <li><a class="btn" onclick="uiHandling.delete(@(_model.PackageID));">刪除</a></li>
-            </ul>
-        </div>
+    <td class="text-center">
+        <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--default text-nowrap" onclick="uiHandling.pack();">
+            <i class="fal fa-copy"></i>
+            合併
+        </button>
+        <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--red text-nowrap"
+            onclick="uiHandling.delete(@(_model.PackageID));">
+            <i class="fal fa-trash-alt"></i>
+            刪除
+        </button>
     </td>
 </tr>
