@@ -30,10 +30,12 @@ using ZXing;
 using ZXing.Common;
 using ZXing.QrCode;
 using ZXing.QrCode.Internal;
+using ZXing.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.Razor;
 using System.Net.Mail;
 using CommonLib.Core.Controllers;
+using ZXing.Windows.Compatibility;
 
 
 namespace WebHome.Helper
@@ -427,6 +429,13 @@ namespace WebHome.Helper
                     Height = height,
                     QrVersion = qrVersion,
                     CharacterSet = "UTF-8"   // 少了這一行中文就亂碼了
+                },
+                Renderer = new BitmapRenderer()
+                {
+                    Background = Color.White,
+                    Foreground = Color.Black,
+                    //Width = width,
+                    //Height = height,
                 }
             };
 
@@ -521,6 +530,13 @@ namespace WebHome.Helper
                     Margin = margin,
                     //Width = width,
                     Height = height,
+                },
+                Renderer = new BitmapRenderer()
+                {
+                    Background = Color.White,
+                    Foreground = Color.Black,
+                    //Width = width,
+                    //Height = height,
                 }
             };
 
@@ -671,7 +687,17 @@ namespace WebHome.Helper
                 string postdata = $"{strSource.Substring(0, 6)}  {strSource.Substring(6, 6)}  {strSource.Substring(12, 2)}  {strSource.Substring(14, 5)}  {strSource.Substring(19, 1)}";
                 string Postno = $"{strSource.Substring(0, 6)}";
 
-                var writer = new BarcodeWriter<Bitmap>() { Format = BarcodeFormat.CODE_128 };//宣告 Code128條碼 
+                var writer = new BarcodeWriter<Bitmap>() 
+                { 
+                    Format = BarcodeFormat.CODE_128 ,
+                    Renderer = new BitmapRenderer()
+                    {
+                        Background = Color.White,
+                        Foreground = Color.Black,
+                        //Width = width,
+                        //Height = height,
+                    }
+                };//宣告 Code128條碼 
 
                 // 設定 Narrow 和 Wide 的寬度
                 var qrCodeOptions = new ZXing.QrCode.QrCodeEncodingOptions

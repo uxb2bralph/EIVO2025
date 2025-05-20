@@ -50,19 +50,22 @@
 
     <tfoot>
         <tr>
-            <td colspan="7">
-                <div class="col-md-2">
-                    <a class="btn" onclick="createCompany();">新增開立人</a>
-                </div>
-                <div class="col-md-4">
+            <td colspan="6">
+                <div class="col-md-8 input-group">
+                    選擇主機構：
                     @{
-                        await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml");
+                        await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml",new SellerSelectorViewModel { UrlAction = Url.Action("SearchHeadquarter", "Home") });
                     }
                 </div>
+            </td>
+            <td>
                 <div class="btn-group" data-toggle="dropdown">
                     <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
                     <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
                     <ul class="dropdown-menu">
+                        <li>
+                            <a class="btn" onclick="createCompany();">新增開立人</a>
+                        </li>
                         <li>
                             <a class="btn" onclick="cloneBilling(this);">複製收費標準</a>
                         </li>

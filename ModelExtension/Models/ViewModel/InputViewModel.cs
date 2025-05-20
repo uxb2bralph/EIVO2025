@@ -3,6 +3,7 @@ using ModelCore.Locale;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Web;
 
 namespace ModelCore.Models.ViewModel
@@ -55,6 +56,8 @@ namespace ModelCore.Models.ViewModel
         public String? SelectorIndicationValue { get; set; }
         public String? JS_OnSelect { get; set; }
         public int? SellerID { get; set; }
+        [JsonIgnore]
+        public Organization? DefaultItem { get; set; }
     }
 
     public partial class ReviseInvoiceViewModel : InquireInvoiceViewModel

@@ -51,7 +51,7 @@ namespace TestConsole.Helper
         {
             using (InvoiceManager models = new InvoiceManager())
             {
-                C0401Handler c0401 = new C0401Handler(models);
+                F0401Handler c0401 = new F0401Handler(models);
                 c0401.WriteToTurnkey(idx, count);
             }
         }

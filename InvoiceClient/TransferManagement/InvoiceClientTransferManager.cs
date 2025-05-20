@@ -36,18 +36,20 @@ namespace InvoiceClient.TransferManagement
 
             _ManagerInstance = new Dictionary<Type, ITransferManager>();
 
-            if (!String.IsNullOrEmpty(Settings.Default.TransferManager))
+            if (Settings.Default.TransferManager?.Length>0)
             {
-                foreach (String typeName in Settings.Default.TransferManager.Split(';').Select(s => s.Trim()))
+                foreach (String typeName in Settings.Default.TransferManager.Select(s => s.Trim()))
                 {
                     if (String.IsNullOrEmpty(typeName))
                         continue;
                     try
                     {
-                        Type type = Type.GetType(typeName);
-                        if (type.GetInterface("InvoiceClient.TransferManagement.ITransferManager") != null)
+                        Type? type = Type.GetType(typeName);
+                        if (type != null && type.GetInterface("InvoiceClient.TransferManagement.ITransferManager") != null)
                         {
-                            ITransferManager manager = (ITransferManager)type.Assembly.CreateInstance(type.FullName);
+                            ITransferManager? manager = (ITransferManager?)type.Assembly.CreateInstance(type.FullName!);
+                            if(manager == null)
+                                continue;
                             _ManagerInstance[type] = manager;
                         }
                     }
@@ -59,19 +61,21 @@ namespace InvoiceClient.TransferManagement
             }
 
             _InspectorInstance = new Dictionary<Type, ServerInspector>();
-            ServerInspector chainedInspector = null;
-            if (!String.IsNullOrEmpty(Settings.Default.ServerInspector))
+            ServerInspector? chainedInspector = null;
+            if (Settings.Default.ServerInspector?.Length>0)
             {
-                foreach (String typeName in Settings.Default.ServerInspector.Split(';').Select(s => s.Trim()))
+                foreach (String typeName in Settings.Default.ServerInspector.Select(s => s.Trim()))
                 {
                     if (String.IsNullOrEmpty(typeName))
                         continue;
                     try
                     {
-                        Type type = Type.GetType(typeName);
-                        if (type.IsSubclassOf(typeof(ServerInspector)))
+                        Type? type = Type.GetType(typeName);
+                        if (type != null && type.IsSubclassOf(typeof(ServerInspector)))
                         {
-                            ServerInspector inspector = (ServerInspector)type.Assembly.CreateInstance(type.FullName);
+                            ServerInspector? inspector = (ServerInspector?)type.Assembly.CreateInstance(type.FullName!);
+                            if (inspector == null)
+                                continue;
                             _InspectorInstance[type] = inspector;
                             inspector.ChainedInspector = chainedInspector;
                             chainedInspector = inspector;
@@ -209,6 +213,6 @@ namespace InvoiceClient.TransferManagement
         String ReportError();
         void SetRetry();
         Type UIConfigType { get; }
-        ITabWorkItem WorkItem { get; set; }
+        ITabWorkItem? WorkItem { get; set; }
     }
 }

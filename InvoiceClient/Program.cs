@@ -29,7 +29,9 @@ namespace InvoiceClient
         {     
             /// SSL憑證信任設定
             System.Net.ServicePointManager.ServerCertificateValidationCallback = (s, certificate, chain, sslPolicyErrors) => true;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
+            ServicePointManager.SecurityProtocol =
+                SecurityProtocolType.Tls13 
+                | SecurityProtocolType.Tls12
                 | SecurityProtocolType.Tls11
                 | SecurityProtocolType.Tls /*| SecurityProtocolType.Ssl3*/;
 

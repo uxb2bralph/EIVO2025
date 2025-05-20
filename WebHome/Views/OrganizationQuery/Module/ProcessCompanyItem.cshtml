@@ -59,7 +59,7 @@
             {
                 <li><a class="btn" onclick="applyAgency('@Html.Raw(item.CompanyID.EncryptKey())');">設定經銷商</a></li>
             }
-            <li><a class="btn" onclick="applyMaster('@Html.Raw(item.CompanyID.EncryptKey())');">指派主機構</a></li>
+            @*<li><a class="btn" onclick="applyMaster('@Html.Raw(item.CompanyID.EncryptKey())');">指派主機構</a></li>*@
             <li><a class="btn" onclick="applyPOS(@(item.CompanyID));">設定POS機號</a></li>
             if (!item.IsEnterpriseGroupMember())
             {

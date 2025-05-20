@@ -30,6 +30,9 @@ namespace ModelCore.Schema.EIVO {
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("CancelInvoice")]
         public CancelInvoiceRootCancelInvoice[] CancelInvoice;
+        
+        /// <remarks/>
+        public string ProcessType;
     }
     
     /// <remarks/>

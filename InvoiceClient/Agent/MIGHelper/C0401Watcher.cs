@@ -10,7 +10,6 @@ using InvoiceClient.Helper;
 using InvoiceClient.Properties;
 using ModelCore.Locale;
 using ModelCore.Schema.EIVO;
-using ModelCore.Schema.EIVO.B2B;
 using ModelCore.Schema.TXN;
 using CommonLib.Core.Utility;
 using CommonLib.Utility;
@@ -22,7 +21,7 @@ namespace InvoiceClient.Agent.MIGHelper
         public C0401Watcher(String fullPath)
             : base(fullPath)
         {
-
+            PreferredProcessType = Naming.InvoiceProcessType.C0401;
         }
 
         protected override XmlDocument prepareInvoiceDocument(string invoiceFile)
@@ -37,15 +36,19 @@ namespace InvoiceClient.Agent.MIGHelper
                                 ? (short)Naming.NotificationIndication.Deferred
                                 : invoiceFile.Contains("_C")
                                     ? (short)Naming.NotificationIndication.None
-                                    : (short)Naming.NotificationIndication.Immediate
+                                    : (short)Naming.NotificationIndication.Immediate,
+                ProcessType = $"{PreferredProcessType}",
             };
 
             if (docInv.DocumentElement != null)
             {
-                docInv.DocumentElement.SetAttribute("xmlns", "urn:GEINV:eInvoiceMessage:C0401:3.2");
-                docInv.LoadXml(docInv.OuterXml);
+                if (docInv.DocumentElement.Attributes["xmlns"] != null)
+                {
+                    docInv.DocumentElement.SetAttribute("xmlns", "");
+                    docInv.LoadXml(docInv.OuterXml);
+                }
 
-                var c0401 = docInv.ConvertTo<ModelCore.Schema.TurnKey.C0401.Invoice>();
+                var c0401 = docInv.ConvertTo<ModelCore.Schema.TurnKey.Invoice>();
                 root.Invoice = new InvoiceRootInvoice[]
                 {
                         new InvoiceRootInvoice
@@ -65,7 +68,7 @@ namespace InvoiceClient.Agent.MIGHelper
                                 TEL = c0401.Main?.Buyer?.TelephoneNumber,
                             },
                             ContactName = c0401.Main?.Buyer?.Name,
-                            Currency = c0401.Amount.CurrencySpecified ? c0401.Amount.Currency.ToString() : null,
+                            Currency = c0401.Amount?.Currency.ToString(),
                             CustomsClearanceMark = (byte?)c0401.Main?.CustomsClearanceMark,
                             CustomsClearanceMarkSpecified = c0401.Main?.CustomsClearanceMarkSpecified ?? false,
                             CustomerID = c0401.Main?.Buyer?.CustomerNumber,
@@ -75,10 +78,8 @@ namespace InvoiceClient.Agent.MIGHelper
                             EMail = c0401.Main?.Buyer?.EmailAddress,
                             FreeTaxSalesAmount = c0401.Amount?.FreeTaxSalesAmount,
                             FreeTaxSalesAmountSpecified = c0401.Amount?.FreeTaxSalesAmount != null,
-                            InvoiceDate = c0401.Main?.InvoiceDate!=null && c0401.Main?.InvoiceDate.Length==8 
-                                ? $"{c0401.Main.InvoiceDate.Substring(0,4)}/{c0401.Main.InvoiceDate.Substring(4,2)}/{c0401.Main.InvoiceDate.Substring(6)}" 
-                                : null,
-                            InvoiceTime = c0401.Main?.InvoiceTime.ToString("HH:mm:ss"),
+                            InvoiceDate = c0401.Main?.InvoiceDate,
+                            InvoiceTime = c0401.Main?.InvoiceTime,
                             InvoiceNumber = c0401.Main?.InvoiceNumber,
                             InvoiceType = $"{(int?)c0401.Main?.InvoiceType}",
                             MainRemark = c0401.Main?.MainRemark,
@@ -88,7 +89,7 @@ namespace InvoiceClient.Agent.MIGHelper
                             SellerId = c0401.Main?.Seller?.Identifier,
                             RandomNumber = c0401.Main?.RandomNumber,
                             SalesAmount = c0401.Amount?.SalesAmount ?? 0m,
-                            TaxType = (byte)c0401.Amount?.TaxType,
+                            TaxType = (byte)(c0401.Amount?.TaxType ?? ModelCore.Schema.TurnKey.TaxTypeEnum.Item1),
                             TaxRate = c0401.Amount?.TaxRate ?? 0.05m,
                             TaxRateSpecified = true,
                             TaxAmount = c0401.Amount?.TaxAmount ?? 0,
@@ -99,17 +100,18 @@ namespace InvoiceClient.Agent.MIGHelper
                 };
 
                 short idx = 1;
-                root.Invoice[0].InvoiceItem = c0401.Details.Select(d => new InvoiceRootInvoiceInvoiceItem 
+                root.Invoice[0].InvoiceItem = c0401.Details!.Select(d => new InvoiceRootInvoiceInvoiceItem 
                 {
                     Description = d.Description,
                     Item = d.RelateNumber,
-                    Quantity = d.Quantity,
+                    Quantity = d.Quantity ?? 0,
                     Unit = d.Unit,
-                    UnitPrice = d.UnitPrice,
-                    Amount = d.Amount,
+                    UnitPrice = d.UnitPrice ?? 0,
+                    Amount = d.Amount ?? 0,
                     Remark = d.Remark,
                     SequenceNumber = idx++,
-                    TaxTypeSpecified = false,
+                    TaxTypeSpecified = true,
+                    TaxType = (byte)d.TaxType,
                 }).ToArray();
             }
 
@@ -118,7 +120,7 @@ namespace InvoiceClient.Agent.MIGHelper
 
         protected override Root processUpload(eInvoiceServiceClient invSvc, XmlDocument docInv)
         {
-            var result = invSvc.UploadInvoiceByClient(docInv, Settings.Default.ClientID, (int)_channelID, false, (int)Naming.InvoiceProcessType.C0401).ConvertTo<Root>();
+            var result = invSvc.UploadInvoiceByClient(docInv, Settings.Default.ClientID, (int)_channelID, false, (int)PreferredProcessType!).ConvertTo<Root>();
             return result;
         }
 

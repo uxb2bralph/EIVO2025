@@ -65,25 +65,15 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                     try
                     {
                         var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0101Outbound, $"A0101-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
-                        var xmlMIG = invoiceItem.CreateA0101().ConvertToXml();
+                        var xmlMIG = invoiceItem.CreateA0101();
                         item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
                         item.CDS_Document.CurrentStep = (int)Naming.InvoiceStepDefinition.待接收;
 
                         models.SubmitChanges();
                         xmlMIG.Save(fileName);
 
-
-                        if (invoiceItem.Organization.OrganizationStatus.DownloadDispatch == true)
-                        {
-                            PushStepQueueOnSubmit(models, item.CDS_Document, Naming.InvoiceStepDefinition.回傳MIG);
-                            models.SubmitChanges();
-                        }
-
                         models.ExecuteCommand("delete [proc].A0101DispatchQueue where DocID={0} and StepID={1}",
                             item.DocID, item.StepID);
-
-                        //models.ExecuteCommand("update [proc].A0101DispatchQueue set StepID = 1323 where DocID={0} and StepID={1}",
-                        //    item.DocID, item.StepID);
 
                     }
                     catch (Exception ex)
@@ -245,7 +235,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             docItem.PushLogOnSubmit(models, stepID, Naming.DataProcessStatus.Ready);
         }
 
-        private static Task __Turnkey;
+        private static Task? __Turnkey;
         public static void ReceiveFiles()
         {
             lock (typeof(A0101Handler))

@@ -40,7 +40,6 @@
             </th>
         </tr>
         @{
-            await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/QueryDirective.cshtml", 0);
             ViewBag.QueryAll = true;
             @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>());
             @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>());
@@ -48,6 +47,7 @@
             @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>());
             @(await Component.InvokeAsync<InquireCustomerIDViewComponent>());
             @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByInvoiceNo.cshtml");
             @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>());
         }
 

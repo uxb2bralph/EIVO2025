@@ -37,7 +37,7 @@
         </div>
         <br />
         F0401:
-        <textarea cols="80" rows="10">@(_item!=null ? _item.ConvertToXml().OuterXml : null)</textarea>
+        <textarea cols="80" rows="10">@(_item!=null ? _item.OuterXml : null)</textarea>
         <br />
         F0701:
         <textarea cols="80" rows="10">@(_voidItem!=null ? _voidItem.ConvertToXml().OuterXml : null)</textarea>
@@ -47,7 +47,7 @@
 @functions
 {
 
-    protected ModelCore.Schema.TurnKey.F0401.Invoice _item;
+    protected System.Xml.XmlDocument _item;
     protected ModelCore.Schema.TurnKey.F0701.VoidInvoice _voidItem;
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
@@ -161,7 +161,7 @@
     void storedMIG(InvoiceItem item, String storedPath)
     {
         String invoiceNo = item.TrackCode + item.No;
-        item.CreateF0401().ConvertToXml().Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
+        item.CreateF0401().Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
         (new ModelCore.Schema.TurnKey.F0701.VoidInvoice
         {
             VoidInvoiceNumber = invoiceNo,
@@ -172,8 +172,7 @@
             VoidTime = DateTime.Now,
             VoidReason = "註銷重開",
             Remark = ""
-        }).ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "F0701_" + item.TrackCode + item.No + ".xml"));
-
+        }).ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "F0701_" + invoiceNo + ".xml"));
     }
 
 

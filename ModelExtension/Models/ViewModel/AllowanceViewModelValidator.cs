@@ -24,7 +24,7 @@ namespace ModelCore.Models.ViewModel
 
         protected InvoiceAllowance _newItem;
         protected Organization _seller;
-        protected Organization _buyer;
+        protected Organization? _buyer;
         protected List<InvoiceAllowanceItem> _productItems;
         protected DateTime _allowanceDate;
 
@@ -126,14 +126,15 @@ namespace ModelCore.Models.ViewModel
 
         protected virtual Exception CheckMandatoryFields()
         {
-            if (String.IsNullOrEmpty(_allowanceItem.AllowanceNumber))
-            {
-                var count = _mgr.GetTable<InvoiceAllowanceSeller>().Where(s => s.SellerID == _seller.CompanyID).Count() + 1;
-                _allowanceItem.AllowanceNumber = $"{_seller.ReceiptNo}-{count:0000000}";
-            }
+            //if (String.IsNullOrEmpty(_allowanceItem.AllowanceNumber))
+            //{
+            //    var count = _mgr.GetTable<InvoiceAllowanceSeller>().Where(s => s.SellerID == _seller.CompanyID).Count() + 1;
+            //    _allowanceItem.AllowanceNumber = $"{_seller.ReceiptNo}-{count:0000000}";
+            //}
 
             //折讓證明單號碼
-            if (_allowanceItem.AllowanceNumber.Length > 16)
+            _allowanceItem.AllowanceNumber = _allowanceItem.AllowanceNumber.GetEfficientString();
+            if (_allowanceItem.AllowanceNumber?.Length > 16)
             {
                 return new Exception(String.Format(MessageResources.AlertAllowanceNoLength, _allowanceItem.AllowanceNumber));
             }
@@ -162,25 +163,25 @@ namespace ModelCore.Models.ViewModel
 
             InvoiceItem originalInvoice = null;
 
-            if (!(_allowanceItem.InvoiceNo?.Length > 0))
+            if (!(_allowanceItem.OriginalInvoiceNo?.Length > 0))
             {
                 return new Exception(String.Format(MessageResources.InvalidAllowance_NoInvoiceData, "N/A"));
             }
 
-            for (int i = 0; i < _allowanceItem.InvoiceNo?.Length; i++)
+            for (int i = 0; i < _allowanceItem.OriginalInvoiceNo?.Length; i++)
             {
 
-                if (!String.IsNullOrEmpty(_allowanceItem.InvoiceNo[i]) && _allowanceItem.InvoiceNo[i].Length == 10)
+                if (!String.IsNullOrEmpty(_allowanceItem.OriginalInvoiceNo[i]) && _allowanceItem.OriginalInvoiceNo[i].Length == 10)
                 {
                     String invNo, trackCode;
-                    trackCode = _allowanceItem.InvoiceNo[i].Substring(0, 2);
-                    invNo = _allowanceItem.InvoiceNo[i].Substring(2);
+                    trackCode = _allowanceItem.OriginalInvoiceNo[i].Substring(0, 2);
+                    invNo = _allowanceItem.OriginalInvoiceNo[i].Substring(2);
                     originalInvoice = invTable.Where(n => n.TrackCode == trackCode && n.No == invNo).FirstOrDefault();
                 }
 
                 if (originalInvoice == null)
                 {
-                    return new Exception(String.Format(MessageResources.InvalidAllowance_NoInvoiceData, _allowanceItem.InvoiceNo[i]));
+                    return new Exception(String.Format(MessageResources.InvalidAllowance_NoInvoiceData, _allowanceItem.OriginalInvoiceNo[i]));
                 }
 
                 if (originalInvoice.InvoiceCancellation != null)
@@ -188,11 +189,11 @@ namespace ModelCore.Models.ViewModel
                     return new Exception(MessageResources.InvalidAllowance_InvoiceHasBeenCanceled);
                 }
 
-                _allowanceItem.InvoiceDate[i] = originalInvoice.InvoiceDate.Value;
+                _allowanceItem.OriginalInvoiceDate[i] = originalInvoice.InvoiceDate.Value;
 
                 if (originalInvoice.SellerID != _allowanceItem.SellerID)
                 {
-                    return new Exception(String.Format(MessageResources.AlertAllowance_InvoiceSellerIsDifferent, _allowanceItem.InvoiceNo[i]));
+                    return new Exception(String.Format(MessageResources.AlertAllowance_InvoiceSellerIsDifferent, _allowanceItem.OriginalInvoiceNo[i]));
                 }
 
                 //原明細排列序號
@@ -220,11 +221,16 @@ namespace ModelCore.Models.ViewModel
                     _allowanceDate = originalInvoice.InvoiceDate.Value.AddDays(1);
                 }
 
+                if(_allowanceItem.AllowanceNumber == null)
+                {
+                    _allowanceItem.AllowanceNumber = $"{_allowanceItem.OriginalInvoiceNo[i]}{_mgr.GetTable<InvoiceAllowanceItem>().Where(a => a.InvoiceNo == _allowanceItem.OriginalInvoiceNo[i]).Count():000000}";
+                }
+
                 var allowanceItem = new InvoiceAllowanceItem
                 {
                     Amount = _allowanceItem.Amount[i],
-                    InvoiceNo = _allowanceItem.InvoiceNo[i],
-                    InvoiceDate = _allowanceItem.InvoiceDate[i],
+                    InvoiceNo = _allowanceItem.OriginalInvoiceNo[i],
+                    InvoiceDate = _allowanceItem.OriginalInvoiceDate[i],
                     //ItemNo = i.Item,
                     OriginalSequenceNo = _allowanceItem.OriginalSequenceNo[i],
                     Piece = _allowanceItem.Piece[i],

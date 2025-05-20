@@ -32,6 +32,6 @@ namespace ProcessorUnit.Properties
         public int ProcessorID { get; set; }
         public String? ResponsePath { get; set; }
         public String? PersistenceModelPath { get; set; } = "Persistence";
-        public String? EIVOPortal { get; internal set; } = "http://localhost:2598";
+        public String? EIVOPortal { get; set; } = "http://localhost:2598";
     }
 }

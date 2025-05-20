@@ -41,7 +41,6 @@ namespace InvoiceClient.Properties
         public bool UseMainForm { get; set; } = true;
         public String InvoiceViewUrlPattern { get; set; } = "http://localhost:5000/DataView/ShowInvoice?PrintCuttingLine=True&PaperStyle=A4&UseCustomView=True&ProcessType=C0401&DocID={0}";
         public String[] InvoiceTxnPath { get; set; } = ["C:\\UXB2B_EIVO"];
-        public bool UseFolderProcessor { get; set; } = false;
         public string ActivationKey { get; set; }
         public string AppCulture { get; set; } = "en-US";
         public string AppTitle { get; set; } = "Electronic Invoice Transmission Service-Store Client";
@@ -94,13 +93,34 @@ namespace InvoiceClient.Properties
         public bool RetryOnConnectException { get; set; } = false;
         public string RootCA { get; set; } = "UXB2B Certificate Center.cer";
         public string SellerReceiptNo { get; set; }
-        public string ServerInspector { get; set; } = "InvoiceClient.Agent.VacantInvoiceNoInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null; InvoiceClient.Agent.InvoiceMappingInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null; InvoiceClient.Agent.B2BInvoiceInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null; InvoiceClient.Agent.InvoiceMailTrackingInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null; InvoiceClient.Agent.InvoicePDFInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null; InvoiceClient.Agent.AllowancePDFGenerator, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null; InvoiceClient.Agent.InvoiceServerInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null;";
+        public string[]? ServerInspector { get; set; } = 
+            [
+                "InvoiceClient.Agent.VacantInvoiceNoInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "InvoiceClient.Agent.ExcelResponseInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "InvoiceClient.Agent.InvoiceMappingInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "InvoiceClient.Agent.B2BInvoiceInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "InvoiceClient.Agent.InvoiceMailTrackingInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "InvoiceClient.Agent.InvoicePDFInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "InvoiceClient.Agent.AllowancePDFGenerator, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "InvoiceClient.Agent.InvoiceServerInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+            ];
         public string ServiceName { get; set; } = "EIVO03ClientService(Product)";
         public string SignerCspName { get; set; }
         public string SignerKeyPassword { get; set; }
         public string SignerSubjectName { get; set; } = "UXSigner";
         public string TrackCodeFolder { get; set; } = "InvoiceTrackCode";
-        public string TransferManager { get; set; } = "InvoiceClient.TransferManagement.XlsxInvoiceTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null;";
+        public string[]? TransferManager { get; set; } =
+            [
+                "InvoiceClient.TransferManagement.CsvInvoiceTransferManagerV2, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "InvoiceClient.TransferManagement.POSInvoiceTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* POS機整合 */
+                "InvoiceClient.TransferManagement.MIGInvoiceTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* MIG格式 */
+                "InvoiceClient.TransferManagement.CsvInvoiceTransferManagerV2, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* CSV格式 */
+                "InvoiceClient.TransferManagement.InvoiceTransferManagerForAgent, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* XML格式 */
+                "InvoiceClient.TransferManagement.InvoiceBusinessTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* B2B相對營業人CSV格式 */
+                "InvoiceClient.TransferManagement.BranchTrackTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* 營業人配號區段 */
+                "InvoiceClient.TransferManagement.B2BInvoiceTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* B2B XML格式 */
+                "InvoiceClient.TransferManagement.XlsxInvoiceTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* EXCEL格式 */
+            ];
         public string UploadAllowanceCancellationFolder { get; set; } = "CancelAllowance";
         public string UploadAllowanceFolder { get; set; } = "Allowance";
         public string UploadAttachment { get; set; } = "http://localhost:5000/Published/UploadAttachmentForGoogle.ashx";
@@ -124,5 +144,16 @@ namespace InvoiceClient.Properties
         public int WS_TimeoutInMilliSeconds { get; set; } = 300000;
         public string ZipInvoice { get; set; } = "ZipInvoice";
         public string InvoiceClient_WS_Invoice_eInvoiceServiceClient { get; set; } = "http://localhost:5000/api/InvoiceService";
+        public LocalSettings? TurnkeyCSVSettings { get; set; }
+        public LocalSettings? TurnkeyExchangeCSVSettings { get; set; }
+    }
+
+    public class LocalSettings
+    {
+        public string? Invoice { get; set; }
+        public string? InvoiceExchange { get; set; }
+        public string? InvoiceCancellation { get; set; }
+        public string? Allowance { get; set; }
+        public string? AllowanceCancellation { get; set; }
     }
 }

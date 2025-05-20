@@ -8,10 +8,11 @@
 @using WebHome.Models.ViewModel
 @using ModelCore.Models.ViewModel
 @using ModelCore.DataEntity
+@using ModelCore.InvoiceManagement.InvoiceProcess
+@using ModelCore.Helper
 @using WebHome.Controllers
 @using Newtonsoft.Json
 
-@using ModelCore.Helper
 @{
     InvoiceNoInterval _model;
     _model = (InvoiceNoInterval)this.Model;
@@ -25,9 +26,11 @@
     <td>@(String.Format("{0:00000000}", _model.EndNo))</td>
     <td>@(_model.InvoiceNoSegment?.DeviceName)</td>
     <td>
-        @{ var currentNo = _model.CurrentAllocatingNo();}
-
-        @(_model.EndNo - _model.StartNo + 1)／@(_model.EndNo - currentNo + 1)
+        @{
+            var currentNo = _model.CurrentAllocatingNo();
+            var total = _model.EndNo - _model.StartNo + 1;
+        }
+        @(total)(@(total/50)本)／@(_model.EndNo - currentNo + 1)
     </td>
     <td>
         @(String.Format("{0:00000000}", currentNo))
@@ -40,9 +43,11 @@
             <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
             <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
             <ul class="dropdown-menu">
-                @if (!_model.InvoiceNoAssignments.Any() && !_model.InvoiceNoAllocation.Any())
+                @{ 
+                    bool editable = !_model.InvoiceNoAssignments.Any() && !_model.InvoiceNoAllocation.Any();
+                }
+                @if (editable)
                 {
-
                     <li><a class="btn" onclick="uiTrackCodeNo.editItem('@(_model.IntervalID.EncryptKey())');">修改</a></li>
                     <li><a class="btn" onclick="uiTrackCodeNo.deleteItem('@(_model.IntervalID.EncryptKey())');">刪除</a></li>
                     if (_model.InvoiceTrackCodeAssignment.Organization.POSDevice.Count > 0)
@@ -66,6 +71,17 @@
                 else
                 {
                     <li><a class="btn" onclick="uiTrackCodeNo.lockItem('@(_model.IntervalID.EncryptKey())',1);">鎖定</a></li>
+                }
+                @if (_model.InvoiceTrackCodeAssignment.Organization.IsMasterBranch())
+                {
+                    if (!_model.InvoiceTrackCodeAssignment.InvoiceNoMainAssignment.Any())
+                    {
+                        <li><a class="btn" onclick="uiTrackCodeNo.applyHead('@(_model.IntervalID.EncryptKey())');">主機構配號</a></li>
+                    }
+                    else if(editable)
+                    {
+                        <li><a class="btn" onclick="uiTrackCodeNo.applyBranch('@(_model.IntervalID.EncryptKey())');">指派分支機構</a></li>
+                    }
                 }
             </ul>
         </div>

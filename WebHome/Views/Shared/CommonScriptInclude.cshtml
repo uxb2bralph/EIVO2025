@@ -571,5 +571,16 @@
         });
     }
 
+    function toArrayField(viewModel, field) {
+        var result = [];
+        if (viewModel[field] instanceof Array) {
+            result = viewModel[field];
+        } else {
+            result.push(viewModel[field]);
+            viewModel[field] = result;
+        }
+        return result;
+    }
+
 
 </script>

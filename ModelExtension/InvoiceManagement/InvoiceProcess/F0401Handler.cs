@@ -24,9 +24,9 @@ using CommonLib.Core.Utility;
 
 namespace ModelCore.InvoiceManagement.InvoiceProcess
 {
-    public class C0401Handler
+    public class F0401Handler
     {
-        static C0401Handler()
+        static F0401Handler()
         {
             ModelExtension.Properties.AppSettings.Default.F0401Outbound.CheckStoredPath();
         }
@@ -34,15 +34,15 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
         private GenericManager<EIVOEntityDataContext> models;
         private Table<C0401DispatchQueue> _table;
 
-        public C0401Handler(GenericManager<EIVOEntityDataContext> models)
+        public F0401Handler(GenericManager<EIVOEntityDataContext> models)
         {
             this.models = models;
             _table = models.GetTable<C0401DispatchQueue>();
         }
 
-        static C0401DispatchQueue GetReadyItem(C0401Handler handler)
+        static C0401DispatchQueue GetReadyItem(F0401Handler handler)
         {
-            lock (typeof(C0401Handler))
+            lock (typeof(F0401Handler))
             {
                 C0401DispatchQueue item = handler._table
                     .Where(q => q.StepID == (int)Naming.InvoiceStepDefinition.已開立)
@@ -115,12 +115,10 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.CDS_Document.InvoiceItem;
             try
             {
-                var xmlMIG = invoiceItem.CreateF0401().ConvertToXml();
-                item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
-                models.SubmitChanges();
-
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0401Outbound, $"INV0401-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0401Outbound, $"F0401-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var xmlMIG = invoiceItem.CreateF0401();
                 xmlMIG.Save(fileName);
+                item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
 
                 if (invoiceItem.Organization.OrganizationStatus.SubscribeB2BInvoicePDF == true
                     && (!invoiceItem.InvoiceBuyer.IsB2C() || invoiceItem.Organization.OrganizationStatus.PrintAll == true)
@@ -247,7 +245,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                     {
                         using (InvoiceManager models = new InvoiceManager())
                         {
-                            C0401Handler c0401 = new C0401Handler(models);
+                            F0401Handler c0401 = new F0401Handler(models);
                             c0401.WriteToTurnkey(idx, AppSettings.Default.CommonParallelProcessCount);
                         }
                     });

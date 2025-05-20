@@ -9,7 +9,7 @@ namespace ModelCore.Models.ViewModel
     {
         public String Seed { get; set; }
         public String Authorization { get; set; }
-        public String SellerID { get; set; }
+        public String? SellerID { get; set; }
         public bool? SampleQuery { get; set; }
     }
 }

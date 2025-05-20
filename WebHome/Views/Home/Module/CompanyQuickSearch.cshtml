@@ -18,8 +18,7 @@
 
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    IQueryable<Organization> _model;
-    SellerSelectorViewModel _viewModel = ViewBag.ViewModel as SellerSelectorViewModel;
+    SellerSelectorViewModel? _viewModel = this.Model as SellerSelectorViewModel ?? ViewBag.ViewModel as SellerSelectorViewModel;
 
     if (_viewModel == null)
     {
@@ -30,14 +29,13 @@
     String _contentID = "id" + DateTime.Now.Ticks;
     String _valueID = "value" + DateTime.Now.Ticks;
     UserProfile _profile;
-    Organization _item;
+    Organization? _item = _viewModel.DefaultItem;
 
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    _model = (IQueryable<Organization>)this.Model;
     _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "SellerID";
     _profile = Context.GetUser();
-    _item = _model?.Where(c => c.CompanyID == _viewModel.SellerID).FirstOrDefault();
+    var _urlAction = _viewModel.UrlAction ?? Url.Action("SearchCompany", "Home", new { _viewModel.Encrypt });
 }
 
 <input type="text" class="form-control" size="40" id="@(_contentID)" value="@(_item!=null ? $"{_item.ReceiptNo} {_item.CompanyName}" : null)" placeholder="請輸入檢索關鍵字" />
@@ -52,7 +50,7 @@
                 }
             });
             $input.autocomplete({
-                source: '@Html.Raw(Url.Action("SearchCompany", "Home",new { _viewModel.Encrypt }))',
+                source: '@Html.Raw(_urlAction)',
                 select: function (event, ui) {
                     $input.val(ui.item.label);
                     $('#@(_valueID)').val(ui.item.value);

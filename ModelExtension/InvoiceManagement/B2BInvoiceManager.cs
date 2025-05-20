@@ -116,7 +116,6 @@ namespace ModelCore.InvoiceManagement
             if (item != null && item.Invoice != null && item.Invoice.Length > 0)
             {
                 List<InvoiceItem> eventItems = new List<InvoiceItem>();
-                InvoiceRootFormatValidator formatValidator = new InvoiceRootFormatValidator(this, owner.Organization);
                 InvoiceRootInvoiceValidator validator = new InvoiceRootInvoiceValidator(this, owner.Organization);
 
                 for (int idx = 0; idx < item.Invoice.Length; idx++)
@@ -128,19 +127,8 @@ namespace ModelCore.InvoiceManagement
                         Exception ex;
                         if ((ex = validator.Validate(invItem)) != null)
                         {
-
-                            var errors = formatValidator.ValidateAll(invItem);
-                            if (errors.Count > 0)
-                            {
-                                result.Add(idx, new Exception(ex.Message + ";\r\n" + String.Join(";\r\n", errors.Where(x => x.Message != ex.Message)
-                                    .Select(x => x.Message))));
-                            }
-                            else
-                            {
-                                result.Add(idx, ex);
-                            }
+                            result.Add(idx, ex);
                             continue;
-
                         }
 
                         InvoiceItem newItem = validator.InvoiceItem;

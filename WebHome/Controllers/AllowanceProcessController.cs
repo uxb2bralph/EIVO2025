@@ -42,23 +42,6 @@ namespace WebHome.Controllers
         {
         }
 
-        protected ModelSourceInquiry<InvoiceAllowance> createModelInquiry()
-        {
-            _userProfile = HttpContext.GetUser();
-
-            var inquireConsumption = new InquireAllowanceConsumption { };
-            
-            return (ModelSourceInquiry<InvoiceAllowance>)(new InquireEffectiveAllowance { })
-                .Append(new InquireAllowanceByRole(_userProfile) { })
-                .Append(inquireConsumption)
-                .Append(new InquireAllowanceSeller { })
-                .Append(new InquireAllowanceBuyer { })
-                .Append(new InquireAllowanceBuyerByName { })
-                .Append(new InquireAllowanceDate { })
-                .Append(new InquireAllowanceNo { })
-                .Append(new InquireAllowanceAgent { });
-        }
-
         public ActionResult Index(InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
@@ -88,7 +71,8 @@ namespace WebHome.Controllers
 
             var modelSource = new ModelSource<InvoiceAllowance>(models);
 
-            modelSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            modelSource.Inquiry = viewModel.CreateAllowanceInquiry(profile);
             modelSource.BuildQuery();
 
             if(viewModel.Status == "ReadyToMIG")
@@ -138,7 +122,8 @@ namespace WebHome.Controllers
 
             ModelSource<InvoiceAllowance> modelSource = new ModelSource<InvoiceAllowance>(models);
 
-            modelSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            modelSource.Inquiry = viewModel.CreateAllowanceInquiry(profile);
             modelSource.BuildQuery();
 
             var prodItems = models.GetTable<InvoiceAllowanceDetail>()

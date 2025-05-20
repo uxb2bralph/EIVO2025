@@ -17,22 +17,20 @@
 
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    IEnumerable<Organization> _model;
+    Organization? _model;
     String _fieldName;
     String _contentID;
     UserProfile _profile;
 
-    var Request = ViewContext.HttpContext.Request;
-
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    _model = (IEnumerable<Organization>)this.Model;
+    _model = this.Model as Organization;
     _fieldName = (String)ViewBag.FieldName ?? "BuyerID";
     _contentID = (String)ViewBag.FieldID ?? ("id" + DateTime.Now.Ticks);
     _profile = Context.GetUser();
 }
 <input type="text" size="40" id="@(_contentID)" class="form-control" value="" placeholder="請輸入檢索關鍵字" />
-<input type="hidden" name="@(_fieldName)" />
+<input type="hidden" name="@(_fieldName)" value="@(_model?.CompanyID)" />
 <script>
     $(function () {
         debugger;
@@ -73,14 +71,6 @@
         });
     });
 </script>
-@if (Request.Form[_fieldName].Any())
-{
-    <script>
-        $(function () {
-            $('input:hidden[name="@(_fieldName)"]').val('@(Request.Form[_fieldName])');
-        });
-    </script>
-}
 
 
 

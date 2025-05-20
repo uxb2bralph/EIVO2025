@@ -140,7 +140,7 @@ namespace ModelCore.InvoiceManagement
                     }
                 }
 
-                Console.WriteLine($"\r\ninterval({interval.IntervalID}) unassigned numbers count: {allInvoiceNo.Count}");
+                Logger.Info($"\r\ninterval({interval.IntervalID}) unassigned numbers count: {allInvoiceNo.Count}");
 
                 int startIndex = allInvoiceNo[0];
                 int count = 1;

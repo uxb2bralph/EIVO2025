@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CommonLib.Core.Utility;
 using CommonLib.DataAccess;
 using CommonLib.Utility;
+using DocumentFormat.OpenXml.Office.CustomUI;
 using ModelCore.DataEntity;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using ModelCore.Locale;
@@ -631,7 +632,7 @@ namespace ModelCore.Helper
 
         }
 
-        public static InvoiceAllowanceCancellation PrepareVoidItem(this InvoiceAllowance allowance, GenericManager<EIVOEntityDataContext> models, ref DerivedDocument doc)
+        public static InvoiceAllowanceCancellation PrepareVoidItem(this InvoiceAllowance allowance, GenericManager<EIVOEntityDataContext> models, ref DerivedDocument? doc, Naming.InvoiceProcessType processType = Naming.InvoiceProcessType.G0501)
         {
             InvoiceAllowanceCancellation voidItem = new InvoiceAllowanceCancellation
             {
@@ -645,6 +646,9 @@ namespace ModelCore.Helper
                 {
                     DocDate = DateTime.Now,
                     DocType = (int)Naming.DocumentTypeDefinition.E_AllowanceCancellation,
+                    ProcessType = allowance.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0101
+                                    ? (int)Naming.InvoiceProcessType.B0201
+                                    : (int)processType,
                 },
                 SourceID = allowance.AllowanceID,
             };
@@ -660,21 +664,20 @@ namespace ModelCore.Helper
             models.GetTable<InvoiceAllowanceCancellation>().InsertOnSubmit(voidItem);
             models.GetTable<DerivedDocument>().InsertOnSubmit(doc);
 
-            if (allowance.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0401)
+            if (doc.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0201)
             {
-                B0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                B0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                B0201Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.待傳送);
             }
             else
             {
-                D0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                D0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                G0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                G0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
             }
 
             return voidItem;
         }
 
-        public static InvoiceCancellation PrepareVoidItem(this InvoiceItem invoice, GenericManager<EIVOEntityDataContext> models, ref DerivedDocument doc)
+        public static InvoiceCancellation PrepareVoidItem(this InvoiceItem invoice, GenericManager<EIVOEntityDataContext> models, ref DerivedDocument? doc, Naming.InvoiceProcessType processType = Naming.InvoiceProcessType.F0501)
         {
             InvoiceCancellation voidItem = new InvoiceCancellation
             {
@@ -689,6 +692,9 @@ namespace ModelCore.Helper
                 {
                     DocType = (int)Naming.DocumentTypeDefinition.E_InvoiceCancellation,
                     DocDate = DateTime.Now,
+                    ProcessType = invoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101 
+                                    ? (int)Naming.InvoiceProcessType.A0201 
+                                    : (int)processType,
                 },
                 SourceID = invoice.InvoiceID
             };
@@ -704,15 +710,14 @@ namespace ModelCore.Helper
             models.GetTable<InvoiceCancellation>().InsertOnSubmit(voidItem);
             models.GetTable<DerivedDocument>().InsertOnSubmit(doc);
 
-            if (invoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401)
+            if (doc.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0201)
             {
-                A0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                A0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                A0201Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.待傳送);
             }
             else
             {
-                C0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                C0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                F0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                F0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
             }
 
             return voidItem;
@@ -980,7 +985,7 @@ namespace ModelCore.Helper
                     }
                 }
 
-                C0401Handler.PushStepQueueOnSubmit(models, request.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                F0401Handler.PushStepQueueOnSubmit(models, request.CDS_Document, Naming.InvoiceStepDefinition.已開立);
 
                 models.SubmitChanges();
 

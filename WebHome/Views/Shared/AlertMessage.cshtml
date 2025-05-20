@@ -7,10 +7,10 @@
 @if (_message != null)
 {
     <script>
-        alert('@(System.Web.HttpUtility.JavaScriptStringEncode(_message))');
-        @if (ViewBag.CloseWindow == true)
+        alertModal('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode(_message))');
+        @*@if (ViewBag.CloseWindow == true)
         {
             <text>window.close();</text>
-        }
+        }*@
     </script>
 }

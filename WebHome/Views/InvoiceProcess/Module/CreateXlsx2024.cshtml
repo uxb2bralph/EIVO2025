@@ -24,10 +24,10 @@
 
 @functions
 {
-    ModelSource<InvoiceItem> models;
-    IQueryable<InvoiceItem> _model;
-    InquireInvoiceViewModel _viewModel;
-    UserProfile profile;
+    ModelSource<InvoiceItem>? models;
+    IQueryable<InvoiceItem>? _model;
+    InquireInvoiceViewModel? _viewModel;
+    UserProfile? profile;
 
     void SaveAsExcel(int taskID, String resultFile)
     {
@@ -38,7 +38,7 @@
                 using (DataSet ds = new DataSet())
                 {
 
-                    Exception exception = null;
+                    Exception? exception = null;
 
                     try
                     {
@@ -71,7 +71,7 @@
                         table.Columns.Add("載具類別", typeof(String));
                         table.Columns.Add("載具號碼", typeof(String));
 
-                        foreach (var i in _model.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
+                        foreach (var i in _model!.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
                         {
                             DataRow r = table.NewRow();
                             r["發票號碼"] = i.TrackCode + i.No;
@@ -88,9 +88,9 @@
                             r["發票開立人"] = i.InvoiceSeller.CustomerName;
                             r["開立人統編"] = i.InvoiceSeller.ReceiptNo;
                             r["營業人店別"] = i.Organization.OrganizationExtension.CustomerNo;
-                            r["未稅金額"] = (Object)i.InvoiceAmountType.SalesAmount ?? DBNull.Value;
+                            r["未稅金額"] = (Object?)i.InvoiceAmountType.SalesAmount ?? DBNull.Value;
                             r["稅別"] = $"{(Naming.TaxTypeDefinition?)i.InvoiceAmountType.TaxType}";
-                            r["稅額"] = (Object)i.InvoiceAmountType.TaxAmount ?? DBNull.Value;
+                            r["稅額"] = (Object?)i.InvoiceAmountType.TaxAmount ?? DBNull.Value;
                             r["含稅金額"] = i.InvoiceAmountType.TotalAmount;
                             r["幣別"] = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : DBNull.Value;
                             r["買受人名稱"] = i.InvoiceBuyer.CustomerName;
@@ -111,7 +111,7 @@
                             table.Rows.Add(r);
                         }
 
-                        if (profile.IsSystemAdmin())
+                        if (profile!.IsSystemAdmin())
                         {
 
                         }
@@ -135,9 +135,10 @@
                         exception = ex;
                     }
 
-                    using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
+                    //using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
+                    var db = models!;
 
-                    ProcessRequest taskItem = db.GetTable<ProcessRequest>()
+                    ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
                         .Where(t => t.TaskID == taskID).FirstOrDefault();
 
                     if (taskItem != null)

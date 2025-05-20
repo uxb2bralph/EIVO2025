@@ -15,8 +15,15 @@
   <ItemGroup>
     <ProjectReference Include="..\Business\Business.csproj" />
     <ProjectReference Include="..\CommonLib.Core\CommonLib.Core.csproj" />
+    <ProjectReference Include="..\ExternalPdfWrapper\ExternalPdfWrapper.csproj" />
     <ProjectReference Include="..\ModelExtension\ModelExtension.csproj" />
     <ProjectReference Include="..\Uxnet.Com\Uxnet.Com.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Init.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

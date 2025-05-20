@@ -46,12 +46,23 @@ namespace ModelCore.Schema.TurnKey.F0401 {
         /// <remarks/>
         public string InvoiceNumber;
         
+        [XmlIgnore]
+        public DateTime InvoiceDateTime { get; set; }
+
         /// <remarks/>
-        public string InvoiceDate;
+        public string InvoiceDate { get => InvoiceDateTime.ToString("yyyyMMdd"); }
+
+        /// <remarks/>
+        public String InvoiceTime
+        {
+            get => InvoiceDateTime.ToString("HH:mm:ss");
+        }        
+        // /// <remarks/>
+        // public string InvoiceDate;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(DataType="time")]
-        public System.DateTime InvoiceTime;
+        // /// <remarks/>
+        // [System.Xml.Serialization.XmlElementAttribute(DataType="time")]
+        // public System.DateTime InvoiceTime;
         
         /// <remarks/>
         public MainSeller Seller;

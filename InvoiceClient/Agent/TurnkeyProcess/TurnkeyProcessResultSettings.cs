@@ -44,7 +44,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
 
         public String[] ResultMessageType { get; set; } =
         {
-            "C0401","C0501","D0401","D0501","A0401","A0501","B0401","B0501","C0701","E0501"
+            "C0401","C0501","D0401","D0501","A0401","A0501","B0401","B0501","C0701","E0501","A0101"
         };
 
         public Dictionary<String, String> MessageResponseGood { get; private set; }

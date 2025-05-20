@@ -1,0 +1,179 @@
+
+@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+@using System.Data
+@using System.IO.Compression
+@using ClosedXML.Excel
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using CommonLib.DataAccess
+
+@functions
+{
+    ModelSource<InvoiceItem>? models;
+    IQueryable<InvoiceNoMainAssignment>? _model;
+    InquireNoIntervalViewModel? _viewModel;
+    UserProfile? profile;
+
+    void SaveData(int taskID, String resultFile)
+    {
+        Task.Run(() =>
+        {
+            try
+            {
+                Exception? exception = null;
+
+                try
+                {
+
+                    String outFile = System.IO.Path.Combine(FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".zip");
+                    using (var zipOut = System.IO.File.Create(outFile))
+                    {
+                        using (System.IO.Compression.ZipArchive zip = new System.IO.Compression.ZipArchive(zipOut, System.IO.Compression.ZipArchiveMode.Create))
+                        {
+                            foreach (var headquarterAssignment in _model!)
+                            {
+                                var items = headquarterAssignment.BranchNoAssignment.GroupBy(a => a.SellerID);
+                                var trackCode = headquarterAssignment.InvoiceTrackCodeAssignment.InvoiceTrackCode;
+                                foreach (var g in items)
+                                {
+                                    var intervalItems = g.SelectMany(a => a.InvoiceNoInterval);
+                                    var orgItem = models!.GetTable<Organization>().Where(a => a.CompanyID == g.Key).FirstOrDefault();
+
+                                    if (orgItem != null)
+                                    {
+                                        ModelCore.Schema.TurnKey.E0401.BranchTrack blankItem = new ModelCore.Schema.TurnKey.E0401.BranchTrack
+                                        {
+                                            Main = new ModelCore.Schema.TurnKey.E0401.Main
+                                            {
+                                                BranchBan = orgItem.ReceiptNo,
+                                                HeadBan = headquarterAssignment.InvoiceTrackCodeAssignment.Organization.ReceiptNo,
+                                                YearMonth = String.Format("{0}{1:00}", trackCode.Year - 1911, trackCode.PeriodNo * 2),
+                                                InvoiceType = trackCode.InvoiceType == (byte)ModelCore.Schema.TurnKey.E0401.InvoiceTypeEnum.Item08 ? ModelCore.Schema.TurnKey.E0401.InvoiceTypeEnum.Item08 : ModelCore.Schema.TurnKey.E0401.InvoiceTypeEnum.Item07,
+                                                InvoiceTrack = trackCode.TrackCode,
+                                                InvoiceBeginNo = String.Format("{0:00000000}", headquarterAssignment.StartNo),
+                                                InvoiceEndNo = String.Format("{0:00000000}", headquarterAssignment.EndNo),
+                                            },
+                                        };
+
+                                        List<ModelCore.Schema.TurnKey.E0401.DetailsBranchTrackItem> details = new List<ModelCore.Schema.TurnKey.E0401.DetailsBranchTrackItem>();
+                                        foreach (var interval in intervalItems)
+                                        {
+                                            details.Add(new ModelCore.Schema.TurnKey.E0401.DetailsBranchTrackItem
+                                            {
+                                                InvoiceBeginNo = String.Format("{0:00000000}", interval.StartNo),
+                                                InvoiceEndNo = String.Format("{0:00000000}", interval.EndNo),
+                                                InvoiceBooklet = (interval.EndNo - interval.StartNo + 1) / 50,
+                                            });
+                                        }
+
+                                        blankItem.Details = details.ToArray();
+
+                                        System.IO.Compression.ZipArchiveEntry entry = zip.CreateEntry($"E0401-{trackCode.Year}{trackCode.PeriodNo * 2:00}-{orgItem.ReceiptNo}.xml");
+                                        using (Stream outStream = entry.Open())
+                                        {
+                                            blankItem.ConvertToXml().Save(outStream);
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    System.IO.File.Move(outFile, resultFile);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"{ex}\r\n{_model}");
+                    exception = ex;
+                }
+                var db = models!;
+                ProcessRequest? taskItem =
+                    db.GetTable<ProcessRequest>()
+                        .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                if (taskItem != null)
+                {
+                    if (exception != null)
+                    {
+                        var logItem = new ExceptionLog
+                        {
+                            DataContent = exception.Message,
+                            LogTime = DateTime.Now,
+                        };
+                        db.GetTable<ExceptionLog>().InsertOnSubmit(logItem);
+                        db.SubmitChanges();
+
+                        taskItem.LogID = logItem.LogID;
+                    }
+
+                    taskItem.ProcessComplete = DateTime.Now;
+                    db.SubmitChanges();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        });
+
+    }
+
+}
+@{
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _viewModel = (InquireNoIntervalViewModel)ViewBag.ViewModel;
+
+    _model = (IQueryable<InvoiceNoMainAssignment>)this.Model;
+    profile = Context.GetUser();
+
+}
+@{
+    var item = _model.First();
+    String fileName = $"E0402-{item!.InvoiceTrackCodeAssignment.Organization.ReceiptNo}.zip";
+
+    ProcessRequest processItem = new ProcessRequest
+    {
+        Sender = profile?.UID,
+        SubmitDate = DateTime.Now,
+        ProcessStart = DateTime.Now,
+        ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, fileName),
+    };
+
+    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.SubmitChanges();
+
+    SaveData(processItem.TaskID, processItem.ResponsePath);
+
+    await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
+        new AttachmentViewModel
+        {
+            TaskID = processItem.TaskID,
+            FileName = processItem.ResponsePath,
+            FileDownloadName = fileName,
+        });
+}
+
+
+
+
+

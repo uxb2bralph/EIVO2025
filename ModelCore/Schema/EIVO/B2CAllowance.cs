@@ -27,6 +27,9 @@ namespace ModelCore.Schema.EIVO {
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Allowance")]
         public AllowanceRootAllowance[] Allowance;
+        
+        /// <remarks/>
+        public string ProcessType;
     }
     
     /// <remarks/>

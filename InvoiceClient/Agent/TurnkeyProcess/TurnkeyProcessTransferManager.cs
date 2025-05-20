@@ -102,6 +102,15 @@ namespace InvoiceClient.Agent.TurnkeyProcess
                         watcher.StartUp();
 
                         break;
+
+                    case "A0101":
+                        watcher = new A0101Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
                 }
             }
 

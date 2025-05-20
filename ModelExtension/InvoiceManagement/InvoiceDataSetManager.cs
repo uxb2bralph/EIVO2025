@@ -192,8 +192,8 @@ namespace ModelCore.InvoiceManagement
                     }
                     else
                     {
-                        C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                        C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
+                        F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                        F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
                             deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知);
                     }
 
@@ -434,8 +434,8 @@ namespace ModelCore.InvoiceManagement
                                 }
                                 else
                                 {
-                                    C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                                    C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
+                                    F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                                    F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
                                         deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知);
                                 }
                             }

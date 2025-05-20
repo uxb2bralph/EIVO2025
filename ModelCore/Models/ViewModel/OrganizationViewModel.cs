@@ -81,6 +81,8 @@ namespace ModelCore.Models.ViewModel
         [JsonIgnore]
         public bool HybridB2B => Settings != null && Settings.Contains("HybridB2B");
         [JsonIgnore]
+        public bool AllB2B => Settings != null && Settings.Contains("AllB2B");
+        [JsonIgnore]
         public bool InvoiceNotUploadedAlert => Settings != null && Settings.Contains("InvoiceNotUploadedAlert");
         [JsonIgnore]
         public bool DisableC0401Template => Settings != null && Settings.Contains("DisableC0401Template");
@@ -88,7 +90,10 @@ namespace ModelCore.Models.ViewModel
         public bool InvoiceExchange => Settings != null && Settings.Contains("InvoiceExchange");
         [JsonIgnore]
         public bool IgnoreDuplicatedNo => Settings != null && Settings.Contains("IgnoreDuplicatedNo");
+        [JsonIgnore]
         public bool ForcedAuditNo => Settings != null && Settings.Contains("ForcedAuditNo");
+        [JsonIgnore]
+        public bool MasterBranch => Settings != null && Settings.Contains("MasterBranch");
         public int? InvoiceNoSafetyStock { get; set; }
         public int?[]? GradeCount { get; set; }
         public int?[]? BasicFee { get; set; }

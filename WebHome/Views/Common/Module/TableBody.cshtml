@@ -97,7 +97,7 @@ else
 }
 @foreach (var item in items)
 {
-    Write(await showDataRowAsync(item));
+    await showDataRowAsync(item);
 }
 @if (ViewBag.CreateNew != null)
 {

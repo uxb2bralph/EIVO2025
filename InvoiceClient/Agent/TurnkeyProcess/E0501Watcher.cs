@@ -22,6 +22,7 @@ using CommonLib.Core.Utility;
 using CommonLib.Utility;
 using ModelCore.Models.ViewModel;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using ModelCore.InvoiceManagement.InvoiceProcess;
 
 
 
@@ -82,7 +83,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
 
         public void CommitItem(ModelSource models, InvoiceNoIntervalViewModel viewModel, Organization seller)
         {
-            InvoiceNoInterval model = null;
+            InvoiceNoInterval? model = null;
             if (seller.OrganizationCustomSetting?.Settings.DisableE0501AutoUpdate == Naming.Truth.True)
                 return;
 
@@ -91,8 +92,8 @@ namespace InvoiceClient.Agent.TurnkeyProcess
             {
                 codeAssignment = new InvoiceTrackCodeAssignment
                 {
-                    SellerID = viewModel.SellerID.Value,
-                    TrackID = viewModel.TrackID.Value
+                    SellerID = viewModel.SellerID!.Value,
+                    TrackID = viewModel.TrackID!.Value
                 };
 
                 models.GetTable<InvoiceTrackCodeAssignment>().InsertOnSubmit(codeAssignment);
@@ -104,7 +105,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
             };
             codeAssignment.InvoiceNoInterval.Add(model);
 
-            model.StartNo = viewModel.StartNo.Value;
+            model.StartNo = viewModel.StartNo!.Value;
             if (seller.OrganizationCustomSetting?.Settings.E0501ReservedBooklets > 0)
             {
                 if ((viewModel.EndNo - viewModel.StartNo + 1) / 50 > seller.OrganizationCustomSetting?.Settings.E0501ReservedBooklets)
@@ -112,7 +113,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
                     var reservedInterval = new InvoiceNoInterval
                     {
                         LockID = 1,
-                        EndNo = viewModel.EndNo.Value,
+                        EndNo = viewModel.EndNo!.Value,
                     };
                     codeAssignment.InvoiceNoInterval.Add(reservedInterval);
 
@@ -122,7 +123,24 @@ namespace InvoiceClient.Agent.TurnkeyProcess
             }
             else
             {
-                model.EndNo = viewModel.EndNo.Value;
+                model.EndNo = viewModel.EndNo!.Value;
+            }
+
+            InvoiceNoMainAssignment? headquarterAssignment = null;
+            if (seller.IsMasterBranch())
+            {
+                headquarterAssignment = codeAssignment.InvoiceNoMainAssignment.Where(m => m.StartNo == viewModel.StartNo).FirstOrDefault();
+                if (headquarterAssignment == null)
+                {
+                    headquarterAssignment = new InvoiceNoMainAssignment
+                    {
+                        InvoiceTrackCodeAssignment = codeAssignment,
+                        StartNo = viewModel.StartNo.Value,
+                        EndNo = viewModel.EndNo!.Value,
+                    };
+
+                    codeAssignment.HeadquarterNoAssignment = headquarterAssignment;
+                }
             }
 
             models.SubmitChanges();
@@ -215,5 +233,9 @@ namespace InvoiceClient.Agent.TurnkeyProcess
 
         }
 
+        protected override void processComplete()
+        {
+
+        }
     }
 }

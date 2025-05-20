@@ -18,18 +18,17 @@ using ModelCore.Schema.TXN;
 using CommonLib.Core.Utility;
 using CommonLib.Utility;
 using System.ServiceModel;
+using CommonLib.Helper;
 
 
 namespace InvoiceClient.Agent
 {
     public class InvoiceWatcher : IDisposable
     {
-        protected FileSystemWatcher _watcher;
         protected String _failedTxnPath;
         protected String _inProgressPath;
         protected String _ResponsedPath;
         protected String _requestPath;
-        protected int _busyCount;
         protected bool _retryConnection;
         protected Naming.ChannelIDType _channelID = Naming.ChannelIDType.ForGoogleOnLine;
 
@@ -54,19 +53,19 @@ namespace InvoiceClient.Agent
             if (!Settings.Default.AutoRetry && Settings.Default.EnableFailedUploadAlert)
             {
                 __FailedTxnPath = new List<string>();
-                __SendFailedTxnAlert(10000);
-
-                ThreadPool.QueueUserWorkItem(p =>
+                Task.Delay(10000).ContinueWith(ts1 =>
                 {
-                    while (true)
-                    {
-                        Thread.Sleep(30 * 60 * 1000);
-                        __SendFailedTxnAlert(0);
-                    }
-
+                    __SendFailedTxnAlert();
                 });
+
+                ((Action)(() =>
+                {
+                    __SendFailedTxnAlert();
+                })).RunForever(30 * 60 * 1000, true);
             }
         }
+
+        private QueuedProcessHandler _handler;
 
         public InvoiceWatcher(String fullPath)
         {
@@ -77,78 +76,46 @@ namespace InvoiceClient.Agent
             _retryConnection = Settings.Default.RetryOnConnectException;
             prepareStorePath(fullPath);
 
-            if(AppSettings.Default.UseFolderProcessor)
+            _handler = new QueuedProcessHandler(FileLogger.Logger)
             {
-                ((Action)(() =>
+                Process = () =>
                 {
-                    InvokeProcess();
-                })).RunForever(30000, true);
-            }
-            else
-            {
-                _watcher = new FileSystemWatcher(fullPath);
-                _watcher.Created += new FileSystemEventHandler(_watcher_Created);
-                _watcher.EnableRaisingEvents = true;
+                    if (_dependentWatcher != null)
+                        _dependentWatcher.InvokeProcess();
+                    else
+                        doProcess();
 
-                ThreadPool.QueueUserWorkItem(p =>
-                {
-                    while (_watcher != null)
+                    if (Settings.Default.AutoRetry)
                     {
-                        var result = _watcher.WaitForChanged(WatcherChangeTypes.Created, Settings.Default.AutoInvServiceInterval > 0 ? Settings.Default.AutoInvServiceInterval * 60 * 1000 : 1800000);
-                        if (result.TimedOut)
-                        {
-                            InvokeProcess();
-                        }
+                        Retry();
                     }
-                });
-            }
-
-            if (Settings.Default.AutoRetry)
-            {
-                ThreadPool.QueueUserWorkItem(p =>
-                {
-                    while (true)
-                    {
-                        Thread.Sleep(Settings.Default.AutoInvServiceInterval > 0 ? Settings.Default.AutoInvServiceInterval * 60 * 1000 : 1800000);
-                        ThreadPool.QueueUserWorkItem(t =>
-                        {
-                            Retry();
-                        });
-                    }
-                });
-            }
+                },
+                MilliSecondsWait = 10000,
+                MaxWaitingCount = 2,
+            };
 
         }
 
-        private static void __SendFailedTxnAlert(int delayInMilliseconds)
+        private static void __SendFailedTxnAlert()
         {
-            ThreadPool.QueueUserWorkItem(p =>
+            if (__FailedTxnPath?.Count > 0)
             {
-                if (delayInMilliseconds > 0)
+                try
                 {
-                    Thread.Sleep(delayInMilliseconds);
+                    var items = __FailedTxnPath.Select(f => new KeyValuePair<String, int>(f, Directory.GetFiles(f).Length))
+                        .Where(v => v.Value > 0).ToArray();
+                    if (items.Length > 0)
+                    {
+                        eInvoiceServiceClient invSvc = InvoiceWatcher.CreateInvoiceService();
+                        Root token = invSvc.CreateMessageToken(String.Join("\r\n", items.Select(r => r.Key + " => " + r.Value + "筆")));
+                        invSvc.AlertFailedTransaction(token.ConvertToXml().Sign());
+                    }
                 }
-
-                if (__FailedTxnPath != null && __FailedTxnPath.Count > 0)
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        var items = __FailedTxnPath.Select(f => new KeyValuePair<String, int>(f, Directory.GetFiles(f).Length))
-                            .Where(v => v.Value > 0).ToArray();
-                        if (items.Length > 0)
-                        {
-                            eInvoiceServiceClient invSvc = InvoiceWatcher.CreateInvoiceService();
-                            Root token = invSvc.CreateMessageToken(String.Join("\r\n", items.Select(r => r.Key + " => " + r.Value + "筆")));
-                            invSvc.AlertFailedTransaction(token.ConvertToXml().Sign());
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                    }
-
+                    Logger.Error(ex);
                 }
-            });
+            }
         }
 
 
@@ -187,10 +154,6 @@ namespace InvoiceClient.Agent
             }
         }
 
-        private void _watcher_Created(object sender, FileSystemEventArgs e)
-        {
-            InvokeProcess();
-        }
 
         protected InvoiceWatcher _dependentWatcher;
         protected List<InvoiceWatcher> _reponseTo;
@@ -213,88 +176,77 @@ namespace InvoiceClient.Agent
 
         private void doProcess()
         {
-            if (Interlocked.Increment(ref _busyCount) == 1)
+            try
             {
-                ThreadPool.QueueUserWorkItem(stateInfo =>
+                //Thread.Sleep(Settings.Default.WatcherProcessDelayInSeconds * 1000);
+                String[] files;
+                bool done = false;
+                do
                 {
-                    //do
-                    //{
-                    try
+                    files = Directory.GetFiles(/*_watcher.Path*/_requestPath);
+                    if (files != null && files.Count() > 0)
                     {
-                        Thread.Sleep(Settings.Default.WatcherProcessDelayInSeconds * 1000);
-                        String[] files;
-                        bool done = false;
-                        do
-                        {
-                            files = Directory.GetFiles(/*_watcher.Path*/_requestPath);
-                            if (files != null && files.Count() > 0)
-                            {
-                                done = true;
+                        done = true;
 
-                                processBatchFiles(files);
+                        processBatchFiles(files);
 
-                                //if (Settings.Default.FileWatcherProcessCount > 1)
-                                //{
-                                //    int start = 0;
-                                //    while (start < files.Length)
-                                //    {
-                                //        int end = Math.Min(start + Settings.Default.FileWatcherProcessCount, files.Length);
-                                //        Parallel.For(start, end, (idx) =>
-                                //          {
-                                //              Logger.Info($"Upload Invoide[{idx}]:{files[idx]}");
-                                //              processFile(files[idx]);
-                                //          });
-                                //        start = end;
-                                //    }
-                                //}
-                                //else
-                                //{
-                                //    foreach (String fullPath in files)
-                                //    {
-                                //        processFile(fullPath);
-                                //    }
-                                //}
-                            }
-                        } while (files != null && files.Count() > 0);
-
-                        if (AppSettings.Default.WatchSubDirectories)
-                        {
-                            bool hasFile;
-                            IEnumerable<String> items;
-                            do
-                            {
-                                hasFile = false;
-                                items = Directory.EnumerateFiles(/*_watcher.Path*/_requestPath, "*.*", SearchOption.AllDirectories);
-                                foreach (String fullPath in items)
-                                {
-                                    hasFile = true;
-                                    done = true;
-                                    processFile(fullPath);
-                                }
-                            } while (hasFile);
-                        }
-
-                        if (done)
-                        {
-                            processComplete();
-                        }
+                        //if (Settings.Default.FileWatcherProcessCount > 1)
+                        //{
+                        //    int start = 0;
+                        //    while (start < files.Length)
+                        //    {
+                        //        int end = Math.Min(start + Settings.Default.FileWatcherProcessCount, files.Length);
+                        //        Parallel.For(start, end, (idx) =>
+                        //          {
+                        //              Logger.Info($"Upload Invoide[{idx}]:{files[idx]}");
+                        //              processFile(files[idx]);
+                        //          });
+                        //        start = end;
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    foreach (String fullPath in files)
+                        //    {
+                        //        processFile(fullPath);
+                        //    }
+                        //}
                     }
-                    catch (Exception ex)
+                } while (files != null && files.Count() > 0);
+
+                if (AppSettings.Default.WatchSubDirectories)
+                {
+                    bool hasFile;
+                    IEnumerable<String> items;
+                    do
                     {
-                        Logger.Error(ex);
-                    }
-
-                    Interlocked.Exchange(ref _busyCount, 0);
-                    //} while (Interlocked.Decrement(ref _busyCount) > 0);
-
-                    if (_reponseTo != null)
-                    {
-                        foreach (var response in _reponseTo)
+                        hasFile = false;
+                        items = Directory.EnumerateFiles(/*_watcher.Path*/_requestPath, "*.*", SearchOption.AllDirectories);
+                        foreach (String fullPath in items)
                         {
-                            response.doProcess();
+                            hasFile = true;
+                            done = true;
+                            processFile(fullPath);
                         }
-                    }
-                });
+                    } while (hasFile);
+                }
+
+                if (done)
+                {
+                    processComplete();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            if (_reponseTo != null)
+            {
+                foreach (var response in _reponseTo)
+                {
+                    response.InvokeProcess();
+                }
             }
         }
 
@@ -338,10 +290,7 @@ namespace InvoiceClient.Agent
 
         public void InvokeProcess()
         {
-            if (_dependentWatcher != null)
-                _dependentWatcher.InvokeProcess();
-            else
-                doProcess();
+            _handler.Notify();
         }
 
         protected virtual void processComplete()
@@ -573,11 +522,7 @@ namespace InvoiceClient.Agent
 
         public void Dispose()
         {
-            if (_watcher != null)
-            {
-                _watcher.Dispose();
-                _watcher = null;
-            }
+
         }
 
         #endregion

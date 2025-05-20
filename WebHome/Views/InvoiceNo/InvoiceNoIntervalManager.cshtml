@@ -2,6 +2,8 @@
 
 @using System.IO
 @using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
 
 @using WebHome.Helper
 @using WebHome.Models
@@ -11,10 +13,9 @@
 @using ModelCore.DataEntity
 @using ModelCore.Helper
 @using ModelCore.Locale
+@using ModelCore.InvoiceManagement.InvoiceProcess
 @using CommonLib.Core.Utility
 @using CommonLib.Utility
-@using Microsoft.AspNetCore.Mvc.ModelBinding
-@using Microsoft.AspNetCore.Mvc.Razor
 
 @{
 
@@ -87,10 +88,20 @@
                     開立人統編
                 </th>
                 <td class="tdleft">
-                    @{ await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _profile.InitializeOrganizationQuery(models));}
-
+                    @{
+                        await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _profile.InitializeOrganizationQuery(models));
+                    }
                 </td>
             </tr>
+            @if (_profile.IsSystemAdmin() || _profile.CurrentCompany(models)?.IsMasterBranch() == true)
+            {
+                <tr>
+                    <th colspan="2">
+                        <input type="checkbox" name="BranchRelation" value="@(true.ToString())" />
+                        查詢分支機構發票號碼區間
+                    </th>
+                </tr>
+            }
         </tbody>
     </table>
 
@@ -158,6 +169,21 @@
                     }
                 }).submit();
             },
+            download: function () {
+                var event = event || window.event;
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                showLoading();
+                $.post('@(Url.Action("DownloadE0401","InvoiceNo"))', $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        if (data.message != undefined) {
+                            alertModal(data.message);
+                        }
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+            },
             editItem: function (keyID) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
@@ -188,8 +214,8 @@
                     });
                 }
             },
-            lockItem: function (keyID,lock) {
-                if (confirm('確定'+(lock ? '鎖定' : '解除鎖定')+'此筆資料?')) {
+            lockItem: function (keyID, lock) {
+                if (confirm('確定' + (lock ? '鎖定' : '解除鎖定') + '此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
                     $.post('@(Url.Action("LockInterval", "InvoiceNo"))', { 'keyID': keyID, 'lockID': lock }, function (data) {
@@ -212,7 +238,7 @@
             showItem: function (keyID) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("IntervalItem","InvoiceNo"))', { 'keyID': keyID } , function (data) {
+                $.post('@(Url.Action("IntervalItem","InvoiceNo"))', { 'keyID': keyID }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -257,7 +283,61 @@
                     }
                 });
             },
-
+            applyHead: function (keyID) {
+                if (confirm('確定指定此筆資料為主機構配號?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post('@(Url.Action("ApplyHeadquarter", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                        if ($.isPlainObject(data)) {
+                            alertModal(data.message);
+                        } else {
+                            var $data = $(data);
+                            if ($data.is('tr')) {
+                                $tr.before($data);
+                                $tr.remove();
+                                alertModal('資料已更新!!');
+                            } else {
+                                $('body').append($data);
+                                $data.remove();
+                            }
+                        }
+                    });
+                }
+            },
+            applyBranch: function (keyID) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                $.post('@(Url.Action("ApplyBranch", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                    if ($.isPlainObject(data)) {
+                        alertModal(data.message);
+                    } else {
+                        var $data = $(data);
+                        $('body').append($data);
+                        $global.dialogCallback = function (dialogResult) {
+                            doPost('@(Url.Action("CommitBranch", "InvoiceNo"))', dialogResult, function (data) {
+                                if ($.isPlainObject(data)) {
+                                    if (data.result) {
+                                        alertModal('資料已更新!!');
+                                        $tr.remove();
+                                    } else {
+                                        alertModal(data.message);
+                                    }
+                                } else {
+                                    var $data = $(data);
+                                    if ($data.is('tr')) {
+                                        $tr.before($data);
+                                        $tr.remove();
+                                        alertModal('資料已更新!!');
+                                    } else {
+                                        $('body').append($data);
+                                        $data.remove();
+                                    }
+                                }
+                            });
+                        };
+                    }
+                });
+            },
         };
     });
 </script>

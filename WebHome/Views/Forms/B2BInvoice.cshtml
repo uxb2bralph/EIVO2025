@@ -32,7 +32,7 @@
                 </th>
                 <td class="tdleft">
                     @{ 
-                        @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent)));
+                        @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new SellerSelectorViewModel { FieldName = "EncSellerID", Encrypt = true }));
                     }
                 </td>
                 <th nowrap="nowrap" width="120">

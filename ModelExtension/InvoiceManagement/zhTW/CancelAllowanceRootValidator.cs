@@ -8,16 +8,17 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using ModelCore.Helper;
 using CommonLib.DataAccess;
+using ModelCore.Locale;
 
 namespace ModelCore.InvoiceManagement.zhTW
 {
     public static partial class CancelAllowanceRootValidator
     {
         //檢查基本必填項目(作廢折讓單)
-        public static Exception VoidAllowance(this CancelAllowanceRootCancelAllowance item, GenericManager<EIVOEntityDataContext> models, Organization owner,ref InvoiceAllowanceCancellation voidItem, ref DerivedDocument p)
+        public static Exception? VoidAllowance(this CancelAllowanceRootCancelAllowance item, GenericManager<EIVOEntityDataContext> models, Organization owner,ref InvoiceAllowanceCancellation? voidItem, ref DerivedDocument? p,Naming.InvoiceProcessType processType = Naming.InvoiceProcessType.G0501)
         {
             DateTime cancelDate= DateTime.Now;
-            InvoiceAllowance allowance = models.GetTable<InvoiceAllowance>().Where(a => a.AllowanceNumber == item.CancelAllowanceNumber).FirstOrDefault();
+            InvoiceAllowance? allowance = models.GetTable<InvoiceAllowance>().Where(a => a.AllowanceNumber == item.CancelAllowanceNumber).FirstOrDefault();
             if (allowance == null)
             {
                 return new Exception(String.Format("折讓證明單不存在，折讓證明單號碼:{0}，TAG：< CancelAllowanceNumber />", item.CancelAllowanceNumber));
@@ -45,7 +46,7 @@ namespace ModelCore.InvoiceManagement.zhTW
                 return new Exception(String.Format("買方識別碼錯誤，傳送資料：{0}，TAG:< BuyerId />", item.BuyerId));
             }
 
-            Organization seller = models.GetTable<Organization>().Where(o => o.ReceiptNo == item.SellerId).FirstOrDefault();
+            Organization? seller = models.GetTable<Organization>().Where(o => o.ReceiptNo == item.SellerId).FirstOrDefault();
 
             if (seller == null)
             {
@@ -87,7 +88,7 @@ namespace ModelCore.InvoiceManagement.zhTW
                 return new Exception(String.Format("備註資料長度不可超過200，傳送資料：{0}，TAG：< Remark />", item.Remark));
             }
 
-            voidItem = allowance.PrepareVoidItem(models, ref p);
+            voidItem = allowance.PrepareVoidItem(models, ref p, processType);
             voidItem.Remark = item.Remark;
             voidItem.CancelDate = cancelDate;
             voidItem.CancelReason = item.CancelReason;

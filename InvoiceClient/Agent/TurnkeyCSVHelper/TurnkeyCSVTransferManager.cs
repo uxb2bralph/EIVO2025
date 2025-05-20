@@ -13,67 +13,66 @@ using CommonLib.Utility;
 using Newtonsoft.Json;
 using InvoiceClient.TransferManagement;
 using InvoiceClient.Helper;
+using ModelCore.Locale;
 
 namespace InvoiceClient.Agent.TurnkeyCSVHelper
 {
     public class TurnkeyCSVTransferManager : ITransferManager
     {
-        private InvoiceWatcher _InvoiceWatcher;
-        private InvoiceWatcher _CancellationWatcher;
-        private InvoiceWatcher _AllowanceWatcher;
-        private InvoiceWatcher _AllowanceCancellationWatcher;
-        private LocalSettings _Settings;
+        protected InvoiceWatcher? _InvoiceWatcher;
+        protected InvoiceWatcher? _InvoiceExchangeWatcher;
+        protected InvoiceWatcher? _CancellationWatcher;
+        protected InvoiceWatcher? _AllowanceWatcher;
+        protected InvoiceWatcher? _AllowanceCancellationWatcher;
+        protected LocalSettings? _Settings;
 
-        public ITabWorkItem WorkItem { get; set; }
+        public ITabWorkItem? WorkItem { get; set; }
 
         public TurnkeyCSVTransferManager()
         {
-            string path = Path.Combine(Logger.LogPath, "TurnkeyCSVTransferManager.json");
-            if (File.Exists(path))
+            _Settings = AppSettings.Default.TurnkeyCSVSettings;
+            if(_Settings == null)
             {
-                this._Settings = JsonConvert.DeserializeObject<LocalSettings>(File.ReadAllText(path));
+                AppSettings.Default.TurnkeyCSVSettings = _Settings = new LocalSettings()
+                {
+                    Invoice = "Invoice_csv",
+                    InvoiceExchange = "Invoice_exchagne_csv",
+                    InvoiceCancellation = "CancelInvoice_csv",
+                    Allowance = "Allowance_csv",
+                    AllowanceCancellation = "CancelAllowance_csv"
+                };
+                AppSettings.Default.Save();
             }
-            else
-            {
-                this._Settings = new LocalSettings();
-            }
-            File.WriteAllText(path, JsonConvert.SerializeObject((object)this._Settings));
         }
-        public void EnableAll(String fullPath)
+        public virtual void EnableAll(String fullPath)
         {
-            _InvoiceWatcher = new ERPInvoiceWatcher(Path.Combine(fullPath, _Settings.Invoice));
+            _InvoiceWatcher = new ERPInvoiceWatcher(Path.Combine(fullPath, _Settings!.Invoice!));
             _InvoiceWatcher.StartUp();
 
+            _InvoiceExchangeWatcher = new ERPInvoiceWatcher(Path.Combine(fullPath, _Settings!.InvoiceExchange!))
+            {
+                PreferredProcessType = Naming.InvoiceProcessType.A0101
+            };
+            _InvoiceExchangeWatcher.StartUp();
 
-            _CancellationWatcher = new ERPInvoiceCancellationWatcher(Path.Combine(fullPath, _Settings.InvoiceCancellation));
+            _CancellationWatcher = new ERPInvoiceCancellationWatcher(Path.Combine(fullPath, _Settings!.InvoiceCancellation!));
             _CancellationWatcher.StartUp();
 
-            _AllowanceWatcher = new ERPAllowanceWatcher(Path.Combine(fullPath, _Settings.Allowance));
+            _AllowanceWatcher = new ERPAllowanceWatcher(Path.Combine(fullPath, _Settings!.Allowance!));
             _AllowanceWatcher.StartUp();
 
-            _AllowanceCancellationWatcher = new ERPAllowanceCancellationWatcher(Path.Combine(fullPath, _Settings.AllowanceCancellation));
+            _AllowanceCancellationWatcher = new ERPAllowanceCancellationWatcher(Path.Combine(fullPath, _Settings!.AllowanceCancellation!));
             _AllowanceCancellationWatcher.StartUp();
 
         }
 
         public void PauseAll()
         {
-            if (_InvoiceWatcher != null)
-            {
-                _InvoiceWatcher.Dispose();
-            }
-            if (_CancellationWatcher != null)
-            {
-                _CancellationWatcher.Dispose();
-            }
-            if (_AllowanceWatcher != null)
-            {
-                _AllowanceWatcher.Dispose();
-            }
-            if (_AllowanceCancellationWatcher != null)
-            {
-                _AllowanceCancellationWatcher.Dispose();
-            }
+            _InvoiceWatcher?.Dispose();
+            _InvoiceExchangeWatcher?.Dispose();
+            _CancellationWatcher?.Dispose();
+            _AllowanceWatcher?.Dispose();
+            _AllowanceCancellationWatcher?.Dispose();
         }
 
         public String ReportError()
@@ -82,6 +81,9 @@ namespace InvoiceClient.Agent.TurnkeyCSVHelper
 
             if (_InvoiceWatcher != null)
                 sb.Append(_InvoiceWatcher.ReportError());
+
+            if (_InvoiceExchangeWatcher != null)
+                sb.Append(_InvoiceExchangeWatcher.ReportError());
 
             if (_CancellationWatcher != null)
                 sb.Append(_CancellationWatcher.ReportError());
@@ -98,10 +100,11 @@ namespace InvoiceClient.Agent.TurnkeyCSVHelper
 
         public void SetRetry()
         {
-            _InvoiceWatcher.Retry();
-            _CancellationWatcher.Retry();
-            _AllowanceWatcher.Retry();
-            _AllowanceCancellationWatcher.Retry();
+            _InvoiceWatcher!.Retry();
+            _InvoiceExchangeWatcher!.Retry();
+            _CancellationWatcher!.Retry();
+            _AllowanceWatcher!.Retry();
+            _AllowanceCancellationWatcher!.Retry();
         }
 
 
@@ -109,14 +112,6 @@ namespace InvoiceClient.Agent.TurnkeyCSVHelper
         public Type UIConfigType
         {
             get { return typeof(InvoiceClient.MainContent.MIGInvoiceConfig); }
-        }
-
-        private class LocalSettings
-        {
-            public string Invoice { get; set; } = "Invoice_csv";
-            public string InvoiceCancellation { get; set; } = "CancelInvoice_csv";
-            public string Allowance { get; set; } = "Allowance_csv";
-            public string AllowanceCancellation { get; set; } = "CancelAllowance_csv";
         }
     }
 }

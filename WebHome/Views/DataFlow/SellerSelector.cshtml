@@ -36,12 +36,14 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _model = (IQueryable<Organization>)this.Model;
     _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "SellerID";
+    _viewModel.FieldName = _fieldName;
     _profile = Context.GetUser();
 }
 
 @if (_profile.IsSystemAdmin())
 {
-    await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml", _model);
+    _viewModel.DefaultItem = _model.FirstOrDefault();
+    await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml", _viewModel);
 }
 else
 {

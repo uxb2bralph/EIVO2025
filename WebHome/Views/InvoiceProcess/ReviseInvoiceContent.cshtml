@@ -36,7 +36,7 @@
                     String stageF0701 = ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
                     try
                     {
-                        foreach (var item in db.Items)
+                        foreach (var item in db.Items.ToList())
                         {
                             db.ProcessVoidInvoiceRequest(Naming.VoidActionMode.修改營業人資料, viewModel, item);
                             item.CreateF0701().ConvertToXml().Save(System.IO.Path.Combine(stageF0701, "INV0701_" + item.TrackCode + item.No + ".xml"));

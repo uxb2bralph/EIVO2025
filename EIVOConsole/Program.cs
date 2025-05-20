@@ -5,6 +5,8 @@ using ModelCore.Models;
 using ModelCore.Helper;
 using CommonLib.Utility;
 using ModelCore.InvoiceManagement.InvoiceProcess;
+using InvoiceClient.Agent.TurnkeyProcess;
+using CommonLib.Core.Utility;
 
 namespace EIVOConsole
 {
@@ -18,6 +20,9 @@ namespace EIVOConsole
         {
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
+            FileLogger.Logger.OutputWriter = Console.Out;
+            Logger.Info($"EIVOConsole starts at {DateTime.Now}");
+
             ApplicationConfiguration.Initialize();
 
             Start(args);
@@ -47,6 +52,7 @@ Use command:
                     //Console.WriteLine("Hello, World!");
                     EIVOTurnkeyFactory.Notify();
                     JobHelper.Tasks.CheckTurnkeyLog.Notify();
+                    TurnkeyProcessTransferManager manager = new TurnkeyProcessTransferManager();
                 }));
             }
         }

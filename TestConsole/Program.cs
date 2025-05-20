@@ -45,6 +45,8 @@ using CommonLib.Core.Utility;
 using CommonLib.Utility;
 using CommonLib.Security.UseCrypto;
 using CommonLib.DataAccess;
+using ModelCore.Schema.TurnKey;
+using System.Xml.Serialization;
 
 namespace TestConsole
 {
@@ -307,6 +309,17 @@ namespace TestConsole
 
             //test45();
             //ShowMethodName();
+            //test46();
+            XmlDocument doc = new XmlDocument();
+            doc.Load("G:\\temp\\invoice.xml");
+            doc.DocumentElement.SetAttribute("xmlns", "");
+            doc.LoadXml(doc.OuterXml);
+            Invoice invoice = doc.TrimAll().DebugConvertTo<Invoice>();
+            Console.WriteLine(doc.OuterXml);
+            Console.ReadKey();
+        }
+        private static void test46()
+        {
             AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) =>
             {
                 if (eventArgs.Name.StartsWith("System.Security.Cryptography"))
@@ -321,7 +334,6 @@ namespace TestConsole
             var qName = type.AssemblyQualifiedName;
             type = Type.GetType("System.Security.Cryptography.RSACryptoServiceProvider");
             type = Type.GetType(qName);
-            Console.ReadKey();
         }
 
         private static void test45()
@@ -1210,7 +1222,7 @@ namespace TestConsole
         {
             using (InvoiceManager models = new InvoiceManager())
             {
-                A0501Handler a0501 = new A0501Handler(models);
+                A0201Handler a0501 = new A0201Handler(models);
                 a0501.WriteToTurnkey();
             }
         }
@@ -1333,7 +1345,7 @@ namespace TestConsole
         {
             using (InvoiceManager models = new InvoiceManager())
             {
-                C0501Handler c0501 = new C0501Handler(models);
+                F0501Handler c0501 = new F0501Handler(models);
                 //c0501.NotifyIssued();
                 c0501.WriteToTurnkey();
             }

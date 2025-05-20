@@ -45,18 +45,18 @@ namespace ModelCore.Schema.TurnKey.A0101 {
     public partial class Main {
         
         [XmlIgnore]
-        private DateTime InvoiceDateTime { get; set; }
+        public DateTime InvoiceDateTime { get; set; }
         /// <remarks/>
         public string InvoiceNumber;
-        
+
         /// <remarks/>
-        public string InvoiceDate;
-        
+        public string InvoiceDate { get => InvoiceDateTime.ToString("yyyyMMdd"); }
+
         /// <remarks/>
         public String InvoiceTime
         {
             get => InvoiceDateTime.ToString("HH:mm:ss");
-            set => InvoiceDateTime = DateTime.Parse(value);
+            // set => InvoiceDateTime = DateTime.Parse(value);
         }
 
         /// <remarks/>

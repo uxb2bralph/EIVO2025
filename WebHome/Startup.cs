@@ -27,6 +27,8 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using WebHome.Properties;
 using CoreWCF.Description;
 using WebHome.Published;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace WebHome
 {
@@ -108,6 +110,9 @@ namespace WebHome
                 //↓和CSRF資安有關，這裡就加入全域驗證範圍Filter的話，待會Controller就不必再加上[AutoValidateAntiforgeryToken]屬性
                 //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             });
+
+            // 明確註冊 IHtmlHelper<dynamic>
+            services.AddTransient<IHtmlHelper<dynamic>, HtmlHelper<dynamic>>();
 
             services.AddScoped<IViewRenderService, ViewRenderService>();
 

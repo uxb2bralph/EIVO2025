@@ -17,6 +17,8 @@ using ModelCore.Schema.EIVO;
 using CommonLib.Utility;
 using CommonLib.DataAccess;
 using CommonLib.Core.Utility;
+using ModelCore.InvoiceManagement.Validator;
+using ModelCore.InvoiceManagement.ErrorHandle;
 
 namespace ModelCore.InvoiceManagement
 {
@@ -31,14 +33,145 @@ namespace ModelCore.InvoiceManagement
 
         public bool IgnoreDuplicateDataNumberException { get; set; } = false;
 
+        //public override Dictionary<int, Exception> SaveUploadInvoice(InvoiceRoot item, OrganizationToken owner)
+        //{
+        //    Dictionary<int, Exception> result = new Dictionary<int, Exception>();
+
+        //    if (item != null && item.Invoice != null && item.Invoice.Length > 0)
+        //    {
+        //        EventItems = null;
+        //        List<InvoiceItem> eventItem = new List<InvoiceItem>();
+
+        //        //Organization donatory = owner.Organization.InvoiceWelfareAgencies.Select(w => w.WelfareAgency.Organization).FirstOrDefault();
+
+        //        for (int idx = 0; idx < item.Invoice.Length; idx++)
+        //        {
+        //            try
+        //            {
+        //                var invItem = item.Invoice[idx];
+
+        //                Exception ex;
+        //                Organization seller;
+        //                //InvoicePurchaseOrder order;
+        //                String trackCode, invNo;
+        //                DateTime invoiceDate;
+
+        //                if ((ex = invItem.CheckInvoice(this, out trackCode, out invNo, out invoiceDate)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+
+        //                if ((ex = invItem.CheckBusiness(this, owner, out seller)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                if (seller.OrganizationStatus.EnableTrackCodeInvoiceNoValidation == true
+        //                    && (ex = invItem.CheckAppliedInvoiceNo(this, seller, invoiceDate, trackCode, invNo)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                //if ((ex = invItem.CheckDataNumber(this, out order)) != null)
+        //                //{
+        //                //    result.Add(idx, ex);
+        //                //    continue;
+        //                //}
+
+        //                if ((ex = invItem.CheckAmount()) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                #region 列印、捐贈、載具
+
+        //                bool all_printed = seller.OrganizationStatus.PrintAll == true;
+        //                bool print_mark = invItem.PrintMark == "y" || invItem.PrintMark == "Y";
+
+        //                InvoiceDonation donation;
+        //                if ((ex = invItem.CheckInvoiceDonation(seller, all_printed, print_mark, out donation)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                InvoiceCarrier carrier;
+
+        //                if ((ex = invItem.CheckInvoiceCarrier(seller, donation, all_printed, print_mark, out carrier)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                if ((ex = invItem.CheckMandatoryFields(seller, all_printed, print_mark)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                #endregion
+
+        //                IEnumerable<InvoiceProductItem> productItems;
+        //                if ((ex = invItem.CheckInvoiceProductItems(out productItems)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+
+        //                if (_checkUploadInvoice != null)
+        //                {
+        //                    ex = _checkUploadInvoice();
+        //                    if (ex != null)
+        //                    {
+        //                        result.Add(idx, ex);
+        //                        continue;
+        //                    }
+        //                }
+
+        //                InvoiceItem newItem = createInvoiceItem(owner, invItem, seller, null, print_mark, all_printed, carrier, donation, productItems);
+        //                newItem.No = invNo;
+        //                newItem.TrackCode = trackCode;
+        //                newItem.InvoiceDate = invoiceDate;
+
+        //                this.EntityList.InsertOnSubmit(newItem);
+        //                this.SubmitChanges();
+
+        //                eventItem.Add(newItem);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Logger.Error(ex);
+        //                result.Add(idx, ex);
+        //            }
+        //        }
+
+        //        if (eventItem.Count > 0)
+        //        {
+        //            HasItem = true;
+        //        }
+
+        //        EventItems = eventItem;
+
+        //    }
+        //    return result;
+        //}
         public override Dictionary<int, Exception> SaveUploadInvoice(InvoiceRoot item, OrganizationToken owner)
         {
             Dictionary<int, Exception> result = new Dictionary<int, Exception>();
 
             if (item != null && item.Invoice != null && item.Invoice.Length > 0)
             {
-                EventItems = null;
-                List<InvoiceItem> eventItem = new List<InvoiceItem>();
+                List<InvoiceItem> eventItems = new List<InvoiceItem>();
+                InvoiceRootInvoiceValidator validator = new InvoiceRootInvoiceValidator(this, owner.Organization)
+                {
+                    ProcessType = item.ProcessType != null ? Enum.Parse<Naming.InvoiceProcessType>(item.ProcessType) : this.ProcessType,
+                };
 
                 //Organization donatory = owner.Organization.InvoiceWelfareAgencies.Select(w => w.WelfareAgency.Organization).FirstOrDefault();
 
@@ -49,78 +182,12 @@ namespace ModelCore.InvoiceManagement
                         var invItem = item.Invoice[idx];
 
                         Exception ex;
-                        Organization seller;
-                        //InvoicePurchaseOrder order;
-                        String trackCode, invNo;
-                        DateTime invoiceDate;
-
-                        if ((ex = invItem.CheckInvoice(this, out trackCode, out invNo, out invoiceDate)) != null)
+                        if ((ex = validator.Validate(invItem)) != null)
                         {
                             result.Add(idx, ex);
                             continue;
+
                         }
-
-
-                        if ((ex = invItem.CheckBusiness(this, owner, out seller)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        if (seller.OrganizationStatus.EnableTrackCodeInvoiceNoValidation == true
-                            && (ex = invItem.CheckAppliedInvoiceNo(this, seller, invoiceDate, trackCode, invNo)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        //if ((ex = invItem.CheckDataNumber(this, out order)) != null)
-                        //{
-                        //    result.Add(idx, ex);
-                        //    continue;
-                        //}
-
-                        if ((ex = invItem.CheckAmount()) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        #region 列印、捐贈、載具
-
-                        bool all_printed = seller.OrganizationStatus.PrintAll == true;
-                        bool print_mark = invItem.PrintMark == "y" || invItem.PrintMark == "Y";
-
-                        InvoiceDonation donation;
-                        if ((ex = invItem.CheckInvoiceDonation(seller, all_printed, print_mark, out donation)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        InvoiceCarrier carrier;
-
-                        if ((ex = invItem.CheckInvoiceCarrier(seller, donation, all_printed, print_mark, out carrier)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        if ((ex = invItem.CheckMandatoryFields(seller, all_printed, print_mark)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        #endregion
-
-                        IEnumerable<InvoiceProductItem> productItems;
-                        if ((ex = invItem.CheckInvoiceProductItems(out productItems)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
 
                         if (_checkUploadInvoice != null)
                         {
@@ -132,15 +199,36 @@ namespace ModelCore.InvoiceManagement
                             }
                         }
 
-                        InvoiceItem newItem = createInvoiceItem(owner, invItem, seller, null, print_mark, all_printed, carrier, donation, productItems);
-                        newItem.No = invNo;
-                        newItem.TrackCode = trackCode;
-                        newItem.InvoiceDate = invoiceDate;
+                        InvoiceItem newItem = validator.InvoiceItem;
 
-                        this.EntityList.InsertOnSubmit(newItem);
-                        this.SubmitChanges();
+                        if (!validator.DuplicateProcess)
+                        {
+                            this.EntityList.InsertOnSubmit(newItem);
 
-                        eventItem.Add(newItem);
+                            if (validator.ProcessType == Naming.InvoiceProcessType.A0101)
+                            {
+                                A0101Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.待傳送);
+                            }
+                            else
+                            {
+                                F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                                switch ((Naming.NotificationIndication?)item.Notification)
+                                {
+                                    case Naming.NotificationIndication.None:
+                                        break;
+                                    case Naming.NotificationIndication.Deferred:
+                                        F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.文件準備中);
+                                        break;
+                                    default:
+                                        F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                                        break;
+                                }
+                            }
+
+                            this.SubmitChanges();
+                        }
+
+                        eventItems.Add(newItem);
                     }
                     catch (Exception ex)
                     {
@@ -149,14 +237,115 @@ namespace ModelCore.InvoiceManagement
                     }
                 }
 
-                if (eventItem.Count > 0)
+                if (eventItems.Count > 0)
                 {
                     HasItem = true;
                 }
 
-                EventItems = eventItem;
+                EventItems = eventItems;
 
             }
+            return result;
+        }
+
+        public override Dictionary<int, Exception> SaveUploadInvoiceAutoTrackNo(InvoiceRoot item, OrganizationToken owner)
+        {
+            Dictionary<int, Exception> result = new Dictionary<int, Exception>();
+
+            if (item != null && item.Invoice != null && item.Invoice.Length > 0)
+            {
+                EventItems = null;
+                List<InvoiceItem> eventItems = new List<InvoiceItem>();
+
+                InvoiceRootInvoiceValidator validator = new InvoiceRootInvoiceValidator(this, owner.Organization)
+                {
+                    ProcessType = item.ProcessType != null ? Enum.Parse<Naming.InvoiceProcessType>(item.ProcessType) : this.ProcessType,
+                };
+                int invSeq = 0;
+                void proc(InvoiceRootInvoice[] items, Naming.InvoiceTypeDefinition indication)
+                {
+                    validator.InvoiceTypeIndication = indication;
+                    validator.StartAutoTrackNo(ApplyInvoiceDate);
+                    for (int idx = 0; idx < items.Length; idx++, invSeq++)
+                    {
+                        try
+                        {
+                            var invItem = items[idx];
+
+                            Exception? ex;
+                            if ((ex = validator.Validate(invItem)) != null)
+                            {
+                                if (IgnoreDuplicateDataNumberException && (ex is DuplicateDataNumberException))
+                                {
+                                    var testItem = ((DuplicateDataNumberException)ex).CurrentPO.InvoiceItem;
+                                    if (testItem != null)
+                                    {
+                                        eventItems.Add(testItem);
+                                        continue;
+                                    }
+                                }
+
+                                result.Add(invSeq, ex);
+                                continue;
+                            }
+
+                            InvoiceItem newItem = validator.InvoiceItem;
+
+                            if (validator.ProcessType == Naming.InvoiceProcessType.A0101)
+                            {
+                                A0101Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.待傳送);
+                            }
+                            else
+                            {
+                                F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                                switch ((Naming.NotificationIndication?)item.Notification)
+                                {
+                                    case Naming.NotificationIndication.None:
+                                        break;
+                                    case Naming.NotificationIndication.Deferred:
+                                        F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.文件準備中);
+                                        break;
+                                    default:
+                                        F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                                        break;
+                                }
+                            }
+
+                            this.EntityList.InsertOnSubmit(newItem);
+                            this.SubmitChanges();
+
+                            eventItems.Add(newItem);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                            result.Add(invSeq, ex);
+                        }
+                    }
+                    validator.EndAutoTrackNo();
+                }
+
+                var invoiceData = item.Invoice.Where(t => t.InvoiceType != null && t.InvoiceType.Contains("8")).ToArray();
+                if (invoiceData != null && invoiceData.Length > 0)
+                {
+                    proc(invoiceData, Naming.InvoiceTypeDefinition.特種稅額計算之電子發票);
+                    var tmp = invoiceData;
+                    invoiceData = item.Invoice.Except(tmp).ToArray();
+                }
+                else
+                {
+                    invoiceData = item.Invoice;
+                }
+
+                proc(invoiceData, Naming.InvoiceTypeDefinition.一般稅額計算之電子發票);
+
+                if (eventItems.Count > 0)
+                {
+                    HasItem = true;
+                }
+                EventItems = eventItems;
+            }
+
             return result;
         }
 
@@ -165,6 +354,7 @@ namespace ModelCore.InvoiceManagement
             Dictionary<int, Exception> result = new Dictionary<int, Exception>();
             if (item != null && item.CancelInvoice != null && item.CancelInvoice.Length > 0)
             {
+                Naming.InvoiceProcessType processType = item.ProcessType != null ? Enum.Parse<Naming.InvoiceProcessType>(item.ProcessType) : Naming.InvoiceProcessType.F0501;
                 EventItems = null;
                 List<InvoiceItem> eventItems = new List<InvoiceItem>();
 
@@ -182,8 +372,8 @@ namespace ModelCore.InvoiceManagement
                             continue;
                         }
 
-                        DerivedDocument doc = null;
-                        InvoiceCancellation cancelItem = invoice.PrepareVoidItem(this, ref doc);
+                        DerivedDocument? doc = null;
+                        InvoiceCancellation cancelItem = invoice.PrepareVoidItem(this, ref doc, processType);
                         cancelItem.Remark = invItem.Remark;
                         cancelItem.CancelDate = cancelDate;
                         cancelItem.CancelReason = invItem.CancelReason;
@@ -212,124 +402,195 @@ namespace ModelCore.InvoiceManagement
             return result;
         }
 
-        public override Dictionary<int, Exception> SaveUploadAllowance(AllowanceRoot root, OrganizationToken owner)
+        //public override Dictionary<int, Exception> SaveUploadAllowance(AllowanceRoot root, OrganizationToken owner)
+        //{
+        //    Dictionary<int, Exception> result = new Dictionary<int, Exception>();
+        //    if (root != null && root.Allowance != null && root.Allowance.Length > 0)
+        //    {
+        //        var table = this.GetTable<InvoiceAllowance>();
+        //        var tblOrg = this.GetTable<Organization>();
+        //        var invTable = this.GetTable<InvoiceItem>();
+
+        //        this.EventItems_Allowance = null;
+        //        List<InvoiceAllowance> eventItems = new List<InvoiceAllowance>();
+
+        //        for (int idx = 0; idx < root.Allowance.Length; idx++)
+        //        {
+        //            var allowanceItem = root.Allowance[idx];
+        //            try
+        //            {
+
+        //                Exception ex;
+        //                Organization seller;
+        //                if ((ex = allowanceItem.CheckBusiness(this, owner, out seller)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                DateTime allowanceDate;
+        //                if ((ex = allowanceItem.CheckMandatoryFields(this, out allowanceDate)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                List<InvoiceAllowanceItem> productItems;
+        //                InvoiceItem originalInvoice;
+        //                if ((ex = allowanceItem.CheckAllowanceItem(this, out productItems,out originalInvoice)) != null)
+        //                {
+        //                    result.Add(idx, ex);
+        //                    continue;
+        //                }
+
+        //                if (allowanceDate.AddDays(1) < originalInvoice.InvoiceDate)
+        //                {
+        //                    allowanceDate = originalInvoice.InvoiceDate.Value.AddDays(1);
+        //                }
+
+        //                InvoiceAllowance newItem = new InvoiceAllowance
+        //                {
+        //                    CDS_Document = new CDS_Document
+        //                    {
+        //                        DocDate = DateTime.Now,
+        //                        DocType = (int)Naming.DocumentTypeDefinition.E_Allowance,
+        //                        ProcessType = originalInvoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401
+        //                            ? (int)Naming.InvoiceProcessType.B0401
+        //                            : (int)Naming.InvoiceProcessType.D0401,
+        //                    },
+        //                    AllowanceDate = allowanceDate,
+        //                    IssueDate = allowanceDate,
+        //                    AllowanceNumber = allowanceItem.AllowanceNumber,
+        //                    AllowanceType = allowanceItem.AllowanceType,
+        //                    BuyerId = allowanceItem.BuyerId,
+        //                    SellerId = allowanceItem.SellerId,
+        //                    TaxAmount = allowanceItem.TaxAmount,
+        //                    TotalAmount = allowanceItem.TotalAmount,
+        //                    //InvoiceID =  invTable.Where(i=>i.TrackCode + i.No == item.AllowanceItem.Select(a=>a.OriginalInvoiceNumber).FirstOrDefault()).Select(i=>i.InvoiceID).FirstOrDefault(),
+
+        //                    InvoiceAllowanceBuyer = new InvoiceAllowanceBuyer
+        //                    {
+        //                        Name = allowanceItem.BuyerName,
+        //                        ReceiptNo = allowanceItem.BuyerId,
+        //                        CustomerID = String.IsNullOrEmpty(allowanceItem.GoogleId) ? "" : allowanceItem.GoogleId,
+        //                        ContactName = allowanceItem.BuyerName,
+        //                        CustomerName = allowanceItem.BuyerName
+        //                    },
+        //                    InvoiceAllowanceSeller = new InvoiceAllowanceSeller
+        //                    {
+        //                        Name = seller.CompanyName,
+        //                        ReceiptNo = seller.ReceiptNo,
+        //                        Address = seller.Addr,
+        //                        ContactName = seller.ContactName,
+        //                        CustomerID = String.IsNullOrEmpty(allowanceItem.GoogleId) ? "" : allowanceItem.GoogleId,
+        //                        CustomerName = seller.CompanyName,
+        //                        EMail = seller.ContactEmail,
+        //                        Fax = seller.Fax,
+        //                        Phone = seller.Phone,
+        //                        PersonInCharge = seller.UndertakerName,
+        //                        SellerID = seller.CompanyID,
+        //                    },
+        //                };
+
+        //                newItem.InvoiceAllowanceDetails.AddRange(productItems.Select(p => new InvoiceAllowanceDetail
+        //                {
+        //                    InvoiceAllowanceItem = p
+        //                }));
+
+        //                if (owner != null)
+        //                {
+        //                    newItem.CDS_Document.DocumentOwner = new DocumentOwner
+        //                    {
+        //                        OwnerID = owner.CompanyID,
+        //                    };
+        //                }
+
+        //                table.InsertOnSubmit(newItem);
+        //                if (newItem.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.D0401)
+        //                {
+        //                    D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, seller.StepReadyToAllowanceMIG());
+        //                    D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+        //                }
+        //                else
+        //                {
+        //                    B0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, seller.StepReadyToAllowanceMIG());
+        //                    B0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+        //                }
+
+        //                this.SubmitChanges();
+
+        //                eventItems.Add(newItem);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Logger.Error(ex);
+        //                result.Add(idx, ex);
+        //            }
+        //        }
+
+        //        if (eventItems.Count > 0)
+        //        {
+        //            HasItem = true;
+        //        }
+
+        //        EventItems_Allowance = eventItems;
+        //    }
+        //    return result;
+        //}
+        public override Dictionary<int, Exception> SaveUploadAllowance(AllowanceRoot item, OrganizationToken owner)
         {
             Dictionary<int, Exception> result = new Dictionary<int, Exception>();
-            if (root != null && root.Allowance != null && root.Allowance.Length > 0)
-            {
-                var table = this.GetTable<InvoiceAllowance>();
-                var tblOrg = this.GetTable<Organization>();
-                var invTable = this.GetTable<InvoiceItem>();
 
+            if (item != null && item.Allowance != null && item.Allowance.Length > 0)
+            {
                 this.EventItems_Allowance = null;
                 List<InvoiceAllowance> eventItems = new List<InvoiceAllowance>();
 
-                for (int idx = 0; idx < root.Allowance.Length; idx++)
+                AllowanceRootAllowanceValidator validator = new AllowanceRootAllowanceValidator(this, owner.Organization)
                 {
-                    var allowanceItem = root.Allowance[idx];
+                    ProcessType = item.ProcessType != null ? Enum.Parse<Naming.InvoiceProcessType>(item.ProcessType) : this.ProcessType,
+                };
+                var table = this.GetTable<InvoiceAllowance>();
+
+                for (int idx = 0; idx < item.Allowance.Length; idx++)
+                {
                     try
                     {
+                        var allowanceItem = item.Allowance[idx];
 
                         Exception ex;
-                        Organization seller;
-                        if ((ex = allowanceItem.CheckBusiness(this, owner, out seller)) != null)
+                        if ((ex = validator.Validate(allowanceItem)) != null)
                         {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        DateTime allowanceDate;
-                        if ((ex = allowanceItem.CheckMandatoryFields(this, out allowanceDate)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        List<InvoiceAllowanceItem> productItems;
-                        InvoiceItem originalInvoice;
-                        if ((ex = allowanceItem.CheckAllowanceItem(this, out productItems,out originalInvoice)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        if (allowanceDate.AddDays(1) < originalInvoice.InvoiceDate)
-                        {
-                            allowanceDate = originalInvoice.InvoiceDate.Value.AddDays(1);
-                        }
-
-                        InvoiceAllowance newItem = new InvoiceAllowance
-                        {
-                            CDS_Document = new CDS_Document
+                            if (ex is DuplicateAllowanceNumberException)
                             {
-                                DocDate = DateTime.Now,
-                                DocType = (int)Naming.DocumentTypeDefinition.E_Allowance,
-                                ProcessType = originalInvoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401
-                                    ? (int)Naming.InvoiceProcessType.B0401
-                                    : (int)Naming.InvoiceProcessType.D0401,
-                            },
-                            AllowanceDate = allowanceDate,
-                            IssueDate = allowanceDate,
-                            AllowanceNumber = allowanceItem.AllowanceNumber,
-                            AllowanceType = allowanceItem.AllowanceType,
-                            BuyerId = allowanceItem.BuyerId,
-                            SellerId = allowanceItem.SellerId,
-                            TaxAmount = allowanceItem.TaxAmount,
-                            TotalAmount = allowanceItem.TotalAmount,
-                            //InvoiceID =  invTable.Where(i=>i.TrackCode + i.No == item.AllowanceItem.Select(a=>a.OriginalInvoiceNumber).FirstOrDefault()).Select(i=>i.InvoiceID).FirstOrDefault(),
-
-                            InvoiceAllowanceBuyer = new InvoiceAllowanceBuyer
+                                eventItems.Add(((DuplicateAllowanceNumberException)ex).CurrentAllowance);
+                                continue;
+                            }
+                            else
                             {
-                                Name = allowanceItem.BuyerName,
-                                ReceiptNo = allowanceItem.BuyerId,
-                                CustomerID = String.IsNullOrEmpty(allowanceItem.GoogleId) ? "" : allowanceItem.GoogleId,
-                                ContactName = allowanceItem.BuyerName,
-                                CustomerName = allowanceItem.BuyerName
-                            },
-                            InvoiceAllowanceSeller = new InvoiceAllowanceSeller
-                            {
-                                Name = seller.CompanyName,
-                                ReceiptNo = seller.ReceiptNo,
-                                Address = seller.Addr,
-                                ContactName = seller.ContactName,
-                                CustomerID = String.IsNullOrEmpty(allowanceItem.GoogleId) ? "" : allowanceItem.GoogleId,
-                                CustomerName = seller.CompanyName,
-                                EMail = seller.ContactEmail,
-                                Fax = seller.Fax,
-                                Phone = seller.Phone,
-                                PersonInCharge = seller.UndertakerName,
-                                SellerID = seller.CompanyID,
-                            },
-                        };
-
-                        newItem.InvoiceAllowanceDetails.AddRange(productItems.Select(p => new InvoiceAllowanceDetail
-                        {
-                            InvoiceAllowanceItem = p
-                        }));
-
-                        if (owner != null)
-                        {
-                            newItem.CDS_Document.DocumentOwner = new DocumentOwner
-                            {
-                                OwnerID = owner.CompanyID,
-                            };
+                                result.Add(idx, ex);
+                                continue;
+                            }
                         }
+
+                        InvoiceAllowance newItem = validator.Allowance;
 
                         table.InsertOnSubmit(newItem);
-                        if (newItem.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.D0401)
+                        if (ProcessType == Naming.InvoiceProcessType.B0101)
                         {
-                            D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, seller.StepReadyToAllowanceMIG());
-                            D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                            //B0101Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
+                            B0101Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.待傳送);
                         }
                         else
                         {
-                            B0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, seller.StepReadyToAllowanceMIG());
-                            B0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                            G0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
+                            G0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                         }
 
                         this.SubmitChanges();
 
                         eventItems.Add(newItem);
+
                     }
                     catch (Exception ex)
                     {
@@ -345,6 +606,7 @@ namespace ModelCore.InvoiceManagement
 
                 EventItems_Allowance = eventItems;
             }
+
             return result;
         }
 
@@ -356,6 +618,8 @@ namespace ModelCore.InvoiceManagement
                 var tblAllowance = this.GetTable<InvoiceAllowance>();
                 var tblCancel = this.GetTable<InvoiceAllowanceCancellation>();
 
+                Naming.InvoiceProcessType processType = root.ProcessType != null ? Enum.Parse<Naming.InvoiceProcessType>(root.ProcessType) : Naming.InvoiceProcessType.G0501;
+
                 EventItems = null;
                 EventItems_Allowance = null;
                 List<InvoiceAllowance> eventItems = new List<InvoiceAllowance>();
@@ -365,17 +629,17 @@ namespace ModelCore.InvoiceManagement
                     var item = root.CancelAllowance[idx];
                     try
                     {
-                        Exception ex;
-                        InvoiceAllowanceCancellation voidItem = null;
-                        DerivedDocument p = null;
+                        Exception? ex;
+                        InvoiceAllowanceCancellation? voidItem = null;
+                        DerivedDocument? p = null;
 
-                        if ((ex = item.VoidAllowance(this, owner.Organization, ref voidItem,ref p)) != null)
+                        if ((ex = item.VoidAllowance(this, owner.Organization, ref voidItem,ref p,processType)) != null)
                         {
                             result.Add(idx, ex);
                             continue;
                         }
 
-                        eventItems.Add(voidItem.InvoiceAllowance);
+                        eventItems.Add(voidItem!.InvoiceAllowance);
                     }
                     catch (Exception ex)
                     {
@@ -584,8 +848,8 @@ namespace ModelCore.InvoiceManagement
                 };
             }
 
-            C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-            C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+            F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+            F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
 
             return newItem;
         }

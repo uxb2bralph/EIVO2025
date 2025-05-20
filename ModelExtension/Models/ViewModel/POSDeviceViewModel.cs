@@ -18,9 +18,9 @@ namespace ModelCore.Models.ViewModel
         public int? quantity { get; set; }
 
         public int? Booklet { get; set; }
-        public String InvoiceNo { get; set; }
-        public String AllowanceNo { get; set; }
+        public String? InvoiceNo { get; set; }
+        public String? AllowanceNo { get; set; }
         public DateTime? InvoiceDate { get; set; }
-        public String DeviceNo { get; set; }
+        public String? DeviceNo { get; set; }
     }
 }

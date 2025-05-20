@@ -22,26 +22,27 @@ using CommonLib.Core.Utility;
 
 namespace ModelCore.InvoiceManagement.InvoiceProcess
 {
-    public class D0501Handler
+    public class G0401Handler
     {
-        static D0501Handler()
+        static G0401Handler()
         {
-            AppSettings.Default.G0501Outbound.CheckStoredPath();
+            AppSettings.Default.G0401Outbound.CheckStoredPath();
         }
 
         private GenericManager<EIVOEntityDataContext> models;
-        private Table<D0501DispatchQueue> _table;
+        private Table<D0401DispatchQueue> _table;
 
-        public D0501Handler(GenericManager<EIVOEntityDataContext> models)
+        public G0401Handler(GenericManager<EIVOEntityDataContext> models)
         {
             this.models = models;
-            _table = models.GetTable<D0501DispatchQueue>();
+            _table = models.GetTable<D0401DispatchQueue>();
         }
 
         public void WriteToTurnkey()
         {
+
             int docID = 0;
-            IQueryable<D0501DispatchQueue> queryItems =
+            IQueryable<D0401DispatchQueue> queryItems =
                 _table
                     .Where(q => q.DocID > docID && q.StepID == (int)Naming.InvoiceStepDefinition.已開立)
                     .OrderBy(d => d.DocID);
@@ -52,14 +53,16 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                 foreach (var item in buffer)
                 {
                     docID = item.DocID;
-                    var allowance = item.CDS_Document.DerivedDocument.ParentDocument.InvoiceAllowance;
+                    var allowance = item.CDS_Document.InvoiceAllowance;
                     try
                     {
-                        var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.G0501Outbound, $"ALN0501-{allowance.AllowanceID}-{allowance.AllowanceNumber}.xml");
-                        var xmlMIG = allowance.CreateG0501().ConvertToXml();
+                        var xmlMIG = allowance.CreateG0401().ConvertToXml();
                         item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
                         models.SubmitChanges();
-                        xmlMIG.Save(fileName);
+
+                        var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.G0401Outbound, $"ALN0401-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml");
+                        File.WriteAllText(fileName, xmlMIG.OuterXml.Replace(".00000", ""));
+                        //xmlMIG.Save(fileName);
 
                         if (allowance.InvoiceAllowanceSeller.Organization.OrganizationStatus.DownloadDispatch == true)
                         {
@@ -67,10 +70,10 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                             models.SubmitChanges();
                         }
 
-                        models.ExecuteCommand("delete [proc].D0501DispatchQueue where DocID={0} and StepID={1}",
+                        models.ExecuteCommand("delete [proc].D0401DispatchQueue where DocID={0} and StepID={1}",
                             item.DocID, item.StepID);
 
-                        //models.ExecuteCommand("update [proc].D0501DispatchQueue set StepID = 1323 where DocID={0} and StepID={1}",
+                        //models.ExecuteCommand("update [proc].D0401DispatchQueue set StepID = 1323 where DocID={0} and StepID={1}",
                         //    item.DocID, item.StepID);
 
                     }
@@ -87,21 +90,24 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
         public void NotifyIssued()
         {
-            D0501DispatchQueue item;
+
+            D0401DispatchQueue item;
             int docID = 0;
-            IQueryable<D0501DispatchQueue> queryItems =
+            IQueryable<D0401DispatchQueue> queryItems =
                 _table
                     .Where(q => q.DocID > docID && q.StepID == (int)Naming.InvoiceStepDefinition.已接收資料待通知);
 
             while ((item = queryItems.FirstOrDefault()) != null)
             {
                 docID = item.DocID;
+                var allowance = item.CDS_Document.InvoiceAllowance;
 
                 try
                 {
-                    EIVOTurnkeyFactory.NotifyIssuedAllowanceCancellation(item.DocID);
 
-                    models.ExecuteCommand("delete [proc].D0501DispatchQueue where DocID={0} and StepID={1}",
+                    EIVOTurnkeyFactory.NotifyIssuedAllowance(item.DocID);
+
+                    models.ExecuteCommand("delete [proc].D0401DispatchQueue where DocID={0} and StepID={1}",
                         item.DocID, item.StepID);
 
                 }
@@ -113,7 +119,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
         }
 
-        private void prepareStep(D0501DispatchQueue item, Naming.InvoiceStepDefinition targetStep)
+        private void prepareStep(D0401DispatchQueue item, Naming.InvoiceStepDefinition targetStep)
         {
             item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done);
             PushStepQueueOnSubmit(models, item.CDS_Document, targetStep);
@@ -121,8 +127,8 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
         public static void PushStepQueueOnSubmit(GenericManager<EIVOEntityDataContext> models, CDS_Document docItem, Naming.InvoiceStepDefinition stepID)
         {
-            models.GetTable<D0501DispatchQueue>().InsertOnSubmit(
-                new D0501DispatchQueue
+            models.GetTable<D0401DispatchQueue>().InsertOnSubmit(
+                new D0401DispatchQueue
                 {
                     CDS_Document = docItem,
                     DispatchDate = DateTime.Now,

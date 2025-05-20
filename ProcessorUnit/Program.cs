@@ -38,6 +38,7 @@ namespace ProcessorUnit
 
         private static void Initialize()
         {
+            Console.WriteLine($"Settings:{ProcessorUnit.Properties.AppSettings.Default.JsonStringify()}");
             using (ModelSource<InvoiceItem> models = new ModelSource<InvoiceItem>())
             {
                 var item = ProcessorUnit.Properties.AppSettings.Default.InstanceID.RegisterProcessorUnit(models);
@@ -45,7 +46,6 @@ namespace ProcessorUnit
                 Console.WriteLine($"Instance ID:{ProcessorUnit.Properties.AppSettings.Default.InstanceID}");
                 Console.WriteLine($"Processor ID:{item.ProcessorID}");
             }
-            Console.WriteLine($"Settings:{ProcessorUnit.Properties.AppSettings.Default.JsonStringify()}");
         }
 
 

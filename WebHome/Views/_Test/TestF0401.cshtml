@@ -28,6 +28,7 @@
 <body>
     <form method="post">
         <div>F0401:@(ModelExtension.Properties.AppSettings.Default.F0401Outbound)</div>
+        <div>A0101:@(ModelExtension.Properties.AppSettings.Default.A0101Outbound)</div>
         <div>
             Invoice No:
             <textarea cols="80" rows="10" name="invoiceNo">@(_viewModel?.InvoiceNo)</textarea><br />
@@ -35,15 +36,18 @@
             <button ID="btnCreate" type="submit">OK!!</button>
         </div>
         <br />
-        F0401:
-        <textarea cols="80" rows="10">@(_item!=null ? _item.ConvertToXml().OuterXml : null)</textarea>
+        <select name="ProcessType">
+            <option value="@((int)Naming.InvoiceProcessType.F0401)">F0401:</option>
+            <option value="@((int)Naming.InvoiceProcessType.A0101)">A0101:</option>
+        </select>
+        <textarea cols="80" rows="10">@(_item!=null ? _item.OuterXml : null)</textarea>
     </form>
 </body>
 </html>
 @functions
 {
 
-    protected ModelCore.Schema.TurnKey.F0401.Invoice _item;
+    protected System.Xml.XmlDocument _item;
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
     InquireInvoiceViewModel _viewModel;
@@ -86,7 +90,7 @@
                     && i.No == invoiceNo.Substring(2)).FirstOrDefault();
                 if (item != null)
                 {
-                    _item = item.CreateF0401();
+                    _item = CreateMIG(item, _viewModel);
                 }
             }
             else if (invoiceNo != null)
@@ -145,7 +149,7 @@
     void storedMIG(InvoiceItem item, String storedPath)
     {
         String invoiceNo = item.TrackCode + item.No;
-        item.CreateF0401().ConvertToXml().Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
+        CreateMIG(item, _viewModel).Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
     }
 }
 
@@ -156,5 +160,15 @@
         <script>
         alert('@(HttpUtility.JavaScriptStringEncode(data))');
         </script>
+    }
+
+    System.Xml.XmlDocument CreateMIG(InvoiceItem item, InquireInvoiceViewModel viewModel)
+    {
+        if (viewModel.ProcessType == Naming.InvoiceProcessType.A0101)
+        {
+            return item.CreateA0101();
+        }
+
+        return item.CreateF0401();
     }
 }

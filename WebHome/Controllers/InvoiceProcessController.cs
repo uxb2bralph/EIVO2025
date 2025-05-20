@@ -742,8 +742,8 @@ namespace WebHome.Controllers
 
         public ActionResult CreateXlsx2024(InquireInvoiceViewModel viewModel)
         {
-            this.models = new ModelSource<InvoiceItem>();
-
+            //this.models = new ModelSource<InvoiceItem>();
+            _dbInstance = false;
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> items = result.Model as IQueryable<InvoiceItem>;
             viewModel.RecordCount = items?.Count();
@@ -970,12 +970,19 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult IssueAllowance(int[] chkItem)
+        public async Task<ActionResult> IssueAllowanceAsync([FromBody] QueryViewModel viewModel)
         {
-            if (chkItem != null && chkItem.Count() > 0)
+            ViewBag.ViewModel = viewModel;
+            if(viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<QueryViewModel>();
+                ModelState.Clear();
+            }
+
+            if (viewModel.ChkItem?.Length>0)
             {
                 var profile = HttpContext.GetUser();
-                var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
+                var items = models.GetTable<InvoiceItem>().Where(i => viewModel.ChkItem.Contains(i.InvoiceID));
                 items = models.FilterInvoiceByRole(profile, items);
 
                 if (items.Count() > 1)
@@ -1072,8 +1079,14 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult VoidInvoice(ReviseInvoiceViewModel viewModel)
+        public async Task<ActionResult> VoidInvoiceAsync([FromBody] ReviseInvoiceViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<ReviseInvoiceViewModel>();
+                ModelState.Clear();
+            }
+
             ViewBag.ViewModel = viewModel;
             IQueryable<InvoiceItem>? items = null;
             if (viewModel?.ChkItem?.Length > 0)

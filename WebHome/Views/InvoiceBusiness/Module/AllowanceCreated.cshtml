@@ -1,0 +1,51 @@
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using WebHome.Properties
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.InvoiceManagement.InvoiceProcess
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+@{
+
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+}
+
+@if (_model != null)
+{
+    <div>
+        折讓證明單已開立，<br />
+        號碼：@(_model.AllowanceNumber)<br />
+        <a href="@(Url.Action("PrintSingleAllowanceAsPDF", "DataView", new { keyID = _model.AllowanceID.EncryptKey() }))" target="_blank">列印資料下載</a>
+        <br />
+        <a href="@(Url.Action("ShowAllowance", "DataView", new { keyID = _model.AllowanceID.EncryptKey(), ResultMode = Naming.DataResultMode.Print }))" target="_blank">立即檢視列印</a>
+        <br />
+    </div>
+}
+<script>
+    $global.removeTab('issueAllowance');
+</script>
+
+
+

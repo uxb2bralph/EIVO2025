@@ -30,7 +30,10 @@
         "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
       },
       "env": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_WEBROOT": "C:\\Project\\Github\\IFS-EIVO03\\eIVOGo",
+        "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation",
+        "ASPNETCORE_DETAILEDERRORS": "true"
       },
       "sourceFileMap": {
         "/Views": "${workspaceFolder}/Views"

@@ -51,7 +51,17 @@ namespace InvoiceClient.Helper
             HttpResponseMessage response = PostData(actionName, content, query);
             Task<String> data = response.Content.ReadAsStringAsync();
             data.Wait();
-            return new XmlDocument() { InnerXml = data.Result };
+            var doc = new XmlDocument();
+            if(data.Result.StartsWith('<'))
+            {
+                doc.LoadXml(data.Result);
+            }
+            else
+            {
+                doc.LoadXml($"<Response>{data.Result}</Response>");
+            }
+            return doc;
+            //return new XmlDocument() { InnerXml = data.Result };
         }
 
         private XmlDocument PostData(String actionName, String uploadData)

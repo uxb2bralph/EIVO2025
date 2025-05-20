@@ -135,7 +135,7 @@ namespace WebHome.Controllers
         public ActionResult ApplyMaster(OrganizationViewModel viewModel)
         {
             var result = ApplyIssuerAgent(viewModel);
-            Organization item = (result as ViewResult)?.Model as Organization;
+            Organization? item = (result as ViewResult)?.Model as Organization;
             if (item != null)
             {
                 ((ViewResult)result).ViewName = "~/Views/Organization/Module/ApplyMaster.cshtml";
@@ -158,10 +158,10 @@ namespace WebHome.Controllers
         }
 
 
-        bool CheckAgentCycle(int issuerID, int? agentID,out InvoiceIssuerAgent cycleAgent)
+        bool CheckAgentCycle(int issuerID, int? agentID,out InvoiceIssuerAgent? cycleAgent)
         {
             cycleAgent = null;
-            var agentItems = models.GetTable<InvoiceIssuerAgent>()
+            var agentItems = models!.GetTable<InvoiceIssuerAgent>()
                     .Where(a => a.IssuerID == agentID)
                     .ToList();
 
@@ -186,16 +186,29 @@ namespace WebHome.Controllers
 
             return false;
         }
-        public ActionResult CommitIssuerAgent(OrganizationViewModel viewModel,int?[] agentID)
+        public ActionResult CommitIssuerAgent(OrganizationViewModel viewModel, int[]? agentID)
         {
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
-            Organization item = result.Model as Organization;
+            Organization? item = result.Model as Organization;
 
-            if(item==null)
+            if (item == null)
             {
                 return result;
             }
 
+            CommitIssuerAgent(item, agentID);
+
+            if (!ModelState.IsValid)
+            {
+                return View("~/Views/Shared/AlertMessage.cshtml", model: ModelState.ErrorMessage());
+            }
+
+            return Json(new { result = true });
+        }
+
+        private int CommitIssuerAgent(Organization item, int[]? agentID, bool masterBranch = false)
+        {
+            int result = 0;
             if (agentID != null && agentID.Length > 0)
             {
                 foreach (var id in agentID)
@@ -203,24 +216,42 @@ namespace WebHome.Controllers
                     InvoiceIssuerAgent cycleAgent = null;
                     if (CheckAgentCycle(item.CompanyID, id, out cycleAgent))
                     {
-                        return View("~/Views/Shared/AlertMessage.cshtml", model: $"發生循環經銷({cycleAgent.InvoiceIssuer.ReceiptNo}, {cycleAgent.InvoiceIssuer.CompanyName})!!");
+                        ModelState.AddModelError("Message", $"發生循環經銷({cycleAgent.InvoiceIssuer.ReceiptNo}, {cycleAgent.InvoiceIssuer.CompanyName})!!");
                     }
                 }
             }
 
-            models.ExecuteCommand("delete InvoiceIssuerAgent where IssuerID = {0}", item.CompanyID);
-            if (agentID != null && agentID.Length > 0)
+            if (ModelState.IsValid)
             {
-                foreach (var id in agentID)
+                //models!.ExecuteCommand("delete InvoiceIssuerAgent where IssuerID = {0}", item.CompanyID);
+                //if (agentID != null && agentID.Length > 0)
+                //{
+                //    foreach (var id in agentID)
+                //    {
+                //        models.ExecuteCommand("insert InvoiceIssuerAgent (AgentID,IssuerID) values ({0},{1})", id, item.CompanyID);
+                //    }
+                //}
+                foreach (var id in agentID!)
                 {
-                    models.ExecuteCommand("insert InvoiceIssuerAgent (AgentID,IssuerID) values ({0},{1})", id, item.CompanyID);
+                    result += models!.ExecuteCommand(@"INSERT INTO InvoiceIssuerAgent
+                             (AgentID, IssuerID)
+                        SELECT {0}, {1}
+                        WHERE (NOT EXISTS
+                                 (SELECT NULL FROM InvoiceIssuerAgent
+                        WHERE (AgentID = {0}) AND (IssuerID = {1})))", item.CompanyID, id);
+
+                    if (masterBranch)
+                    {
+                        models.ExecuteCommand(@"Update InvoiceIssuerAgent set RelationType = {2}
+                            WHERE AgentID = {0} AND IssuerID = {1}", item.CompanyID, id, (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch);
+                    }
                 }
             }
 
-            return Json(new { result = true });
+            return result;
         }
 
-        public ActionResult CommitMaster(OrganizationViewModel viewModel, int?[] masterID)
+        public ActionResult CommitMaster(OrganizationViewModel viewModel, int[]? masterID)
         {
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization item = result.Model as Organization;
@@ -444,8 +475,8 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            Organization item = null;
-            item = models.GetTable<Organization>().Where(u => u.CompanyID == viewModel.SellerID).FirstOrDefault();
+            Organization? item = null;
+            item = models!.GetTable<Organization>().Where(u => u.CompanyID == viewModel.SellerID).FirstOrDefault();
 
             if (item == null)
             {
@@ -457,19 +488,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "請勾選分支機構營業人!!");
             }
 
-            int result = 0;
-            foreach (var id in viewModel.ChkItem)
-            {
-                result += models.ExecuteCommand(@"INSERT INTO InvoiceIssuerAgent
-                             (AgentID, IssuerID)
-                        SELECT {0}, {1}
-                        WHERE (NOT EXISTS
-                                 (SELECT NULL FROM InvoiceIssuerAgent
-                        WHERE (AgentID = {0}) AND (IssuerID = {1})))", item.CompanyID, id);
-
-                models.ExecuteCommand(@"Update InvoiceIssuerAgent set RelationType = {2}
-                        WHERE AgentID = {0} AND IssuerID = {1}", item.CompanyID, id, (int)InvoiceIssuerAgent.Relationship.MasterBranch);
-            }
+            int result = CommitIssuerAgent(item, viewModel.ChkItem, true);
 
             return Json(new { result = true, message = result });
         }

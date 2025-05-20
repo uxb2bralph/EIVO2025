@@ -30,12 +30,16 @@
         }
         window.uiInvoiceQuery.commitAction = function () {
             if (!$('input[name="chkItem"]').is(':checked')) {
-                alert('@($"請選擇{_viewModel.ActionTitle}")');
+                alert('@Html.Raw($"請選擇{_viewModel.ActionTitle}")');
                 return false;
             }
 
             var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
             $formData = { ...$formData, ...$('#queryResult').find('input,select,textarea').serializeObject() };
+
+            if (!Array.isArray($formData.chkItem)) {
+                $formData.chkItem = [$formData.chkItem];
+            }
 
             doPost("@(Url.Action(_viewModel.CommitAction,"InvoiceProcess"))", $formData, function (data) {
                 var $data = $(data);

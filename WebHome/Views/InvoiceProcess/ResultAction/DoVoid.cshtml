@@ -78,6 +78,10 @@
                 mode: mode,
             };
 
+            if (!Array.isArray($formData.chkItem)) {
+                $formData.chkItem = [$formData.chkItem];
+            }
+
             if (mode == @((int)Naming.VoidActionMode.修正)) {
                 doPost('@(Url.Action("GetReceiptNo", "Dialog"))', null, function (data) {
                     $('body').append($(data));

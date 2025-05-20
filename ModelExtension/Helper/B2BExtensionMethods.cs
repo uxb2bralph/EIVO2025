@@ -187,26 +187,6 @@ namespace ModelCore.Helper
             return result;
         }
 
-        public static ModelCore.Schema.TurnKey.A0101.Invoice CreateA0101(this InvoiceItem item)
-        {
-            var a0401 = item.CreateA0401();
-            var data = JsonConvert.SerializeObject(a0401);
-            var a0101= JsonConvert.DeserializeObject<ModelCore.Schema.TurnKey.A0101.Invoice>(data);
-            //foreach (var d in a0101.Details)
-            //{
-            //    if (!Enum.IsDefined(typeof(ModelCore.Schema.TurnKey.A0101.TaxTypeEnum), (int)d.TaxType))
-            //    {
-            //        d.TaxType = Schema.TurnKey.A0101.TaxTypeEnum.Item1;
-            //    }
-            //}
-            a0101.Amount.SalesAmount = a0101.Amount.SalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
-            a0101.Amount.TaxAmount = a0101.Amount.TaxAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
-            a0101.Amount.TotalAmount = a0101.Amount.TotalAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
-            a0101.Amount.DiscountAmount = a0101.Amount.DiscountAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
-            return a0101;
-        }
-
-
         private static Schema.TurnKey.A0401.DetailsProductItem[] buildA0401Details(InvoiceItem item)
         {
             List<ModelCore.Schema.TurnKey.A0401.DetailsProductItem> items = new List<Schema.TurnKey.A0401.DetailsProductItem>();

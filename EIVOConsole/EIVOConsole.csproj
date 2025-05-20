@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CommonLib.Core\CommonLib.Core.csproj" />
+    <ProjectReference Include="..\InvoiceClient\InvoiceClient.csproj" />
     <ProjectReference Include="..\JobHelper\JobHelper.csproj" />
     <ProjectReference Include="..\ModelExtension\ModelExtension.csproj" />
   </ItemGroup>

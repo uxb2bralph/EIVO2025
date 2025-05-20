@@ -19,12 +19,14 @@
     ModelSource<InvoiceItem> models;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
-    IEnumerable<InvoiceNoInterval> _model;
-    _model = (IEnumerable<InvoiceNoInterval>)this.Model;
-    InquireNoIntervalViewModel _viewModel = ViewBag.ViewModel as InquireNoIntervalViewModel;
+    IQueryable<InvoiceNoInterval> _model;
+    _model = (IQueryable<InvoiceNoInterval>)this.Model;
+    InquireNoIntervalViewModel? _viewModel = ViewBag.ViewModel as InquireNoIntervalViewModel;
 }
 
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");}
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+}
 
 
 <div class="border_gray query_result">
@@ -48,6 +50,16 @@
     @if (recordCount > 0)
     {
         await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _model);
+        if (_viewModel?.BranchRelation == true)
+        {
+            <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td class="Bargain_btn">
+                        <input type="button" class="btn" name="btnPrint" value="下載E0401" onclick="uiTrackCodeNo.download();" />
+                    </td>
+                </tr>
+            </table>
+        }
     }
     else
     {

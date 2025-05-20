@@ -40,8 +40,7 @@
                         </th>
                         <td colspan="3">
                             @{
-                                ViewBag.FieldName = "CompanyID";
-                                await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml");
+                                await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml",new SellerSelectorViewModel { FieldName = "CompanyID" });
                             }
                         </td>
                     </tr>

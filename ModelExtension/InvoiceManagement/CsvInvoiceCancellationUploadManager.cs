@@ -145,13 +145,13 @@ namespace ModelCore.InvoiceManagement
                 this.GetTable<DerivedDocument>().InsertOnSubmit(doc);
                 if (item.Entity.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401)
                 {
-                    A0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                    A0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    A0201Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                    A0201Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                 }
                 else
                 {
-                    C0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                    C0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    F0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                    F0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                 }
 
                 new InvoiceCancellationUploadList

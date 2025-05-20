@@ -213,7 +213,7 @@ namespace ModelCore.Models.ViewModel
             {
                 BuyerMark = _invItem.BuyerMark,
                 Name = _invItem.BuyerName,
-                ReceiptNo = String.IsNullOrEmpty(_invItem.BuyerReceiptNo) ? "0000000000" : _invItem.BuyerReceiptNo,
+                ReceiptNo = _invItem.BuyerReceiptNo,
                 CustomerID = _invItem.CustomerID,
                 CustomerName = _invItem.BuyerName,
                 ContactName = _invItem.BuyerName,

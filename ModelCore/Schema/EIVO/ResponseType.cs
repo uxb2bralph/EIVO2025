@@ -18,7 +18,7 @@ namespace ModelCore.Schema.EIVO
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Invoice")]
-        public ModelCore.Schema.TurnKey.A0101.Invoice[] Invoice;
+        public ModelCore.Schema.TurnKey.Invoice[] Invoice;
     }
 
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
