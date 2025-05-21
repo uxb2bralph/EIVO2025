@@ -31,7 +31,8 @@ namespace CommonLib.Core.Properties
             }
         }
 
-        public String IPdfUtilityImpl { get; set; } = "WKPdfWrapper.PdfUtility,WKPdfWrapper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+        public String IPdfUtilityImpl { get; set; } = "ExternalPdfWrapper.PdfUtility, ExternalPdfWrapper, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
+        public String IPdfUtilityImplAssembly { get; set; } = "ExternalPdfWrapper, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
         public bool SqlLog { get; set; } = true;
         public bool EnableJobScheduler { get; set; } = true;
         public String LogPath { get; set; }

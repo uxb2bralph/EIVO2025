@@ -8,16 +8,18 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using CommonLib.Utility;
 using System.Globalization;
+using ModelCore.Locale;
 
 namespace ModelCore.Helper
 {
     public class ERPInvoiceCancellationParser
     {
 
-        String[] _seller = null;
-        XElement _root,_invoice = null;
+        String[]? _seller = null;
+        XElement? _root,_invoice = null;
+        public Naming.InvoiceProcessType PreferredProcessType { get; set; } = Naming.InvoiceProcessType.F0501;
 
-        public XElement ParseData(String fileName, Encoding encoding)
+        public XElement? ParseData(String fileName, Encoding encoding)
         {
              _seller = null;
             _root = _invoice = null;
@@ -29,7 +31,7 @@ namespace ModelCore.Helper
                     String[] column;
                     while (parser.Read())
                     {
-                        column = parser.Record;
+                        column = parser.Record!;
                         if (column == null || column.Length < 1)
                         {
                             continue;
@@ -64,13 +66,13 @@ namespace ModelCore.Helper
                 _root = new XElement("CancelInvoiceRoot");
             }
 
-            String[] dateInfo = column[6]?.Split(' ');
+            String[]? dateInfo = column[6]?.Split(' ');
 
             _invoice = new XElement("CancelInvoice",
                     new XElement("CancelInvoiceNumber", column[1]),
                     new XElement("InvoiceDate", column[2]),
                     new XElement("BuyerId", column[3]),
-                    new XElement("SellerId", _seller[1]),
+                    new XElement("SellerId", _seller?[1]),
                     new XElement("CancelDate", dateInfo?[0]),
                     new XElement("CancelTime", dateInfo?.Length>1 ? dateInfo[1] : ""),
                     new XElement("CancelReason", column[7]),
@@ -78,9 +80,10 @@ namespace ModelCore.Helper
                     new XElement("Remark", ""));
 
             _root.Add(_invoice);
+            _root.Add(new XElement("ProcessType", PreferredProcessType.ToString()));
         }
 
-        public static XElement ConvertToXml(String csvFile,Encoding encoding = null)
+        public static XElement? ConvertToXml(String csvFile,Encoding? encoding = null)
         {
             return (new ERPInvoiceCancellationParser()).ParseData(csvFile, encoding ?? Encoding.UTF8);
         }

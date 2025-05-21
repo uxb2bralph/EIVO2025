@@ -211,16 +211,16 @@ namespace ModelCore.Models
 
     public partial class InquireAllowanceByRole : CommonInquiry<InvoiceAllowance, InquireInvoiceViewModel>
     {
-        protected UserProfile _userProfile;
+        protected UserProfile? _userProfile;
 
-        public InquireAllowanceByRole(UserProfile profile)
+        public InquireAllowanceByRole(UserProfile? profile)
         {
             _userProfile = profile;
         }
 
         public override void BuildQueryExpression(ModelSource< InvoiceAllowance> models)
         {
-            switch ((Naming.RoleID)_userProfile.CurrentUserRole.RoleID)
+            switch ((Naming.RoleID?)_userProfile?.CurrentUserRole?.RoleID)
             {
                 case Naming.RoleID.ROLE_GUEST:
                 case Naming.RoleID.ROLE_BUYER:
@@ -228,7 +228,14 @@ namespace ModelCore.Models
                     break;
 
                 default:
-                    models.Items = models.GetAllowanceByAgent(models.Items, _userProfile.CurrentUserRole.OrganizationCategory.CompanyID);
+                    if(_userProfile?.CurrentUserRole?.OrganizationCategory == null)
+                    {
+                        models.Items = models.Items.Where(i => false);
+                    }
+                    else
+                    {
+                        models.Items = models.GetAllowanceByAgent(models.Items, _userProfile.CurrentUserRole.OrganizationCategory.CompanyID);
+                    }
                     break;
             }
 

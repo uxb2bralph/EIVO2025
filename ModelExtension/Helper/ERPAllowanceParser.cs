@@ -8,16 +8,18 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using CommonLib.Utility;
 using System.Globalization;
+using ModelCore.Locale;
 
 namespace ModelCore.Helper
 {
     public class ERPAllowanceParser
     {
 
-        String[] _seller = null;
-        XElement _root,_invoice = null;
+        String[]? _seller = null;
+        XElement? _root,_invoice = null;
+        public Naming.InvoiceProcessType PreferredProcessType { get; set; } = Naming.InvoiceProcessType.G0401;
 
-        public XElement ParseData(String fileName, Encoding encoding)
+        public XElement? ParseData(String fileName, Encoding encoding)
         {
              _seller = null;
             _root = _invoice = null;
@@ -29,7 +31,7 @@ namespace ModelCore.Helper
                     String[] column;
                     while (parser.Read())
                     {
-                        column = parser.Record;
+                        column = parser.Record!;
                         if (column == null || column.Length < 1)
                         {
                             continue;
@@ -84,6 +86,7 @@ namespace ModelCore.Helper
                         );
 
             _root.Add(_invoice);
+            _root.Add(new XElement("ProcessType", PreferredProcessType.ToString()));
         }
 
         private void buildDetails(string[] column)
@@ -107,9 +110,9 @@ namespace ModelCore.Helper
             _invoice.Add(item);
         }
 
-        public static XElement ConvertToXml(String csvFile,Encoding encoding = null)
+        public static XElement? ConvertToXml(String csvFile,Encoding? encoding = null)
         {
-            return (new ERPInvoiceParser()).ParseData(csvFile, encoding ?? Encoding.UTF8);
+            return (new ERPAllowanceParser()).ParseData(csvFile, encoding ?? Encoding.UTF8);
         }
     }
 }

@@ -18,8 +18,6 @@
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
 
-@using ModelCore.Helper
-
 @{
     ModelSource<InvoiceItem> models;
     ModelStateDictionary _modelState;
@@ -50,17 +48,17 @@
             ProcessType = item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.C0401
                 ? Naming.InvoiceProcessType.D0401
                 : Naming.InvoiceProcessType.B0401,
-            No = Enumerable.Range(1, prodItem.Length).Select(n => (short)n).ToArray(),
-            InvoiceDate = prodItem.Select(p => p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceDate.Value).ToArray(),
-            InvoiceNo = prodItem.Select(p => p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceNo()).ToArray(),
+            No = Enumerable.Range(1, prodItem.Length).Select(n => (short?)n).ToArray(),
+            OriginalInvoiceDate = prodItem.Select(p => p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceDate).ToArray(),
+            OriginalInvoiceNo = prodItem.Select(p => p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceNo()).ToArray(),
             OriginalDescription = prodItem.Select(p => p.InvoiceProduct.Brief).ToArray(),
             OriginalSequenceNo = prodItem.Select(p => p.No).ToArray(),
             Piece = prodItem.Select(p => p.Piece).ToArray(),
             PieceUnit = prodItem.Select(p => p.PieceUnit).ToArray(),
             UnitCost = prodItem.Select(p => p.UnitCost).ToArray(),
             Amount = prodItem.Select(p => p.CostAmount).ToArray(),
-            Tax = prodItem.Select(p => Math.Round(p.CostAmount.Value * 0.05m)).ToArray(),
-            TaxType = prodItem.Select(p => (Naming.TaxTypeDefinition)p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceAmountType.TaxType).ToArray(),
+            Tax = prodItem.Select(p => (decimal?)Math.Round((p.CostAmount * 0.05m) ?? 0)).ToArray(),
+            TaxType = prodItem.Select(p => (Naming.TaxTypeDefinition?)p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceAmountType.TaxType).ToArray(),
         };
     }
 }

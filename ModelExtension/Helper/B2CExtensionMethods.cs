@@ -10,6 +10,9 @@ using ModelCore.Locale;
 using ModelCore.Properties;
 using CommonLib.DataAccess;
 using ModelCore.InvoiceManagement.InvoiceProcess;
+using ModelCore.Schema.TurnKey;
+using Newtonsoft.Json;
+using System.Xml;
 
 namespace ModelCore.Helper
 {
@@ -367,26 +370,26 @@ namespace ModelCore.Helper
                 }
 
                 //try
-                    //{
-                    //    using (TurnKey2DataContext turnkeyDB = new TurnKey2DataContext())
-                    //    {
-                    //        var log = turnkeyDB.GetTable<V_Allowance>()
-                    //                .Where(i => i.AllowanceNo == result.Main.AllowanceNumber)
-                    //                .Where(i => i.DocType == "D0401" || i.DocType == "B0401")
-                    //                .ToList()
-                    //                .OrderByDescending(i => i.MESSAGE_DTS).FirstOrDefault();
-                    //        if (log != null)
-                    //        {
-                    //            result.TxnCode = log.STATUS == "C"
-                    //                    ? Naming.GovTurnkeyTransaction.C.ToString()
-                    //                    : Naming.GovTurnkeyTransaction.E.ToString();
-                    //        }
-                    //    }
-                    //}
-                    //catch (Exception ex)
-                    //{
-                    //    Logger.Error(ex);
-                    //}
+                //{
+                //    using (TurnKey2DataContext turnkeyDB = new TurnKey2DataContext())
+                //    {
+                //        var log = turnkeyDB.GetTable<V_Allowance>()
+                //                .Where(i => i.AllowanceNo == result.Main.AllowanceNumber)
+                //                .Where(i => i.DocType == "D0401" || i.DocType == "B0401")
+                //                .ToList()
+                //                .OrderByDescending(i => i.MESSAGE_DTS).FirstOrDefault();
+                //        if (log != null)
+                //        {
+                //            result.TxnCode = log.STATUS == "C"
+                //                    ? Naming.GovTurnkeyTransaction.C.ToString()
+                //                    : Naming.GovTurnkeyTransaction.E.ToString();
+                //        }
+                //    }
+                //}
+                //catch (Exception ex)
+                //{
+                //    Logger.Error(ex);
+                //}
             }
 
             return result;
@@ -536,13 +539,36 @@ namespace ModelCore.Helper
             return items.ToArray();
         }
 
-        public static ModelCore.Schema.TurnKey.F0401.Invoice CreateF0401(this InvoiceItem item, bool withExtension = false)
+        public static System.Xml.XmlDocument CreateF0401(this InvoiceItem item, bool withExtension = false)
         {
-            var result = new ModelCore.Schema.TurnKey.F0401.Invoice
+            Invoice result = CreateInvoiceMIG(item, withExtension);
+            var docInv = result.ConvertToXml();
+            docInv.DocumentElement!.SetAttribute("xmlns", MIGExtensions.F0401);
+            docInv.LoadXml(docInv.OuterXml);
+            return docInv;
+        }
+
+        public static XmlDocument CreateA0101(this InvoiceItem item)
+        {
+            var a0101 = item.CreateInvoiceMIG();
+            a0101!.Amount!.SalesAmount = a0101.Amount.SalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
+            a0101.Amount.TaxAmount = a0101.Amount.TaxAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
+            a0101.Amount.TotalAmount = a0101.Amount.TotalAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
+            a0101.Amount.DiscountAmount = a0101.Amount.DiscountAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
+            var docInv = a0101.ConvertToXml();
+            docInv.DocumentElement!.SetAttribute("xmlns", MIGExtensions.A0101);
+            docInv.LoadXml(docInv.OuterXml);
+            return docInv;
+        }
+
+
+        public static Invoice CreateInvoiceMIG(this InvoiceItem item, bool withExtension = false)
+        {
+            var result = new Invoice
             {
-                Main = new Schema.TurnKey.F0401.Main
+                Main = new Main
                 {
-                    Buyer = new Schema.TurnKey.F0401.MainBuyer
+                    Buyer = new RoleDescription
                     {
                         //選擇性欄位不提供給大平台
                         //Address = item.InvoiceBuyer.Address.GetEfficientStringMaxSize(0,100).InsteadOfNullOrEmpty(""),
@@ -559,16 +585,16 @@ namespace ModelCore.Helper
                         //RoleRemark = item.InvoiceBuyer.RoleRemark.GetEfficientStringMaxSize(0, 40).InsteadOfNullOrEmpty(""),
                         //TelephoneNumber = item.InvoiceBuyer.Phone.GetEfficientStringMaxSize(0, 26).InsteadOfNullOrEmpty("")
                     },
-                    BuyerRemark = (ModelCore.Schema.TurnKey.F0401.BuyerRemarkEnum?)item.BuyerRemark,
+                    BuyerRemark = (BuyerRemarkEnum?)item.BuyerRemark,
                     BuyerRemarkSpecified = item.BuyerRemark.HasValue,
                     Category = item.Category,
                     //CheckNumber = item.CheckNo,
                     BondedAreaConfirm = item.BondedAreaConfirm?.ToString(),
-                    CustomsClearanceMark = (ModelCore.Schema.TurnKey.F0401.CustomsClearanceMarkEnum?)item.CustomsClearanceMark,
+                    CustomsClearanceMark = (CustomsClearanceMarkEnum?)item.CustomsClearanceMark,
                     CustomsClearanceMarkSpecified = item.CustomsClearanceMark.HasValue,
-                    InvoiceType = (ModelCore.Schema.TurnKey.F0401.InvoiceTypeEnum?)((int?)item.InvoiceType) ?? Schema.TurnKey.F0401.InvoiceTypeEnum.Item07,
+                    InvoiceType = (InvoiceTypeEnum?)((int?)item.InvoiceType) ?? InvoiceTypeEnum.Item07,
                     //DonateMark = (Schema.TurnKey.C0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
-                    DonateMark = string.IsNullOrEmpty(item.DonateMark) ? Schema.TurnKey.F0401.DonateMarkEnum.Item0 : (Schema.TurnKey.F0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
+                    DonateMark = string.IsNullOrEmpty(item.DonateMark) ? DonateMarkEnum.Item0 : (DonateMarkEnum)(int.Parse(item.DonateMark)),
                     CarrierType = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierType : "",
                     //CarrierTypeSpecified = item.InvoiceCarrier != null ? true : false,
                     CarrierId1 = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierNo : "",
@@ -578,8 +604,7 @@ namespace ModelCore.Helper
                     NPOBAN = item.InvoiceDonation != null ? item.InvoiceDonation.AgencyCode : "",
                     RandomNumber = item.RandomNo,
                     GroupMark = item.GroupMark,
-                    InvoiceDate = String.Format("{0:yyyyMMdd}", item.InvoiceDate.Value),
-                    InvoiceTime = item.InvoiceDate.Value,
+                    InvoiceDateTime = item.InvoiceDate!.Value,
                     //InvoiceTimeSpecified = false,
                     InvoiceNumber = String.Format("{0}{1}", item.TrackCode, item.No),
                     MainRemark = item.Remark.GetEfficientStringMaxSize(0, 200),
@@ -588,7 +613,7 @@ namespace ModelCore.Helper
                     //PermitWord = item.PermitWord,
                     RelateNumber = item.RelateNumber,
                     //TaxCenter = item.TaxCenter,
-                    Seller = new Schema.TurnKey.F0401.MainSeller
+                    Seller = new RoleDescription
                     {
                         //選擇性欄位不提供給大平台
                         Address = item.InvoiceSeller.Address.GetEfficientStringMaxSize(0, 100).InsteadOfNullOrEmpty(""),
@@ -603,7 +628,7 @@ namespace ModelCore.Helper
                     },
                 },
                 Details = buildF0401Details(item),
-                Amount = new Schema.TurnKey.F0401.Amount
+                Amount = new Amount
                 {
                     CurrencySpecified = false,
                     DiscountAmount = item.InvoiceAmountType.DiscountAmount.HasValue ? item.InvoiceAmountType.DiscountAmount.Value.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0) : 0,
@@ -617,20 +642,20 @@ namespace ModelCore.Helper
                     ZeroTaxSalesAmount = item.InvoiceAmountType.ZeroTaxSalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0),
                     TaxAmount = item.InvoiceBuyer.IsB2C() ? 0 : item.InvoiceAmountType.TaxAmount.ToFix(0 /*item.InvoiceAmountType.CurrencyType?.Decimals ?? 0*/),
                     TaxRate = item.InvoiceSeller.Organization?.UseDefaultTaxRate() == true && item.InvoiceAmountType.TaxType == (byte)Naming.TaxTypeDefinition.應稅
-                                    ? ModelExtension.Properties.AppSettings.Default.DefaultTaxRate 
-                                    : item.InvoiceAmountType.TaxRate.HasValue 
-                                        ? item.InvoiceAmountType.TaxRate.ToFix(2) 
+                                    ? ModelExtension.Properties.AppSettings.Default.DefaultTaxRate
+                                    : item.InvoiceAmountType.TaxRate.HasValue
+                                        ? item.InvoiceAmountType.TaxRate.ToFix(2)
                                         : ModelExtension.Properties.AppSettings.Default.DefaultTaxRate,
-                    TaxType = (Schema.TurnKey.F0401.TaxTypeEnum?)((int?)item.InvoiceAmountType.TaxType) ?? Schema.TurnKey.F0401.TaxTypeEnum.Item1,
+                    TaxType = (TaxTypeEnum?)((int?)item.InvoiceAmountType.TaxType) ?? TaxTypeEnum.Item1,
                     TotalAmount = item.InvoiceAmountType.TotalAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0)
                 },
             };
             if (item.InvoiceAmountType.CurrencyID.HasValue)
             {
                 result.Amount.CurrencySpecified = true;
-                result.Amount.Currency = (Schema.TurnKey.F0401.CurrencyCodeEnum)Enum.Parse(typeof(Schema.TurnKey.C0401.CurrencyCodeEnum), item.InvoiceAmountType.CurrencyType.AbbrevName);
+                result.Amount.Currency = (CurrencyCodeEnum)Enum.Parse(typeof(Schema.TurnKey.C0401.CurrencyCodeEnum), item.InvoiceAmountType.CurrencyType.AbbrevName);
             }
-            if(item.InvoiceAmountType.TaxType == (byte)Naming.TaxTypeDefinition.零稅率
+            if (item.InvoiceAmountType.TaxType == (byte)Naming.TaxTypeDefinition.零稅率
                 && item.Organization.OrganizationCustomSetting?.Settings?.ZeroTaxRateReason.HasValue == true)
             {
                 result.Main.ZeroTaxRateReason = item.Organization.OrganizationCustomSetting.Settings.ZeroTaxRateReason.Value;
@@ -653,40 +678,20 @@ namespace ModelCore.Helper
                 {
                     result.TxnCode = Naming.GovTurnkeyTransaction.P.ToString();
                 }
-                //try
-                //{
-                //    using (TurnKey2DataContext turnkeyDB = new TurnKey2DataContext())
-                //    {
-                //        var log = turnkeyDB.GetTable<V_Invoice>()
-                //                .Where(i => i.InvoiceNo == result.Main.InvoiceNumber)
-                //                .Where(i => i.DocType == "C0401" || i.DocType == "A0401")
-                //                .ToList()
-                //                .OrderByDescending(i => i.MESSAGE_DTS).FirstOrDefault();
-                //        if (log != null)
-                //        {
-                //            result.TxnCode = log.STATUS == "C"
-                //                    ? Naming.GovTurnkeyTransaction.C.ToString()
-                //                    : Naming.GovTurnkeyTransaction.E.ToString();
-                //        }
-                //    }
-                //}
-                //catch (Exception ex)
-                //{
-                //    Logger.Error(ex);
-                //}
             }
+
             return result;
         }
 
-        private static Schema.TurnKey.F0401.DetailsProductItem[] buildF0401Details(InvoiceItem item)
+        private static DetailsProductItem[] buildF0401Details(InvoiceItem item)
         {
-            List<ModelCore.Schema.TurnKey.F0401.DetailsProductItem> items = new List<Schema.TurnKey.F0401.DetailsProductItem>();
+            List<DetailsProductItem> items = new List<DetailsProductItem>();
             foreach (var detailItem in item.InvoiceDetails)
             {
                 detailItem.InvoiceProduct.InvoiceProductItem.ToList();
                 foreach (var productItem in detailItem.InvoiceProduct.InvoiceProductItem)
                 {
-                    items.Add(new ModelCore.Schema.TurnKey.F0401.DetailsProductItem
+                    items.Add(new DetailsProductItem
                     {
                         Amount = productItem.CostAmount ?? 0m,   //productItem.CostAmount.HasValue ? productItem.CostAmount.Value.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0) : 0m,
                         Description = detailItem.InvoiceProduct.Brief,
@@ -696,7 +701,7 @@ namespace ModelCore.Helper
                         SequenceNumber = String.Format("{0:00}", productItem.No),
                         Unit = productItem.PieceUnit,
                         UnitPrice = productItem.UnitCost ?? 0m, //productItem.UnitCost.HasValue ? productItem.UnitCost.Value.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0) : 0,
-                        TaxType = productItem.TaxType.HasValue && Enum.IsDefined(typeof(Schema.TurnKey.F0401.TaxTypeEnum), (int)productItem.TaxType) ? (Schema.TurnKey.F0401.TaxTypeEnum)productItem.TaxType : Schema.TurnKey.F0401.TaxTypeEnum.Item1,
+                        TaxType = productItem.TaxType.HasValue && Enum.IsDefined(typeof(TaxTypeEnum), (int)productItem.TaxType) ? (TaxTypeEnum)productItem.TaxType : TaxTypeEnum.Item1,
                     });
                 }
             }
@@ -904,6 +909,7 @@ namespace ModelCore.Helper
                 {
                     result.TxnCode = Naming.GovTurnkeyTransaction.P.ToString();
                 }
+
                 //try
                 //{
                 //    using (TurnKey2DataContext turnkeyDB = new TurnKey2DataContext())

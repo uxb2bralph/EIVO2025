@@ -516,6 +516,7 @@ namespace ModelCore.Locale
             B0501,
             A0101 = 21,
             A0201,
+            B0101,
             B0201,
             E0401 = 31,
             E0402 = 32,

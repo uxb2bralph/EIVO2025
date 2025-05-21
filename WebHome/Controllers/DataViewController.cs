@@ -200,6 +200,7 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
             viewModel.UseCustomView = viewModel.UseCustomView ?? true;
+            this.TempData["viewModel"] = viewModel;
 
             if (viewModel.KeyID != null)
             {
@@ -363,6 +364,9 @@ namespace WebHome.Controllers
 
         public async Task<ActionResult> GetCustomerAllowancePDFAsync(RenderStyleViewModel viewModel, bool? ackDel, bool? html)
         {
+            ViewBag.ViewModel = viewModel;
+            this.TempData["viewModel"] = viewModel;
+
             if (viewModel.KeyID != null)
             {
                 viewModel.DocID = viewModel.DecryptKeyValue();

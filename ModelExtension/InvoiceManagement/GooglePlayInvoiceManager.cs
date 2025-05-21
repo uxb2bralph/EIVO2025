@@ -64,7 +64,7 @@ namespace ModelCore.InvoiceManagement
                         newItem.CDS_Document.DocumentOwner.ClientID = this.InvoiceClientID;
                         newItem.CDS_Document.ChannelID = this.ChannelID;
                         table.InsertOnSubmit(newItem);
-                        D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                        G0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
                         //D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                         newItem.CDS_Document.DocumentSubscriptionQueue = new DocumentSubscriptionQueue { };
                         this.SubmitChanges();

@@ -31,7 +31,6 @@ using Newtonsoft.Json;
 using ModelCore.Helper;
 using CsvHelper;
 using CommonLib.Helper;
-using ModelCore.Helper;
 using Microsoft.AspNetCore.Authorization;
 using CommonLib.Core.Utility;
 using CommonLib.Core.Helper;
@@ -55,13 +54,24 @@ namespace WebHome.Controllers.TrackCodeNo
 
         public ActionResult InquireInterval(InquireNoIntervalViewModel viewModel)
         {
+
+            var profile = HttpContext.GetUser();
+            ViewBag.ViewModel = viewModel;
+
+            IQueryable<InvoiceNoInterval> items = viewModel.InquireInvoiceNoInterval(models!, profile);
+            return View("~/Views/InvoiceNo/Module/QueryResult.cshtml", items);
+        }
+
+        public ActionResult DownloadE0401(InquireNoIntervalViewModel viewModel)
+        {
             var profile = HttpContext.GetUser();
 
             ViewBag.ViewModel = viewModel;
 
-            IQueryable<InvoiceNoInterval> items = viewModel.InquireInvoiceNoInterval(models, profile);
+            _dbInstance = false;
+            IQueryable<InvoiceNoMainAssignment> items = viewModel.InquireHeaquarterNoAssignment(models!);
+            return View("~/Views/InvoiceNo/Module/DownloadE0401.cshtml", items);
 
-            return View("~/Views/InvoiceNo/Module/QueryResult.cshtml", items);
         }
 
         public ActionResult InquireVacantNo(InquireNoIntervalViewModel viewModel)
@@ -97,7 +107,7 @@ namespace WebHome.Controllers.TrackCodeNo
                 if (viewModel.BranchRelation == true)
                 {
                     var branchRelation = models.GetTable<InvoiceIssuerAgent>()
-                                .Where(a => a.RelationType == (int)InvoiceIssuerAgent.Relationship.MasterBranch)
+                                .Where(a => a.RelationType == (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch)
                                 .Where(r => r.AgentID == viewModel.SellerID);
                     orgItems = models.GetTable<Organization>()
                                     .Where(o => o.CompanyID == viewModel.SellerID
@@ -171,7 +181,7 @@ namespace WebHome.Controllers.TrackCodeNo
                                     ? $"{orgItem.ReceiptNo}(註記停用:{orgItem.OrganizationExtension.ExpirationDate:yyyy/MM/dd})"
                                     : orgItem.ReceiptNo,
                                 HeadBan = viewModel.BranchRelation == true
-                                    ? orgItem.AsInvoiceIssuer.Where(a => a.RelationType == (int)InvoiceIssuerAgent.Relationship.MasterBranch).FirstOrDefault()?.InvoiceAgent.ReceiptNo ?? orgItem.ReceiptNo
+                                    ? orgItem.AsInvoiceIssuer.Where(a => a.RelationType == (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch).FirstOrDefault()?.InvoiceAgent.ReceiptNo ?? orgItem.ReceiptNo
                                     : orgItem.ReceiptNo,
                                 YearMonth = String.Format("{0}{1:00}", trackCode.Year - 1911, trackCode.PeriodNo * 2),
                                 InvoiceType = trackCode.InvoiceType == (byte)InvoiceTypeEnum.Item08 ? InvoiceTypeEnum.Item08 : InvoiceTypeEnum.Item07,
@@ -374,6 +384,109 @@ namespace WebHome.Controllers.TrackCodeNo
                 models.SubmitChanges();
             }
 
+
+            return View("~/Views/InvoiceNo/Module/DataItem.cshtml", model);
+
+        }
+
+        public ActionResult ApplyHeadquarter(InvoiceNoIntervalViewModel viewModel)
+        {
+            ViewResult result = (ViewResult)EditNoInterval(viewModel);
+            InvoiceNoInterval? model = result.Model as InvoiceNoInterval;
+
+            if (model == null)
+            {
+                return result;
+            }
+
+            var mainAssignment = model.InvoiceTrackCodeAssignment.InvoiceNoMainAssignment
+                .Where(t => (t.StartNo <= model.StartNo && t.EndNo >= model.StartNo)
+                        || (t.StartNo <= model.EndNo && t.EndNo >= model.EndNo))
+                .FirstOrDefault();
+
+            if (mainAssignment == null)
+            {
+                model.InvoiceTrackCodeAssignment.InvoiceNoMainAssignment.Add(new InvoiceNoMainAssignment
+                {
+                    StartNo = model.StartNo,
+                    EndNo = model.EndNo,
+                });
+
+                models!.SubmitChanges();
+            }
+
+            return View("~/Views/InvoiceNo/Module/DataItem.cshtml", model);
+
+        }
+
+        public ActionResult ApplyBranch(InvoiceNoIntervalViewModel viewModel)
+        {
+            ViewResult result = (ViewResult)ApplyHeadquarter(viewModel);
+            InvoiceNoInterval? model = result.Model as InvoiceNoInterval;
+
+            if (model == null)
+            {
+                return result;
+            }
+
+            return View("~/Views/InvoiceNo/Module/ApplyBranch.cshtml", model);
+
+        }
+
+        public ActionResult CommitBranch([FromBody]InvoiceNoIntervalViewModel viewModel)
+        {
+            ViewResult result = (ViewResult)EditNoInterval(viewModel);
+            InvoiceNoInterval? model = result.Model as InvoiceNoInterval;
+
+            if (model == null)
+            {
+                return result;
+            }
+
+            var masterAssignment = model.InvoiceTrackCodeAssignment.InvoiceNoMainAssignment
+                .Where(t => t.StartNo <= model.StartNo && t.EndNo >= model.StartNo
+                        && t.StartNo <= model.EndNo && t.EndNo >= model.EndNo)
+                .FirstOrDefault();
+
+            if(masterAssignment == null)
+            {
+                return Json(new { result = false, message = "請先設定總公司之號碼區間!!" });
+            }
+
+            if (!viewModel.SellerID.HasValue)
+            {
+                ModelState.AddModelError("SellerID", "營業人錯誤!!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ModelState = ModelState;
+                return View("~/Views/Shared/ReportInputError.cshtml");
+            }
+
+            InvoiceTrackCodeAssignment? trackCodeAssignment = 
+                models!.GetTable<InvoiceTrackCodeAssignment>()
+                    .Where(t => t.SellerID == viewModel.SellerID && t.TrackID == model.TrackID)
+                    .FirstOrDefault();
+
+            if (trackCodeAssignment == null)
+            {
+                trackCodeAssignment = new InvoiceTrackCodeAssignment
+                {
+                    SellerID = viewModel.SellerID!.Value,
+                    TrackID = model.TrackID
+                };
+
+                masterAssignment.BranchNoAssignment.Add(trackCodeAssignment);
+                models!.SubmitChanges();
+            }
+
+
+            //models.ExecuteCommand(@"UPDATE InvoiceNoInterval
+            //    SET     SellerID = {0}
+            //    WHERE   (IntervalID = {1})", viewModel.SellerID!, model.IntervalID);
+            model.InvoiceTrackCodeAssignment = trackCodeAssignment;
+            models!.SubmitChanges();
 
             return View("~/Views/InvoiceNo/Module/DataItem.cshtml", model);
 

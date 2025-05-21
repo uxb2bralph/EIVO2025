@@ -148,7 +148,7 @@
 
             case Naming.InvoiceProcessType.A0101:
                 storedPath = global::ModelExtension.Properties.AppSettings.Default.A0101Outbound;
-                ConvertInvoiceMIG = i => i.CreateA0101().ConvertToXml();
+                ConvertInvoiceMIG = i => i.CreateA0101();
                 await WriteInvioceMIGAsync();
                 break;
 

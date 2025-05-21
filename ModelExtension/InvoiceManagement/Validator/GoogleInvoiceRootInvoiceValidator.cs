@@ -62,7 +62,7 @@ namespace ModelCore.InvoiceManagement.Validator
             _models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
 
             //yuki 加一筆到Queue、DataProcessLog
-            C0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+            F0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
 
             //yuki 加一筆到ProcessRequestDocument
             //C0401Handler.PushProcessRequestDocumentOnSubmit(_mgr, newItem.CDS_Document, taskID);
@@ -81,7 +81,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 }
                 else
                 {
-                    C0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    F0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                 }
                 _models.SubmitChanges();
             }

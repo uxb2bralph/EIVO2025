@@ -136,9 +136,9 @@ namespace ModelCore.InvoiceManagement.enUS
             Return_Tax_Document_No,
             Remark
         }
-        public static Exception VoidInvoice(this DataRow item, GenericManager<EIVOEntityDataContext> models, Organization owner, ref InvoiceCancellation voidItem, ref DerivedDocument p,ref Organization expectedSeller)
+        public static Exception? VoidInvoice(this DataRow item, GenericManager<EIVOEntityDataContext> models, Organization owner, ref InvoiceCancellation voidItem, ref DerivedDocument? p,ref Organization? expectedSeller)
         {
-            InvoiceItem invoice = null;
+            InvoiceItem? invoice = null;
 
             String expectedNo = item.GetString((int)VoidInvoiceField.Void_Invoice_No);
             if (String.IsNullOrEmpty(expectedNo))

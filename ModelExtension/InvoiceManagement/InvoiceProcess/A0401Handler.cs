@@ -56,10 +56,10 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                     try
                     {
                         var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0401Outbound, $"F0401-{invoiceItem.InvoiceID}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
-                        var xmlMIG = invoiceItem.CreateF0401().ConvertToXml();
+                        var xmlMIG = invoiceItem.CreateF0401();
+                        xmlMIG.Save(fileName);
                         item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
                         item.CDS_Document.CurrentStep = (int)Naming.InvoiceStepDefinition.已接收;
-                        xmlMIG.Save(fileName);
 
 
                         models.SubmitChanges();

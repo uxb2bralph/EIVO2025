@@ -30,7 +30,7 @@ namespace WebHome.Controllers
 
         public ActionResult Index()
         {
-            ViewBag.Message = "Hello,World！";
+            ViewBag.Message = "Hello,World!!";
             return View();
         }
 
@@ -46,11 +46,11 @@ namespace WebHome.Controllers
             var profile = HttpContext.GetUser();
             if (profile.CheckSystemCompany() != true)
             {
-                ViewBag.Message = "使用者非系統管理公司！";
+                ViewBag.Message = "使用者非系統管理公司!!";
                 return;
             }
 
-            ViewBag.Message = "資料不存在！";
+            ViewBag.Message = "資料不存在!!";
 
             using (ModelSource<Organization> models = new ModelSource<Organization>())
             {
@@ -60,7 +60,7 @@ namespace WebHome.Controllers
                 {
                     item.CurrentLevel = (int)status;
                     models.SubmitChanges();
-                    ViewBag.Message = "資料已更新！";
+                    ViewBag.Message = "資料已更新!!";
                 }
             }
         }
@@ -76,7 +76,7 @@ namespace WebHome.Controllers
             var item = models.GetTable<Organization>().Where(o => o.CompanyID == companyID).FirstOrDefault();
             if (item == null)
             {
-                ViewBag.Message = "資料不存在！";
+                ViewBag.Message = "資料不存在!!";
             }
             else
             {
@@ -89,11 +89,11 @@ namespace WebHome.Controllers
                             CompanyID = item.CompanyID
                         });
                     models.SubmitChanges();
-                    ViewBag.Message = "設定完成！";
+                    ViewBag.Message = "設定完成!!";
                 }
                 else
                 {
-                    ViewBag.Message = "該開立人已是B2B營業人！";
+                    ViewBag.Message = "該開立人已是B2B營業人!!";
                 }
             }
 
@@ -111,7 +111,7 @@ namespace WebHome.Controllers
             var item = models.GetTable<Organization>().Where(o => o.CompanyID == companyID).FirstOrDefault();
             if (item == null)
             {
-                return Json(new { result = false, message = "資料不存在！" });
+                return Json(new { result = false, message = "資料不存在!!" });
             }
 
             if (item.MasterOrganization == null)
@@ -188,8 +188,8 @@ namespace WebHome.Controllers
                 }
                 else if (trackCode != null && (endTrackCode = viewModel.EndNo.Substring(0, 2)) != trackCode)
                 {
-                    ModelState.AddModelError("StartNo", "發票起、迄號字軌不相同！");
-                    ModelState.AddModelError("EndNo", "發票起、迄號字軌不相同！");
+                    ModelState.AddModelError("StartNo", "發票起、迄號字軌不相同!!");
+                    ModelState.AddModelError("EndNo", "發票起、迄號字軌不相同!!");
                 }
                 else
                 {
@@ -203,12 +203,12 @@ namespace WebHome.Controllers
 
             if (!hasQuery)
             {
-                ModelState.AddModelError("Message", "請指定發票號碼或日期查詢條件！");
+                ModelState.AddModelError("Message", "請指定發票號碼或日期查詢條件!!");
             }
 
             if (viewModel.UserType == null) //Amy
             {
-                ModelState.AddModelError("EivoType", "請選擇發票種類！");
+                ModelState.AddModelError("UserType", "請選擇發票種類!!");
             }
 
             if (!ModelState.IsValid)
@@ -350,7 +350,7 @@ namespace WebHome.Controllers
 
             if (items.Count() == 0)
             {
-                ViewBag.Message = "發票資料錯誤！";
+                ViewBag.Message = "發票資料錯誤!!";
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
             else
@@ -364,13 +364,13 @@ namespace WebHome.Controllers
             var items = JsonConvert.DeserializeObject<MailTrackingCsvViewModel[]>(jsonData);
             if (items == null || items.Length == 0)
             {
-                ViewBag.Message = "請選擇郵寄項目！";
+                ViewBag.Message = "請選擇郵寄項目!!";
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
 
             if (!deliveryStatus.HasValue)
             {
-                ViewBag.Message = "請選擇郵寄過程！";
+                ViewBag.Message = "請選擇郵寄過程!!";
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
 
@@ -412,7 +412,7 @@ namespace WebHome.Controllers
                 }
                 else
                 {
-                    return Json(new { result = false, message = "資料錯誤！" });
+                    return Json(new { result = false, message = "資料錯誤!!" });
                 }
             }
             catch (Exception ex)
@@ -429,7 +429,7 @@ namespace WebHome.Controllers
             if (items == null || items.Length == 0)
             {
                 ViewBag.CloseWindow = true;
-                ViewBag.Message = "請選擇郵寄項目！";
+                ViewBag.Message = "請選擇郵寄項目!!";
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
 
@@ -506,7 +506,7 @@ namespace WebHome.Controllers
                 var MailNo3 = m.MailNo3.GetEfficientString();
                 if (item == null || MailNo1 == null || MailNo2 == null || MailNo3 == null)
                 {
-                    ViewBag.Message = "產生郵件號碼失敗或不完整,請重新產生！";
+                    ViewBag.Message = "產生郵件號碼失敗或不完整,請重新產生!!";
                     return View("~/Views/Shared/AlertMessage.cshtml");
                 }
 

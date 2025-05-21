@@ -48,6 +48,30 @@ namespace WebHome.Controllers
                 }));
         }
 
+        public ActionResult SearchHeadquarter(String term, bool? encrypt)
+        {
+            IQueryable<Organization> items = models!
+                .GetTable<Organization>()
+                .Where(o => o.MasterOrganization != null);
+
+            if (!String.IsNullOrEmpty(term))
+            {
+                items = items
+                    .Where(f => f.ReceiptNo.StartsWith(term) || f.CompanyName.Contains(term));
+            }
+            else
+            {
+                items = items.Where(f => false);
+            }
+
+            return Json(items.OrderBy(o => o.ReceiptNo).ToArray()
+                .Select(o => new
+                {
+                    label = $"{o.ReceiptNo} {o.CompanyName}",
+                    value = encrypt == true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString()
+                }));
+        }
+
         [Authorize]
         public ActionResult GetCompany(String term)
         {

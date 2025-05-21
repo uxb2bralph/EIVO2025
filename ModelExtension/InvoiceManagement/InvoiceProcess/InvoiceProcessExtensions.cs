@@ -21,6 +21,11 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
         {
             return seller.OrganizationSettings.Any(s => s.Settings == "HybridB2B");
         }
+        public static bool AllB2B(this Organization seller)
+        {
+            return seller.OrganizationSettings.Any(s => s.Settings == "AllB2B");
+        }
+
 
         public static bool InvoiceNotUploadedAlert(this Organization seller)
         {
@@ -47,6 +52,13 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
         {
             return seller.OrganizationSettings.Any(s => s.Settings == "ForcedAuditNo");
         }
+
+        public static bool IsMasterBranch(this Organization seller)
+        {
+            return seller.MasterOrganization != null
+                /*|| seller.OrganizationSettings.Any(s => s.Settings == "MasterBranch")*/;
+        }
+
 
         public static bool UseDefaultTaxRate(this Organization seller)
         {

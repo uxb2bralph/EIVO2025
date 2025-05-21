@@ -53,8 +53,8 @@ namespace ModelCore.InvoiceManagement
                     InvoiceItem newItem = validator.InvoiceItem;
                     this.EntityList.InsertOnSubmit(newItem);
 
-                    C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
-                    C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                    F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
 
                     this.SubmitChanges();
 
@@ -95,8 +95,8 @@ namespace ModelCore.InvoiceManagement
                     InvoiceAllowance newItem = validator.Allowance;
                     this.GetTable<InvoiceAllowance>().InsertOnSubmit(newItem);
 
-                    D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
-                    D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    G0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
+                    G0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
 
                     this.SubmitChanges();
 
@@ -158,8 +158,8 @@ namespace ModelCore.InvoiceManagement
                     };
 
                     this.GetTable<DerivedDocument>().InsertOnSubmit(doc);
-                    C0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                    C0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    F0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                    F0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                     this.SubmitChanges();
 
                     eventItems.Add(cancelItem.InvoiceItem);
@@ -219,8 +219,8 @@ namespace ModelCore.InvoiceManagement
                     };
 
                     this.GetTable<DerivedDocument>().InsertOnSubmit(doc);
-                    D0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                    D0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    G0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                    G0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                     this.SubmitChanges();
 
                     eventItems.Add(cancelItem.InvoiceAllowance);

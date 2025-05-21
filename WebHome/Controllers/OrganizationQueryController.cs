@@ -69,7 +69,7 @@ namespace WebHome.Controllers
                 var agentItems = models.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == viewModel.AgentID);
                 if (viewModel.BranchRelation == true)
                 {
-                    agentItems = agentItems.Where(a => a.RelationType == (int)InvoiceIssuerAgent.Relationship.MasterBranch);
+                    agentItems = agentItems.Where(a => a.RelationType == (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch);
                 }
 
                 tmpModels.Items = tmpModels.Items.Where(o => agentItems.Any(c => c.IssuerID == o.CompanyID));

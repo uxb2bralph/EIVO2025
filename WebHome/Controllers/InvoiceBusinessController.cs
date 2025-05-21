@@ -28,6 +28,7 @@ using ModelCore.Resource;
 using CommonLib.Utility;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using WebHome.Helper.Security.Authorization;
+using System.Threading.Tasks;
 
 namespace WebHome.Controllers
 {
@@ -223,10 +224,10 @@ namespace WebHome.Controllers
                 }
 
                 models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
-                C0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                F0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
                 if (viewModel.Counterpart == true || !String.IsNullOrEmpty(viewModel.BuyerReceiptNo) || !String.IsNullOrEmpty(viewModel.EMail))
                 {
-                    C0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    F0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                 }
                 models.SubmitChanges();
 
@@ -326,9 +327,16 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CommitAllowance(AllowanceViewModel viewModel)
+        public async Task<ActionResult> CommitAllowance([FromBody] AllowanceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
+
+            if(viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<AllowanceViewModel>();
+                ModelState.Clear();
+            }
+
             if (viewModel.KeyID != null)
             {
                 viewModel.SellerID = viewModel.DecryptKeyValue();
@@ -346,17 +354,17 @@ namespace WebHome.Controllers
             models.GetTable<InvoiceAllowance>().InsertOnSubmit(newItem);
             if (newItem.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.D0401)
             {
-                D0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
-                D0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
+                G0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                G0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
             }
             else
             {
-                B0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
-                B0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
+                B0101Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                B0101Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
             }
             models.SubmitChanges();
 
-            return View("~/Views/InvoiceBusiness/Module/AllowanceCreated.ascx", newItem);
+            return View("~/Views/InvoiceBusiness/Module/AllowanceCreated.cshtml", newItem);
 
         }
 

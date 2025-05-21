@@ -70,7 +70,7 @@ namespace ModelCore.Schema.TurnKey.E0401 {
         
         /// <remarks/>
         [System.Xml.Serialization.XmlEnumAttribute("07")]
-        Item07,
+        Item07 = 7,
         
         /// <remarks/>
         [System.Xml.Serialization.XmlEnumAttribute("08")]

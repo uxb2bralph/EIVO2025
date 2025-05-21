@@ -53,6 +53,14 @@
             </tr>
             <tr>
                 <th nowrap="nowrap">
+                    折讓單號碼
+                </th>
+                <td class="tdleft" colspan="3">
+                    <input class="form-control" name="AllowanceNumber" type="text" value="" />
+                </td>
+            </tr>
+            <tr>
+                <th nowrap="nowrap">
                     營業稅額合計
                 </th>
                 <td class="tdleft">
@@ -93,10 +101,10 @@
                 {
                     <tr>
                         <td>
-                            <input class="form-control" name="InvoiceDate" type="text" value="@($"{_viewModel.InvoiceDate[i]:yyyy/MM/dd}")" readonly="readonly" />
+                            <input class="form-control" name="OriginalInvoiceDate" type="text" value="@($"{_viewModel.OriginalInvoiceDate[i]:yyyy/MM/dd}")" readonly="readonly" />
                         </td>
                         <td>
-                            <input class="form-control" name="InvoiceNo" type="text" value="@(_viewModel.InvoiceNo[i])" readonly="readonly" />
+                            <input class="form-control" name="OriginalInvoiceNo" type="text" value="@(_viewModel.OriginalInvoiceNo[i])" readonly="readonly" />
                             <input class="form-control" name="OriginalSequenceNo" type="hidden" value="@(_viewModel.OriginalSequenceNo[i])" />
                         </td>
                         @*<td>                    </td>*@
@@ -200,7 +208,18 @@
                     $formData.buyerReceiptNo = '@(_viewModel.BuyerReceiptNo)';
                     $formData.buyerName = '@(_viewModel.BuyerName)';
                     $formData.ProcessType = '@(_viewModel.ProcessType)';
-                    $formData.KeyID = '@(seller.CompanyID.EncryptKey())';
+                    $formData.KeyID = '@Html.Raw(seller.CompanyID.EncryptKey())';
+                    toArrayField($formData, 'OriginalInvoiceDate');
+                    toArrayField($formData, 'OriginalInvoiceNo');
+                    toArrayField($formData, 'OriginalSequenceNo');
+                    toArrayField($formData, 'OriginalDescription');
+                    toArrayField($formData, 'Piece');
+                    toArrayField($formData, 'PieceUnit');
+                    toArrayField($formData, 'UnitCost');
+                    toArrayField($formData, 'Amount');
+                    toArrayField($formData, 'Tax');
+                    toArrayField($formData, 'TaxType');
+                    debugger;
                     showLoading();
                     doPost('@Html.Raw(Url.Action("CommitAllowance","InvoiceBusiness"))', $formData, function (data) {
                         hideLoading();

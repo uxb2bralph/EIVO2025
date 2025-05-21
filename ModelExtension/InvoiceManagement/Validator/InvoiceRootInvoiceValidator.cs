@@ -15,6 +15,7 @@ using ModelCore.Models.ViewModel;
 using CommonLib.Utility;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using CommonLib.DataAccess;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ModelCore.InvoiceManagement.Validator
 {
@@ -39,9 +40,9 @@ namespace ModelCore.InvoiceManagement.Validator
 
         protected InvoiceRootInvoice _invItem;
 
-        protected InvoiceItem _newItem;
+        protected InvoiceItem? _newItem;
         protected InvoiceItem _container;
-        protected Organization _seller;
+        protected Organization? _seller;
         protected bool _isCrossBorderMerchant;
         protected InvoicePurchaseOrder _order;
         protected InvoicePurchaseOrderAudit _orderAudit;
@@ -65,6 +66,8 @@ namespace ModelCore.InvoiceManagement.Validator
 
             initializeDeliveryCheck();
         }
+
+        //public ModelStateDictionary ModelState { get; } = new ModelStateDictionary();
 
         public GenericManager<EIVOEntityDataContext> DataSource => _models;
 
@@ -249,10 +252,11 @@ namespace ModelCore.InvoiceManagement.Validator
         }
 
 
-        public virtual Exception Validate(InvoiceRootInvoice dataItem)
+        public virtual Exception? Validate(InvoiceRootInvoice dataItem)
         {
             _invItem = dataItem;
 
+            //ModelState.Clear();
             Exception ex;
 
             //_seller = null;
@@ -703,9 +707,10 @@ namespace ModelCore.InvoiceManagement.Validator
                 return new Exception(String.Format(MessageResources.InvalidBuyerNameLengthLimit, _invItem.BuyerName));
             }
 
-            if (processType == Naming.InvoiceProcessType.A0401 || processType == Naming.InvoiceProcessType.A0101)
+            if (_invItem.BuyerId == "0000000000")
             {
-                if (_invItem.BuyerId == "0000000000")
+                if (processType == Naming.InvoiceProcessType.A0401 || processType == Naming.InvoiceProcessType.A0101
+                    || _seller.AllB2B() == true)
                 {
                     return new Exception(String.Format(MessageResources.InvalidBuyerId, _invItem.BuyerId));
                 }

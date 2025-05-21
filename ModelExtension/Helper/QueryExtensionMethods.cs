@@ -37,6 +37,22 @@ namespace ModelCore.Helper
                 .Append(new InquireWinningInvoice { QueryViewModel = viewModel });
         }
 
+        public static ModelSourceInquiry<InvoiceAllowance> CreateAllowanceInquiry(this InquireInvoiceViewModel? viewModel, UserProfile? profile)
+        {
+            var inquireConsumption = new InquireAllowanceConsumption { QueryViewModel = viewModel };
+
+            return (ModelSourceInquiry<InvoiceAllowance>)(new InquireEffectiveAllowance { QueryViewModel = viewModel })
+                .Append(new InquireAllowanceByRole(profile) { QueryViewModel = viewModel })
+                .Append(inquireConsumption)
+                .Append(new InquireAllowanceSeller { QueryViewModel = viewModel })
+                .Append(new InquireAllowanceBuyer { QueryViewModel = viewModel })
+                .Append(new InquireAllowanceBuyerByName { QueryViewModel = viewModel })
+                .Append(new InquireAllowanceDate { QueryViewModel = viewModel })
+                .Append(new InquireAllowanceNo { QueryViewModel = viewModel })
+                .Append(new InquireAllowanceAgent { QueryViewModel = viewModel });
+        }
+
+
         public static void BuildInvoiceQuery(this ModelSource<InvoiceItem> modelSource, InquireInvoiceViewModel viewModel, UserProfile? profile, String? resultAction)
         {
             void checkQueryExtension(String? resultAction, InquireInvoiceViewModel viewModel)

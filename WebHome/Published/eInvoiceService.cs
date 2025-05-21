@@ -1344,7 +1344,7 @@ namespace WebHome.Published
                 result.Response = new RootResponseForA0101
                 {
                     Invoice =
-                    items.Select(d => d.CDS_Document.InvoiceItem.CreateA0101()).ToArray()
+                    items.Select(d => d.CDS_Document.InvoiceItem.CreateInvoiceMIG(false)).ToArray()
                 };
 
                 table.DeleteAllOnSubmit(items);

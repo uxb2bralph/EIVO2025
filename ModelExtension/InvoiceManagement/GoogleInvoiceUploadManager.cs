@@ -138,8 +138,8 @@ namespace ModelCore.InvoiceManagement
             checkAmountValue(item,isB2C);
             checkDateValue(item);
 
-            C0401Handler.PushStepQueueOnSubmit(this, item.Invoice.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-            C0401Handler.PushStepQueueOnSubmit(this, item.Invoice.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+            F0401Handler.PushStepQueueOnSubmit(this, item.Invoice.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+            F0401Handler.PushStepQueueOnSubmit(this, item.Invoice.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
 
             return _bResult;
         }

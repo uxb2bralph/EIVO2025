@@ -53,7 +53,7 @@ namespace WebHome.Controllers
             IQueryable<InvoiceTrackCode> items = models.GetTable<InvoiceTrackCode>()
                 .Where(t => t.Year == viewModel.Year);
 
-            if (viewModel.PeriodNo.HasValue)
+            if(viewModel.PeriodNo.HasValue)
             {
                 items = items.Where(t => t.PeriodNo == viewModel.PeriodNo);
             }
@@ -102,7 +102,7 @@ namespace WebHome.Controllers
             {
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "發票字軌資料錯誤!!");
             }
-
+            
             return View("~/Views/TrackCode/Module/DataItem.cshtml", item);
 
         }
@@ -112,7 +112,7 @@ namespace WebHome.Controllers
             ViewBag.ViewModel = viewModel;
 
             viewModel.TrackCode = viewModel.TrackCode.GetEfficientString();
-            if (viewModel.TrackCode == null || !Regex.IsMatch(viewModel.TrackCode, "^[A-Za-z]{2}$"))
+            if (viewModel.TrackCode==null || !Regex.IsMatch(viewModel.TrackCode,"^[A-Za-z]{2}$"))
             {
                 ModelState.AddModelError("TrackCode", "字軌應為二位英文字母!!");
             }

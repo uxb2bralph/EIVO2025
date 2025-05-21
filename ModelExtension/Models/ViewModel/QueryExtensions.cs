@@ -527,12 +527,29 @@ namespace ModelCore.Models.ViewModel
             {
                 if (viewModel.SellerID.HasValue)
                 {
-                    items = items.Where(t => t.InvoiceTrackCodeAssignment.SellerID == viewModel.SellerID);
+                    if (viewModel.BranchRelation == true)
+                    {
+                        items = items.Join(models.GetQueryByAgent(viewModel.SellerID.Value), 
+                                    n => n.SellerID, i => i.CompanyID, (n, i) => n);
+                    }
+                    else
+                    {
+                        items = items.Where(t => t.SellerID == viewModel.SellerID);
+                    }
                 }
             }
             else
             {
-                items = items.Join(profile.InitializeOrganizationQuery(models).Where(o => o.CompanyID == viewModel.SellerID),
+                var issuerItems = profile.InitializeOrganizationQuery(models);
+                if(viewModel.BranchRelation == true)
+                {
+                }
+                else
+                {
+                    issuerItems = issuerItems.Where(o => o.CompanyID == viewModel.SellerID);
+                }
+
+                items = items.Join(issuerItems,
                     n => n.SellerID, o => o.CompanyID, (n, o) => n);
             }
 
@@ -574,6 +591,22 @@ namespace ModelCore.Models.ViewModel
             }
 
             return mgr.GetTable<Organization>().Where(o => false);
+        }
+
+        public static IQueryable<InvoiceNoMainAssignment> InquireHeaquarterNoAssignment(this InquireNoIntervalViewModel viewModel, GenericManager<EIVOEntityDataContext> models)
+        {
+            IQueryable<InvoiceNoMainAssignment> items = models.GetTable<InvoiceNoMainAssignment>()
+                .Where(m => m.MasterID == viewModel.SellerID);
+
+            var trackCodeItems = models.GetTable<InvoiceTrackCode>()
+                .Where(t => t.Year == viewModel.Year)
+                .Where(t => t.PeriodNo == viewModel.PeriodNo);
+
+            items = items.Join(trackCodeItems,
+                m => m.TrackID, t => t.TrackID, (m, t) => m);
+
+            return items;
+
         }
 
     }

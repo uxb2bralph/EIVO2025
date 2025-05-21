@@ -140,7 +140,7 @@ namespace ModelCore.InvoiceManagement
                         MaxWaitingCount = 8,
                         Process = () =>
                         {
-                            C0401Handler.WriteToTurnkeyInBatches();
+                            F0401Handler.WriteToTurnkeyInBatches();
                             A0101Handler.ReceiveFiles();
 
                             //__Tasks.Add(Task.Run(() =>
@@ -156,7 +156,7 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    C0501Handler c0501 = new C0501Handler(models);
+                                    F0501Handler c0501 = new F0501Handler(models);
                                     //c0501.NotifyIssued();
                                     c0501.WriteToTurnkey();
                                 }
@@ -166,7 +166,7 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    D0401Handler d0401 = new D0401Handler(models);
+                                    G0401Handler d0401 = new G0401Handler(models);
                                     //d0401.NotifyIssued();
                                     d0401.WriteToTurnkey();
                                 }
@@ -175,7 +175,7 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    D0501Handler d0501 = new D0501Handler(models);
+                                    G0501Handler d0501 = new G0501Handler(models);
                                     //d0501.NotifyIssued();
                                     d0501.WriteToTurnkey();
                                 }
@@ -198,7 +198,7 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    A0501Handler a0501 = new A0501Handler(models);
+                                    A0201Handler a0501 = new A0201Handler(models);
                                     //a0501.ProcessToIssue();
                                     //a0501.NotifyIssued();
                                     a0501.WriteToTurnkey();
@@ -220,7 +220,7 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    B0401Handler b0401 = new B0401Handler(models);
+                                    B0101Handler b0401 = new B0101Handler(models);
                                     //b0401.NotifyIssued();
                                     b0401.WriteToTurnkey();
                                 }
@@ -231,7 +231,7 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    B0501Handler b0501 = new B0501Handler(models);
+                                    B0201Handler b0501 = new B0201Handler(models);
                                     //b0501.NotifyIssued();
                                     b0501.WriteToTurnkey();
                                 }

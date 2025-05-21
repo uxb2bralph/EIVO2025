@@ -55,7 +55,6 @@
       <Association Name="Organization_ProcessExceptionNotification" Member="ProcessExceptionNotification" ThisKey="CompanyID" OtherKey="CompanyID" Type="ProcessExceptionNotification" />
       <Association Name="Organization_ProductSupplier" Member="ProductSupplier" ThisKey="CompanyID" OtherKey="SupplierID" Type="ProductSupplier" />
       <Association Name="Organization_InvoiceTrackCodeAssignment" Member="InvoiceTrackCodeAssignment" ThisKey="CompanyID" OtherKey="SellerID" Type="InvoiceTrackCodeAssignment" />
-      <Association Name="Organization_InvoiceNoMainAssignment" Member="InvoiceNoMainAssignment" ThisKey="CompanyID" OtherKey="MasterID" Type="InvoiceNoMainAssignment" />
       <Association Name="Organization_OrganizationSettings" Member="OrganizationSettings" ThisKey="CompanyID" OtherKey="CompanyID" Type="OrganizationSettings" />
       <Association Name="Organization_CustomSmtpHost" Member="CustomSmtpHost" ThisKey="CompanyID" OtherKey="CompanyID" Type="CustomSmtpHost" />
       <Association Name="Organization_OrganizationCustomSetting" Member="OrganizationCustomSetting" ThisKey="CompanyID" OtherKey="CompanyID" Type="OrganizationCustomSetting" Cardinality="One" />
@@ -1702,21 +1701,10 @@
       <Column Name="AssignmentID" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Association Name="InvoiceTrackCodeAssignment_InvoiceNoInterval" Member="InvoiceNoInterval" ThisKey="TrackID,SellerID" OtherKey="TrackID,SellerID" Type="InvoiceNoInterval" />
       <Association Name="InvoiceTrackCodeAssignment_UnassignedInvoiceNo" Member="UnassignedInvoiceNo" ThisKey="TrackID,SellerID" OtherKey="TrackID,SellerID" Type="UnassignedInvoiceNo" />
+      <Association Name="InvoiceTrackCodeAssignment_InvoiceNoMainAssignment" Member="InvoiceNoMainAssignment" ThisKey="TrackID,SellerID" OtherKey="TrackID,MasterID" Type="InvoiceNoMainAssignment" />
       <Association Name="Organization_InvoiceTrackCodeAssignment" Member="Organization" ThisKey="SellerID" OtherKey="CompanyID" Type="Organization" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
-      <Association Name="InvoiceNoMainAssignment_InvoiceTrackCodeAssignment" Member="InvoiceNoMainAssignment" ThisKey="AssignmentID" OtherKey="AssignmentID" Type="InvoiceNoMainAssignment" IsForeignKey="true" />
       <Association Name="InvoiceTrackCode_InvoiceTrackCodeAssignment" Member="InvoiceTrackCode" ThisKey="TrackID" OtherKey="TrackID" Type="InvoiceTrackCode" IsForeignKey="true" />
-    </Type>
-  </Table>
-  <Table Name="dbo.InvoiceNoMainAssignment" Member="InvoiceNoMainAssignment">
-    <Type Name="InvoiceNoMainAssignment">
-      <Column Name="AssignmentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="TrackID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="MasterID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="StartNo" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="EndNo" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Association Name="InvoiceNoMainAssignment_InvoiceTrackCodeAssignment" Member="InvoiceTrackCodeAssignment" ThisKey="AssignmentID" OtherKey="AssignmentID" Type="InvoiceTrackCodeAssignment" />
-      <Association Name="Organization_InvoiceNoMainAssignment" Member="Organization" ThisKey="MasterID" OtherKey="CompanyID" Type="Organization" IsForeignKey="true" />
-      <Association Name="InvoiceTrackCode_InvoiceNoMainAssignment" Member="InvoiceTrackCode" ThisKey="TrackID" OtherKey="TrackID" Type="InvoiceTrackCode" IsForeignKey="true" />
+      <Association Name="InvoiceNoMainAssignment_InvoiceTrackCodeAssignment" Member="HeadquarterNoAssignment" ThisKey="AssignmentID" OtherKey="AssignmentID" Type="InvoiceNoMainAssignment" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.VacantInvoiceNo" Member="VacantInvoiceNo">
@@ -1758,7 +1746,6 @@
       <Column Name="PeriodID" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Association Name="InvoiceTrackCode_InvoiceItem" Member="InvoiceItem" ThisKey="TrackID" OtherKey="TrackID" Type="InvoiceItem" />
       <Association Name="InvoiceTrackCode_InvoiceTrackCodeAssignment" Member="InvoiceTrackCodeAssignment" ThisKey="TrackID" OtherKey="TrackID" Type="InvoiceTrackCodeAssignment" />
-      <Association Name="InvoiceTrackCode_InvoiceNoMainAssignment" Member="InvoiceNoMainAssignment" ThisKey="TrackID" OtherKey="TrackID" Type="InvoiceNoMainAssignment" />
       <Association Name="InvoicePeriod_InvoiceTrackCode" Member="InvoicePeriod" ThisKey="PeriodID" OtherKey="PeriodID" Type="InvoicePeriod" IsForeignKey="true" />
     </Type>
   </Table>
@@ -1955,9 +1942,9 @@
       <Column Name="RequestType" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Column Name="InvoiceContent" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
       <Column Name="CommitDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
-		<Column Name="ReviseContent" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
-		<Column Name="InvoiceNo" Type="System.String" DbType="NVarChar(16)" CanBeNull="true" />
-		<Association Name="CDS_Document_VoidInvoiceRequest" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Column Name="ReviseContent" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="InvoiceNo" Type="System.String" DbType="NVarChar(16)" CanBeNull="true" />
+      <Association Name="CDS_Document_VoidInvoiceRequest" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
   <Table Name="dbo.UserProfileProperty" Member="UserProfileProperty">
@@ -1966,6 +1953,17 @@
       <Column Name="PropertyID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
       <Column Name="Property" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
       <Association Name="UserProfile_UserProfileProperty" Member="UserProfile" ThisKey="UID" OtherKey="UID" Type="UserProfile" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.InvoiceNoMainAssignment" Member="InvoiceNoMainAssignment">
+    <Type Name="InvoiceNoMainAssignment">
+      <Column Name="AssignmentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="TrackID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="MasterID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="StartNo" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="EndNo" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="InvoiceNoMainAssignment_InvoiceTrackCodeAssignment" Member="BranchNoAssignment" ThisKey="AssignmentID" OtherKey="AssignmentID" Type="InvoiceTrackCodeAssignment" />
+      <Association Name="InvoiceTrackCodeAssignment_InvoiceNoMainAssignment" Member="InvoiceTrackCodeAssignment" ThisKey="TrackID,MasterID" OtherKey="TrackID,SellerID" Type="InvoiceTrackCodeAssignment" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
   <Function Name="dbo.MatchDocumentAttachment" Method="MatchDocumentAttachment">

@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.Xml.XPath;
 using CommonLib.Helper;
@@ -104,6 +105,28 @@ namespace CommonLib.Utility
             return ms;
         }
 
+        public static void ValidateXmlAgainstSchema(XmlDocument doc, string xsdPath)
+        {
+            try
+            {
+                XmlSchemaSet schemaSet = new XmlSchemaSet();
+                schemaSet.Add(null, xsdPath);
+
+                doc.Schemas = schemaSet;
+
+                doc.Validate((sender, args) =>
+                {
+                    Console.WriteLine($"Validation error: {args.Message}");
+                    Console.WriteLine($"Line: {args.Exception?.LineNumber}, Position: {args.Exception?.LinePosition}");
+                });
+
+                Console.WriteLine("XML validation completed.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Schema validation error: {ex.Message}");
+            }
+        }
 
         public static T ConvertTo<T>(this XmlDocument docMsg)
         {
@@ -124,6 +147,33 @@ namespace CommonLib.Utility
             xnr.Close();
             return entData;
         }
+
+        public static T DebugConvertTo<T>(this XmlNode doc)
+        {
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                using (var reader = new StringReader(doc.OuterXml))
+                {
+                    return (T)serializer.Deserialize(reader);
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+
+                    // Check if it's a format exception
+                    if (ex.InnerException is FormatException formatEx)
+                    {
+                        Console.WriteLine($"Format error: {formatEx.Message}");
+                    }
+                }
+                throw;
+            }
+        }
+
 
 
         public static T ConvertTo<T>(this Stream dataStream)
@@ -876,6 +926,59 @@ namespace CommonLib.Utility
                 node.ParentNode.RemoveChild(node);
             }
             return docMsg;
+        }
+
+        public static string[] FromCsvLine(this string csvLine, char delimiter = ',', char quotation = '"', List<String> container = null)
+        {
+            List<string> fields = container ?? new List<string>();
+            bool inQuotes = false;
+            StringBuilder currentField = new StringBuilder();
+
+            for (int i = 0; i < csvLine.Length; i++)
+            {
+                char c = csvLine[i];
+
+                // 遇到雙引號
+                if (c == quotation)
+                {
+                    // 檢查是否為字段開頭的引號（即字段被引號包裹）
+                    if (!inQuotes && currentField.Length == 0)
+                    {
+                        inQuotes = true;
+                    }
+                    // 檢查是否為字段結尾的引號
+                    else if (inQuotes && (i + 1 >= csvLine.Length || csvLine[i + 1] == delimiter))
+                    {
+                        inQuotes = false;
+                    }
+                    // 檢查是否為轉義的雙引號（僅在引號包裹的字段內有效）
+                    else if (inQuotes && i + 1 < csvLine.Length && csvLine[i + 1] == quotation)
+                    {
+                        currentField.Append(quotation);
+                        i++; // 跳過下一個引號
+                    }
+                    // 其他情況：直接當作普通字符（允許未包裹的字段包含雙引號）
+                    else
+                    {
+                        currentField.Append(c);
+                    }
+                }
+                // 遇到逗號，且不在引號包裹的字段內
+                else if (c == delimiter && !inQuotes)
+                {
+                    fields.Add(currentField.ToString());
+                    currentField.Clear();
+                }
+                else
+                {
+                    currentField.Append(c);
+                }
+            }
+
+            // 添加最後一個欄位
+            fields.Add(currentField.ToString());
+
+            return fields.ToArray();
         }
 
         public static String[] ParseCsvLine(this String line, char delimiter = ',', char quotation = '"')
