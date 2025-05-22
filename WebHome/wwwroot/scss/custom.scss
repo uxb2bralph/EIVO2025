@@ -590,3 +590,31 @@ footer {
 .error {
     color: rgb(223, 67, 67);
 }
+
+.ui-menu {
+    border-radius: 0.5rem;
+    box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+
+    &-item {
+
+        .ui-state-active {
+            border-width: 0 !important;
+        }
+
+        &:nth-child(1) {
+            .ui-state-active {
+                border-top-left-radius: 0.5rem;
+                border-top-right-radius: 0.5rem;
+                border-width: 0;
+            }
+        }
+
+        &:nth-last-child(1) {
+            .ui-state-active {
+                border-bottom-left-radius: 0.5rem;
+                border-bottom-right-radius: 0.5rem;
+                border-width: 0;
+            }
+        }
+    }
+}

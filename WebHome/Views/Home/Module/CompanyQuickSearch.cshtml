@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -40,50 +39,39 @@
     _item = _model?.Where(c => c.CompanyID == _viewModel.SellerID).FirstOrDefault();
 }
 
-<input type="text" class="form-control" size="40" id="@(_contentID)" value="@(_item!=null ? $"{_item.ReceiptNo} {_item.CompanyName}" : null)" placeholder="請輸入檢索關鍵字" />
-<input type="hidden" id="@(_valueID)" name="@(_fieldName)" value="@(_viewModel.Encrypt==true && _viewModel.SellerID.HasValue ? _viewModel.SellerID.Value.EncryptKey() : _viewModel.SellerID.ToString())" />
+<input type="text" class="form-control form-select-sm" id="@(_contentID)"
+    value="@(_item != null ? $"{_item.ReceiptNo} {_item.CompanyName}" : null)" placeholder="請輸入檢索關鍵字" />
+<input type="hidden" id="@(_valueID)" name="@(_fieldName)"
+    value="@(_viewModel.Encrypt == true && _viewModel.SellerID.HasValue ? _viewModel.SellerID.Value.EncryptKey() : _viewModel.SellerID.ToString())" />
 <script>
-        $(function () {
-            debugger;
-            var $input = $('#@(_contentID)');
-            $input.on('change', function (evt) {
+    $(function () {
+        debugger;
+        var $input = $('#@(_contentID)');
+        $input.on('change', function (evt) {
+            if ($input.val() == '') {
+                $('#@(_valueID)').val('');
+            }
+        });
+        $input.autocomplete({
+            source: '@Html.Raw(Url.Action("SearchCompany", "Home", new { _viewModel.Encrypt }))',
+            select: function (event, ui) {
+                $input.val(ui.item.label);
+                $('#@(_valueID)').val(ui.item.value);
+                event.preventDefault();
+                @if (_viewModel.JS_OnSelect != null)
+                    {
+                        <text>@Html.Raw(_viewModel.JS_OnSelect)</text>
+                }
+                    else
+                    {
+                        <text>$('#@(_valueID)').trigger('change');</text>
+                }
+                },
+            close: function (event, ui) {
                 if ($input.val() == '') {
                     $('#@(_valueID)').val('');
                 }
-            });
-            $input.autocomplete({
-                source: '@Html.Raw(Url.Action("SearchCompany", "Home",new { _viewModel.Encrypt }))',
-                select: function (event, ui) {
-                    $input.val(ui.item.label);
-                    $('#@(_valueID)').val(ui.item.value);
-                    event.preventDefault();
-                @if (_viewModel.JS_OnSelect != null)
-                {
-                    <text>@Html.Raw(_viewModel.JS_OnSelect)</text>
-                }
-                else
-                {
-                    <text>$('#@(_valueID)').trigger('change');</text>
-                }
-                },
-                close: function (event, ui) {
-                    if ($input.val() == '') {
-                        $('#@(_valueID)').val('');
-                    }
-                },
-            });
+            },
         });
-
-    @*@if (Request[_fieldName] != null)
-    {
-        <text>
-            $(function() {
-                $('#@(_valueID)').val('@(Request[_fieldName])');
-            });
-        </text>
-    }*@
+    });
 </script>
-
-
-
-

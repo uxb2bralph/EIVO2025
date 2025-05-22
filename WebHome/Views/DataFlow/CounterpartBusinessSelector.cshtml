@@ -1,9 +1,7 @@
-
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
-
 
 @using WebHome.Helper
 @using ModelCore.Locale
@@ -14,7 +12,6 @@
 @using WebHome.Controllers
 
 @{
-
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
     IEnumerable<Organization> _model;
@@ -31,7 +28,7 @@
     _contentID = (String)ViewBag.FieldID ?? ("id" + DateTime.Now.Ticks);
     _profile = Context.GetUser();
 }
-<input type="text" size="40" id="@(_contentID)" class="form-control" value="" placeholder="請輸入檢索關鍵字" />
+<input type="text" id="@(_contentID)" class="form-control form-select-sm" value="" placeholder="請輸入檢索關鍵字" />
 <input type="hidden" name="@(_fieldName)" />
 <script>
     $(function () {
@@ -47,16 +44,16 @@
         });
         $input.autocomplete({
             source: function (request, response) {
-                    showLoading();
+                showLoading();
                 $.post('@(Url.Action("SearchCounterpart", "Home"))', { 'term': request.term, 'sellerID': $('[name="SellerID"]').val() }, function (data) {
-                        hideLoading();
-                        if ($.isArray(data)) {
-                            response(data);
-                        } else {
-                            response([]);
-                        }
-                    });
-                },
+                    hideLoading();
+                    if ($.isArray(data)) {
+                        response(data);
+                    } else {
+                        response([]);
+                    }
+                });
+            },
             select: function (event, ui) {
                 $input.val(ui.item.label);
                 $('input:hidden[name="@(_fieldName)"]').val(ui.item.value);
@@ -81,6 +78,3 @@
         });
     </script>
 }
-
-
-
