@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -48,7 +47,7 @@
             }
 
             showLoading();
-            $.post('@Html.Raw(Url.Action(_viewModel.QueryAction ?? "Inquire","Account",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+            $.post('@Html.Raw(Url.Action(_viewModel.QueryAction ?? "Inquire", "Account", new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
                 hideLoading();
                 if (data) {
                     if (onPaging) {
@@ -73,7 +72,7 @@
                 $postForm.remove();
             }
 
-            $('<form method="post">').load('@Html.Raw(Url.Action("EditItem","UserProfile",new { SellerID = _viewModel.SellerID, DefaultRoleID = _viewModel.RoleID }))', { 'uid': uid }, function (evt) {
+            $('<form method="post">').load('@Html.Raw(Url.Action("EditItem", "UserProfile", new { SellerID = _viewModel.SellerID, DefaultRoleID = _viewModel.RoleID }))', { 'uid': uid }, function (evt) {
                 $postForm = $(this);
                 $global.actionDone = function () {
                     $postForm.dialog('close');
@@ -105,22 +104,51 @@
                         }
                     }
                 });
-            });
+        });
 
         };
 
-        window.uiAccountQuery.showItem = function (value) {
+    window.uiAccountQuery.showItem = function (value) {
+        var event = event || window.event;
+        var $tr = $(event.target).closest('tr');
+        uiAccountQuery.dataItem($tr, value);
+    };
+
+    window.uiAccountQuery.dataItem = function ($tr, value) {
+        $.post('@Html.Raw(Url.Action("DataItem", "Account"))', 'id=' + value, function (data) {
+            if (data) {
+                var $data = $(data);
+                if ($data.is('tr')) {
+                    $tr.before($data);
+                    $tr.remove();
+                } else {
+                    $('body').append($data);
+                    $data.remove();
+                }
+            }
+        });
+    };
+
+    window.uiAccountQuery.sendConfirmation = function (value) {
+        $.post('@Html.Raw(Url.Action("SendConfirmation", "Account"))', 'id=' + value, function (data) {
+            if (data) {
+                var $data = $(data);
+                $('body').append($data);
+                $data.remove();
+            }
+        });
+    };
+
+    window.uiAccountQuery.activate = function (value) {
+        if (confirm('確認啟用此帳號?')) {
             var event = event || window.event;
             var $tr = $(event.target).closest('tr');
-            uiAccountQuery.dataItem($tr, value);
-        };
-
-        window.uiAccountQuery.dataItem = function ($tr, value) {
-            $.post('@Html.Raw(Url.Action("DataItem","Account"))', 'id=' + value, function (data) {
+            $.post('@Html.Raw(Url.Action("Activate", "Account"))', { id: value }, function (data) {
                 if (data) {
                     var $data = $(data);
                     if ($data.is('tr')) {
                         $tr.before($data);
+                        alert('資料已更新!!');
                         $tr.remove();
                     } else {
                         $('body').append($data);
@@ -128,74 +156,44 @@
                     }
                 }
             });
-        };
+        }
+    };
 
-        window.uiAccountQuery.sendConfirmation = function (value) {
-            $.post('@Html.Raw(Url.Action("SendConfirmation","Account"))', 'id=' + value, function (data) {
+    window.uiAccountQuery.deactivate = function (value) {
+        if (confirm('確認停用此帳號?')) {
+            var event = event || window.event;
+            var $tr = $(event.target).closest('tr');
+            $.post('@Html.Raw(Url.Action("Deactivate", "Account"))', { id: value }, function (data) {
                 if (data) {
                     var $data = $(data);
-                    $('body').append($data);
-                    $data.remove();
-                }
-            });
-        };
-
-        window.uiAccountQuery.activate = function (value) {
-            if (confirm('確認啟用此帳號?')) {
-                var event = event || window.event;
-                var $tr = $(event.target).closest('tr');
-                $.post('@Html.Raw(Url.Action("Activate","Account"))', { id: value }, function (data) {
-                    if (data) {
-                        var $data = $(data);
-                        if ($data.is('tr')) {
-                            $tr.before($data);
-                            alert('資料已更新!!');
-                            $tr.remove();
-                        } else {
-                            $('body').append($data);
-                            $data.remove();
-                        }
-                    }
-                });
-            }
-        };
-
-        window.uiAccountQuery.deactivate = function (value) {
-            if (confirm('確認停用此帳號?')) {
-                var event = event || window.event;
-                var $tr = $(event.target).closest('tr');
-                $.post('@Html.Raw(Url.Action("Deactivate","Account"))', { id: value }, function (data) {
-                    if (data) {
-                        var $data = $(data);
-                        if ($data.is('tr')) {
-                            $tr.before($data);
-                            alert('資料已更新!!');
-                            $tr.remove();
-                        } else {
-                            $('body').append($data);
-                            $data.remove();
-                        }
-                    }
-                });
-            }
-        };
-
-        window.uiAccountQuery.delete = function (value) {
-            if (confirm('確認刪除此帳號?')) {
-                var event = event || window.event;
-                var $tr = $(event.target).closest('tr');
-                $.post('@Html.Raw(Url.Action("DeleteItem","Account"))', { id: value }, function (data) {
-                    if (data.result) {
-                        alert('資料已刪除!!')
+                    if ($data.is('tr')) {
+                        $tr.before($data);
+                        alert('資料已更新!!');
                         $tr.remove();
                     } else {
-                        alert(data.message);
+                        $('body').append($data);
+                        $data.remove();
                     }
+                }
+            });
+        }
+    };
 
-                });
-            }
-        };
+    window.uiAccountQuery.delete = function (value) {
+        if (confirm('確認刪除此帳號?')) {
+            var event = event || window.event;
+            var $tr = $(event.target).closest('tr');
+            $.post('@Html.Raw(Url.Action("DeleteItem", "Account"))', { id: value }, function (data) {
+                if (data.result) {
+                    alert('資料已刪除!!')
+                    $tr.remove();
+                } else {
+                    alert(data.message);
+                }
+
+            });
+        }
+    };
 
     });
 </script>
-
