@@ -29,89 +29,95 @@
 
 }
 <!--交易畫面標題-->
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "使用者管理");}
-
-<div class="border_gray">
-    <!--表格 開始-->
-    <table class="table table-striped" id="queryArea">
-        <tr>
-            <th colspan="4" class="Head_style_a">
-                查詢條件
-            </th>
-        </tr>
-        <tr>
-            <th nowrap="nowrap" width="120">
-                營業人名稱
-            </th>
-            <td colspan="3" class="tdleft">
-                @{
-                    @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new SellerSelectorViewModel { FieldName = "EncSellerID", Encrypt = true }));
-                }
-            </td>
-        </tr>
-        @*<tr>
-                <th nowrap="nowrap" width="120">
-                    角色
-                </th>
-                <td  colspan="3" class="tdleft">
-                    <uc1:EnumSelector runat="server" SelectorIndication="全部" ID="RoleID" FieldName="RoleID" TypeName="ModelCore.Locale.Naming+EIVOUserRoleID, Model, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
-                </td>
-            </tr>*@
-        <tr>
-            <th nowrap="nowrap" width="120">
-                帳號
-            </th>
-            <td class="tdleft">
-                <input name="PID" type="text" value="@(_viewModel?.PID)" class="form-control" />
-                <input name="RoleID" type="hidden" value="@((int?)_viewModel?.RoleID)" />
-            </td>
-            <th nowrap="nowrap" width="120">
-                姓名
-            </th>
-            <td class="tdleft">
-                <input name="UserName" type="text" value="@Html.Raw(_viewModel?.UserName)" class="form-control" />
-            </td>
-
-        </tr>
-        <tr>
-            <th nowrap="nowrap" width="120">
-                會員狀態
-            </th>
-            <td class="tdleft">
-                <select name="LevelID" class="form-control">
-                    <option value="">全部</option>
-                    @{
-                        await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelectOptions.cshtml", typeof(Naming.BusinessRelationshipStatus));
-                    }
-                </select>
-            </td>
-            <th>
-                每頁資料筆數
-            </th>
-            <td class="tdleft">
-                <input name="pageSize" type="text" value="@(_viewModel?.PageSize ?? ModelCore.Properties.AppSettings.Default.PageSize)" />
-            </td>
-        </tr>
-    </table>
-    <!--表格 結束-->
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+    @{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "使用者帳號管理");}
 </div>
-<!--按鈕-->
-<table border="0" cellspacing="0" cellpadding="0" width="100%" id="queryAction">
-    <tbody>
-        <tr>
-            <td class="Bargain_btn">
-                <button type="button" onclick="uiAccountQuery.inquire();">查詢</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+
+
+<!-- 查詢框 -->
+<div id="searchArea" class="mb-4 card shadow-sm border-2 rounded-3">
+    <div class="card-body">
+        <!-- 查詢條件 -->
+        <form id="queryForm">
+            <div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4">
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
+                            營業人名稱
+                        </label>
+                        <div class="col">
+                            @{
+                                @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new SellerSelectorViewModel { FieldName = "EncSellerID", Encrypt = true }));
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
+                            帳號
+                        </label>
+                        <div class="col">
+                            <input name="PID" type="text" value="@(_viewModel?.PID)" class="form-control form-control-sm" />
+                            <input name="RoleID" type="hidden" value="@((int?)_viewModel?.RoleID)" />
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
+                            姓名
+                        </label>
+                        <div class="col">
+                            <input name="UserName" type="text" value="@Html.Raw(_viewModel?.UserName)" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
+                            會員狀態
+                        </label>
+                        <div class="col">
+                            <select name="LevelID" class="form-select form-select-sm">
+                                <option value="">全部</option>
+                                @{
+                                    await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelectOptions.cshtml", typeof(Naming.BusinessRelationshipStatus));
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
+                            每頁資料筆數
+                        </label>
+                        <div class="col">
+                            <input name="pageSize" type="text" value="@(_viewModel?.PageSize ?? ModelCore.Properties.AppSettings.Default.PageSize)" class="form-control form-control-sm" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--按鈕-->
+            <div class="mt-3 px-1 d-block text-end">
+                <button id="btnQuery" type="button" class="mx-1 px-3 btn btn-sm eivo__btn--default"
+                    onclick="uiAccountQuery.inquire();">
+                    查詢
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!--表格 開始-->
+
 <script>
     $(function () {
         if (!window.uiAccountQuery) {
             window.uiAccountQuery = {
-                $queryAction: $('#queryAction'),
-                $form: $('#queryArea').closest('form')
+                $queryAction: $('#searchArea'),
+                $form: $('#searchArea').closest('form')
             };
         }
     });

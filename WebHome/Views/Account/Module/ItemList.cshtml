@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -34,7 +33,7 @@
     if (_viewModel.Sort != null && _viewModel.Sort.Length > 0)
     {
         _sort = _viewModel.Sort.Where(s => s.HasValue).Select(s => s.Value)
-             .ToArray();
+        .ToArray();
     }
     _pageSize = _viewModel.PageSize.Value;
 
@@ -44,18 +43,18 @@
         if (_order == null)
         {
             _items = _model.Skip(_viewModel.PageIndex.Value * _pageSize)
-                .Take(_pageSize);
+            .Take(_pageSize);
         }
         else
         {
             _items = _order.Skip(_viewModel.PageIndex.Value * _pageSize)
-                .Take(_pageSize);
+            .Take(_pageSize);
         }
     }
     else
     {
         _items = _model.Skip(_viewModel.PageIndex.Value * _pageSize)
-            .Take(_pageSize);
+        .Take(_pageSize);
     }
 }
 @functions
@@ -68,16 +67,22 @@
             switch (idx)
             {
                 case 1:
-                    _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null) : _order.ThenBy(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null);
+                    _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ?
+                    i.UserRole.First().OrganizationCategory.Organization.CompanyName : null) : _order.ThenBy(i => i.UserRole.Count > 0 ?
+                    i.UserRole.First().OrganizationCategory.Organization.CompanyName : null);
                     break;
                 case -1:
-                    _order = _order == null ? _model.OrderByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null) : _order.ThenByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null);
+                    _order = _order == null ? _model.OrderByDescending(i => i.UserRole.Count > 0 ?
+                    i.UserRole.First().OrganizationCategory.Organization.CompanyName : null) : _order.ThenByDescending(i => i.UserRole.Count
+                    > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null);
                     break;
                 case 2:
-                    _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0) : _order.ThenBy(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0);
+                    _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0) : _order.ThenBy(i =>
+                    i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0);
                     break;
                 case -2:
-                    _order = _order == null ? _model.OrderByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0) : _order.ThenByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0);
+                    _order = _order == null ? _model.OrderByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0) :
+                    _order.ThenByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0);
                     break;
                 case 3:
                     _order = _order == null ? _model.OrderBy(i => i.UserName) : _order.ThenBy(i => i.UserName);
@@ -149,4 +154,3 @@
         </tr>
     </tfoot>
 </table>
-
