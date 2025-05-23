@@ -31,7 +31,7 @@
     <td class="text-center">
         @(_model.UserRole.Count > 0 ? ((Naming.EIVOUserRoleID)_model.UserRole.First().RoleID).ToString() : null)
     </td>
-    <td class="text-center">@(_model.UserName)</td>
+    <td>@(_model.UserName)</td>
     <td class="text-center">@(_model.PID)</td>
     <td style="min-width: 250px;word-break: break-all;">@(_model.EMail)</td>
     <td>

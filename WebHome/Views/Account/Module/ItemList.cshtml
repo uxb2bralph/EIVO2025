@@ -113,44 +113,47 @@
         return _order;
     }
 }
-<table class="table table-striped itemList">
-    <thead>
-        <tr>
-            <th style="min-width: 120px;">公司名稱</th>
-            <th style="min-width: 120px;">角色</th>
-            <th style="min-width: 120px;">會員名稱</th>
-            <th style="min-width: 120px;">ID</th>
-            <th style="min-width: 240px;">電子郵件</th>
-            <th style="min-width: 150px" aria-sort="other">管理</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in _items)
-        {
-            await Html.RenderPartialAsync("~/Views/Account/Module/DataItem.cshtml", item);
-        }
-    </tbody>
-    <tfoot>
-        <tr>
-            <td colspan="5">
-                &nbsp;
-                @if (_sort != null && _sort.Length > 0)
-                {
+<div class="table-responsive">
+    <table class="table table-striped itemList eivo__table">
+        <thead>
+            <tr>
+                <th scope="col" class="text-nowrap" style="min-width: 120px;">公司名稱</th>
+                <th scope="col" class="text-nowrap" style="min-width: 120px;">角色</th>
+                <th scope="col" class="text-nowrap" style="min-width: 120px;">會員名稱</th>
+                <th scope="col" style="min-width: 120px;">ID</th>
+                <th scope="col" class="text-nowrap" style="min-width: 250px;">電子郵件</th>
+                <th scope="col" class="text-nowrap" style="width: 250px" aria-sort="other">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in _items)
+            {
+                await Html.RenderPartialAsync("~/Views/Account/Module/DataItem.cshtml", item);
+            }
+        </tbody>
+        @* <tfoot>
+            <tr>
+                <td colspan="5">
+                    &nbsp;
+                    @if (_sort != null && _sort.Length > 0)
+                    {
+                                <script>
+                                    $(function () {
+                                        initSort(@(JsonConvert.SerializeObject(_sort)), 1);
+                                    });
+                                </script>
+                    }
                     <script>
                         $(function () {
-                            initSort(@(JsonConvert.SerializeObject(_sort)), 1);
+                            buildSort(uiAccountQuery.inquire,@(_viewModel.PageIndex.Value + 1), 1);
                         });
                     </script>
-                }
-                <script>
-                    $(function () {
-                        buildSort(uiAccountQuery.inquire,@(_viewModel.PageIndex.Value + 1), 1);
-                    });
-                </script>
-            </td>
-            <td>
-                <a class="btn" onclick="uiAccountQuery.edit();">新增</a>
-            </td>
-        </tr>
-    </tfoot>
-</table>
+                </td>
+                <td>
+                    <a class="btn" onclick="uiAccountQuery.edit();">新增</a>
+                </td>
+            </tr>
+        </tfoot> *@
+    </table>
+    <span></span>
+</div>

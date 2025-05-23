@@ -31,53 +31,68 @@
     _pageSize = _viewModel.PageSize.Value;
 }
 
-@{
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
-}
-
-
-<div class="border_gray query_result">
+<div class="my-2 d-flex justify-content-between align-items-center">
     @{
-        var recordCount = _model.Count();
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
     }
-    @if (recordCount > 0)
-    {
-        await Html.RenderPartialAsync("~/Views/Account/Module/ItemList.cshtml", _model);
-
-        <input type="hidden" name="pageIndex" />
-        <nav aria-label="Page navigation">
-            <ul class="pagination" id="itemPagination"></ul>
-        </nav>
-        <script>
-            $(function () {
-                var obj = $('#itemPagination').twbsPagination({
-                    totalPages: @((recordCount + _pageSize - 1) / _pageSize),
-                    totalRecordCount: @(recordCount),
-                    visiblePages: 10,
-                    first: '最前',
-                    prev: '上頁',
-                    next: '下頁',
-                    last: '最後',
-                    initiateStartPageClick: false,
-                    onPageClick: function (event, page) {
-                        uiAccountQuery.inquire(page, function (data) {
-                            var $node = $('.itemList').next();
-                            $('.itemList').remove();
-                            $node.before(data);
-                        });
-                    }
-                });
-            });
-        </script>
-        if (ViewBag.ResultAction != null)
-        {
-            await Html.RenderPartialAsync((String)ViewBag.ResultAction);
-        }
-    }
-    else
-    {
-        <font color="red">查無資料!!</font>
-        <br />
-        <a class="btn" onclick="uiAccountQuery.edit();">新增</a>
-    }
+    <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--default text-nowrap" onclick="uiAccountQuery.edit();">
+        <i class="far fa-plus"></i>
+        新增
+    </button>
 </div>
+
+@* <div class="border_gray query_result"> *@
+@{
+    var recordCount = _model.Count();
+}
+<div class="card shadow-sm border-2 rounded-3">
+    <div id="tableList" class="card-body">
+        @if (recordCount > 0)
+        {
+            await Html.RenderPartialAsync("~/Views/Account/Module/ItemList.cshtml", _model);
+
+            if (ViewBag.ResultAction != null)
+            {
+                await Html.RenderPartialAsync((String)ViewBag.ResultAction);
+            }
+        }
+        else
+        {
+            <div class="py-3 fs-6 fw-bold text-danger text-center">
+                <i class="fas fa-exclamation-circle"></i>
+                目前尚無資料！
+            </div>
+        }
+    </div>
+</div>
+@if (recordCount > 0)
+{
+    <input type="hidden" name="PageIndex" />
+    <!-- 查詢分頁 -->
+    <div class="my-3 d-flex align-items-center">
+        <nav aria-label="Page navigation">
+            <ul id="itemPagination" class="mb-0 pagination eivo__pagination align-items-center"></ul>
+        </nav>
+    </div>
+    <script>
+        $(function () {
+            var obj = $('#itemPagination').twbsPagination({
+                totalPages: @((recordCount + _pageSize - 1) / _pageSize),
+                totalRecordCount: @(recordCount),
+                visiblePages: 10,
+                first: '<i class="fas fa-arrow-alt-to-left"></i>',
+                prev: '<i class="fas fa-arrow-alt-left"></i>',
+                next: '<i class="fas fa-arrow-alt-right"></i>',
+                last: '<i class="fas fa-arrow-alt-to-right"></i>',
+                initiateStartPageClick: false,
+                onPageClick: function (event, page) {
+                    uiAccountQuery.inquire(page, function (data) {
+                        var $node = $('.itemList').next();
+                        $('.itemList').remove();
+                        $node.before(data);
+                    });
+                }
+            });
+        });
+    </script>
+}

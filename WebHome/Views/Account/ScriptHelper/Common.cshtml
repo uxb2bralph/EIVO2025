@@ -25,8 +25,18 @@
     $(function () {
         var $postForm;
         if (!window.uiAccountQuery) {
-            window.uiAccountQuery = {};
-        }
+            window.uiAccountQuery = {
+                $queryAction: $('#searchArea'),
+                $form: $('#searchArea').closest('form')
+            };
+        };
+
+        window.uiAccountQuery.reset = function () {
+            //$('#queryResult').remove();
+            $('#theForm').reset();
+            //uiHandling.items = [];
+            //uiHandling.$result = null;
+        };
 
         window.uiAccountQuery.inquire = function (pageNum, onPaging) {
             var event = event || window.event;
@@ -41,10 +51,12 @@
             var $formData = $form.serializeObject();
             if (isNaN(pageNum)) {
                 $form.Sort = null;
+                $formData.PageIndex = null;
             } else {
                 $formData.Sort = $('input[name="sort"]').serializeObject().sort;
                 $formData.PageIndex = pageNum;
             }
+            console.log('$formData', $formData);
 
             showLoading();
             $.post('@Html.Raw(Url.Action(_viewModel.QueryAction ?? "Inquire", "Account", new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {

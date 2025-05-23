@@ -21,6 +21,8 @@
 
 }
 
-@{
-    await Html.RenderPartialAsync("~/Views/Handling/MailTracking/MailTrackingMessage.cshtml");
+@section formContent {
+    @{
+        await Html.RenderPartialAsync("~/Views/Handling/MailTracking/MailTrackingMessage.cshtml");
+    }
 }
