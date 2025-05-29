@@ -32,7 +32,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebHome.Controllers
 {
-   
+
     public class UserProfileController : SampleController<InvoiceItem>
     {
         public UserProfileController(IServiceProvider serviceProvider) : base(serviceProvider)
@@ -96,7 +96,7 @@ namespace WebHome.Controllers
                 viewModel.RoleID = (Naming.RoleID?)item.UserRole.Select(r => r.RoleID).FirstOrDefault();
             }
 
-            return View("~/Views/UserProfile/EditUserProfile.cshtml", model:item);
+            return View("~/Views/UserProfile/EditUserProfile.cshtml", model: item);
         }
 
         [AllowAnonymous]
@@ -110,14 +110,14 @@ namespace WebHome.Controllers
             }
 
             String msg;
-            if((new LoginHandler(this)).ProcessLogin(item.PID, out msg))
+            if ((new LoginHandler(this)).ProcessLogin(item.PID, out msg))
             {
                 viewModel.WaitForCheck = true;
                 return View("EditMySelf", item);
             }
             else
             {
-                return View("~/Views/Shared/AlertMessage.cshtml", model: "資料錯誤!!");
+                return View("~/Views/Shared/AlertMessageDialog.cshtml", model: "資料錯誤!!");
             }
         }
 
@@ -148,7 +148,7 @@ namespace WebHome.Controllers
 
             if (item == null)
             {
-                return View("~/Views/Shared/AlertMessage.cshtml", model: "資料錯誤!!");
+                return View("~/Views/Shared/AlertMessageDialog.cshtml", model: "資料錯誤！");
             }
             else if (viewModel.WaitForCheck == true)
             {
@@ -156,7 +156,7 @@ namespace WebHome.Controllers
             }
             else
             {
-                return View("~/Views/Shared/AlertMessage.cshtml", model: "資料已修改!!");
+                return View("~/Views/Shared/AlertConfirmMessage.cshtml", model: "資料已修改！");
             }
         }
 

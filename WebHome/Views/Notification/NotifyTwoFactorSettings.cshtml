@@ -1,5 +1,3 @@
-
-
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -38,10 +36,6 @@
     String body = Html.Partial("~/Views/Account/Module/TwoFactorSettings.cshtml", _model).ToString();
     body.SendMailMessage(mailTo, Subject);
 }
- @{ 
-     await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml", model: "兩步驟驗證設定已送出至您的信箱!!");
- }
-
-
-
-
+@{
+    await Html.RenderPartialAsync("~/Views/Shared/AlertConfirmMessage.cshtml", model: "兩步驟驗證設定已送出至您的信箱!!");
+}

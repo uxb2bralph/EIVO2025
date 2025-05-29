@@ -34,37 +34,45 @@
     <td>@(_model.UserName)</td>
     <td class="text-center">@(_model.PID)</td>
     <td style="min-width: 250px;word-break: break-all;">@(_model.EMail)</td>
-    <td>
-        <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--default text-nowrap"
-            onclick="uiAccountQuery.edit(@(_model.UID));">
-            <i class="fal fa-edit"></i>
-            編輯
-        </button>
-        @if (_model.LevelID == (int)Naming.MemberStatusDefinition.Mark_To_Delete)
-        {
-            <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--check text-nowrap"
-                onclick="uiAccountQuery.activate(@(_model.UID));">
-                <i class="fas fa-play"></i>
-                啟用
+    <td class="text-center">
+        <div class="dropdown">
+            <button class="px-3 btn btn-sm eivo__btn--default dropdown-toggle" type="button" id="dropdownMenuButton1"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                功能
             </button>
-        }
-        else
-        {
-            <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--check text-nowrap"
-                onclick="uiAccountQuery.sendConfirmation(@(_model.UID));">
-                <i class="fas fa-paper-plane"></i>
-                重送確認信
-            </button>
-            <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--red text-nowrap"
-                onclick="uiAccountQuery.deactivate(@(_model.UID));">
-                <i class="fas fa-stop"></i>
-                停用
-            </button>
-            <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--red text-nowrap"
-                onclick="uiAccountQuery.delete(@(_model.UID));">
-                <i class="fal fa-trash-alt"></i>
-                刪除
-            </button>
-        }
+            <ul class="dropdown-menu shadow dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                <li>
+                    <a class="dropdown-item" href="#" onclick="uiAccountQuery.edit(@(_model.UID));">
+                        編輯
+                    </a>
+                </li>
+                @if (_model.LevelID == (int)Naming.MemberStatusDefinition.Mark_To_Delete)
+                {
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="uiAccountQuery.activate(@(_model.UID));">
+                            啟用
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="uiAccountQuery.sendConfirmation(@(_model.UID));">
+                            重送確認信
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="uiAccountQuery.deactivate(@(_model.UID));">
+                            停用
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="uiAccountQuery.delete(@(_model.UID));">
+                            刪除
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
     </td>
 </tr>

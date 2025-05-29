@@ -21,93 +21,96 @@
     _profile = Context.GetUser();
 }
 
-<table class="table table-striped">
-    <tr>
-        <th width="20%">
-            <font color="red">*</font>會　　員
-        </th>
-        <td colspan="2" class="tdleft">
-            @{
-                @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new SellerSelectorViewModel { FieldName = "EncSellerID", Encrypt = true, SellerID = _model?.UserRole.FirstOrDefault()?.OrganizationCategory.CompanyID }));
+<div class="mb-3 row">
+    <label for="EncSellerID" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        <span class="text-danger">*</span>
+        會員
+    </label>
+    <div class="col-sm-10">
+        @{
+            @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new SellerSelectorViewModel { FieldName = "EncSellerID", Encrypt = true, SellerID = _model?.UserRole.FirstOrDefault()?.OrganizationCategory.CompanyID }));
+        }
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="PID" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        <span class="text-danger">*</span>
+        帳號
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="PID" type="text" placeholder="" value="@(_viewModel.PID)" />
+        <input type="hidden" name="KeyID" value="@(_viewModel.KeyID)" />
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="UserName" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        <span class="text-danger">*</span>
+        姓名
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="UserName" type="text" placeholder="" value="@(_viewModel.UserName)" />
+    </div>
+</div>
+@{ 
+    await Html.RenderPartialAsync("~/Views/UserProfile/Module/ChangePass.cshtml");
+}
+<div class="mb-3 row">
+    <label for="EMail" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        <span class="text-danger">*</span>
+        常用電子郵件
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="EMail" type="text" placeholder="" value="@(_viewModel.EMail)" />
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="Address" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        <span class="text-danger">*</span>
+        住址
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="Address" type="text" placeholder="" value="@(_viewModel.Address)" />
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="Phone" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        電話（日）
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="Phone" type="text" placeholder="" value="@(_viewModel.Phone)" />
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="Phone2" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        電話（夜）
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="Phone2" type="text" placeholder="" value="@(_viewModel.Phone2)" />
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="MobilePhone" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        行動電話
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="MobilePhone" type="text" placeholder="" value="@(_viewModel.MobilePhone)" />
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="inputPassword" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        身份設定
+    </label>
+    <div class="col-sm-10">
+        <select name="RoleID" class="form-control form-control-sm">
+            <option value="@((int)Naming.RoleID.ROLE_SELLER)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.ROLE_SELLER)">營業人</option>
+            <option value="@((int)Naming.RoleID.資料稽核員)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.資料稽核員)">資料稽核員</option>
+            @if (_profile.IsSystemAdmin())
+            {
+                <option value="@((int)Naming.RoleID.ROLE_SYS)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.ROLE_SYS)">平台系統管理員</option>
             }
-        </td>
-    </tr>
-    <tr>
-        <th width="20%">
-            <font color="red">*</font>帳　　號
-        </th>
-        <td colspan="2" class="tdleft">
-            <input class="form-control" name="PID" type="text" placeholder="" value="@(_viewModel.PID)" />
-            <input type="hidden" name="KeyID" value="@(_viewModel.KeyID)" />
-        </td>
-    </tr>
-    <tr>
-        <th width="20%">
-            <font color="red">*</font>姓　　名
-        </th>
-        <td colspan="2" class="tdleft">
-            <input class="form-control" name="UserName" type="text" placeholder="" value="@(_viewModel.UserName)" />
-        </td>
-    </tr>
-    @{ 
-        await Html.RenderPartialAsync("~/Views/UserProfile/Module/ChangePass.cshtml");
-    }
-    <tr>
-        <th width="20%">
-            <font color="red">*</font>常用電子郵件
-        </th>
-        <td colspan="2" class="tdleft">
-            <input class="form-control" name="EMail" type="text" placeholder="" value="@(_viewModel.EMail)" />
-        </td>
-    </tr>
-    <tr>
-        <th width="20%">
-            <font color="red">*</font>住　　址
-        </th>
-        <td colspan="2" class="tdleft">
-            <input class="form-control" name="Address" type="text" placeholder="" value="@(_viewModel.Address)" />
-        </td>
-    </tr>
-    <tr>
-        <th width="20%">
-            電話（日）
-        </th>
-        <td colspan="2" class="tdleft">
-            <input class="form-control" name="Phone" type="text" placeholder="" value="@(_viewModel.Phone)" />
-        </td>
-    </tr>
-    <tr>
-        <th width="20%">
-            電話（夜）
-        </th>
-        <td colspan="2" class="tdleft">
-            <input class="form-control" name="Phone2" type="text" placeholder="" value="@(_viewModel.Phone2)" />
-        </td>
-    </tr>
-    <tr>
-        <th width="20%">
-            行動電話
-        </th>
-        <td colspan="2" class="tdleft">
-            <input class="form-control" name="MobilePhone" type="text" placeholder="" value="@(_viewModel.MobilePhone)" />
-        </td>
-    </tr>
-    <tr>
-        <th width="20%">
-            身份設定
-        </th>
-        <td colspan="2" class="tdleft">
-            <select name="RoleID" class="form-control">
-                <option value="@((int)Naming.RoleID.ROLE_SELLER)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.ROLE_SELLER)">營業人</option>
-                <option value="@((int)Naming.RoleID.資料稽核員)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.資料稽核員)">資料稽核員</option>
-                @if (_profile.IsSystemAdmin())
-                {
-                    <option value="@((int)Naming.RoleID.ROLE_SYS)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.ROLE_SYS)">平台系統管理員</option>
-                }
-            </select>
-        </td>
-    </tr>
-</table>
+        </select>
+    </div>
+</div>
 
 
 

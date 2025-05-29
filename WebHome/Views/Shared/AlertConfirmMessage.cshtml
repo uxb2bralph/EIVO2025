@@ -1,0 +1,36 @@
+﻿@{
+    String? _message;
+    ModelCore.Models.ViewModel.QueryViewModel? _viewModel = (ModelCore.Models.ViewModel.QueryViewModel)ViewBag.ViewModel;
+    _message = (this.Model as String) ?? ViewBag.Message ?? ViewBag.AlertMessage ?? _viewModel?.Message;
+}
+
+
+@if (_message != null)
+{
+    <div class="modal fade show" id="alertMessage" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="alertMessageLabel">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="py-2 modal-header border-bottom-0">
+                    <h5 class="modal-title fw-bold text-primary">
+                        訊息
+                    </h5>
+                </div>
+                <div class="py-2 modal-body">
+                    <p class="text-center">
+                        <i class="me-1 fas fa-check text-success fs-5"></i>
+                        <span class="fs-6">@Html.Raw(_message)</span>
+                    </p>
+                </div>
+                <div class="py-2 modal-footer border-top-0">
+                    <button type="button" class="px-3 btn btn-sm eivo__btn--close" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<script>
+    $(function () {
+        $('#alertMessage').modal('show');
+    });
+</script>

@@ -31,7 +31,7 @@
     _pageSize = _viewModel.PageSize.Value;
 }
 
-<div class="my-2 d-flex justify-content-between align-items-center">
+<div id="dataTitle" class="my-2 d-flex justify-content-between align-items-center">
     @{
         await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
     }
@@ -41,11 +41,10 @@
     </button>
 </div>
 
-@* <div class="border_gray query_result"> *@
 @{
     var recordCount = _model.Count();
 }
-<div class="card shadow-sm border-2 rounded-3">
+<div id="dataList" class="card shadow-sm border-2 rounded-3">
     <div id="tableList" class="card-body">
         @if (recordCount > 0)
         {
@@ -69,7 +68,7 @@
 {
     <input type="hidden" name="PageIndex" />
     <!-- 查詢分頁 -->
-    <div class="my-3 d-flex align-items-center">
+    <div id="dataPagination" class="my-3 d-flex align-items-center">
         <nav aria-label="Page navigation">
             <ul id="itemPagination" class="mb-0 pagination eivo__pagination align-items-center"></ul>
         </nav>

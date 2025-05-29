@@ -1,5 +1,4 @@
-﻿
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -24,6 +23,6 @@
         $inquiryAgent.inquire();
     });
 </script>
-@{ 
-    await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml");
+@{
+    await Html.RenderPartialAsync("~/Views/Shared/AlertConfirmMessage.cshtml");
 }

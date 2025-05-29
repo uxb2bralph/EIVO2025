@@ -1,5 +1,3 @@
-
-
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -36,11 +34,11 @@
     {
 
         var orgItems = models.GetTable<Organization>().Where(
-                                o => o.OrganizationCategory.Any(
-                                    c => c.CategoryID == (int)Naming.CategoryID.COMP_E_INVOICE_B2C_SELLER
-                                        || c.CategoryID == (int)Naming.CategoryID.COMP_VIRTUAL_CHANNEL
-                                        || c.CategoryID == (int)Naming.CategoryID.COMP_E_INVOICE_GOOGLE_TW
-                                        || c.CategoryID == (int)Naming.CategoryID.COMP_INVOICE_AGENT));
+        o => o.OrganizationCategory.Any(
+        c => c.CategoryID == (int)Naming.CategoryID.COMP_E_INVOICE_B2C_SELLER
+        || c.CategoryID == (int)Naming.CategoryID.COMP_VIRTUAL_CHANNEL
+        || c.CategoryID == (int)Naming.CategoryID.COMP_E_INVOICE_GOOGLE_TW
+        || c.CategoryID == (int)Naming.CategoryID.COMP_INVOICE_AGENT));
 
         if (_viewModel.KeyItems?.Length > 0)
         {
@@ -48,40 +46,36 @@
         }
 
         var agents = models.GetTable<InvoiceIssuerAgent>().Where(a => orgItems.Any(o => a.IssuerID == o.CompanyID))
-                        .Join(models.GetTable<Organization>(), a => a.AgentID, c => c.CompanyID, (a, c) => c);
+        .Join(models.GetTable<Organization>(), a => a.AgentID, c => c.CompanyID, (a, c) => c);
 
         _model = orgItems.Union(agents)
-            .Where(o => o.ContactEmail != null)
-            .Select(o => o.ContactEmail)
-            .ToList()
-            .Select(m => m.GetEfficientString())
-            .Where(m => m != null)
-            .Distinct()
-            .ToArray();
+        .Where(o => o.ContactEmail != null)
+        .Select(o => o.ContactEmail)
+        .ToList()
+        .Select(m => m.GetEfficientString())
+        .Where(m => m != null)
+        .Distinct()
+        .ToArray();
 
     }
 }
-@if (_model!=null)
+@if (_model != null)
 {
     String Subject = $"網際優勢電子發票加值中心 系統公告";
     String body = Html.Partial("~/Views/Notification/Module/Announcement.cshtml").ToString();
-    foreach(var mailTo in _model)
+    foreach (var mailTo in _model)
     {
         try
         {
             body.SendMailMessage(mailTo, Subject);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             Logger.Warn($"error mailTo: {mailTo}");
             Logger.Error(ex);
         }
     }
 }
- @{ 
-     await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml", model: "公告訊息已送出!!");
- }
-
-
-
-
+@{
+    await Html.RenderPartialAsync("~/Views/Shared/AlertConfirmMessage.cshtml", model: "公告訊息已送出!!");
+}

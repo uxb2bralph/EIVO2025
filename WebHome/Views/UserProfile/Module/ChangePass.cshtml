@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -21,6 +20,32 @@
     _profile = Context.GetUser();
 }
 
+
+<div class="row text-success">
+    <div class="col text-end">
+        長度最少需要 6 個字元，由英文、數字組成。
+        密碼欄位若保持空白，更新後不修改原密碼。
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="Password" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        <span class="text-danger">*</span>
+        密碼
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="Password" type="password" placeholder="" />
+    </div>
+</div>
+<div class="mb-3 row">
+    <label for="Password1" class="col-sm-2 col-form-label fw-bold text-nowrap">
+        <span class="text-danger">*</span>
+        請再確認密碼
+    </label>
+    <div class="col-sm-10">
+        <input class="form-control form-control-sm" name="Password1" type="password" placeholder="" />
+    </div>
+</div>
+<!--
 <tr>
     <th>
         <font color="red">*</font>密　　碼
@@ -40,6 +65,4 @@
         <input class="form-control" name="Password1" type="password" placeholder="" />
     </td>
 </tr>
-
-
-
+-->
