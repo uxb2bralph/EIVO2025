@@ -200,11 +200,7 @@
                 hideLoading();
             },
             createModal: function (tabId, tabText, tabContent, show) {
-                console.log({ tabId, tabText, tabContent, show });
-                //showLoading();
-                //this.removeTab(tabId);
                 $('#' + tabId).remove(); // remove existing modal with the same id
-                console.log('tabId:', $('#' + tabId));
 
                 const newModal = $('<div class="modal fade" id="' + tabId + '" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="' + tabId + 'Label" aria-hidden="true"></div>');
                 newModal.append($('<div class="modal-dialog modal-dialog-scrollable modal-xl"></div>')
@@ -218,10 +214,6 @@
                 const dateAuthorizationAlert = document.querySelector("#dateAuthorizationAlert");
                 const dateInvoiceRequestAlert = document.querySelector("#dateInvoiceRequestAlert");
                 newModal.modal('show');
-                //this.registerCloseEvent(newTab);
-                //if (show)
-                //this.showTab(tabId);
-                //hideLoading();
             },
             onReady: [],
             nothingToken: false,

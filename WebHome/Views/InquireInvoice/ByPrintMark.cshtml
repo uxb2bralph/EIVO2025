@@ -20,14 +20,17 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>列印註記</th>
-    <td class="tdleft">
-        <select name="PrintMark" class="form-control">
-            <option value="">全部</option>
-            <option value="Y">Y</option>
-            <option value="N">N</option>
-        </select>
-    </td>
-</tr>
-
+<div class="py-2 col">
+    <div class="row">
+        <label for="PrintMark" class="col-md-4 col-form-label fw-bold text-nowrap">
+            列印註記
+        </label>
+        <div class="col">
+            <select id="PrintMark" name="PrintMark" class="form-select form-select-sm">
+                <option value="">全部</option>
+                <option value="Y">Y</option>
+                <option value="N">N</option>
+            </select>
+        </div>
+    </div>
+</div>

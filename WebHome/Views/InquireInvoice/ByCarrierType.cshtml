@@ -21,22 +21,25 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>載具類型</th>
-    <td class="tdleft">
-        <select name="CarrierType" class="form-control">
-            <option value="">全部</option>
-            <option value="3J0001">網際優勢會員條碼</option>
-            <option value="3J0002">手機條碼</option>
-            <option value="1K0001">悠遊卡</option>
-            <option value="BJ0001">行動 X 卡</option>
-            <option value="2G0001">iCash</option>
-            <option value="EK0002">信用卡</option>
-            <option value="1K0002">台灣智慧卡</option>
-            <option value="BK0001">SmartPay金融卡</option>
-            <option value="1H0001">一卡通</option>
-            <option value="CQ0001">自然人憑證條碼</option>
-        </select>
-    </td>
-</tr>
-
+<div class="py-2 col">
+    <div class="row">
+        <label for="CarrierType" class="col-md-4 col-form-label fw-bold text-nowrap">
+            載具類型
+        </label>
+        <div class="col">
+            <select id="CarrierType" name="CarrierType" class="me-2 form-select form-select-sm">
+                <option value="">全部</option>
+                <option value="3J0001">網際優勢會員條碼</option>
+                <option value="3J0002">手機條碼</option>
+                <option value="1K0001">悠遊卡</option>
+                <option value="BJ0001">行動 X 卡</option>
+                <option value="2G0001">iCash</option>
+                <option value="EK0002">信用卡</option>
+                <option value="1K0002">台灣智慧卡</option>
+                <option value="BK0001">SmartPay金融卡</option>
+                <option value="1H0001">一卡通</option>
+                <option value="CQ0001">自然人憑證條碼</option>
+            </select>
+        </div>
+    </div>
+</div>

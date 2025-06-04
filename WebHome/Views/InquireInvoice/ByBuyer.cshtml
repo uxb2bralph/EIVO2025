@@ -21,12 +21,14 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>
-        買受人統編
-    </th>
-    <td class="tdleft">
-        <input name="BuyerReceiptNo" type="text" value="@(_viewModel?.BuyerReceiptNo)" placeholder="查詢個人發票請輸入0000000000" maxlength="11" size="32" class="form-control" />
-    </td>
-</tr>
-
+<div class="py-2 col">
+    <div class="row">
+        <label for="BuyerReceiptNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+            買受人統編
+        </label>
+        <div class="col">
+            <input id="BuyerReceiptNo" name="BuyerReceiptNo" type="text" value="@(_viewModel?.BuyerReceiptNo)"
+                placeholder="查詢個人發票請輸入0000000000" maxlength="11" size="32" class="form-control form-control-sm" />
+        </div>
+    </div>
+</div>

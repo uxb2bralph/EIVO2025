@@ -21,13 +21,16 @@
     IQueryable<Organization> _model = (IQueryable<Organization>)this.Model;
     SellerSelectorViewModel _viewModel = (SellerSelectorViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>營業人統編</th>
-    <td class="tdleft">
-        @{ 
-            ViewBag.SelectorIndication = "全部";
-            await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _model);
-        }
-    </td>
-</tr>
-
+<div class="py-2 col">
+    <div class="row">
+        <label for="OrganizationStatus" class="col-md-4 col-form-label fw-bold text-nowrap">
+            營業人統編
+        </label>
+        <div class="col">
+            @{
+                ViewBag.SelectorIndication = "全部";
+                await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _model);
+            }
+        </div>
+    </div>
+</div>

@@ -229,7 +229,7 @@
             </label>
             <div class="col">
                 <input type="text" class="form_date form-control form-control-sm" id="CreationDate" name="CreationDate"
-                    value='@($"{_viewModel.CreationDate:yyyy/MM/dd}")' />
+                    value='@($"{_viewModel.CreationDate:yyyy/MM/dd}")' readonly="readonly" />
             </div>
         </div>
     </div>
@@ -240,7 +240,7 @@
             </label>
             <div class="col">
                 <input type="text" class="form_date form-control form-control-sm" id="ExpirationDate"
-                    name="ExpirationDate" value='@($"{_viewModel.ExpirationDate:yyyy/MM/dd}")' />
+                    name="ExpirationDate" value='@($"{_viewModel.ExpirationDate:yyyy/MM/dd}")' readonly="readonly" />
             </div>
         </div>
     </div>
@@ -252,11 +252,11 @@
             <div class="col d-flex align-items-center">
                 <input id="AuthorizationNotBefore" name="AuthorizationNotBefore" type="text" placeholder="請輸入起日"
                     class="form_date form-control form-control-sm"
-                    value='@($"{_viewModel.AuthorizationNotBefore:yyyy/MM/dd}")' />
+                    value='@($"{_viewModel.AuthorizationNotBefore:yyyy/MM/dd}")' readonly="readonly" />
                 <div class="mx-2">~</div>
                 <input id="AuthorizationNotAfter" name="AuthorizationNotAfter" type="text" placeholder="請輸入迄日"
                     class="form_date form-control form-control-sm"
-                    value='@($"{_viewModel.AuthorizationNotAfter:yyyy/MM/dd}")' />
+                    value='@($"{_viewModel.AuthorizationNotAfter:yyyy/MM/dd}")' readonly="readonly" />
             </div>
             <div class="text-danger d-flex justify-content-end text-nowrap pt-1">
                 <span id="dateAuthorizationAlert" class="text-danger pe-2 d-none pe-1">
@@ -274,11 +274,11 @@
             <div class="col d-flex align-items-center">
                 <input id="InvoiceRequestNotBefore" name="InvoiceRequestNotBefore" type="text" placeholder="請輸入起日"
                     class="form_date form-control form-control-sm"
-                    value='@($"{_viewModel.InvoiceRequestNotBefore:yyyy/MM/dd}")' />
+                    value='@($"{_viewModel.InvoiceRequestNotBefore:yyyy/MM/dd}")' readonly="readonly" />
                 <div class="mx-2">~</div>
                 <input id="InvoiceRequestNotAfter" name="InvoiceRequestNotAfter" type="text" placeholder="請輸入迄日"
                     class="form_date form-control form-control-sm"
-                    value='@($"{_viewModel.InvoiceRequestNotAfter:yyyy/MM/dd}")' />
+                    value='@($"{_viewModel.InvoiceRequestNotAfter:yyyy/MM/dd}")' readonly="readonly" />
             </div>
             <div class="text-danger d-flex justify-content-end text-nowrap pt-1">
                 <span id="dateInvoiceRequestAlert" class="text-danger pe-2 d-none pe-1">

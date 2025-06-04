@@ -21,13 +21,14 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>
-        個人識別碼
-    </th>
-    <td class="tdleft">
-        <input name="BuyerName" type="text" value="@(_viewModel?.BuyerName)" class="form-control"/>
-    </td>
-</tr>
-
-
+<div class="py-2 col">
+    <div class="row">
+        <label for="BuyerName" class="col-md-4 col-form-label fw-bold text-nowrap">
+            個人識別碼
+        </label>
+        <div class="col">
+            <input id="BuyerName" name="BuyerName" type="text" class="form-control form-control-sm"
+                value="@(_viewModel?.BuyerName)" />
+        </div>
+    </div>
+</div>

@@ -21,24 +21,28 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>
-        發票號碼
-    </th>
-    <td class="tdleft">
-        <div class="input-group text-nowrap">
-            <input name="InvoiceNo" type="text" class="form-control" value="@(_viewModel?.InvoiceNo)" size="12" maxlength="12" />
-            <label class="label">～</label>
-            <input name="EndNo" type="text" class="form-control" value="@(_viewModel?.EndNo)" size="12" maxlength="12" />
+<div class="py-2 col">
+    <div class="row">
+        <label for="InvoiceNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+            發票號碼
+        </label>
+        <div class="col d-flex align-items-center">
+            <input itemid="InvoiceNo" name="InvoiceNo" type="text" class="form-control form-control-sm"
+                value="@(_viewModel?.InvoiceNo)" size="12" maxlength="12" />
+            <div class="mx-2">~</div>
+            <input name="EndNo" type="text" class="form-control form-control-sm" value="@(_viewModel?.EndNo)" size="12"
+                maxlength="12" />
         </div>
-    </td>
-</tr>
-<tr>
-    <th>
-        單據號碼
-    </th>
-    <td class="tdleft">
-        <input name="DataNo" type="text" class="form-control" value="@(_viewModel?.DataNo)" size="32" maxlength="64" />
-    </td>
-</tr>
-
+    </div>
+</div>
+<div class="py-2 col">
+    <div class="row">
+        <label for="DataNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+            單據號碼
+        </label>
+        <div class="col">
+            <input id="DataNo" name="DataNo" type="text" class="form-control" value="@(_viewModel?.DataNo)" size="32"
+                maxlength="64" />
+        </div>
+    </div>
+</div>

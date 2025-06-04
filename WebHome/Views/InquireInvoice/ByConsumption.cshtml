@@ -21,23 +21,26 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>
-        傳輸類型
-    </th>
-    <td class="tdleft">
-        <select name="ProcessType" class="form-control">
-            <option value="">全部</option>
-            <option value="@((int)Naming.InvoiceProcessType.C0401)">C0401</option>
-            <option value="@((int)Naming.InvoiceProcessType.A0401)">A0401</option>
-        </select>
-        @if (_viewModel!=null && _viewModel.ProcessType.HasValue)
-        {
-            <script>
-            $(function () {
-                $('select[name="ProcessType"]').val('@((int?)_viewModel.ProcessType)');
-            });
-            </script>
-        }
-    </td>
-</tr>
+
+<div class="py-2 col">
+    <div class="row">
+        <label for="ProcessType" class="col-md-4 col-form-label fw-bold text-nowrap">
+            傳輸類型
+        </label>
+        <div class="col">
+            <select name="ProcessType" class="form-select form-select-sm">
+                <option value="">全部</option>
+                <option value="@((int)Naming.InvoiceProcessType.C0401)">C0401</option>
+                <option value="@((int)Naming.InvoiceProcessType.A0401)">A0401</option>
+            </select>
+            @if (_viewModel != null && _viewModel.ProcessType.HasValue)
+            {
+                <script>
+                    $(function () {
+                        $('select[name="ProcessType"]').val('@((int?)_viewModel.ProcessType)');
+                    });
+                </script>
+            }
+        </div>
+    </div>
+</div>

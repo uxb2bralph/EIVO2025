@@ -22,20 +22,25 @@
 
     InquireInvoiceViewModel? _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
 }
-<tr>
-    <th>
-        附件檔
-    </th>
-    <td class="tdleft">
-        <select name="attachment">
-            <option value="">全部</option>
-            <option value="1">有</option>
-            <option value="0">無</option>
-        </select>
-    </td>
-</tr>
-<script>
-    $(function () {
-        $('select[name="attachment"]').val('@(_viewModel?.Attachment)');
-    });
-</script>
+<div class="py-2 col">
+    <div class="row">
+        <label for="attachment" class="col-md-4 col-form-label fw-bold text-nowrap">
+            附件檔
+        </label>
+        <div class="col">
+            <select id="attachment" name="attachment" class="form-select form-select-sm">
+                <option value="">全部</option>
+                <option value="1">有</option>
+                <option value="0">無</option>
+            </select>
+        </div>
+    </div>
+</div>
+@if (_viewModel != null && _viewModel.ProcessType.HasValue)
+{
+    <script>
+        $(function () {
+            $('select[name="attachment"]').val('@(_viewModel?.Attachment)');
+        });
+    </script>
+}

@@ -21,23 +21,26 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>
-        單據狀態
-    </th>
-    <td class="tdleft">
-        <select name="Cancelled" class="form-control">
-            <option value="False">未作廢</option>
-            <option value="True">已作廢</option>
-            <option value="">全部</option>
-        </select>
-        @if (_viewModel.Cancelled.HasValue)
-        {
-        <script>
-            $(function () {
-                $('select[name="Cancelled"]').val('@(_viewModel.Cancelled)');
-            });
-        </script>
-        }
-    </td>
-</tr>
+<div class="py-2 col">
+    <div class="row">
+        <label for="Cancelled" class="col-md-4 col-form-label fw-bold text-nowrap">
+            單據狀態
+        </label>
+        <div class="col">
+            <select id="Cancelled" name="Cancelled" class="form-select form-select-sm">
+                <option value="False">未作廢</option>
+                <option value="True">已作廢</option>
+                <option value="">全部</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+@if (_viewModel.Cancelled.HasValue)
+{
+    <script>
+        $(function () {
+            $('select[name="Cancelled"]').val('@(_viewModel.Cancelled)');
+        });
+    </script>
+}

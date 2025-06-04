@@ -21,11 +21,14 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>載具號碼</th>
-    <td class="tdleft">
-        <input type="text" name="CarrierNo" size="48" maxlength="48" value="@(_viewModel?.CarrierNo)" class="form-control" />
-    </td>
-</tr>
-
-
+<div class="py-2 col">
+    <div class="row">
+        <label for="CarrierNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+            載具號碼
+        </label>
+        <div class="col">
+            <input type="text" id="CarrierNo" name="CarrierNo" size="48" maxlength="48" value="@(_viewModel?.CarrierNo)"
+                class="form-control form-control-sm" />
+        </div>
+    </div>
+</div>

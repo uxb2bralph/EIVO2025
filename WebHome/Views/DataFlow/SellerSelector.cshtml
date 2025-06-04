@@ -45,7 +45,7 @@
 }
 else
 {
-    <select class="form-control" name="@(_fieldName)">
+    <select name="@(_fieldName)" class="form-select form-select-sm">
         @if (ViewBag.SelectorIndication != null)
         {
             <option value="@(ViewBag.SelectorIndicationValue ?? "")">@(ViewBag.SelectorIndication)</option>

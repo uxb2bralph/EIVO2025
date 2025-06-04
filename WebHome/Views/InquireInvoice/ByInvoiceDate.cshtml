@@ -21,14 +21,30 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>
-        日期區間
-    </th>
-    <td class="tdleft">
-        自&nbsp;<input name="InvoiceDateFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.InvoiceDateFrom:yyyy/MM/dd}")" />
-        &nbsp;至&nbsp;
-        <input name="InvoiceDateTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.InvoiceDateTo:yyyy/MM/dd}")"  />
-    </td>
-</tr>
-
+<div class="py-2 col">
+    <div class="row">
+        <label for="AuthorizationRange" class="col-md-4 col-form-label fw-bold text-nowrap">
+            日期區間
+        </label>
+        <div class="col d-flex align-items-center">
+            <input id="DateFrom" name="InvoiceDateFrom" type="text" placeholder="請輸入起日"
+                class="form_date form-control form-control-sm" readonly="readonly"
+                value="@($"{_viewModel?.InvoiceDateFrom:yyyy/MM/dd}")" />
+            <div class="mx-2">~</div>
+            <input id="DateTo" name="InvoiceDateTo" type="text" placeholder="請輸入迄日"
+                class="form_date form-control form-control-sm" readonly="readonly"
+                value='@($"{_viewModel?.InvoiceDateTo:yyyy/MM/dd}")' />
+        </div>
+        <div class="text-danger d-flex justify-content-end text-nowrap pt-1">
+            <span id="dateAlert" class="text-danger pe-2 d-none pe-1">
+                <span class="mdi mdi-close-thick"></span>
+                結束日期須晚於開始日期
+            </span>
+        </div>
+    </div>
+</div>
+<script>
+    // 日期選擇器
+    const dateAlert = document.querySelector("#dateAlert");
+    flatpickr('#DateFrom, #DateTo', config);
+</script>

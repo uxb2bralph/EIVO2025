@@ -20,17 +20,23 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>列印狀態</th>
-    <td class="tdleft">
-        <div class="input-group text-nowrap">
-            <select name="Printed" class="form-control mr-4">
+<div class="py-2 col">
+    <div class="row">
+        <label for="Printed" class="col-md-4 col-form-label fw-bold text-nowrap">
+            列印狀態
+        </label>
+        <div class="col d-flex align-items-center">
+            <select id="Printed" name="Printed" class="me-2 form-select form-select-sm">
                 <option value="">全部</option>
                 <option value="False">未列印</option>
                 <option value="True">已列印</option>
             </select>
-            <input type="checkbox" name="HasAddr" value="True" />篩選有買受人地址
+            <div class="form-check form-check-inline">
+                <input type="checkbox" id="HasAddr" name="HasAddr" class="form-check-input" value="True" />
+                <label class="form-check-label text-nowrap" for="HasAddr">
+                    有買受人地址
+                </label>
+            </div>
         </div>
-    </td>
-</tr>
-
+    </div>
+</div>

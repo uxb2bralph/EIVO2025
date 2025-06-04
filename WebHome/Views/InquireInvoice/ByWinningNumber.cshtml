@@ -21,22 +21,25 @@
 @{
     InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
-<tr>
-    <th>
-        是否中獎
-    </th>
-    <td class="tdleft">
-        <select name="Winning" class="form-control">
-            <option value="">全部</option>
-            <option value="1">是</option>
-        </select>
-    </td>
-</tr>
+<div class="py-2 col">
+    <div class="row">
+        <label for="Winning" class="col-md-4 col-form-label fw-bold text-nowrap">
+            是否中獎
+        </label>
+        <div class="col">
+            <select id="Winning" name="Winning" class="form-select form-select-sm">
+                <option value="">全部</option>
+                <option value="1">是</option>
+            </select>
+        </div>
+    </div>
+</div>
+
 @if (_viewModel.Winning.HasValue)
 {
-<script>
-    $(function () {
-        $('select[name="winning"]').val('@(_viewModel?.Winning)');
-    });
-</script>
+    <script>
+        $(function () {
+            $('select[name="Winning"]').val('@(_viewModel?.Winning)');
+        });
+    </script>
 }
