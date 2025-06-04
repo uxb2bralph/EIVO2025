@@ -47,8 +47,8 @@
         else
         {
             items = _model
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
         }
     }
     else
@@ -60,8 +60,8 @@
         else
         {
             items = ((IQueryable<Organization>)TempData["SortedItems"])
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
         }
     }
 
@@ -73,24 +73,26 @@
 {
     idx++;
     <tr>
-        <td><input name="chkItem" type="checkbox" value="@(item.CompanyID)" /></td>
-        <td>@(item.CompanyName)</td>
-        <td>@(item.ReceiptNo)</td>
-        <td>@($"{item.OrganizationExtension?.GoLiveDate:yyyy/MM/dd}")</td>
-        <td>@($"{item.OrganizationExtension?.ExpirationDate:yyyy/MM/dd}")</td>
         <td>
+            <input name="chkItem" class="form-check-input" type="checkbox" value="@(item.CompanyID)" />
+        </td>
+        <td class="text-nowrap">@(item.CompanyName)</td>
+        <td class="text-center">@(item.ReceiptNo)</td>
+        <td class="text-center">@($"{item.OrganizationExtension?.GoLiveDate:yyyy/MM/dd}")</td>
+        <td class="text-center">@($"{item.OrganizationExtension?.ExpirationDate:yyyy/MM/dd}")</td>
+        <td class="text-center">
             @if (item.BranchRelation.Any())
             {
-                <a onclick="actionHandler('@Html.Raw(Url.Action("ProcessHeadquarter", "Organization"))', { 'SellerID' : @(item.CompanyID) }, null, 'auto', 'auto','設定主機構');">主機構</a>
+                <a href="#"
+                    onclick="actionHandler('@Html.Raw(Url.Action("ProcessHeadquarter", "Organization"))', { 'SellerID' : @(item.CompanyID) }, null, 'auto', 'auto','設定主機構');">主機構</a>
                 <br />
             }
             @if (item.OrganizationCategory.Where(c => c.CategoryID == (int)CategoryDefinition.CategoryEnum.經銷商).Any())
             {
                 <text>經銷商</text>
-                <br />
             }
         </td>
-        <td>
+        <td class="text-center">
             @{
                 ViewBag.Index = idx;
                 await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/ProcessCompanyItem.cshtml", item);
@@ -98,7 +100,3 @@
         </td>
     </tr>
 }
-
-
-
-

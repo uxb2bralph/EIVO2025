@@ -47,8 +47,8 @@
         else
         {
             items = _model
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
         }
     }
     else
@@ -60,8 +60,8 @@
         else
         {
             items = ((IQueryable<Organization>)TempData["SortedItems"])
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
         }
     }
 
@@ -73,12 +73,12 @@
 {
     idx++;
     <tr>
-        <td>@(item.CompanyName)</td>
-        <td>@(item.ReceiptNo)</td>
+        <td class="text-nowrap">@(item.CompanyName)</td>
+        <td class="text-center">@(item.ReceiptNo)</td>
         <td>@(item.UndertakerName)</td>
-        <td>@(item.ContactEmail)</td>
-        <td>@(item.OrganizationStatus?.LevelExpression?.Description)</td>
-        <td>
+        <td class="text-break">@(item.ContactEmail)</td>
+        <td class="text-center">@(item.OrganizationStatus?.LevelExpression?.Description)</td>
+        <td class="text-center">
             @{
                 ViewBag.Index = idx;
                 await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/ProcessCompanyItem.cshtml", item);
@@ -86,7 +86,3 @@
         </td>
     </tr>
 }
-
-
-
-

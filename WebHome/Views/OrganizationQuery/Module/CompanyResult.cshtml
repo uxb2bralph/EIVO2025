@@ -32,31 +32,40 @@
 }
 @if (!models.InquiryHasError)
 {
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
-
-    <div class="container border_gray query_result" style="min-height: 480px;">
+    <div id="dataTitle" class="my-2 d-flex justify-content-between align-items-center">
         @{
-            var recordCount = _viewModel.RecordCount;
+            await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
         }
-        @if (recordCount > 0)
+        <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--check text-nowrap" onclick="createCompany();">
+            <i class="far fa-plus"></i>
+            新增開立人 ( 營業人 )
+        </button>
+    </div>
+
+    var recordCount = _viewModel.RecordCount;
+    @if (recordCount > 0)
+    {
+        if (_viewModel.CategoryID == CategoryDefinition.CategoryEnum.發票開立營業人
+        || _viewModel.CategoryID == CategoryDefinition.CategoryEnum.境外電商
+        || _viewModel.CategoryID == CategoryDefinition.CategoryEnum.經銷商)
         {
-            if (_viewModel.CategoryID == CategoryDefinition.CategoryEnum.發票開立營業人
-                || _viewModel.CategoryID == CategoryDefinition.CategoryEnum.境外電商
-                || _viewModel.CategoryID == CategoryDefinition.CategoryEnum.經銷商)
-            {
-                await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/SellerList.cshtml", _model);
-            }
-            else
-            {
-                await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/CompanyList.cshtml", _model);
-            }
-            await Html.RenderPartialAsync("~/Views/Common/Module/QueryPagingControl.cshtml", _model);
+            await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/SellerList.cshtml", _model);
         }
         else
         {
-            <font color="red">查無資料!!</font>
-            <a class="btn" onclick="createCompany();">新增營業人</a>
+            await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/CompanyList.cshtml", _model);
         }
-    </div>
+        await Html.RenderPartialAsync("~/Views/Common/Module/QueryPagingControl.cshtml", _model);
+    }
+    else
+    {
+        <div id="dataList" class="card shadow-sm border-2 rounded-3">
+            <div id="tableList" class="card-body">
+                <div class="py-3 fs-6 fw-bold text-danger text-center">
+                    <i class="fas fa-exclamation-circle"></i>
+                    目前尚無資料！
+                </div>
+            </div>
+        </div>
+    }
 }
-

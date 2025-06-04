@@ -42,6 +42,7 @@
                 $inquiryAgent.viewModel.PageIndex = 1;
             }
             $formData = $.extend({}, $inquiryAgent.viewModel, $formData);
+            console.log({ $formData });
             clearErrors();
             showLoading();
             $.post('@Html.Raw(_viewModel.UrlAction)', $formData, function (data) {

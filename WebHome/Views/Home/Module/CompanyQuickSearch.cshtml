@@ -39,7 +39,7 @@
     _item = _model?.Where(c => c.CompanyID == _viewModel.SellerID).FirstOrDefault();
 }
 
-<input type="text" class="form-control form-select-sm" id="@(_contentID)"
+<input type="text" class="form-control form-control-sm" id="@(_contentID)"
     value="@(_item != null ? $"{_item.ReceiptNo} {_item.CompanyName}" : null)" placeholder="請輸入檢索關鍵字" />
 <input type="hidden" id="@(_valueID)" name="@(_fieldName)"
     value="@(_viewModel.Encrypt == true && _viewModel.SellerID.HasValue ? _viewModel.SellerID.Value.EncryptKey() : _viewModel.SellerID.ToString())" />

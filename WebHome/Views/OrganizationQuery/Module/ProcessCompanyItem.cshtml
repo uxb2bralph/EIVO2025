@@ -39,58 +39,130 @@
     bool checkCompany(ModelCore.DataEntity.Organization Org)
     {
         return Org.OrganizationCategory.Any(c => c.CategoryID == (int)CategoryDefinition.CategoryEnum.營業人發票自動配號
-            || c.CategoryID == (int)CategoryDefinition.CategoryEnum.經銷商
-            || c.CategoryID == (int)CategoryDefinition.CategoryEnum.發票開立營業人
-            || c.CategoryID == (int)CategoryDefinition.CategoryEnum.境外電商);
+        || c.CategoryID == (int)CategoryDefinition.CategoryEnum.經銷商
+        || c.CategoryID == (int)CategoryDefinition.CategoryEnum.發票開立營業人
+        || c.CategoryID == (int)CategoryDefinition.CategoryEnum.境外電商);
     }
 
 }
-<div class="btn-group @(idx > 4 ? "dropup" : "dropdown")" data-toggle="dropdown">
-    <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-    <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-    <ul class="dropdown-menu">
+<div class="dropdown">
+    <button class="px-3 btn btn-sm eivo__btn--default dropdown-toggle" type="button" id="dropdownMenuButton1"
+        data-bs-toggle="dropdown" aria-expanded="false">
+        功能
+    </button>
+    <ul class="dropdown-menu shadow dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
         @if (item.OrganizationStatus.CurrentLevel != (int)Naming.MemberStatusDefinition.Mark_To_Delete)
         {
-            <li><a class="btn" onclick="editCompany('@Html.Raw(item.CompanyID.EncryptKey())');">編輯</a></li>
-            <li><a class="btn" onclick="disableCompany(@(item.CompanyID));">停用</a></li>
-            @*<li><a class="btn" onclick="applyWelfare(@(item.CompanyID));">設定社福機構</a></li>*@
-            <li><a class="btn" onclick="actionHandler('@Html.Raw(Url.Action("GatewaySettings","Organization",new { KeyID=item.CompanyID.EncryptKey() }))', null, null, 640, 'auto');">用戶端G/W設定</a></li>
+            <li>
+                <a class="dropdown-item" href="#" onclick="editCompany('@Html.Raw(item.CompanyID.EncryptKey())');">
+                    <i class="fas fa-caret-right"></i>
+                    編輯
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="#" onclick="disableCompany(@(item.CompanyID));">
+                    <i class="fas fa-caret-right"></i>
+                    停用
+                </a>
+            </li>
+            @*<li>
+            <a class="dropdown-item" href="#" onclick="applyWelfare(@(item.CompanyID));">設定社福機構</a>
+            </li>*@
+            <li>
+                <a class="dropdown-item" href="#"
+                    onclick="actionHandler('@Html.Raw(Url.Action("GatewaySettings", "Organization", new { KeyID = item.CompanyID.EncryptKey() }))', null, null, 640, 'auto');">
+                    <i class="fas fa-caret-right"></i>
+                    用戶端 G/W 設定
+                </a>
+            </li>
             if (checkCompany(item))
             {
-                <li><a class="btn" onclick="applyAgency('@Html.Raw(item.CompanyID.EncryptKey())');">設定經銷商</a></li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="applyAgency('@Html.Raw(item.CompanyID.EncryptKey())');">
+                        <i class="fas fa-caret-right"></i>
+                        設定經銷商
+                    </a>
+                </li>
             }
-            <li><a class="btn" onclick="applyMaster('@Html.Raw(item.CompanyID.EncryptKey())');">指派主機構</a></li>
-            <li><a class="btn" onclick="applyPOS(@(item.CompanyID));">設定POS機號</a></li>
+            <li>
+                <a class="dropdown-item" href="#" onclick="applyMaster('@Html.Raw(item.CompanyID.EncryptKey())');">
+                    <i class="fas fa-caret-right"></i>
+                    指派主機構
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="#" onclick="applyPOS(@(item.CompanyID));">
+                    <i class="fas fa-caret-right"></i>
+                    設定POS機號
+                </a>
+            </li>
             if (!item.IsEnterpriseGroupMember())
             {
-                <li><a class="btn" onclick="applyRelationship(@(item.CompanyID));">設定為B2B營業人</a></li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="applyRelationship(@(item.CompanyID));">
+                        <i class="fas fa-caret-right"></i>
+                        設定為B2B營業人
+                    </a>
+                </li>
             }
             if (item.MasterOrganization == null)
             {
-                <li><a class="btn" onclick="commitMaster('@Html.Raw(item.CompanyID.EncryptKey())','確認設定此開立人為主機構?');">設定為主機構</a></li>
+                <li>
+                    <a class="dropdown-item" href="#"
+                        onclick="commitMaster('@Html.Raw(item.CompanyID.EncryptKey())','確認設定此開立人為主機構?');">
+                        <i class="fas fa-caret-right"></i>
+                        設定為主機構
+                    </a>
+                </li>
             }
             else
             {
-                <li><a class="btn" onclick="commitMaster('@Html.Raw(item.CompanyID.EncryptKey())','確認取消此開立人主機構?');">取消主機構</a></li>
+                <li>
+                    <a class="dropdown-item" href="#"
+                        onclick="commitMaster('@Html.Raw(item.CompanyID.EncryptKey())','確認取消此開立人主機構?');">
+                        <i class="fas fa-caret-right"></i>
+                        取消主機構
+                    </a>
+                </li>
             }
-            <li><a class="btn" onclick="inquireUser(@(item.CompanyID));">管理使用者</a></li>
-            <li><a class="btn" onclick="customSettings('@Html.Raw(item.CompanyID.EncryptKey())');">客製化服務設訂</a></li>
+            <li>
+                <a class="dropdown-item" href="#" onclick="inquireUser(@(item.CompanyID));">
+                    <i class="fas fa-caret-right"></i>
+                    管理使用者
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="#" onclick="customSettings('@Html.Raw(item.CompanyID.EncryptKey())');">
+                    <i class="fas fa-caret-right"></i>
+                    客製化服務設訂
+                </a>
+            </li>
             @*String clientTool = $"~/resource/Cooperation/{item.ReceiptNo}.zip";
             if (File.Exists(Server.MapPath(clientTool)))
             {
-                <li><a class="btn" onclick="window.location.href = '@(VirtualPathUtility.ToAbsolute(clientTool))';">下載G/W</a></li>
+                <li>
+                <a class="dropdown-item" href="#" onclick="window.location.href = '@(VirtualPathUtility.ToAbsolute(clientTool))';">下載G/W</a>
+                </li>
             }*@
             if (_model.OrganizationCategory.Any(c => c.CategoryID == (int)CategoryDefinition.CategoryEnum.發票開立營業人)
-                || _model.OrganizationCategory.Any(c => c.CategoryID == (int)CategoryDefinition.CategoryEnum.經銷商))
+            || _model.OrganizationCategory.Any(c => c.CategoryID == (int)CategoryDefinition.CategoryEnum.經銷商))
             {
-                <li><a class="btn" onclick="applyBilling('@Html.Raw(item.CompanyID.EncryptKey())');">設定收費標準</a></li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="applyBilling('@Html.Raw(item.CompanyID.EncryptKey())');">
+                        <i class="fas fa-caret-right"></i>
+                        設定收費標準
+                    </a>
+                </li>
             }
         }
         else
         {
-            <li><a class="btn" onclick="enableCompany(@(item.CompanyID));">啟用</a></li>
+            <li>
+                <a class="dropdown-item" href="#" onclick="enableCompany(@(item.CompanyID));">
+                    <i class="fas fa-caret-right"></i>
+                    啟用
+                </a>
+            </li>
         }
     </ul>
 </div>
-
-

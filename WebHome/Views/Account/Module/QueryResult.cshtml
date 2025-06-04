@@ -8,7 +8,6 @@
 @using WebHome.Models
 @using WebHome.Controllers
 @using ModelCore.DataEntity
-@using ModelCore.Helper
 @using ModelCore.Locale
 @using ModelCore.Security.MembershipManagement
 @using ModelCore.Models.ViewModel
@@ -35,7 +34,7 @@
     @{
         await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
     }
-    <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--default text-nowrap" onclick="uiAccountQuery.edit();">
+    <button type="button" class="my-1 px-3 btn btn-sm eivo__btn--check text-nowrap" onclick="uiAccountQuery.edit();">
         <i class="far fa-plus"></i>
         新增
     </button>

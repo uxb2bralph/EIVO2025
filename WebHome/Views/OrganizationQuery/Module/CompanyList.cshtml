@@ -24,41 +24,39 @@
 
 }
 
-<table class="table table-small-font table-bordered table-striped table01 companyList">
-    <thead>
-        <tr>
-            <th>
-                <a href="javascript:void(0);" onclick="$inquiryAgent.sort('CompanyName',this);">營業人名稱</a>
-            </th>
-            <th>
-                <a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">統一編號</a>
-            </th>
-            <th>負責人姓名</th>
-            <th>電子郵件</th>
-            <th>營業人狀態</th>
-            <th style="white-space: nowrap; min-width: 150px;">管理</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/CompanyItemList.cshtml");
-        }
-    </tbody>
 
-    <tfoot>
-        <tr>
-            <td colspan="6">
-                <a class="btn" onclick="createCompany();">新增開立人</a>
-            </td>
-        </tr>
-    </tfoot>
-</table>
+<div id="dataList" class="card shadow-sm border-2 rounded-3">
+    <div id="tableList" class="card-body">
+        <div class="table-responsive" style="min-height: 500px;overflow-y: scroll;">
+            <table id="companyList" class="table table-striped itemList eivo__table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-nowrap">
+                            <a href="javascript:void(0);" onclick="$inquiryAgent.sort('CompanyName',this);">營業人名稱</a>
+                        </th>
+                        <th scope="col" class="text-nowrap">
+                            <a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">統一編號</a>
+                        </th>
+                        <th scope="col" class="text-nowrap">負責人姓名</th>
+                        <th scope="col" class="text-nowrap">電子郵件</th>
+                        <th scope="col" class="text-nowrap">營業人狀態</th>
+                        <th scope="col" class="text-nowrap" style="width: 150px;" aria-sort="other">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/CompanyItemList.cshtml");
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <script>
     $inquiryAgent.doPage = function (data) {
-        $('table.companyList tbody')
+        $('#companyList tbody')
             .empty()
             .append(data);
     };
 </script>
-

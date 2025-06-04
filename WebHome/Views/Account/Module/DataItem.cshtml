@@ -43,6 +43,7 @@
             <ul class="dropdown-menu shadow dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
                 <li>
                     <a class="dropdown-item" href="#" onclick="uiAccountQuery.edit(@(_model.UID));">
+                        <i class="fas fa-caret-right"></i>
                         編輯
                     </a>
                 </li>
@@ -50,6 +51,7 @@
                 {
                     <li>
                         <a class="dropdown-item" href="#" onclick="uiAccountQuery.activate(@(_model.UID));">
+                            <i class="fas fa-caret-right"></i>
                             啟用
                         </a>
                     </li>
@@ -58,16 +60,19 @@
                 {
                     <li>
                         <a class="dropdown-item" href="#" onclick="uiAccountQuery.sendConfirmation(@(_model.UID));">
+                            <i class="fas fa-caret-right"></i>
                             重送確認信
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item" href="#" onclick="uiAccountQuery.deactivate(@(_model.UID));">
+                            <i class="fas fa-caret-right"></i>
                             停用
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#" onclick="uiAccountQuery.delete(@(_model.UID));">
+                        <a class="dropdown-item text-danger" href="#" onclick="uiAccountQuery.delete(@(_model.UID));">
+                            <i class="fas fa-caret-right"></i>
                             刪除
                         </a>
                     </li>

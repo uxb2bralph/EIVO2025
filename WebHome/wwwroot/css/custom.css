@@ -490,4 +490,8 @@ footer {
   border-bottom-left-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
   border-width: 0;
+}
+
+.dropdown-menu {
+  font-size: 0.875rem;
 }/*# sourceMappingURL=custom.css.map */

@@ -199,6 +199,30 @@
                     this.showTab(tabId);
                 hideLoading();
             },
+            createModal: function (tabId, tabText, tabContent, show) {
+                console.log({ tabId, tabText, tabContent, show });
+                //showLoading();
+                //this.removeTab(tabId);
+                $('#' + tabId).remove(); // remove existing modal with the same id
+                console.log('tabId:', $('#' + tabId));
+
+                const newModal = $('<div class="modal fade" id="' + tabId + '" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="' + tabId + 'Label" aria-hidden="true"></div>');
+                newModal.append($('<div class="modal-dialog modal-dialog-scrollable modal-xl"></div>')
+                    .append($('<div class="modal-content"></div>')
+                        .append($('<div class="modal-header"></div>')
+                            .append($('<h5 class="modal-title fw-bold text-primary" id="' + tabId + 'Label"></h5>').text(tabText))
+                            .append($('<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>')))
+                        .append($('<div class="modal-body"></div>').append(tabContent))));
+                $('body').append(newModal);
+
+                const dateAuthorizationAlert = document.querySelector("#dateAuthorizationAlert");
+                const dateInvoiceRequestAlert = document.querySelector("#dateInvoiceRequestAlert");
+                newModal.modal('show');
+                //this.registerCloseEvent(newTab);
+                //if (show)
+                //this.showTab(tabId);
+                //hideLoading();
+            },
             onReady: [],
             nothingToken: false,
             doNothing: function () {
@@ -499,7 +523,7 @@
         }
     }));
 
-    // 日期選擇器
+    // flatpickr 日期選擇器
     //const currentTime = new Date()
     const config = {
         locale: 'zh_tw',
@@ -515,24 +539,61 @@
             checkDateTime(dateStr, instance.input.id);
         }
     };
-    let startDateValue = null
-    let endDateValue = null
+    let startDateValue = null;
+    let endDateValue = null;
+    let startAuthorizationDateValue = null;
+    let endAuthorizationDateValue = null;
+    let startInvoiceRequestDateValue = null;
+    let endInvoiceRequestDateValue = null;
 
     // 辨別結束日期須晚於開始日期
     function checkDateTime(dateStr, id) {
         if (id === "DateFrom") {
-            startDateValue = dateStr
-        }
-
+            startDateValue = dateStr;
+        };
         if (id === "DateTo") {
-            endDateValue = dateStr
-        }
+            endDateValue = dateStr;
+        };
+        if (startDateValue && endDateValue) {
+            if (startDateValue > endDateValue) {
+                dateAlert.classList.remove("d-none");
+            } else {
+                dateAlert.classList.add("d-none");
+            }
+        };
 
-        if (startDateValue > endDateValue) {
-            dateAlert.classList.remove("d-none");
-        } else {
-            dateAlert.classList.add("d-none");
-        }
+        // 授權期間
+        if (id === "AuthorizationNotBefore") {
+            startAuthorizationDateValue = dateStr;
+        };
+        if (id === "AuthorizationNotAfter") {
+            endAuthorizationDateValue = dateStr;
+        };
+
+        if (startAuthorizationDateValue && endAuthorizationDateValue) {
+            if (startAuthorizationDateValue > endAuthorizationDateValue) {
+                dateAuthorizationAlert.classList.remove("d-none");
+            } else {
+                dateAuthorizationAlert.classList.add("d-none");
+            }
+        };
+
+        // 發票期間
+        if (id === "InvoiceRequestNotBefore") {
+            startInvoiceRequestDateValue = dateStr;
+        };
+        if (id === "InvoiceRequestNotAfter") {
+            endInvoiceRequestDateValue = dateStr;
+        };
+        if (startInvoiceRequestDateValue && endInvoiceRequestDateValue) {
+            if (startInvoiceRequestDateValue > endInvoiceRequestDateValue) {
+                dateInvoiceRequestAlert.classList.remove("d-none");
+            } else {
+                dateInvoiceRequestAlert.classList.add("d-none");
+            }
+        };
+
+
     };
 
 

@@ -24,63 +24,76 @@
 
 }
 
-<table class="table table-small-font table-bordered table-striped table01 companyList">
-    <thead>
-        <tr>
-            <th>
-                <input name="chkAll" type="checkbox" onclick="var $this = $(this); $this.closest('table').find('input[name=\'chkItem\']').prop('checked', $this.is(':checked'));" />
-            </th>
-            <th>
-                <a href="javascript:void(0);" onclick="$inquiryAgent.sort('CompanyName',this);">營業人名稱</a>
-            </th>
-            <th>
-                <a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">統一編號</a>
-            </th>
-            <th>上線日期</th>
-            <th>註記停用日期</th>
-            <th>營業人狀態</th>
-            <th style="white-space: nowrap; min-width: 150px;">管理</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/SellerItemList.cshtml");
-        }
-    </tbody>
-
-    <tfoot>
-        <tr>
-            <td colspan="7">
-                <div class="col-md-2">
-                    <a class="btn" onclick="createCompany();">新增開立人</a>
-                </div>
-                <div class="col-md-4">
+<div id="dataList" class="card shadow-sm border-2 rounded-3">
+    <div id="tableList" class="card-body">
+        <div class="table-responsive" style="min-height: 500px;overflow-y: scroll;">
+            <table id="companyList" class="table table-striped itemList eivo__table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-nowrap">
+                            <input name="chkAll" type="checkbox"
+                                onclick="var $this = $(this); $this.closest('table').find('input[name=\'chkItem\']').prop('checked', $this.is(':checked'));" />
+                        </th>
+                        <th scope="col" class="text-nowrap">
+                            <a href="javascript:void(0);" onclick="$inquiryAgent.sort('CompanyName',this);">營業人名稱</a>
+                        </th>
+                        <th scope="col" class="text-nowrap">
+                            <a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">統一編號</a>
+                        </th>
+                        <th scope="col" class="text-nowrap">上線日期</th>
+                        <th scope="col" class="text-nowrap">註記停用日期</th>
+                        <th scope="col" class="text-nowrap">營業人狀態</th>
+                        <th scope="col" class="text-nowrap" style="width: 150px;">管理</th>
+                    </tr>
+                </thead>
+                <tbody>
                     @{
-                        await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml");
+                        await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/SellerItemList.cshtml");
                     }
-                </div>
-                <div class="btn-group" data-toggle="dropdown">
-                    <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-                    <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="btn" onclick="cloneBilling(this);">複製收費標準</a>
-                        </li>
-                        <li>
-                            <a class="btn" onclick="applyHeadquarter(this);">設為分支機構</a>
-                        </li>
-                    </ul>
-                </div>
-            </td>
-        </tr>
-    </tfoot>
-</table>
+                </tbody>
+
+                <tfoot>
+                    <tr>
+                        <td colspan="7">
+                            <div class="col-md-4">
+                                @{
+                                    await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml");
+                                }
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="px-3 btn btn-sm eivo__btn--default dropdown-toggle" type="button"
+                                    id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                    功能
+                                </button>
+                                <ul class="dropdown-menu shadow dropdown-menu-end"
+                                    aria-labelledby="dropdownMenuButton1">
+                                    <li>
+                                        <a class="btn" onclick="cloneBilling(this);">
+                                            <i class="fas fa-caret-right"></i>
+                                            複製收費標準
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="btn" onclick="applyHeadquarter(this);">
+                                            <i class="fas fa-caret-right"></i>
+                                            設為分支機構
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
 
 <script>
     $inquiryAgent.doPage = function (data) {
-        $('table.companyList tbody')
+        $('#companyList tbody')
             .empty()
             .append(data);
     };
 </script>
-

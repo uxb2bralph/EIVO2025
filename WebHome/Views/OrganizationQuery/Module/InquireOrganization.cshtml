@@ -29,111 +29,140 @@
     OrganizationQueryViewModel _viewModel = (OrganizationQueryViewModel)ViewBag.ViewModel;
     _viewModel.UrlAction = Url.Action("InquireCompany", "OrganizationQuery");
 
-    ViewBag.ActionName = "首頁 > 系統管理維護";
+    ViewBag.ActionName = "營業人資料維護";
 
 }
 <!--交易畫面標題-->
-@{
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "營業人資料維護");
-}
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "營業人資料維護");
+    }
+</div>
 
-<!--路徑名稱-->
-<div class="border_gray" id="queryArea">
-    <!--表格 開始-->
-    <table class="table table-striped">
-        <tr>
-            <th colspan="4" class="Head_style_a">
-                查詢條件
-            </th>
-        </tr>
-        <tr>
-            <th nowrap="nowrap">
-                統編
-            </th>
-            <td class="tdleft">
-                <input name="ReceiptNo" type="text" class="form-control" value="@(_viewModel?.ReceiptNo)" />
-            </td>
-            <th nowrap="nowrap">
-                營業人名稱
-            </th>
-            <td class="tdleft">
-                <input name="CompanyName" type="text" class="form-control" value="@(_viewModel?.CompanyName)" />
-            </td>
-        </tr>
-        <tr>
-            <th nowrap="nowrap">
-                營業人狀態
-            </th>
-            <td class="tdleft">
-                <select name="OrganizationStatus">
-                    <option value="">全部</option>
-                    <option value="1103">已啟用</option>
-                    <option value="1101">已停用</option>
-                </select>
-                @if (_viewModel?.OrganizationStatus.HasValue == true)
-                {
-                    <script>
-                    $(function () {
-                        $('select[name="organizationStatus"]').val('@((int)_viewModel.OrganizationStatus)');
-                    });
-                    </script>
-                }
-            </td>
-            <th nowrap="nowrap">
-                營業人類別
-            </th>
-            <td class="tdleft">
-                <select name="CategoryID">
-                    <option value="">全部</option>
-                    <option value="@((int)CategoryDefinition.CategoryEnum.發票開立營業人)">發票開立營業人</option>
-                    <option value="@((int)CategoryDefinition.CategoryEnum.經銷商)">經銷商</option>
-                    <option value="@((int)CategoryDefinition.CategoryEnum.境外電商)">境外電商</option>
-                    <option value="@((int)CategoryDefinition.CategoryEnum.集團成員)">集團成員</option>
-                    <option value="@((int)CategoryDefinition.CategoryEnum.相對營業人)">相對營業人</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <th nowrap="nowrap">
-                所屬經銷商
-            </th>
-            <td class="tdleft" colspan="3">
-                <select name="AgentID">
-                    <option value="">全部</option>
-                    @{
-                        var orgCate = models.GetTable<OrganizationCategory>().Where(c => c.CategoryID == (int)CategoryDefinition.CategoryEnum.經銷商);
-                        var agents = models.GetTable<Organization>().Where(o => orgCate.Any(c => c.CompanyID == o.CompanyID));
-                    }
-                    @foreach (var item in agents.OrderBy(o => o.ReceiptNo))
-                    {
-                        <option value="@(item.CompanyID)">(@(item.ReceiptNo))@(item.CompanyName)</option>
-                    }
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <th nowrap="nowrap">
-                分支機構
-            </th>
-            <td class="tdleft" colspan="3">
-                <input type="checkbox" name="BranchRelation" value="@($"{true}")" class="mr-2" />是
-            </td>
-        </tr>
-    </table>
-    <!--表格 結束-->
-    <!--按鈕-->
-    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="queryAction">
-        <tr>
-            <td class="Bargain_btn">
-                <input type="button" value="查詢" name="btnQuery" class="btn" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();" />
-            </td>
-        </tr>
-    </table>
-    <script>
+<!-- 查詢框 -->
+<div id="queryArea" class="mb-4 card shadow-sm border-2 rounded-3">
+    <div class="card-body">
+        <form id="queryForm" method="post" enctype="multipart/form-data">
+            <!-- 查詢條件 -->
+            <div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4">
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="ReceiptNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            統編
+                        </label>
+                        <div class="col">
+                            <input name="ReceiptNo" type="text" class="form-control form-control-sm"
+                                value="@(_viewModel?.ReceiptNo)" />
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="CompanyName" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            營業人名稱
+                        </label>
+                        <div class="col">
+                            <input name="CompanyName" type="text" class="form-control form-control-sm"
+                                value=" @(_viewModel?.CompanyName)" />
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="OrganizationStatus" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            營業人狀態
+                        </label>
+                        <div class="col">
+                            <select name="OrganizationStatus" class="form-select form-select-sm">
+                                <option value="">全部</option>
+                                <option value="1103">已啟用</option>
+                                <option value="1101">已停用</option>
+                            </select>
+                            @if (_viewModel?.OrganizationStatus.HasValue == true)
+                            {
+                                <script>
+                                    $(function () {
+                                        $('select[name="organizationStatus"]').val('@((int)_viewModel.OrganizationStatus)');
+                                    });
+                                </script>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="CategoryID" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            營業人類別
+                        </label>
+                        <div class="col">
+                            <select name="CategoryID" class="form-select form-select-sm">
+                                <option value="">全部</option>
+                                <option value="@((int)CategoryDefinition.CategoryEnum.發票開立營業人)">發票開立營業人</option>
+                                <option value="@((int)CategoryDefinition.CategoryEnum.經銷商)">經銷商</option>
+                                <option value="@((int)CategoryDefinition.CategoryEnum.境外電商)">境外電商</option>
+                                <option value="@((int)CategoryDefinition.CategoryEnum.集團成員)">集團成員</option>
+                                <option value="@((int)CategoryDefinition.CategoryEnum.相對營業人)">相對營業人</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="AgentID" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            所屬經銷商
+                        </label>
+                        <div class="col">
+                            <select name="AgentID" class="form-select form-select-sm">
+                                <option value="">全部</option>
+                                @{
+                                    var orgCate = models.GetTable<OrganizationCategory>().Where(c => c.CategoryID ==
+                                    (int)CategoryDefinition.CategoryEnum.經銷商);
+                                    var agents = models.GetTable<Organization>().Where(o => orgCate.Any(c => c.CompanyID ==
+                                    o.CompanyID));
+                                }
+                                @foreach (var item in agents.OrderBy(o => o.ReceiptNo))
+                                {
+                                    <option value="@(item.CompanyID)">(@(item.ReceiptNo))@(item.CompanyName)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row d-flex align-items-center">
+                        <label for="BranchRelation" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            分支機構
+                        </label>
+                        <div class="col pt-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="@($"{true}")"
+                                    id="BranchRelation">
+                                <label class="form-check-label" for="flexCheckDefault">
+                                    是
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--按鈕-->
+            <div class="mt-3 px-1 d-block text-end">
+                <button id="btnQuery" type="button" class="mx-1 px-3 btn btn-sm eivo__btn--default"
+                    onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">
+                    查詢
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- 顯示列表 -->
+<div id="resultList"></div>
+
+<script>
     var $result;
     function inquireCompany(pageNum, onPaging) {
         $('form').ajaxForm({
-            url: "@(Url.Action("InquireCompany","OrganizationQuery"))" + "?pageIndex=" + pageNum,
+            url: "@(Url.Action("InquireCompany", "OrganizationQuery"))" + "?pageIndex=" + pageNum,
             beforeSubmit: function () {
                 showLoading();
             },
@@ -156,9 +185,15 @@
         }).submit();
     }
 
+    function createCompany(keyID) {
+        $.post('@(Url.Action("EditItem", "Organization"))', { 'keyID': keyID }, function (data) {
+            $global.createModal('editOrganization', '營業人管理', data, true);
+        });
+    }
+
     function editCompany(value) {
         $.post('@(Url.Action("EditItem", "Organization"))', { 'keyID': value }, function (data) {
-            $global.createTab('editOrganization', '營業人管理', data, true);
+            $global.createModal('editOrganization', '營業人管理', data, true);
         });
     }
 
@@ -234,30 +269,30 @@
             }, 800, 560);
     }
 
-        function applyRelationship(value) {
-            if (confirm('確認設定此開立人為B2B營業人?')) {
-                invokeAction('../Handling/ApplyRelationship',
-                    { 'companyID': value },
-                    function () {
-                        $inquiryAgent.inquire();
-                    });
-            }
+    function applyRelationship(value) {
+        if (confirm('確認設定此開立人為B2B營業人?')) {
+            invokeAction('../Handling/ApplyRelationship',
+                { 'companyID': value },
+                function () {
+                    $inquiryAgent.inquire();
+                });
         }
+    }
 
-        function commitMaster(keyID, action) {
-            if (confirm(action)) {
-                invokeAction('../Handling/CommitMasterOrganization',
-                    { 'KeyID': keyID },
-                    function (resultValue) {
-                        if (resultValue.result) {
-                            alertModal('作業完成!!');
-                            $inquiryAgent.inquire();
-                        } else {
-                            alertModal(resultValue.message);
-                        }
-                    });
-            }
+    function commitMaster(keyID, action) {
+        if (confirm(action)) {
+            invokeAction('../Handling/CommitMasterOrganization',
+                { 'KeyID': keyID },
+                function (resultValue) {
+                    if (resultValue.result) {
+                        alertModal('作業完成!!');
+                        $inquiryAgent.inquire();
+                    } else {
+                        alertModal(resultValue.message);
+                    }
+                });
         }
+    }
 
     function inquireUser(value) {
         $.post('@(Url.Action("AccountIndex", "Account", new { showTab = true }))', { 'sellerID': value }, function (data) {
@@ -265,45 +300,35 @@
         });
     }
 
-        function createCompany(keyID) {
-
-            $.post('@(Url.Action("EditItem", "Organization"))', { 'keyID': keyID }, function (data) {
-                $global.createTab('editOrganization', '營業人管理', data, true);
-            });
-        }
-
-        function cloneBilling(element) {
-            if (confirm('確定複製營業人收費標準，原營業人收費設定將被取代?')) {
-                var $inputSrc = $(element).closest('table');
-                var viewModel = $inputSrc.find('input[name="chkItem"],input[name="SellerID"]')
-                    .serializeObject();
-                invokeAction('@(Url.Action("CloneBillingPlan", "Organization"))',
-                    viewModel,
-                    function (data) {
-                        if ($.isPlainObject(data)) {
-                            if (data.result) {
-                                alertModal('複製完成!!');
-                            }
-                        }
-                    });
-            }
-        }
-
-        function applyHeadquarter(element) {
+    function cloneBilling(element) {
+        if (confirm('確定複製營業人收費標準，原營業人收費設定將被取代?')) {
             var $inputSrc = $(element).closest('table');
             var viewModel = $inputSrc.find('input[name="chkItem"],input[name="SellerID"]')
                 .serializeObject();
-            invokeAction('@(Url.Action("ApplyHeadquarter", "Organization"))',
+            invokeAction('@(Url.Action("CloneBillingPlan", "Organization"))',
                 viewModel,
                 function (data) {
                     if ($.isPlainObject(data)) {
                         if (data.result) {
-                            alertModal('設定完成!!');
+                            alertModal('複製完成!!');
                         }
                     }
                 });
         }
-    </script>
+    }
 
-</div>
-
+    function applyHeadquarter(element) {
+        var $inputSrc = $(element).closest('table');
+        var viewModel = $inputSrc.find('input[name="chkItem"],input[name="SellerID"]')
+            .serializeObject();
+        invokeAction('@(Url.Action("ApplyHeadquarter", "Organization"))',
+            viewModel,
+            function (data) {
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        alertModal('設定完成!!');
+                    }
+                }
+            });
+    }
+</script>
