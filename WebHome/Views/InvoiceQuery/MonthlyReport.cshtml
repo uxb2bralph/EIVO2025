@@ -17,11 +17,12 @@
 
 @{
     Layout = "~/Views/Template/QueryIndex.cshtml";
-    ViewBag.ActionName = "首頁 > 每月統計報表";
+    ViewBag.ActionName = "統計報表";
     MonthlyReportQueryViewModel? _viewModel = ViewBag.ViewModel as MonthlyReportQueryViewModel;
     if (_viewModel == null)
     {
-        _viewModel = await ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<MonthlyReportQueryViewModel>();
+        _viewModel = await
+        ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<MonthlyReportQueryViewModel>();
         ViewBag.ViewModel = _viewModel;
     }
 
@@ -34,6 +35,3 @@
         await Html.RenderPartialAsync("~/Views/InvoiceQuery/Module/MonthlyReport.cshtml");
     }
 }
-
-
-
