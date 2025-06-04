@@ -17,7 +17,7 @@
 
 @{
     Layout = "~/Views/Template/QueryIndex.cshtml";
-    ViewBag.ActionName = "首頁 > 統計報表";
+    ViewBag.ActionName = "統計報表";
     InquireInvoiceViewModel _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
 
     _viewModel.UrlAction = Url.Action("InquireSummary", "InvoiceQuery");
@@ -29,6 +29,3 @@
         await Html.RenderPartialAsync("~/Views/InvoiceQuery/Module/InvoiceReport.cshtml");
     }
 }
-
-
-
