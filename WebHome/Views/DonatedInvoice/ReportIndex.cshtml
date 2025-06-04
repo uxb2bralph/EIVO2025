@@ -13,7 +13,7 @@
 @using WebHome.Helper
 @{
     Layout = "~/Views/Template/MvcMainPage.cshtml";
-    ViewBag.ActionName = "首頁 > 統計報表";
+    ViewBag.ActionName = "統計報表";
 }
 
 @section headContent {
@@ -22,4 +22,3 @@
 @{
     await Html.RenderPartialAsync("~/Views/DonatedInvoice/Module/InquireDonation.cshtml");
 }
-
