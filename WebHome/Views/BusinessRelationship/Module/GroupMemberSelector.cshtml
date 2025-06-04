@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -36,19 +35,19 @@
     if (_profile.IsSystemAdmin())
     {
         _items = models.GetTable<EnterpriseGroupMember>().Select(o => o.CompanyID)
-                .Distinct().Join(models.GetTable<Organization>(), d => d, o => o.CompanyID, (d, o) => o).OrderBy(o => o.ReceiptNo);
+        .Distinct().Join(models.GetTable<Organization>(), d => d, o => o.CompanyID, (d, o) => o).OrderBy(o => o.ReceiptNo);
 
     }
     else
     {
         _items = models.GetTable<EnterpriseGroupMember>()
-                .Where(o => o.CompanyID == _profile.CurrentUserRole.OrganizationCategory.CompanyID)
-                .Select(o => o.CompanyID)
-                .Join(models.GetTable<Organization>(), d => d, o => o.CompanyID, (d, o) => o).OrderBy(o => o.ReceiptNo);
+        .Where(o => o.CompanyID == _profile.CurrentUserRole.OrganizationCategory.CompanyID)
+        .Select(o => o.CompanyID)
+        .Join(models.GetTable<Organization>(), d => d, o => o.CompanyID, (d, o) => o).OrderBy(o => o.ReceiptNo);
     }
 }
 
-<select name="@(_model.Name)" id="@(_model.Id)">
+<select name="@(_model.Name)" id="@(_model.Id)" class="form-select form-select-sm">
     @if (ViewBag.SelectAll == true)
     {
         <option value="">全部</option>
@@ -65,11 +64,8 @@
 @if (_model.DefaultValue != null)
 {
     <script>
-            $(function () {
-                $('select[name="@(_model.Name)"]').val('@(_model.DefaultValue)');
-            });
+        $(function () {
+            $('select[name="@(_model.Name)"]').val('@(_model.DefaultValue)');
+        });
     </script>
 }
-
-
-

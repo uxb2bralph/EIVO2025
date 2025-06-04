@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -16,13 +15,12 @@
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
-    ViewBag.ActionName = "首頁 > 相對營業人管理";
+    ViewBag.ActionName = "會員管理維護";
 }
 
 @section QueryForm
 {
     @{
-        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "相對營業人資料維護");
         await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/MaintainBusinessRelationship.cshtml");
     }
 }

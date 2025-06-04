@@ -57,151 +57,118 @@
         </tr>
     </tbody>
 </table>*@
-<div class="border_gray" id="queryArea">
-    <!--表格 開始-->
-    <table class="table table-striped">
-        <tr>
-            <th colspan="2" class="Head_style_a">
-                資料維護
-            </th>
-        </tr>
-        <tr>
-            <th>
-                匯入相對營業人
-            </th>
-            <td class="tdleft">
-                <input type="button" name="btnDataSample" value="下載範本" onclick="$inquiryAgent.downloadQuery({'KeyID':'@((new {MasterID = -1}).JsonStringify().EncryptData())'});" />&nbsp;&nbsp;
-                @{
-                    await Html.RenderPartialAsync("~/Views/Shared/Module/FileUpload.cshtml",
-                        new AttachmentViewModel
-                        {
-                            FileName = "ExcelFile",
-                            ButtonField = "立即傳送",
-                            GetFormData = "getFormData()",
-                            UrlAction = Url.Action("UploadCounterpartBusiness", "BusinessRelationship"),
-                        });
-                }
-                <script>
-                    function getFormData() {
-                        var $placement = $('#queryArea');
-                        var $formData = $placement.find('input,select,textarea').serializeObject();
-                        return $formData;
-                    }
-                </script>
-            </td>
-        </tr>
-    </table>
-    <!--表格 結束-->
-    <!--表格 開始-->
-    <table class="table table-striped">
-        <tbody>
-            <tr>
-                <th class="Head_style_a" colspan="2">
-                    查詢條件
-                </th>
-            </tr>
-            @if (_profile.IsSystemAdmin())
-            {
-                <tr>
-                    <th>
-                        集團成員
-                    </th>
-                    <td class="tdleft">
-                        @{ ViewBag.SelectAll = true;
-                            await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/GroupMemberSelector.cshtml");}
 
-                    </td>
-                </tr>
+<!--交易畫面標題-->
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+    <div>
+        @{
+            await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "相對營業人資料維護");
+        }
+    </div>
+    <div>
+        <!--匯入相對營業人-->
+        <span class="fw-bold">
+            匯入相對營業人：
+        </span>
+        @* <button type="button" id="btnDataSample" class="px-3 btn btn-sm eivo__btn--default">
+            <i class="fas fa-download"></i>
+            下載範本
+        </button> *@
+
+        <button type="button" name="btnDataSample" class="px-3 btn btn-sm eivo__btn--default"
+            onclick="$inquiryAgent.downloadQuery({'KeyID':'@((new { MasterID = -1 }).JsonStringify().EncryptData())'});">
+            <i class="fas fa-download"></i>
+            下載範本
+        </button>
+        @{
+            await Html.RenderPartialAsync("~/Views/Shared/Module/FileUpload.cshtml",
+            new AttachmentViewModel
+            {
+                FileName = "ExcelFile",
+                ButtonField = "立即傳送",
+                GetFormData = "getFormData()",
+                UrlAction = Url.Action("UploadCounterpartBusiness", "BusinessRelationship"),
+            });
+        }
+        <script>
+            function getFormData() {
+                var $placement = $('#queryArea');
+                var $formData = $placement.find('input,select,textarea').serializeObject();
+                return $formData;
             }
-            <tr>
-                <th width="120">
-                    營業人統編
-                </th>
-                <td class="tdleft">
-                    <input name="ReceiptNo" type="text" />
-                    &nbsp;
-                </td>
-            </tr>
-            <tr>
-                <th width="120">
-                    <span class="tdleft">營業人名稱</span>
-                </th>
-                <td class="tdleft">
-                    <input name="CompanyName" type="text" />
-                    &nbsp;
-                </td>
-            </tr>
-            @*<tr>
-                    <th width="120">
-                        <span class="tdleft">店號</span>
-                    </th>
-                    <td class="tdleft">
-                        <input name="branchNo" type="text" />
-                        &nbsp;
-                    </td>
-                </tr>*@
-            @*<tr>
-                    <th width="120">
-                        營業人狀態
-                    </th>
-                    <td class="tdleft">
-                        <select name="CompanyStatus">
-                            <option value="">全部</option>
-                            <option value="1103">已啟用</option>
-                            <option value="1101">已停用</option>
-                        </select>
-                    </td>
-                </tr>*@
-            <tr>
-                <th width="120">
-                    營業人類別
-                </th>
-                <td class="tdleft">
-                    @{
-                        ViewBag.FieldName = "BusinessType";
-                        ViewBag.SelectorIndication = "全部";
-                        ViewBag.SelectorIndicationValue = "";
-                        await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelector.cshtml", typeof(Naming.InvoiceCenterBusinessType));
-                    }
-                </td>
-            </tr>
-            @*<tr>
-                    <th width="120">
-                        自動接收
-                    </th>
-                    <td class="tdleft">
-                        <select name="Entrusting">
-                            <option value="">全部</option>
-                            <option value="True">已啟用</option>
-                            <option value="False">已停用</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th width="120">
-                        主動列印
-                    </th>
-                    <td class="tdleft">
-                        <select name="EntrustToPrint">
-                            <option value="">全部</option>
-                            <option value="True">已啟用</option>
-                            <option value="False">已停用</option>
-                        </select>
-                    </td>
-                </tr>*@
-        </tbody>
-    </table>
-    <!--表格 結束-->
-    <table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
-        <tbody>
-            <tr>
-                <td class="Bargain_btn">
-                    <button type="button" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">查詢</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+        </script>
+    </div>
 </div>
+
+<div id="queryArea" class="mb-4 card shadow-sm border-2 rounded-3">
+    <div class="card-body">
+        <form id="queryForm" method="post" enctype="multipart/form-data">
+            <!-- 查詢條件 -->
+            <div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4">
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="AllowancePrintView" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            集團成員
+                        </label>
+                        <div class="col">
+                            @{
+                                ViewBag.SelectAll = true;
+                                await
+                                Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/GroupMemberSelector.cshtml");
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="ReceiptNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            營業人統編
+                        </label>
+                        <div class="col">
+                            <input type="text" class="form-control form-control-sm" id="ReceiptNo" name="ReceiptNo" />
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="CompanyName" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            營業人名稱
+                        </label>
+                        <div class="col">
+                            <input type="text" class="form-control form-control-sm" id="CompanyName"
+                                name="CompanyName" />
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="ReceiptNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            營業人類別
+                        </label>
+                        <div class="col">
+                            @{
+                                ViewBag.FieldName = "BusinessType";
+                                ViewBag.SelectorIndication = "全部";
+                                ViewBag.SelectorIndicationValue = "";
+                                await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelector.cshtml",
+                                typeof(Naming.InvoiceCenterBusinessType));
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--按鈕-->
+            <div class="mt-3 px-1 d-block text-end">
+                <button id="btnQuery" type="button" class="mx-1 px-3 btn btn-sm eivo__btn--default"
+                    onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">
+                    查詢
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- 顯示列表 -->
+<div id="resultList"></div>
 
 <script>
     var uiInquireBusiness;
@@ -212,7 +179,7 @@
             commitItem: function (value) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("CommitItem","BusinessRelationship"))', $.param($tr.find('input,select,textarea')), function (data) {
+                $.post('@(Url.Action("CommitItem", "BusinessRelationship"))', $.param($tr.find('input,select,textarea')), function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -237,7 +204,7 @@
             },
             inquireBusiness: function (pageNum, onPaging) {
                 $('form').ajaxForm({
-                    url: "@(Url.Action("InquireBusinessRelationship","BusinessRelationship"))" + "?pageIndex=" + pageNum,
+                    url: "@(Url.Action("InquireBusinessRelationship", "BusinessRelationship"))" + "?pageIndex=" + pageNum,
                     beforeSubmit: function () {
                         showLoading();
                     },
@@ -262,7 +229,7 @@
                 if (confirm('確認刪除此營業人關係?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("DeleteItem","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                    $.post('@(Url.Action("DeleteItem", "BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -277,7 +244,7 @@
                 if (confirm('確認停用列印?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("SetEntrustToPrint","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
+                    $.post('@(Url.Action("SetEntrustToPrint", "BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
                         if (data) {
                             var $data = $(data);
                             if ($data.is('tr')) {
@@ -297,7 +264,7 @@
                 if (confirm('確認啟用此營業人自動接收?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("SetEntrusting","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
+                    $.post('@(Url.Action("SetEntrusting", "BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
                         if (data) {
                             var $data = $(data);
                             if ($data.is('tr')) {
@@ -317,7 +284,7 @@
                 if (confirm('確認啟用此營業人?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("Activate","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                    $.post('@(Url.Action("Activate", "BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
                         if (data) {
                             var $data = $(data);
                             if ($data.is('tr')) {
@@ -337,7 +304,7 @@
                 if (confirm('確認停用此營業人?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("Deactivate","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                    $.post('@(Url.Action("Deactivate", "BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
                         if (data) {
                             var $data = $(data);
                             if ($data.is('tr')) {
@@ -354,11 +321,10 @@
             },
 
             inquireUser: function (value) {
-                $.post('@(Url.Action("AccountIndex","Account",new { showTab = true, roleID = (int)Naming.RoleQueryDefinition.分店相對營業人 }))', { 'sellerID': value }, function (data) {
-                    $global.createTab('@("listUser"+DateTime.Now.Ticks)', '使用者管理', data, true);
+                $.post('@(Url.Action("AccountIndex", "Account", new { showTab = true, roleID = (int)Naming.RoleQueryDefinition.分店相對營業人 }))', { 'sellerID': value }, function (data) {
+                    $global.createTab('@("listUser" + DateTime.Now.Ticks)', '使用者管理', data, true);
                 });
             },
         };
     });
 </script>
-
