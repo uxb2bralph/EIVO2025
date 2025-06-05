@@ -17,7 +17,7 @@
 
 @{
     Layout = "~/Views/Template/QueryIndex.cshtml";
-    ViewBag.ActionName = "首頁 > 發票作業";
+    ViewBag.ActionName = "發票通知";
 
     var _inquiryView = (String)ViewBag.InquiryView ?? "~/Views/InvoiceProcess/Module/InvoiceQuery.cshtml";
 
@@ -28,3 +28,10 @@
         await Html.RenderPartialAsync(_inquiryView);
     }
 }
+
+<script>
+    $(function () {
+        // 初始化查詢表單
+        urlHandler('@(Url.Action("IssuingNotice", "InvoiceProcess", new { group = "system_04" }))');
+    });
+</script>
