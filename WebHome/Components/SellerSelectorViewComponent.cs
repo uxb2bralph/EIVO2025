@@ -19,32 +19,29 @@ namespace WebHome.Components
 
         public IViewComponentResult Invoke(SellerSelectorViewModel viewModel)
         {
-            ViewBag.ViewModel = viewModel;
-            models = (ModelSource<InvoiceItem>)HttpContext.Items["Models"];
-            _modelState = ViewContext.ModelState;
-
-            return SellerSelector(viewModel);
-        }
-
-        public IViewComponentResult SellerSelector(SellerSelectorViewModel viewModel)
-        {
-            ViewBag.ViewModel = viewModel;
-            if ((viewModel.FieldName = viewModel.FieldName.GetEfficientString()) == null)
+            if (viewModel == null)
             {
-                viewModel.FieldName = "SellerID";
+                viewModel = new SellerSelectorViewModel();
             }
+            ViewBag.ViewModel = viewModel;
 
-            if (viewModel.SelectAll == true && (viewModel.SelectorIndication = viewModel.SelectorIndication.GetEfficientString()) == null)
+            viewModel.FieldName ??= "SellerID";
+
+            if (viewModel.SelectAll == true && String.IsNullOrEmpty(viewModel.SelectorIndication))
             {
                 viewModel.SelectorIndication = "全部";
             }
 
+            ViewBag.ModelState = ViewContext.ModelState;
+
+            var models = (ModelSource<InvoiceItem>)HttpContext.Items["Models"];
             var userProfile = HttpContext.GetUser();
             IQueryable<Organization> orgItems = userProfile.InitializeOrganizationQuery(models);
 
             return View("~/Views/DataFlow/SellerSelector.cshtml", orgItems);
-
         }
+
+       
 
     }
 }

@@ -1,4 +1,4 @@
-set ASPNETCORE_WEBROOT=\\192.168.200.70\c$\Project\Github\IFS-EIVO03\eIVOGo
+set ASPNETCORE_WEBROOT=C:\Users\USER\Desktop\Project\IFS-EIVO03\eIVOGo  rem 11405 網頁排版第1順序路徑
 SET ASPNETCORE_ENVIRONMENT=Development
 SET ASPNETCORE_HOSTINGSTARTUPASSEMBLIES=Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
 SET LAUNCHER_PATH=bin\Debug\net9.0\WebHome.exe

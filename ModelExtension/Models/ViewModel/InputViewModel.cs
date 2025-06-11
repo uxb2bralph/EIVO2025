@@ -57,4 +57,16 @@ namespace ModelCore.Models.ViewModel
         public int? SellerID { get; set; }
     }
 
+    public partial class CounterpartBusinessSelectorViewModel : CommonQueryViewModel //11405 added by Amy
+    {
+        public string BuyerReceiptNo { get; set; }
+        public string FieldName { get; set; }
+        public string FieldID { get; set; }
+        public object DefaultValue { get; set; }
+        public bool? SelectAll { get; set; }
+        public string SelectorIndication { get; set; }
+        public string JS_OnSelect { get; set; }
+        public int? BusinessID { get; set; }
+    }
+
 }

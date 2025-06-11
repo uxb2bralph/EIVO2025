@@ -3,8 +3,6 @@
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
-
-
 @using WebHome.Helper
 @using ModelCore.Locale
 @using WebHome.Models.ViewModel
@@ -18,18 +16,16 @@
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
     IEnumerable<Organization> _model;
-    String _fieldName;
-    String _contentID;
-    UserProfile _profile;
-
     var Request = ViewContext.HttpContext.Request;
-
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _model = (IEnumerable<Organization>)this.Model;
-    _fieldName = (String)ViewBag.FieldName ?? "BuyerID";
-    _contentID = (String)ViewBag.FieldID ?? ("id" + DateTime.Now.Ticks);
-    _profile = Context.GetUser();
+    // String _fieldName;
+    // String _contentID;
+    // UserProfile _profile;
+    var _fieldName = (String)ViewBag.FieldName ?? "BuyerID";
+    var _contentID = (String)ViewBag.FieldID ?? ("id" + DateTime.Now.Ticks);
+    var _profile = Context.GetUser();
 }
 <input type="text" size="40" id="@(_contentID)" class="form-control" value="" placeholder="請輸入檢索關鍵字" />
 <input type="hidden" name="@(_fieldName)" />
@@ -73,7 +69,16 @@
         });
     });
 </script>
-@if (Request.Form[_fieldName].Any())
+@* @if (Request.Form[_fieldName].Any())
+{
+    <script>
+        $(function () {
+            $('input:hidden[name="@(_fieldName)"]').val('@(Request.Form[_fieldName])');
+        });
+    </script>
+} *@
+
+@if (Request.HasFormContentType && Request.Form.ContainsKey(_fieldName))
 {
     <script>
         $(function () {
