@@ -28,10 +28,3 @@
         await Html.RenderPartialAsync(_inquiryView);
     }
 }
-
-<script>
-    $(function () {
-        // 初始化查詢表單
-        urlHandler('@(Url.Action("IssuingNotice", "InvoiceProcess", new { group = "system_04" }))');
-    });
-</script>

@@ -32,7 +32,7 @@
 <input type="hidden" name="@(_fieldName)" />
 <script>
     $(function () {
-        debugger;
+        console.log('CounterpartBusinessSelector.js loaded');
         var $input = $('#@(_contentID)');
         $input.on('change', function (evt) {
             if ($input.val() == '') {

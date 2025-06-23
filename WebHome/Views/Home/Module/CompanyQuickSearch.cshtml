@@ -45,7 +45,7 @@
     value="@(_viewModel.Encrypt == true && _viewModel.SellerID.HasValue ? _viewModel.SellerID.Value.EncryptKey() : _viewModel.SellerID.ToString())" />
 <script>
     $(function () {
-        debugger;
+        console.log('SellerSelector.js loaded');
         var $input = $('#@(_contentID)');
         $input.on('change', function (evt) {
             if ($input.val() == '') {
