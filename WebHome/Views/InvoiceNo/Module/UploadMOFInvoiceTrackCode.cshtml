@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -17,55 +16,58 @@
     TempData["ImportData"] = _idx + 1;
 }
 
-    <tr>
-        <th>
-            財政部大平台<br />發票字軌號碼
-        </th>
-        <td class="tdleft">
-            <input type="button" id="@($"btnImportData{_idx}")" value="立即傳送(CSV)" class="mr-2" />
-            <script>
-                        $(function () {
+<div class="mb-3 row">
+    <label for="EncSellerID" class="col-sm-4 col-form-label fw-bold text-nowrap">
+        財政部大平台發票字軌號碼
+    </label>
+    <div class="col-sm-8">
+        <button type="button" id="@($"btnImportData{_idx}")" class="px-3 btn btn-sm eivo__btn--check">
+            <i class="fas fa-paper-plane"></i>
+            立即傳送 ( CSV )
+        </button>
+        @{
+            await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/UploadE0501.cshtml");
+        }
+    </div>
+</div>
 
-                            var $btn = $('#@($"btnImportData{_idx}")');
-                            var $file = $('<input name="theFile" type="file" style="display: none;" />');
-                            $btn.before($file);
+<script>
+    $(function () {
 
-                            $btn.click(function () {
-                                $file.val('');
-                                $file.click();
-                            });
+        var $btn = $('#@($"btnImportData{_idx}")');
+        var $file = $('<input name="theFile" type="file" style="display: none;" />');
+        $btn.before($file);
 
-                            var $result;
+        $btn.click(function () {
+            $file.val('');
+            $file.click();
+        });
 
-                            $file.on('change', function (event) {
-                                clearErrors();
-                                var $formData = $('form').find('input,select,textArea').serializeObject();
-                                uploadFile($file, $formData, '@Html.Raw(Url.Action("UploadToPreviewMOF", "InvoiceNo"))',
-                                    function (data) {
-                                        $btn.before($file);
-                                        if ($.isPlainObject(data)) {
-                                            if (data.result) {
+        var $result;
 
-                                            } else {
-                                                alert(data.message);
-                                            }
-                                        } else {
-                                            if ($result) {
-                                                $result.remove();
-                                            }
-                                            $result = $(data);
-                                            $('#queryArea').after($result);
-                                        }
-                                    },
-                                    function () {
-                                        $btn.before($file);
-                                    });
-                            });
-                        });
-            </script>
-            @{ 
-                await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/UploadE0501.cshtml");
-            }
-        </td>
-    </tr>
+        $file.on('change', function (event) {
+            clearErrors();
+            var $formData = $('form').find('input,select,textArea').serializeObject();
+            uploadFile($file, $formData, '@Html.Raw(Url.Action("UploadToPreviewMOF", "InvoiceNo"))',
+                function (data) {
+                    $btn.before($file);
+                    if ($.isPlainObject(data)) {
+                        if (data.result) {
 
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        if ($result) {
+                            $result.remove();
+                        }
+                        $result = $(data);
+                        $('#queryArea').after($result);
+                    }
+                },
+                function () {
+                    $btn.before($file);
+                });
+        });
+    });
+</script>

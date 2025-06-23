@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -17,7 +16,11 @@
     TempData["ImportData"] = _idx + 1;
 }
 
-<input type="button" id="@($"btnImportData{_idx}")" value="立即傳送(E0501)" />
+<button type="button" id="@($"btnImportData{_idx}")" class="px-3 btn btn-sm eivo__btn--check">
+    <i class="fas fa-paper-plane"></i>
+    立即傳送 ( E0501 )
+</button>
+
 <script>
     $(function () {
 
@@ -57,5 +60,3 @@
         });
     });
 </script>
-
-

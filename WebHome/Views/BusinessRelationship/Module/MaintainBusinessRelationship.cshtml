@@ -70,11 +70,6 @@
         <span class="fw-bold">
             匯入相對營業人：
         </span>
-        @* <button type="button" id="btnDataSample" class="px-3 btn btn-sm eivo__btn--default">
-            <i class="fas fa-download"></i>
-            下載範本
-        </button> *@
-
         <button type="button" name="btnDataSample" class="px-3 btn btn-sm eivo__btn--default"
             onclick="$inquiryAgent.downloadQuery({'KeyID':'@((new { MasterID = -1 }).JsonStringify().EncryptData())'});">
             <i class="fas fa-download"></i>

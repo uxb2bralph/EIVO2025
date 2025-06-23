@@ -1,5 +1,3 @@
-
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -26,88 +24,99 @@
     _profile = Context.GetUser();
 }
 
-<!--交易畫面標題-->
-@{
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "新增/修改發票號碼區間");
-}
-
-<div class="border_gray">
-    【<a href="@(Url.Action("UploadInvoiceTrackCode","InvoiceNo"))">上傳發票字軌號碼</a>】
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+    <div>
+        <!--交易畫面標題-->
+        @{
+            await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票號碼維護");
+        }
+    </div>
+    <div>
+        <!--匯入匯率資料-->
+        <button id="UploadInvoiceTrackCodeModal" class="px-3 btn btn-sm eivo__btn--default" type="button"
+            data-bs-toggle="modal" data-bs-target="#uploadInvoiceTrackCode">
+            <i class="fas fa-upload"></i>
+            上傳發票字軌號碼
+        </button>
+        @{
+            await Html.RenderPartialAsync("~/Views/InvoiceNo/UploadInvoiceTrackCode.cshtml");
+        }
+    </div>
 </div>
-<div class="border_gray" id="queryArea">
-    <!--表格 開始-->
-    <table class="table table-striped">
-        <tbody>
-            <tr>
-                <th class="Head_style_a" colspan="2">
-                    查詢條件
-                </th>
-            </tr>
-            <tr>
-                <th width="20%" nowrap>
-                    發票年度（民國年）
-                </th>
-                <td class="tdleft">
-                    <select name="year">
-                        @for (int yy = 2012; yy <= DateTime.Now.Year + 1; yy++)
-                        {
-                            <option value="@(yy)">@(yy-1911)</option>
-                        }
-                    </select>
-                    <script>
-                        $(function () {
-                            $('select[name="year"]').val(@(DateTime.Now.Year));
-                        });
-                    </script>
-                </td>
-            </tr>
-            <tr>
-                <th>
-                    發票期別
-                </th>
-                <td class="tdleft">
-                    <select name="periodNo">
-                        <option value="">全部</option>
-                        <option value="1">01-02月</option>
-                        <option value="2">03-04月</option>
-                        <option value="3">05-06月</option>
-                        <option value="4">07-08月</option>
-                        <option value="5">09-10月</option>
-                        <option value="6">11-12月</option>
-                    </select>
-                    <script>
-                        $(function () {
-                            $('select[name="periodNo"]').val(@((DateTime.Now.Month+1)/2));
-                        });
-                    </script>
-                </td>
-            </tr>
-            <tr>
-                <th>
-                    開立人統編
-                </th>
-                <td class="tdleft">
-                    @{ await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _profile.InitializeOrganizationQuery(models));}
 
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!--表格 結束-->
+<div id="queryArea" class="mb-4 card shadow-sm border-2 rounded-3">
+    <div class="card-body">
+        <form id="queryForm" method="post" enctype="multipart/form-data">
+            <!-- 查詢條件 -->
+            <div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4">
+                <div class="col">
+                    <div class="row">
+                        <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
+                            發票年度（民國年）
+                        </label>
+                        <div class="col">
+                            <select name="year" class="form-select form-select-sm">
+                                @for (int yy = 2012; yy <= DateTime.Now.Year + 1; yy++)
+                                {
+                                    <option value="@(yy)">@(yy - 1911)</option>
+                                }
+                            </select>
+                            <script>
+                                $(function () {
+                                    $('select[name="year"]').val(@(DateTime.Now.Year));
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
+                            發票期別
+                        </label>
+                        <div class="col">
+                            <select name="periodNo" class="form-select form-select-sm">
+                                <option value="">全部</option>
+                                <option value="1">01-02月</option>
+                                <option value="2">03-04月</option>
+                                <option value="3">05-06月</option>
+                                <option value="4">07-08月</option>
+                                <option value="5">09-10月</option>
+                                <option value="6">11-12月</option>
+                            </select>
+                            <script>
+                                $(function () {
+                                    $('select[name="periodNo"]').val(@((DateTime.Now.Month + 1) / 2));
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <label for="Currency" class="col col-md-4 col-form-label fw-bold text-nowrap">
+                            開立人統編
+                        </label>
+                        <div class="col">
+                            @{
+                                await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml",
+                                _profile.InitializeOrganizationQuery(models));
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--按鈕-->
+            <div class="mt-3 d-block text-end">
+                <button id="btnQuery" type="button" class="px-3 btn btn-sm eivo__btn--default"
+                    onclick="uiTrackCodeNo.inquire();">
+                    查詢
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
-<!--按鈕-->
-<table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
-    <tbody>
-        <tr>
-            <td class="Bargain_btn">
-                <button type="button" onclick="uiTrackCodeNo.inquire();">查詢</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<!--表格 開始-->
-
+<div id="resultList"></div>
 
 <script>
     var uiTrackCodeNo;
@@ -120,7 +129,7 @@
                 var $formData = $tr.find('input,select,textarea').serializeObject();
                 $formData.keyID = keyID;
                 clearErrors();
-                $.post('@(Url.Action("CommitItem","InvoiceNo"))', $formData, function (data) {
+                $.post('@(Url.Action("CommitItem", "InvoiceNo"))', $formData, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -140,7 +149,7 @@
                 var event = event || window.event;
                 var $form = $('#queryArea').closest('form');
                 $form.ajaxForm({
-                    url: "@(Url.Action("InquireInterval","InvoiceNo"))",
+                    url: "@(Url.Action("InquireInterval", "InvoiceNo"))",
                     beforeSubmit: function () {
                         showLoading();
                     },
@@ -149,7 +158,7 @@
                             if (uiTrackCodeNo.$result)
                                 uiTrackCodeNo.$result.remove();
                             uiTrackCodeNo.$result = $(data);
-                            $('.queryAction').after(uiTrackCodeNo.$result);
+                            $('#resultList').append(uiTrackCodeNo.$result);
                         }
                         hideLoading();
                     },
@@ -161,7 +170,7 @@
             editItem: function (keyID) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("EditNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                $.post('@(Url.Action("EditNoInterval", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -178,7 +187,7 @@
                 if (confirm('確定刪除此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("DeleteNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                    $.post('@(Url.Action("DeleteNoInterval", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -188,8 +197,8 @@
                     });
                 }
             },
-            lockItem: function (keyID,lock) {
-                if (confirm('確定'+(lock ? '鎖定' : '解除鎖定')+'此筆資料?')) {
+            lockItem: function (keyID, lock) {
+                if (confirm('確定' + (lock ? '鎖定' : '解除鎖定') + '此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
                     $.post('@(Url.Action("LockInterval", "InvoiceNo"))', { 'keyID': keyID, 'lockID': lock }, function (data) {
@@ -212,7 +221,7 @@
             showItem: function (keyID) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("IntervalItem","InvoiceNo"))', { 'keyID': keyID } , function (data) {
+                $.post('@(Url.Action("IntervalItem", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -229,7 +238,7 @@
                 if (confirm('確定分割此配號區間?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("SplitNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                    $.post('@(Url.Action("SplitNoInterval", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
                             alert('配號區間已分割!!')
                             uiTrackCodeNo.inquire();
@@ -242,13 +251,13 @@
                 }
             },
             assignPOSBooklets: function (value) {
-                $.post('@(Url.Action("EditPOSBooklets","InvoiceNo"))', { 'intervalID': value }, function (data) {
+                $.post('@(Url.Action("EditPOSBooklets", "InvoiceNo"))', { 'intervalID': value }, function (data) {
                     $global.createTab('editPOSInterval', 'POS本組數配置', data, true);
                 });
             },
             allotInterval: function (keyID) {
                 showLoading();
-                $.post('@(Url.Action("AllotInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                $.post('@(Url.Action("AllotInterval", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
