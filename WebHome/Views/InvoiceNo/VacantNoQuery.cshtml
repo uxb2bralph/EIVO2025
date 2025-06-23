@@ -15,8 +15,6 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 @{
-
-
     UserProfile _profile;
     ModelSource<InvoiceItem> models;
 
@@ -25,141 +23,169 @@
 }
 @if (_profile.IsSystemAdmin())
 {
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "傳送E0402");
-    <div class="border_gray">
-        <input type="file" id="UploadE0402" name="UploadE0402" style="display:inline;" multiple accept=".xml" />
-        <button type="button" onclick="uploadFiles()">傳送至@(global::ModelExtension.Properties.AppSettings.Default.E0402Outbound)</button>
-        <script>
-        function uploadFiles() {
-            var formData = new FormData();
-            var files = $('input[name="UploadE0402"]')[0].files;
-
-            for (var i = 0; i < files.length; i++) {
-                formData.append('files', files[i]);
-            }
-            showLoading();
-            $.ajax({
-                url: '@(Url.Action("UploadPreparedE0402", "InvoiceNo"))',
-                type: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                    hideLoading();
-                    if ($.isPlainObject(data)) {
-                        if (data.result) {
-                            alertModal('檔案上傳成功');
-                        } else {
-                            alertModal(data.message);
-                        }
-                    }
-                },
-                error: function () {
-                    hideLoading();
-                    alertModal('檔案上傳失敗');
-                }
-            });
+    <!--交易畫面標題-->
+    <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+        @{
+            await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "傳送E0402");
         }
-        </script>
+    </div>
+
+    <div class="mb-4 card shadow-sm border-2 rounded-3">
+        <div class="card-body">
+            <div class="input-group mb-3">
+                <input type="file" id="UploadE0402" name="UploadE0402" class="form-control" multiple accept=".xml">
+                <button class="px-3 btn btn-sm eivo__btn--check" type="button" onclick="uploadFiles()"
+                    id="inputGroupFileAddon04">
+                    傳送至
+                    @(global::ModelExtension.Properties.AppSettings.Default.E0402Outbound)
+                </button>
+            </div>
+
+
+
+            @* <input type="file" style="display:inline;" />
+            <button type="button"
+                onclick="uploadFiles()">傳送至@(global::ModelExtension.Properties.AppSettings.Default.E0402Outbound)</button> *@
+            <script>
+                function uploadFiles() {
+                    var formData = new FormData();
+                    var files = $('input[name="UploadE0402"]')[0].files;
+
+                    for (var i = 0; i < files.length; i++) {
+                        formData.append('files', files[i]);
+                    }
+                    showLoading();
+                    $.ajax({
+                        url: '@(Url.Action("UploadPreparedE0402", "InvoiceNo"))',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            hideLoading();
+                            if ($.isPlainObject(data)) {
+                                if (data.result) {
+                                    alertModal('檔案上傳成功');
+                                } else {
+                                    alertModal(data.message);
+                                }
+                            }
+                        },
+                        error: function () {
+                            hideLoading();
+                            alertModal('檔案上傳失敗');
+                        }
+                    });
+                }
+            </script>
+        </div>
+    </div>
+    <div class="border_gray">
+
     </div>
 }
-
-@{
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "上期發票空白號碼查詢／匯出");
-}
-<div class="border_gray">
-    <!--表格 開始-->
-    <table class="table table-striped">
-        <tr>
-            <th colspan="2" class="Head_style_a">
-                查詢條件
-            </th>
-        </tr>
-        <tr>
-            <th>
-                開立人統編
-            </th>
-            <td class="tdleft">
-                @{ ViewBag.SelectorIndication = "全部";
-                    await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _profile.InitializeOrganizationQuery(models));}
-
-            </td>
-        </tr>
-        <tr>
-            <th>
-                主機構、分支機構
-            </th>
-            <td class="tdleft">
-                <input type="radio" name="BranchRelation" value="@(true.ToString())" />是
-                <input type="radio" name="BranchRelation" value="@(false.ToString())" />否
-            </td>
-        </tr>
-        <tr>
-            <th>
-                發票年度（民國年）
-            </th>
-            <td class="tdleft">
-                <select name="Year">
-                    @for (int y = DateTime.Today.AddMonths(1).Year, idx = 0; idx < 6; y--, idx++)
-                    {
-                        <option value="@(y)" selected="@(y==DateTime.Today.Year)">@(y - 1911)</option>
-                    }
-                </select>
-                @*<script>
-                        $('select[name="Year"]').on('change', function (evt) {
-                            $.post('@(Url.Action("TrackCodeSelector","InvoiceNo"))', { 'Year': $('select[name="Year"]').val(), 'PeriodNo': $('select[name="PeriodNo"]').val(), 'SelectIndication': '全部' }, function (data) {
-                                $('#trackCodeSelector').html(data);
-                            });
-                        });
-                    </script>*@
-            </td>
-        </tr>
-        <tr>
-            <th>發票期別</th>
-            <td class="tdleft">
-                <select name="PeriodNo">
-                    @{
-                        int current = (DateTime.Today.AddMonths(-2).Month + 1) / 2;
-                    }
-                    @for (int y = 1; y < 7; y++)
-                    {
-                        <option value="@(y)" selected="@(y==current)">@(String.Format("{0:00}-{1:00}月", y * 2 - 1, y * 2))</option>
-                    }
-                </select>
-                @*<script>
-                            $('select[name="PeriodNo"]').val('@((DateTime.Today.Month + 1) / 2)');
-                            $('select[name="PeriodNo"]').on('change', function (evt) {
-                                $.post('@(Url.Action("TrackCodeSelector","InvoiceNo"))', { 'Year': $('select[name="Year"]').val(), 'PeriodNo': $('select[name="PeriodNo"]').val() }, function (data) {
-                                    $('#trackCodeSelector').html(data);
-                                });
-                            });
-                    </script>*@
-            </td>
-        </tr>
-        @*<tr>
-                <th>字軌
-                </th>
-                <td class="tdleft" id="trackCodeSelector">
-                    @{ Html.RenderAction("TrackCodeSelector", "InvoiceNo", new { Year = DateTime.Today.Year, PeriodNo = (DateTime.Today.Month + 1) / 2, SelectIndication = "全部" });}
-
-                </td>
-            </tr>*@
-    </table>
-    <!--表格 結束-->
+<!--交易畫面標題-->
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "上期發票空白號碼查詢／匯出");
+    }
 </div>
-
-<!--按鈕-->
-<table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
-    <tbody>
-        <tr>
-            <td class="Bargain_btn">
-                <button type="button" onclick="uiVacantNoQuery.inquire();">查詢</button>&nbsp;&nbsp;
-                <button type="button" onclick="uiVacantNoQuery.process();">重新整理空白發票</button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div id="queryArea" class="mb-4 card shadow-sm border-2 rounded-3">
+    <div class="card-body">
+        <form id="queryForm" method="post" enctype="multipart/form-data">
+            <div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4">
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="ContactName" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            開立人統編
+                        </label>
+                        <div class="col">
+                            @{
+                                ViewBag.SelectorIndication = "全部";
+                                await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml",
+                                _profile.InitializeOrganizationQuery(models));
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="BranchRelation1" class="col-md-5 col-form-label fw-bold text-nowrap">
+                            主機構、分支機構
+                        </label>
+                        <div class="col pt-1">
+                            <div class="col pt-1 d-flex align-items-center">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="BranchRelation1"
+                                        name="BranchRelation" value="@(true.ToString())">
+                                    <label class="form-check-label text-nowrap" for="BranchRelation1">
+                                        是
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="BranchRelation0"
+                                        name="BranchRelation" value="@(false.ToString())">
+                                    <label class="form-check-label text-nowrap" for="BranchRelation0">
+                                        否
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="Year" class="col-md-5 col-form-label fw-bold text-nowrap">
+                            發票年度（民國年）
+                        </label>
+                        <div class="col">
+                            <select id="Year" name="Year" class="form-select form-select-sm">
+                                @for (int y = DateTime.Today.AddMonths(1).Year, idx = 0; idx < 6; y--, idx++)
+                                {
+                                    <option value="@(y)" selected="@(y == DateTime.Today.Year)">@(y - 1911)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="PeriodNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            發票期別
+                        </label>
+                        <div class="col">
+                            <select id="PeriodNo" name="PeriodNo" class="form-select form-select-sm">
+                                @{
+                                    int current = (DateTime.Today.AddMonths(-2).Month + 1) / 2;
+                                }
+                                @for (int y = 1; y < 7; y++)
+                                {
+                                    <option value="@(y)" selected="@(y == current)">
+                                        @(String.Format("{0:00}-{1:00}月", y * 2 - 1, y * 2))
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--按鈕-->
+            <div class="mt-3 d-block text-end">
+                <button id="btnQuery" type="button" class="px-3 btn btn-sm eivo__btn--default"
+                    onclick="uiVacantNoQuery.inquire();">
+                    查詢
+                </button>
+                <button id="btnQuery" type="button" class="px-3 btn btn-sm eivo__btn--reset"
+                    onclick="uiVacantNoQuery.process();">
+                    重新整理空白發票
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 <!--表格 開始-->
+<div id="resultList"></div>
+
 <script>
     var uiVacantNoQuery;
     $(function () {
@@ -172,7 +198,7 @@
                     $('input[name="sort"]').remove();
                 }
                 $('#theForm').ajaxForm({
-                    url: "@(Url.Action("InquireVacantNo","InvoiceNo"))",
+                    url: "@(Url.Action("InquireVacantNo", "InvoiceNo"))",
                     beforeSubmit: function () {
                         showLoading();
                         $('#UploadE0402').val('');
@@ -185,7 +211,7 @@
                                 if (uiVacantNoQuery.$result)
                                     uiVacantNoQuery.$result.remove();
                                 uiVacantNoQuery.$result = $(data);
-                                $('.queryAction').after(uiVacantNoQuery.$result);
+                                $('#resultList').append(uiVacantNoQuery.$result);
                             }
                         }
                         hideLoading();
@@ -201,7 +227,7 @@
                     $postForm.remove();
                 }
 
-                $postForm = $('<form method="post" />').prop('action', '@(Url.Action("DownloadVacantNo","InvoiceNo"))')
+                $postForm = $('<form method="post" />').prop('action', '@(Url.Action("DownloadVacantNo", "InvoiceNo"))')
                     .css('display', 'none').appendTo($('body'));
 
                 $('#theForm').serializeArray().forEach(function (item, index) {
@@ -217,7 +243,7 @@
                     $postForm.remove();
                 }
 
-                $postForm = $('<form method="post" />').prop('action', '@(Url.Action("DownloadVacantNoCsv","InvoiceNo"))')
+                $postForm = $('<form method="post" />').prop('action', '@(Url.Action("DownloadVacantNoCsv", "InvoiceNo"))')
                     .css('display', 'none').appendTo($('body'));
 
                 $('#theForm').serializeArray().forEach(function (item, index) {
@@ -232,7 +258,7 @@
             process: function () {
                 clearErrors();
                 $('#theForm').ajaxForm({
-                    url: "@(Url.Action("ProcessVacantNo","InvoiceNo"))",
+                    url: "@(Url.Action("ProcessVacantNo", "InvoiceNo"))",
                     beforeSubmit: function () {
                         showLoading();
                     },
@@ -251,6 +277,3 @@
     });
 
 </script>
-
-
-
