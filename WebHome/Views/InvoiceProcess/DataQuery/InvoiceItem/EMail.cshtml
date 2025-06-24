@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -47,19 +46,20 @@
     }
     void ShowHeader(dynamic item)
     {
-        <th aria-sort="other">email</th>
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            email
+        </th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>@(item.InvoiceBuyer.EMail)</td>
+        <td>
+            @(item.InvoiceBuyer.EMail)
+        </td>
     }
 
     void ShowFooter(dynamic item)
     {
     }
 }
-
-
-

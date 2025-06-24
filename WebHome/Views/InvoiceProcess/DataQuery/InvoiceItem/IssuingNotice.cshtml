@@ -47,13 +47,17 @@
     }
     void ShowHeader(dynamic item)
     {
-        <th aria-sort="other">開立通知</th>
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            開立通知
+        </th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>@(item.CDS_Document.IssuingNotice!=null ? String.Format("{0:yyyy/MM/dd HH:mm:ss}",item.CDS_Document.IssuingNotice.IssueDate) : "未通知")</td>
+        <td>
+            @(item.CDS_Document.IssuingNotice!=null ? String.Format("{0:yyyy/MM/dd HH:mm:ss}",item.CDS_Document.IssuingNotice.IssueDate) : "未通知")
+        </td>
     }
 
     void ShowFooter(dynamic item)

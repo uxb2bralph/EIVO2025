@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -48,7 +47,9 @@
 
     void ShowHeader(dynamic item)
     {
-        <th aria-sort="other">附件檔頁數</th>
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            附件檔頁數
+        </th>
     }
 
     void ShowBody(dynamic po)
@@ -58,7 +59,11 @@
             @{
                 foreach (var attachment in item.CDS_Document.Attachment)
                 {
-                    <a href="@($"{VirtualPathUtility.ToAbsolute("~/Helper/DownloadAttachment.ashx")}?keyName={attachment.KeyName}")">@(attachment.KeyName),共@(attachment.GetAttachedPdfPageCount())頁</a><br />
+                    <a href="@($"{VirtualPathUtility.ToAbsolute("~/Helper/DownloadAttachment.ashx")}?keyName={attachment.KeyName}")">
+                        @(attachment.KeyName), 共@(attachment.GetAttachedPdfPageCount())頁
+                    </a>
+    
+                    <br />
                 }
             }
         </td>
@@ -68,6 +73,3 @@
     {
     }
 }
-
-
-

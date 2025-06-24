@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -28,15 +27,30 @@
 
     _model = (IQueryable<InvoiceItem>)this.Model;
 }
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");}
+
+<!-- 買受人資料管理 -->
+<!-- 交易畫面標題 -->
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+    }
+</div>
 
 
-<div class="border_gray query_result">
+<div id="queryResult">
     @{
         var recordCount = _model.Count();
         if (recordCount > 0)
         {
-            await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceQueryTable.cshtml", _model);
+            <div class="my-2 card shadow-sm border-2 rounded-3">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        @{
+                            await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceQueryTable.cshtml", _model);
+                        }
+                    </div>
+                </div>
+            </div>
             await Html.RenderPartialAsync("~/Views/Common/Module/QueryPagingControl.cshtml", _model);
             await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/ProcessResultAction.cshtml");
         }
@@ -46,8 +60,3 @@
         }
     }
 </div>
-
-
-
-
-

@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -51,29 +50,30 @@
     }
     void ShowHeader(dynamic item)
     {
-    <th aria-sort="other">管理</th>
- }
- 
-	void ShowBody(dynamic po)
-	{ 
-    InvoiceItem item = (InvoiceItem)po;
-<td style="white-space: nowrap; min-width: 132px;">
-    @if (_viewModel.ResultAction == "Process" || _viewModel.ResultAction == "Notify")
-    {
-        @Html.Partial("~/Views/InvoiceProcess/DataAction/DataProcess.cshtml", item);
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            操作
+        </th>
     }
-    @if (_viewModel.ResultAction == "NotifyWinning")
+
+    void ShowBody(dynamic po)
     {
-        @Html.Partial("~/Views/InvoiceProcess/DataAction/NotifyWinning.cshtml", item);
+        InvoiceItem item = (InvoiceItem)po;
+        <td class="text-nowrap text-center" style="min-width: 110px;">
+            @if (_viewModel.ResultAction == "Process" || _viewModel.ResultAction == "Notify")
+            {
+                @Html.Partial("~/Views/InvoiceProcess/DataAction/DataProcess.cshtml", item)
+                ;
+            }
+            @if (_viewModel.ResultAction == "NotifyWinning")
+            {
+                @Html.Partial("~/Views/InvoiceProcess/DataAction/NotifyWinning.cshtml", item)
+                ;
+            }
+        </td>
     }
-</td>
+
+
+    void ShowFooter(dynamic item)
+    {
+    }
 }
-
-
-	void ShowFooter(dynamic item)
-	{ 
- }
- }
-
-
-

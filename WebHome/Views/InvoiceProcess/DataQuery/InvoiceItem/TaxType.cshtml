@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -47,18 +46,19 @@
     }
     void ShowHeader(dynamic item)
     {
-        <th>稅別</th>
+        <th scope="col" class="text-nowrap">
+            稅別
+        </th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>@($"{(Naming.TaxTypeDefinition?)item.InvoiceAmountType.TaxType}")</td>
+        <td>
+            @($"{(Naming.TaxTypeDefinition?)item.InvoiceAmountType.TaxType}")
+        </td>
     }
 
     void ShowFooter(dynamic item)
     { }
 }
-
-
-

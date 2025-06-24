@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -52,7 +51,9 @@
     }
     void ShowHeader(dynamic item)
     {
-        <th aria-sort="other">發票狀態</th>
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            發票狀態
+        </th>
     }
 
 
@@ -60,38 +61,47 @@
     {
         InvoiceItem item = (InvoiceItem)po;
         <td>
-            @(item.InvoiceCancellation==null ? "" : $"已作廢({item.InvoiceCancellation.CancelDate:yyyy/MM/dd})")
+            @(item.InvoiceCancellation == null ? "" : $"已作廢({item.InvoiceCancellation.CancelDate:yyyy/MM/dd})")
             @if (_viewModel.MIG == true)
             {
-                @(((Naming.InvoiceProcessType?)item.CDS_Document.ProcessType)?.ToString() ?? "C0401");
+                @(((Naming.InvoiceProcessType?)item.CDS_Document.ProcessType)?.ToString() ?? "C0401")
+                ;
                 if (item.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C))
                 {
-                    @(":C");
+                    @(":C")
+                    ;
                 }
                 else if (item.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E))
                 {
-                    @(":E");
+                    @(":E")
+                    ;
                 }
                 else
                 {
-                    @(":P");
+                    @(":P")
+                    ;
                 }
                 if (item.InvoiceCancellation != null)
                 {
-                    @(",");
+                    @(",")
+                    ;
                     var doc = item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
-                    @(((Naming.InvoiceProcessType?)doc.ProcessType)?.ToString() ?? "C0501");
+                    @(((Naming.InvoiceProcessType?)doc.ProcessType)?.ToString() ?? "C0501")
+                    ;
                     if (doc?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
                     {
-                        @(":C");
+                        @(":C")
+                        ;
                     }
                     else if (doc?.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
                     {
-                        @(":E");
+                        @(":E")
+                        ;
                     }
                     else
                     {
-                        @(":P");
+                        @(":P")
+                        ;
                     }
                 }
             }
@@ -101,6 +111,3 @@
     void ShowFooter(dynamic item)
     { }
 }
-
-
-

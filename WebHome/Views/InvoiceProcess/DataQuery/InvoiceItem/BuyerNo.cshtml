@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -47,7 +46,11 @@
     }
     void ShowHeader(dynamic item)
     {
-        <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('BuyerNo',this);">買受人統編</a></th>
+        <th scope="col" class="text-nowrap">
+            <a href="javascript:void(0);" onclick="$inquiryAgent.sort('BuyerNo',this);">
+                買受人統編
+            </a>
+        </th>
     }
 
     void ShowBody(dynamic po)
@@ -61,6 +64,3 @@
     void ShowFooter(dynamic item)
     { }
 }
-
-
-

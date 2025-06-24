@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -47,18 +46,23 @@
     }
     void ShowHeader(dynamic item)
     {
-        <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('InvoiceNo',this);">發票號碼</a></th>
+        <th scope="col" class="text-nowrap">
+            <a href="javascript:void(0);" onclick="$inquiryAgent.sort('InvoiceNo',this);">
+                發票號碼
+            </a>
+        </th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td><a onclick="showInvoiceModal(@(item.InvoiceID));">@(item.TrackCode)@(item.No)</a></td>
+        <td>
+            <a href="#" onclick=" showInvoiceModal(@(item.InvoiceID));">
+                @(item.TrackCode)@(item.No)
+            </a>
+        </td>
     }
 
     void ShowFooter(dynamic item)
     { }
 }
-
-
-

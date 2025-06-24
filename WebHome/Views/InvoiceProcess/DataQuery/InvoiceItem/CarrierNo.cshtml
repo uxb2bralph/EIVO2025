@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -47,19 +46,20 @@
     }
     void ShowHeader(dynamic item)
     {
-        <th aria-sort="other">載具資訊</th>
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            載具資訊
+        </th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>@(item.InvoiceCarrier!=null ? item.InvoiceCarrier.CarrierNo : null)</td>
+        <td>
+            @(item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierNo : null)
+        </td>
     }
 
     void ShowFooter(dynamic item)
     {
     }
 }
-
-
-

@@ -28,9 +28,11 @@
     _profile = Context.GetUser();
 
 }
-<!--交易畫面標題-->
+<!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
-    @{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "使用者帳號管理");}
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "使用者帳號管理");
+    }
 </div>
 
 
@@ -113,7 +115,7 @@
         </form>
     </div>
 </div>
-<!--查詢表單從下面顯示 -->
+<!-- 查詢表單從下面顯示 -->
 @{
     await Html.RenderPartialAsync("~/Views/Account/ScriptHelper/Common.cshtml");
 }

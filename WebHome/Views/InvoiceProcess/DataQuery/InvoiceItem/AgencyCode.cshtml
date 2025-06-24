@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -48,19 +47,20 @@
 
     void ShowHeader(dynamic item)
     {
-        <th aria-sort="other">捐贈愛心碼</th>
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            捐贈愛心碼
+        </th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>@(item.InvoiceDonation?.AgencyCode)</td>
+        <td>
+            @(item.InvoiceDonation?.AgencyCode)
+        </td>
     }
 
     void ShowFooter(dynamic item)
     {
     }
 }
-
-
-

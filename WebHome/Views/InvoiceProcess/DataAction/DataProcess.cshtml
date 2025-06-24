@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -20,14 +19,24 @@
     InvoiceItem _model;
     _model = (InvoiceItem)this.Model;
 }
-<div class="btn-group dropdown" data-toggle="dropdown">
-    <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-    <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-    <ul class="dropdown-menu">
-        <li><a class="btn" onclick="uiInvoiceQuery.editBuyer('@(_model.InvoiceID.EncryptKey())');">修改買受人</a></li>
-        <li><a class="btn" onclick="uiInvoiceQuery.arrangeAttachment('@(_model.InvoiceID.EncryptKey())');">附件檔管理</a></li>
+<div class="dropdown">
+    <button class="px-3 btn btn-sm eivo__btn--default dropdown-toggle" type="button" id="dropdownMenuButton1"
+        data-bs-toggle="dropdown" aria-expanded="false">
+        功能
+    </button>
+    <ul class="dropdown-menu shadow dropdown-menu-end" aria-labelledby="dropdownMenuButton1" style="">
+        <li>
+            <a class="dropdown-item" href="#" onclick="uiInvoiceQuery.editBuyer('@(_model.InvoiceID.EncryptKey())');">
+                <i class="fas fa-caret-right"></i>
+                修改買受人
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item" href="#"
+                onclick="uiInvoiceQuery.arrangeAttachment('@(_model.InvoiceID.EncryptKey())');">
+                <i class="fas fa-caret-right"></i>
+                附件檔管理
+            </a>
+        </li>
     </ul>
 </div>
-
-
-

@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -23,8 +22,12 @@
 }
 
 @if (_model.InvoiceCancellation == null && _model.InvoiceDonation == null
-    && _model.PrintMark == "N" && (_model.Organization.OrganizationStatus.InvoiceNoticeSetting & (int)Naming.InvoiceNoticeStatus.Winning) > 0
-    && _model.InvoiceWinningNumber != null)
+&& _model.PrintMark == "N" && (_model.Organization.OrganizationStatus.InvoiceNoticeSetting &
+(int)Naming.InvoiceNoticeStatus.Winning) > 0
+&& _model.InvoiceWinningNumber != null)
 {
-    <a class="btn" onclick="uiInvoiceQuery.notifyWinning('@(_model.InvoiceID.EncryptKey())');">通知中獎</a>
+    <button type="button" id="btnUploadData" class="px-3 btn btn-sm eivo__btn--check"
+        onclick="uiInvoiceQuery.notifyWinning('@(_model.InvoiceID.EncryptKey())');">
+        通知中獎
+    </button>
 }

@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -48,19 +47,20 @@
 
     void ShowHeader(dynamic item)
     {
-        <th aria-sort="other">列印註記</th>
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            列印註記
+        </th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>@(item.PrintMark)</td>
+        <td>
+            @(item.PrintMark)
+        </td>
     }
 
     void ShowFooter(dynamic item)
     {
     }
 }
-
-
-

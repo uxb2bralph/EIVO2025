@@ -1,5 +1,4 @@
-﻿
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -46,19 +45,20 @@
         });
     }
     void ShowHeader(dynamic item)
-    {<th aria-sort="other">幣別</th>
+    {
+        <th scope="col" class="text-nowrap" aria-sort="other">
+            幣別
+        </th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>@(item.InvoiceAmountType.CurrencyType?.AbbrevName)</td>
+        <td>
+            @(item.InvoiceAmountType.CurrencyType?.AbbrevName)
+        </td>
     }
 
     void ShowFooter(dynamic item)
     { }
 }
-
-
-
-

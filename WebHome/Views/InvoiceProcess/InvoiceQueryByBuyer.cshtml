@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -25,8 +24,10 @@
     _viewModel.UrlAction = Url.Action("Inquire2023", "InvoiceProcess");
 
 }
-<!--交易畫面標題-->
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票資料查詢／列印／匯出");}
+<!-- 交易畫面標題 -->
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票資料查詢／列印／匯出");
+}
 
 <div class="border_gray">
     <!--表格 開始-->
@@ -37,13 +38,14 @@
                 <input type="hidden" name="ResultAction" value="@(_viewModel.ResultAction ?? "Incoming")" />
             </th>
         </tr>
-        @{ 
+        @{
             await Html.RenderPartialAsync("~/Views/InquireInvoice/ByInvoiceDate.cshtml");
             await Html.RenderPartialAsync("~/Views/InquireInvoice/ByInvoiceNo.cshtml");
             await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCancellation.cshtml");
             await Html.RenderPartialAsync("~/Views/InquireInvoice/ByPrintMark.cshtml");
             await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierType.cshtml");
-            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierNo.cshtml");}
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierNo.cshtml");
+        }
 
     </table>
     <!--表格 結束-->
@@ -61,7 +63,9 @@
     </tbody>
 </table>
 <!--表格 開始-->
-@{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");}
+@{
+    await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");
+}
 
 @if (_viewModel.QueryAtStart == true)
 {

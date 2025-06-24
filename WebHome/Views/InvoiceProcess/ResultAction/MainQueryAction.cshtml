@@ -20,43 +20,48 @@
 
     _profile = Context.GetUser();
 }
-<table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
-    <tr>
-        <td>
-            @{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/PrintAction.cshtml");}
 
-            <input type="button" class="btn mr-2" name="btnPrint" value="Excel下載" onclick="uiInvoiceQuery.download2021();" />
-            @if (_profile.IsSystemAdmin())
-            {
-                <input type="button" class="btn mr-2" name="btnBuyer" value="下載買受人資料" onclick="uiInvoiceQuery.saveBuyer();" />
-            }
-            @if (_profile.IsSystemAdmin() || _profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo == "43460094")
-            {
-                <input type="button" class="btn mr-2" name="btnPrint" value="ERP下載" onclick="uiInvoiceQuery.downloadERP();" />
-                <script>
-                    uiInvoiceQuery.downloadERP = function () {
+@{
+    await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/PrintAction.cshtml");
+}
 
-                        var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
-                        $formData = $.extend($formData, $('input[name="chkItem"]').serializeObject());
-                        showLoading();
-                        $.post('@(Url.Action("CreateCustomERPResult", "InvoiceProcess"))', $formData, function (data) {
-                            hideLoading();
-                            if ($.isPlainObject(data)) {
-                                if (data.message != undefined) {
-                                    alert(data.message);
-                                }
-                            } else {
-                                $(data).appendTo($('body'));
-                            }
-                        });
+<button type="button" id="btnPrint" name="btnPrint" class="px-3 btn btn-sm eivo__btn--default"
+    onclick="uiInvoiceQuery.download2021();">
+    <i class="fas fa-download"></i>
+    Excel下載
+</button>
+@if (_profile.IsSystemAdmin())
+{
+    <button type="button" id="btnBuyer" name="btnBuyer" class="px-3 btn btn-sm eivo__btn--default"
+        onclick="uiInvoiceQuery.saveBuyer();">
+        <i class="fas fa-download"></i>
+        下載買受人資料
+    </button>
+}
+@if (_profile.IsSystemAdmin() || _profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo == "43460094")
+{
+    <button type="button" id="btnPrint" name="btnPrint" class="px-3 btn btn-sm eivo__btn--default"
+        onclick="uiInvoiceQuery.downloadERP();">
+        <i class="fas fa-download"></i>
+        ERP下載
+    </button>
+    <script>
+        uiInvoiceQuery.downloadERP = function () {
 
+            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+            $formData = $.extend($formData, $('input[name="chkItem"]').serializeObject());
+            showLoading();
+            $.post('@(Url.Action("CreateCustomERPResult", "InvoiceProcess"))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.message != undefined) {
+                        alert(data.message);
                     }
-                </script>
-            }
-        </td>
-    </tr>
-</table>
+                } else {
+                    $(data).appendTo($('body'));
+                }
+            });
 
-
-
-
+        }
+    </script>
+}

@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -47,19 +46,16 @@
     }
     void ShowHeader(dynamic item)
     {
-        <th aria-sort="other"><input name="chkAll" type="checkbox" /></th>
+        <th scope="col" aria-sort="other"><input name="chkAll" type="checkbox" class="form-check-input" /></th>
     }
 
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td><input name="chkItem" type="checkbox" value="@(item.InvoiceID)" /></td>
+        <td><input name="chkItem" type="checkbox" class="form-check-input" value="@(item.InvoiceID)" /></td>
     }
 
     void ShowFooter(dynamic item)
     {
     }
 }
-
-
-
