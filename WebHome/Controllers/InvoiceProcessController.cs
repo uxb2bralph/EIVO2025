@@ -188,7 +188,7 @@ namespace WebHome.Controllers
             ViewResult result = (ViewResult)Index(viewModel);
             result.ViewName = "Index2023";
             ViewBag.ResultAction = "Allow";
-            ViewBag.Title = "核准註銷發票(C0701)";
+            ViewBag.Title = "核准註銷發票 ( C0701 )";
             ViewBag.InquiryView = "~/Views/InvoiceProcess/InvoiceQueryForAllowingToVoid.cshtml";
 
             return result;
@@ -371,7 +371,7 @@ namespace WebHome.Controllers
             {
                 DataTable table = new DataTable("發票資料明細");
                 ds.Tables.Add(table);
-                table.Columns.Add("InvoiceID",typeof(int));
+                table.Columns.Add("InvoiceID", typeof(int));
                 table.Columns.Add("發票號碼");
                 table.Columns.Add("發票日期");
                 table.Columns.Add("附件檔名");
@@ -403,7 +403,7 @@ namespace WebHome.Controllers
 
                 if (viewModel.Attachment != 0)
                 {
-                    foreach(DataRow row in table.Rows)
+                    foreach (DataRow row in table.Rows)
                     {
                         row["附件檔頁數"] = ((int)row["InvoiceID"]).GetAttachedPdfPageCount(models);
                     }
@@ -509,7 +509,7 @@ namespace WebHome.Controllers
                                     xls.SaveAs(resultFile);
                                 }
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 CommonLib.Core.Utility.FileLogger.Logger.Error(ex);
                                 exception = ex;
@@ -891,7 +891,7 @@ namespace WebHome.Controllers
             return View("~/Views/InvoiceProcess/Module/PrintResult.cshtml");
         }
 
-        public ActionResult IssueInvoiceNotice(int[] chkItem, bool? cancellation,Naming.InvoiceProcessType? processType,String mailTo)
+        public ActionResult IssueInvoiceNotice(int[] chkItem, bool? cancellation, Naming.InvoiceProcessType? processType, String mailTo)
         {
             if (chkItem != null && chkItem.Count() > 0)
             {
@@ -973,13 +973,13 @@ namespace WebHome.Controllers
         public async Task<ActionResult> IssueAllowanceAsync([FromBody] QueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
-            if(viewModel == null)
+            if (viewModel == null)
             {
                 viewModel = await PrepareViewModelAsync<QueryViewModel>();
                 ModelState.Clear();
             }
 
-            if (viewModel.ChkItem?.Length>0)
+            if (viewModel.ChkItem?.Length > 0)
             {
                 var profile = HttpContext.GetUser();
                 var items = models.GetTable<InvoiceItem>().Where(i => viewModel.ChkItem.Contains(i.InvoiceID));
@@ -1097,7 +1097,7 @@ namespace WebHome.Controllers
                 //{
                 items = models!.GetTable<InvoiceItem>().Where(i => viewModel.ChkItem.Contains(i.InvoiceID));
 
-                if(!items.Any())
+                if (!items.Any())
                 {
                     ModelState.AddModelError("Message", "註銷發票不存在!!");
                 }
@@ -1119,7 +1119,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
 
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 doVoidInvoice(items, viewModel?.Mode, viewModel);
                 return View("~/Views/InvoiceProcess/ResultAction/VoidDone.cshtml");
@@ -1234,7 +1234,7 @@ namespace WebHome.Controllers
 
             foreach (var item in items)
             {
-                lock(typeof(InvoiceProcessController))
+                lock (typeof(InvoiceProcessController))
                 {
                     models!.ProcessVoidInvoiceRequest(mode, viewModel, item);
                 }
@@ -1386,11 +1386,11 @@ namespace WebHome.Controllers
                     {
                         Seller = o,
                         Items = i
-                    //SellerName = o.CompanyName,
-                    //SellerReceiptNo = o.ReceiptNo,
-                    //o.InvoiceItems.OrderBy(n => n.InvoiceDate).First().InvoiceDate,
-                    //i.RecordCount
-                });
+                        //SellerName = o.CompanyName,
+                        //SellerReceiptNo = o.ReceiptNo,
+                        //o.InvoiceItems.OrderBy(n => n.InvoiceDate).First().InvoiceDate,
+                        //i.RecordCount
+                    });
 
 
             var details = items
@@ -1542,12 +1542,12 @@ namespace WebHome.Controllers
                 String fullPath = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, $"{keyName}{Path.GetExtension(fileName)}");
                 theFile.SaveAs(fullPath);
 
-                Attachment item =  new Attachment
-                    {
-                        KeyName = keyName,
-                        StoredPath = fullPath,
-                        DocID = viewModel.DocID,
-                    };
+                Attachment item = new Attachment
+                {
+                    KeyName = keyName,
+                    StoredPath = fullPath,
+                    DocID = viewModel.DocID,
+                };
                 models.GetTable<Attachment>().InsertOnSubmit(item);
 
                 models.SubmitChanges();
@@ -1568,7 +1568,7 @@ namespace WebHome.Controllers
             ViewBag.ViewModel = viewModel;
             AttachmentViewModel tmp = viewModel;
 
-            if(viewModel.KeyID!=null)
+            if (viewModel.KeyID != null)
             {
                 tmp = JsonConvert.DeserializeObject<AttachmentViewModel>(viewModel.KeyID.DecryptData());
             }
@@ -1582,7 +1582,7 @@ namespace WebHome.Controllers
                 }
                 else
                 {
-                    return Json(new { result = false,message="資料錯誤!!" });
+                    return Json(new { result = false, message = "資料錯誤!!" });
                 }
             }
             catch (Exception ex)
