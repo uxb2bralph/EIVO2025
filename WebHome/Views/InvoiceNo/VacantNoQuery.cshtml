@@ -23,7 +23,7 @@
 }
 @if (_profile.IsSystemAdmin())
 {
-    <!--交易畫面標題-->
+    <!-- 交易畫面標題 -->
     <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
         @{
             await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "傳送E0402");
@@ -40,51 +40,42 @@
                     @(global::ModelExtension.Properties.AppSettings.Default.E0402Outbound)
                 </button>
             </div>
-
-
-
-            @* <input type="file" style="display:inline;" />
-            <button type="button"
-                onclick="uploadFiles()">傳送至@(global::ModelExtension.Properties.AppSettings.Default.E0402Outbound)</button> *@
-            <script>
-                function uploadFiles() {
-                    var formData = new FormData();
-                    var files = $('input[name="UploadE0402"]')[0].files;
-
-                    for (var i = 0; i < files.length; i++) {
-                        formData.append('files', files[i]);
-                    }
-                    showLoading();
-                    $.ajax({
-                        url: '@(Url.Action("UploadPreparedE0402", "InvoiceNo"))',
-                        type: 'POST',
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function (data) {
-                            hideLoading();
-                            if ($.isPlainObject(data)) {
-                                if (data.result) {
-                                    alertModal('檔案上傳成功');
-                                } else {
-                                    alertModal(data.message);
-                                }
-                            }
-                        },
-                        error: function () {
-                            hideLoading();
-                            alertModal('檔案上傳失敗');
-                        }
-                    });
-                }
-            </script>
         </div>
     </div>
-    <div class="border_gray">
+    <script>
+        function uploadFiles() {
+            var formData = new FormData();
+            var files = $('input[name="UploadE0402"]')[0].files;
 
-    </div>
+            for (var i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            showLoading();
+            $.ajax({
+                url: '@(Url.Action("UploadPreparedE0402", "InvoiceNo"))',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        if (data.result) {
+                            alertModal('檔案上傳成功');
+                        } else {
+                            alertModal(data.message);
+                        }
+                    }
+                },
+                error: function () {
+                    hideLoading();
+                    alertModal('檔案上傳失敗');
+                }
+            });
+        }
+    </script>
 }
-<!--交易畫面標題-->
+<!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
         await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "上期發票空白號碼查詢／匯出");
@@ -183,7 +174,7 @@
         </form>
     </div>
 </div>
-<!--表格 開始-->
+<!-- 表格 開始 -->
 <div id="resultList"></div>
 
 <script>
@@ -275,5 +266,4 @@
             }
         };
     });
-
 </script>
