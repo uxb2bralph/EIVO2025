@@ -46,19 +46,29 @@
         <td>@(businessID)</td>
         <td>@(info.LastWriteTime)</td>
         <td>
-            <input type="button" value="歸檔" onclick="moveFile('@(businessID)','@Html.Raw(item.EncryptData())');" />
+            <button type="button" id="backupfile" class="px-3 btn btn-sm eivo__btn--check"
+                onclick="moveFile('@(businessID)','@Html.Raw(item.EncryptData())');">
+                歸檔
+            </button>
         </td>
         <td>
-            <input type="button" value="轉營業人" onclick="transferCompany('@(businessID)','@Html.Raw(item.EncryptData())');" />
+            <button type="button" id="company" class="px-3 btn btn-sm eivo__btn--default"
+                onclick="transferCompany('@(businessID)','@Html.Raw(item.EncryptData())');">
+                轉營業人
+            </button>
         </td>
         <td>
-            <input type="button" value="zip" onclick="location.href='@Url.Action("SetAll", "InvoiceNumberApply", new { businessID })'" />
+
+            <button type="button" id="zip" class="px-3 btn btn-sm eivo__btn--default"
+                onclick="location.href='@Url.Action("SetAll", "InvoiceNumberApply", new { businessID })'">
+                Zip 壓縮檔
+            </button>
         </td>
-        
-    @*<td>
+
+        @*<td>
         <input type="button" target="_blank" value="UpdateData" onclick="location.href='@Url.Action("Update", "InvoiceNumberApply", new { businessID = @item.BusinessId })'" />
     </td>*@
-        
+
     </tr>
 }
 
@@ -81,21 +91,21 @@
             });
     }
 
-    function moveFile(value,keyID) {
-       $.post('@(Url.Action("MoveFile", "InvoiceNumberApply"))'
-           , { 'KeyID': keyID }
-           , function (data) {
+    function moveFile(value, keyID) {
+        $.post('@(Url.Action("MoveFile", "InvoiceNumberApply"))'
+            , { 'KeyID': keyID }
+            , function (data) {
                 if ($.isPlainObject(data)) {
                     if (data.result) {
                         alert('歸檔完成.');
-                        $('#' + value +'').remove();
+                        $('#' + value + '').remove();
                     } else {
                         alert(data.message);
                     }
                 } else {
                     $(data).appendTo($('body'));
                 }
-           });
+            });
     }
 
     $(this).submit(function () {

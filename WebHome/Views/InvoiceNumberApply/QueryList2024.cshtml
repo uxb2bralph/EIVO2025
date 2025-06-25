@@ -22,14 +22,14 @@
     IEnumerable<String> _model = this.Model as IEnumerable<String>;
 }
 
-<table class="table table-small-font table-bordered table-striped table01 companyList">
+<table class="table table-striped eivo__table companyList">
     <thead>
         <tr>
-            <th>統一編號</th>
-            <th>最新填表日</th>
-            <th>歸檔</th>
-            <th>轉營業人檔</th>
-            <th>下載Word</th>
+            <th scope="col">統一編號</th>
+            <th scope="col">最新填表日</th>
+            <th scope="col">歸檔</th>
+            <th scope="col">轉營業人檔</th>
+            <th scope="col">下載Word</th>
             <!--
             <th>JSON檔修改</th>
             -->
@@ -49,4 +49,3 @@
             .append(data);
     };
 </script>
-

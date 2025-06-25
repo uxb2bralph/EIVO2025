@@ -31,17 +31,30 @@
 }
 @if (!models.InquiryHasError)
 {
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+    <h2 class="mb-0 fs-5 fw-bold text-primary border-start border-5 border-primary ps-2">
+        @{
+            await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+        }
+    </h2>
 
-    <div class="container border_gray query_result">
-        @if (_model.Any())
-        {
-            await Html.RenderPartialAsync("~/Views/InvoiceNumberApply/QueryList2024.cshtml", _model);
-        }
-        else
-        {
-            <font color="red">查無資料!!</font>
-        }
+    <div id="dataList" class="my-3 card shadow-sm border-2 rounded-3 query_result">
+        <div id="tableList" class="card-body">
+            @if (_model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped itemList eivo__table">
+                        @{
+                            await Html.RenderPartialAsync("~/Views/InvoiceNumberApply/QueryList2024.cshtml", _model);
+                        }
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="py-3 fs-6 text-center text-primary">
+                    尚無資料！
+                </div>
+            }
+        </div>
     </div>
 }
-
