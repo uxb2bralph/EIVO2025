@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -17,59 +16,118 @@
     _model = (InvoiceNoInterval)this.Model;
 }
 <tr>
-    <td>@(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo)</td>
-    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)</td>
-    <td>@(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1, _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2))</td>
-    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)(@($"{(Naming.InvoiceTypeDefinition?)_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.InvoiceType}"))</td>
-    <td>@(String.Format("{0:00000000}", _model.StartNo))</td>
-    <td>@(String.Format("{0:00000000}", _model.EndNo))</td>
-    <td>@(_model.InvoiceNoSegment?.DeviceName)</td>
+    <td class="text-center">
+        @(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo)
+    </td>
+    <td class="text-center">
+        @(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)
+    </td>
+    <td class="text-center">
+        @(String.Format("{0:00}-{1:00}月",
+                _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1,
+                _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2))
+    </td>
+    <td class="text-nowrap">
+        @(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)(@($"{(Naming.InvoiceTypeDefinition?)_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.InvoiceType}"))
+    </td>
+    <td class="text-center">
+        @(String.Format("{0:00000000}", _model.StartNo))
+    </td>
+    <td class="text-center">
+        @(String.Format("{0:00000000}", _model.EndNo))
+    </td>
     <td>
-        @{ var currentNo = _model.CurrentAllocatingNo();}
+        @(_model.InvoiceNoSegment?.DeviceName)
+    </td>
+    <td class="text-center">
+        @{
+            var currentNo = _model.CurrentAllocatingNo();
+        }
 
         @(_model.EndNo - _model.StartNo + 1)／@(_model.EndNo - currentNo + 1)
     </td>
-    <td>
+    <td class="text-center">
         @(String.Format("{0:00000000}", currentNo))
     </td>
-    <td>
+    <td class="text-center text-nowrap">
         @(_model.LockID.HasValue ? "已鎖定" : "可配號")
     </td>
-    <td>
-        <div class="btn-group dropdown" data-toggle="dropdown">
-            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-            <ul class="dropdown-menu">
+    <td class="text-center">
+        <div class="dropdown">
+            <button class="px-3 btn btn-sm eivo__btn--default dropdown-toggle" type="button" id="dropdownMenuButton1"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                功能
+            </button>
+            <ul class="dropdown-menu shadow dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
                 @if (!_model.InvoiceNoAssignments.Any() && !_model.InvoiceNoAllocation.Any())
                 {
-
-                    <li><a class="btn" onclick="uiTrackCodeNo.editItem('@(_model.IntervalID.EncryptKey())');">修改</a></li>
-                    <li><a class="btn" onclick="uiTrackCodeNo.deleteItem('@(_model.IntervalID.EncryptKey())');">刪除</a></li>
+                    <li>
+                        <a class="dropdown-item" href="#"
+                            onclick="uiTrackCodeNo.editItem('@(_model.IntervalID.EncryptKey())');">
+                            <i class="fas fa-caret-right"></i>
+                            編輯
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="#"
+                            onclick="uiTrackCodeNo.deleteItem('@(_model.IntervalID.EncryptKey())');">
+                            <i class="fas fa-caret-right"></i>
+                            刪除
+                        </a>
+                    </li>
                     if (_model.InvoiceTrackCodeAssignment.Organization.POSDevice.Count > 0)
                     {
-                        <li><a class="btn" onclick="uiTrackCodeNo.assignPOSBooklets('@(_model.IntervalID.EncryptKey())');">POS本組數配置</a></li>
+                        <li>
+                            <a class="dropdown-item" href="#"
+                                onclick="uiTrackCodeNo.assignPOSBooklets('@(_model.IntervalID.EncryptKey())');">
+                                <i class="fas fa-caret-right"></i>
+                                POS本組數配置
+                            </a>
+                        </li>
                     }
-                    <li><a class="btn" onclick="uiTrackCodeNo.allotInterval('@(_model.IntervalID.EncryptKey())');">本組數均分</a></li>
+                    <li>
+                        <a class="dropdown-item" href="#"
+                            onclick="uiTrackCodeNo.allotInterval('@(_model.IntervalID.EncryptKey())');">
+                            <i class="fas fa-caret-right"></i>
+                            本組數均分
+                        </a>
+                    </li>
                 }
                 else
                 {
                     var remained = _model.EndNo - currentNo + 1;
                     if (remained >= 150)
                     {
-                        <li><a class="btn" onclick="uiTrackCodeNo.splitItem('@(_model.IntervalID.EncryptKey())');">分割</a></li>
+                        <li>
+                            <a class="dropdown-item" href="#"
+                                onclick="uiTrackCodeNo.splitItem('@(_model.IntervalID.EncryptKey())');">
+                                <i class="fas fa-caret-right"></i>
+                                分割
+                            </a>
+                        </li>
                     }
                 }
                 @if (_model.LockID.HasValue)
                 {
-                    <li><a class="btn" onclick="uiTrackCodeNo.lockItem('@(_model.IntervalID.EncryptKey())',null);">解除鎖定</a></li>
+                    <li>
+                        <a class="dropdown-item" href="#"
+                            onclick="uiTrackCodeNo.lockItem('@(_model.IntervalID.EncryptKey())',null);">
+                            <i class="fas fa-caret-right"></i>
+                            解除鎖定
+                        </a>
+                    </li>
                 }
                 else
                 {
-                    <li><a class="btn" onclick="uiTrackCodeNo.lockItem('@(_model.IntervalID.EncryptKey())',1);">鎖定</a></li>
+                    <li>
+                        <a class="dropdown-item" href="#"
+                            onclick="uiTrackCodeNo.lockItem('@(_model.IntervalID.EncryptKey())',1);">
+                            <i class="fas fa-caret-right"></i>
+                            鎖定
+                        </a>
+                    </li>
                 }
             </ul>
         </div>
     </td>
 </tr>
-
-

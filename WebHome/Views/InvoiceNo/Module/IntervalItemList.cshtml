@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -9,37 +8,41 @@
     IEnumerable<InvoiceNoInterval> _items;
     _items = (IEnumerable<InvoiceNoInterval>)this.Model;
 }
-<table class="table table-striped itemList">
-    <thead>
-        <tr>
-            <th style="min-width: 100px">營業人統一編號</th>
-            <th style="min-width: 100px">發票年度</th>
-            <th style="min-width: 100px">發票期別</th>
-            <th style="min-width: 80px">字軌</th>
-            <th style="min-width: 160px">發票號碼起</th>
-            <th style="min-width: 160px">發票號碼迄</th>
-            <th style="min-width: 160px">指定POS機號碼</th>
-            <th style="min-width: 160px">配號總數／剩餘</th>
-            <th>給號</th>
-            <th>狀態</th>
-            <th style="min-width: 150px">管理</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{ int idx = 0;}
-        @foreach (var item in _items)
-        {
-            idx++;
-            await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/DataItem.cshtml", item);
-        }
-        @{ await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/AddItem.cshtml");}
+<div class="table-responsive">
+    <table id="itemList" class="mb-0 table align-middle table-striped itemList eivo__table">
+        <thead>
+            <tr>
+                <th scope="col" style="min-width: 100px" class="text-nowrap">營業人統一編號</th>
+                <th scope="col" style="min-width: 100px">發票年度</th>
+                <th scope="col" style="min-width: 100px">發票期別</th>
+                <th scope="col" style="min-width: 80px">字軌</th>
+                <th scope="col" style="min-width: 160px">發票號碼起</th>
+                <th scope="col" style="min-width: 160px">發票號碼迄</th>
+                <th scope="col" style="min-width: 160px">指定POS機號碼</th>
+                <th scope="col" style="min-width: 160px">配號總數／剩餘</th>
+                <th scope="col">給號</th>
+                <th scope="col" class="text-nowrap">狀態</th>
+                <th scope="col" style="min-width: 180px">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int idx = 0;
+            }
+            @foreach (var item in _items)
+            {
+                idx++;
+                await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/DataItem.cshtml", item);
+            }
+            @{
+                await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/AddItem.cshtml");
+            }
 
-    </tbody>
-    <tfoot>
-        <tr>
-            <td colspan="11">&nbsp;</td>
-        </tr>
-    </tfoot>
-</table>
-
-
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="11">&nbsp;</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

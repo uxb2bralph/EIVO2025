@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -24,10 +23,15 @@
     InquireNoIntervalViewModel _viewModel = ViewBag.ViewModel as InquireNoIntervalViewModel;
 }
 
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");}
+<!-- 電子發票號碼維護 -->
+<!-- 交易畫面標題 -->
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+    }
+</div>
 
-
-<div class="border_gray query_result">
+<div id="queryResult" class="query_result">
     @{
         var recordCount = _model.Count();
         bool hasOrg = false;
@@ -38,25 +42,39 @@
         if (orgItem != null)
         {
             hasOrg = true;
-            <div>
+            <div class="my-2">
                 設定營業人@(orgItem.CompanyName)(@(orgItem.ReceiptNo))可用配號存量警戒值：
-                <input class="form-control" name="InvoiceNoSafetyStock" type="number" value="@(orgItem.OrganizationExtension?.InvoiceNoSafetyStock)" onchange="commitSafetyStock('@(orgItem.CompanyID.EncryptKey())');" />
+                <input class="form-control form-control-sm" name="InvoiceNoSafetyStock" type="number"
+                    value="@(orgItem.OrganizationExtension?.InvoiceNoSafetyStock)"
+                    onchange="commitSafetyStock('@(orgItem.CompanyID.EncryptKey())');" />
             </div>
         }
     }
 
     @if (recordCount > 0)
     {
-        await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _model);
+        <div class="mt-2 card shadow-sm border-2 rounded-3">
+            <div class="card-body">
+                <div class="table-responsive">
+                    @{
+                        await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _model);
+                    }
+                </div>
+            </div>
+        </div>
     }
     else
     {
         if (!hasOrg)
         {
-            <font color="red">查無資料!!</font>
+            <div class="mt-2 card shadow-sm border-2 rounded-3">
+                <div class="card-body">
+                    <div class="py-3 fs-6 text-center text-primary">
+                        尚無資料！
+                    </div>
+                </div>
+            </div>
         }
         await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _model);
     }
 </div>
-
-

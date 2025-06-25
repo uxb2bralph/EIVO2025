@@ -11,29 +11,41 @@
     _viewModel = (InquireNoIntervalViewModel)ViewBag.ViewModel;
 }
 
-<tr>
+<tr class="eivo__list--add">
     <td></td>
-    <td>@(_viewModel.Year)</td>
-    <td>@(String.Format("{0:00}-{1:00}月", _viewModel.PeriodNo * 2 - 1, _viewModel.PeriodNo * 2))</td>
+    <td class="text-center">
+        @(_viewModel.Year)
+    </td>
+    <td class="text-center">
+        @(String.Format("{0:00}-{1:00}月", _viewModel.PeriodNo * 2 - 1, _viewModel.PeriodNo * 2))
+    </td>
     <td>
-        @{ await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/TrackCodeSelector.cshtml");}
+        @{
+            await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/TrackCodeSelector.cshtml");
+        }
 
         <input name="SellerID" type="hidden" value="@(_viewModel.SellerID)" />
     </td>
     <td>
-        <input type="text" name="StartNo" class="form-control" placeholder="請輸入配號區間起始號碼" value="" data-role="add" />
+        <input type="text" name="StartNo" class="form-control form-control-sm" placeholder="請輸入配號區間起始號碼" value=""
+            data-role="add" />
     </td>
     <td>
-        <input type="text" name="EndNo" class="form-control" placeholder="請輸入配號區間結尾號碼" value="" data-role="add" />
+        <input type="text" name="EndNo" class="form-control form-control-sm" placeholder="請輸入配號區間結尾號碼" value=""
+            data-role="add" />
     </td>
     <td>
-        <input type="text" name="DeviceName" class="form-control" data-role="add" placeholder="POS機號碼" />
+        <input type="text" name="DeviceName" class="form-control form-control-sm" data-role="add"
+            placeholder="POS機號碼" />
     </td>
     <td></td>
     <td></td>
     <td></td>
-    <td>
-        <a class="btn" onclick="uiTrackCodeNo.commitItem();">新增配號區間</a>
+    <td class="text-center">
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--default text-nowrap"
+            onclick="uiTrackCodeNo.commitItem();">
+            <i class="fas fa-plus"></i>
+            新增配號區間
+        </button>
     </td>
 </tr>
-
