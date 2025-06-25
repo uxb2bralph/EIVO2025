@@ -25,27 +25,30 @@
     _profile = Context.GetUser();
 }
 
-<table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
-    <tr>
-        <td>
-            @if (_profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo != "0000000000")
-            {
-                <button type="button" class="btn" name="paperStyle" value="A4" onclick="uiInvoiceQuery.print('A4');">A4格式列印</button>
-                @*(列印兌獎訊息：<input name="printBack" type="radio" value="true" />是
+<div id="tblAction" class="my-2">
+    @if (_profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo != "0000000000")
+    {
+        <button type="button" name="paperStyle" class="px-3 my-1 me-1 btn btn-sm eivo__btn--print text-nowrap"
+            onclick="uiInvoiceQuery.print('A4');">
+            <i class="far fa-print"></i>
+            A4 格式列印
+        </button>
+        @*(列印兌獎訊息：<input name="printBack" type="radio" value="true" />是
                     <input name="printBack" type="radio" value="false" />否)*@
-            }
-            else
-            {
-                <input type="button" class="btn" name="btnPrint" value="熱感紙規格列印" onclick="uiInvoiceQuery.print('POS');" />
-                @*(列印買受人地址：<input name="printBuyerAddr" type="radio" value="true" />是
+    }
+    else
+    {
+        <button type="button" name="btnPrint" class="px-3 my-1 me-1 btn btn-sm eivo__btn--print text-nowrap"
+            onclick="uiInvoiceQuery.print('POS');">
+            <i class="far fa-print"></i>
+            熱感紙規格列印
+        </button>
+        @*(列印買受人地址：<input name="printBuyerAddr" type="radio" value="true" />是
                     <input name="printBuyerAddr" type="radio" value="false" />否)*@
-            }
-            <input type="button" class="btn" name="btnPrint" value="Excel下載" onclick="uiInvoiceQuery.download2021();" />
-        </td>
-    </tr>
-</table>
-
-
-
-
-
+    }
+    <button type="button" id="btnPrint" name="btnPrint" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+        onclick="uiInvoiceQuery.download2021();">
+        <i class="fas fa-download"></i>
+        Excel 下載
+    </button>
+</div>

@@ -12,31 +12,34 @@
 
     IQueryable<UnassignedInvoiceNo> _model = (IQueryable<UnassignedInvoiceNo>)this.Model;
 }
-@{ 
+@{
     await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
-    }
+}
 
 
 <div class="border_gray query_result">
-    @{ var recordCount = _model.Count();}
+    @{
+        var recordCount = _model.Count();
+    }
     @if (recordCount > 0)
     {
         await Html.RenderPartialAsync("~/Views/InvoiceNo/VacantNo/ItemList.cshtml", _model);
 
-        <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-                <td class="Bargain_btn">
-                    <input type="button" class="btn" name="btnPrint" value="下載Xml" onclick="uiVacantNoQuery.download();" />
-                    <input type="button" class="btn" name="btnPrint" value="下載Csv" onclick="uiVacantNoQuery.downloadCsv();" />
-                </td>
-            </tr>
-        </table>
+        <div id="tblAction" class="my-3">
+            <button type="button" id="btnDownloadXml" name="btnDownloadXml"
+                class="px-3 my-1 me-1 btn btn-sm eivo__btn--default" onclick="uiVacantNoQuery.download();">
+                <i class="fas fa-download"></i>
+                Xml 下載
+            </button>
+            <button type="button" id="btnDownloadCsv" name="btnDownloadCsv"
+                class="px-3 my-1 me-1 btn btn-sm eivo__btn--default" onclick="uiVacantNoQuery.downloadCsv();">
+                <i class="fas fa-download"></i>
+                Csv 下載
+            </button>
+        </div>
     }
     else
     {
         <font color="red">查無資料!!</font>
     }
 </div>
-
-
-

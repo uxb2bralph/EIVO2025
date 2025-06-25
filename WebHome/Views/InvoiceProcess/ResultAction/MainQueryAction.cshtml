@@ -25,14 +25,14 @@
     await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/PrintAction.cshtml");
 }
 
-<button type="button" id="btnPrint" name="btnPrint" class="px-3 btn btn-sm eivo__btn--default"
+<button type="button" id="btnPrint" name="btnPrint" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
     onclick="uiInvoiceQuery.download2021();">
     <i class="fas fa-download"></i>
-    Excel下載
+    Excel 下載
 </button>
 @if (_profile.IsSystemAdmin())
 {
-    <button type="button" id="btnBuyer" name="btnBuyer" class="px-3 btn btn-sm eivo__btn--default"
+    <button type="button" id="btnBuyer" name="btnBuyer" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
         onclick="uiInvoiceQuery.saveBuyer();">
         <i class="fas fa-download"></i>
         下載買受人資料
@@ -40,10 +40,10 @@
 }
 @if (_profile.IsSystemAdmin() || _profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo == "43460094")
 {
-    <button type="button" id="btnPrint" name="btnPrint" class="px-3 btn btn-sm eivo__btn--default"
+    <button type="button" id="btnPrint" name="btnPrint" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
         onclick="uiInvoiceQuery.downloadERP();">
         <i class="fas fa-download"></i>
-        ERP下載
+        ERP 下載
     </button>
     <script>
         uiInvoiceQuery.downloadERP = function () {

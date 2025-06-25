@@ -44,9 +44,14 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                        onclick="uiUserProfile.close();">離開</button>
-                    <button type="button" class="btn btn-primary" onclick="uiUserProfile.commit();">確定</button>
+                    <button id="btnReset" type="button" class="px-3 my-1 me-1 btn btn-sm eivo__btn--close"
+                        data-bs-dismiss="modal" onclick="uiUserProfile.close();">
+                        離開
+                    </button>
+                    <button id="btnQuery" type="button" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+                        data-bs-dismiss="modal" onclick="uiUserProfile.close();">
+                        儲存
+                    </button>
                 </div>
             </div>
         </div>

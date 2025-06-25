@@ -17,17 +17,20 @@
     _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
 
-<button type="button" id="btnNotifyC0401" class="px-3 btn btn-sm eivo__btn--default" onclick="uiInvoiceQuery.C0401();">
+<button type="button" id="btnNotifyC0401" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+    onclick="uiInvoiceQuery.C0401();">
     <i class="fas fa-download"></i>
     下載 C0401
 </button>
-<button type="button" id="btnNotifyC0701" class="px-3 btn btn-sm eivo__btn--default" onclick="uiInvoiceQuery.C0701();">
+<button type="button" id="btnNotifyC0701" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+    onclick="uiInvoiceQuery.C0701();">
     <i class="fas fa-download"></i>
     下載 C0701
 </button>
 @if (_viewModel.Cancelled == true)
 {
-    <button type="button" id="btnNotifyC0501" class="px-3 btn btn-sm eivo__btn--default" onclick="uiInvoiceQuery.C0501();">
+    <button type="button" id="btnNotifyC0501" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+        onclick="uiInvoiceQuery.C0501();">
         <i class="fas fa-download"></i>
         下載 C0501
     </button>

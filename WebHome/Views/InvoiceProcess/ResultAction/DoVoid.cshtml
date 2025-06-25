@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -19,86 +18,97 @@
     _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 }
 
-<table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
-    <tr>
-        <td>勾選項目：</td>
-        <td>
-            <button type="button" class="btn" name="btnVoid" onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.註銷重開));">註銷發票</button>&nbsp;&nbsp;
-            <button type="button" class="btn" name="btnVoidCancellation" onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.註銷作廢));">註銷作廢發票</button>
-            <button type="button" class="btn" name="btnRequestPrint" onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.索取紙本));">索取紙本</button>
-            <button type="button" class="btn" name="btnBuyerReceiptNo" onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.修正));">變更買受人統編</button>
-        </td>
-    </tr>
-    @if (_viewModel?.SellerID.HasValue == true)
-    {
-        <tr>
-            <td>依查詢條件：</td>
-            <td>
-                <button type="button" class="btn" name="btnSellerName" onclick="reviseSellerName();">變更賣方營業人名稱</button>
-                <script>
-                    function reviseSellerName() {
+<div id="tblAction" class="mb-3">
+    <span>勾選項目：</span>
+    <button id="btnVoid" name="btnVoid" type="button" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+        onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.註銷重開));">
+        註銷發票
+    </button>
+    <button id="btnVoidCancellation" name="btnVoidCancellation" type="button"
+        class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+        onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.註銷作廢));">
+        註銷作廢發票
+    </button>
+    <button id="btnRequestPrint" name="btnRequestPrint" type="button"
+        class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+        onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.索取紙本));">
+        索取紙本
+    </button>
+    <button id="btnBuyerReceiptNo" name="btnBuyerReceiptNo" type="button"
+        class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+        onclick="uiInvoiceQuery.voidInvoice(@((int)Naming.VoidActionMode.修正));">
+        變更買受人統編
+    </button>
+</div>
+@if (_viewModel?.SellerID.HasValue == true)
+{
+    <div id="tblAction" class="mb-3">
+        <span>依查詢條件：</span>
+        <button id="btnSellerName" name="btnSellerName" type="button" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+            onclick="reviseSellerName();">
+            變更賣方營業人名稱
+        </button>
+        <script>
+            function reviseSellerName() {
 
-                        if (!confirm('確定變更賣方營業人名稱？')) {
-                            return false;
-                        }
+                if (!confirm('確定變更賣方營業人名稱？')) {
+                    return false;
+                }
 
-                        var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+                var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
 
-                        doPost('@(Url.Action("GetSellerName", "Dialog"))', null, function (data) {
-                            $('body').append($(data));
-                            $global.dialogCallback = function (dialogResult) {
-                                $formData.ReviseContent = dialogResult;
-                                doPost('@(Url.Action("ReviseInvoiceContent", "InvoiceProcess"))', $formData, function (data) {
-                                    var $data = $(data);
-                                    $('body').append($data);
-                                });
-                            };
-                        });
-                    }
-                </script>
-            </td>
-        </tr>
-    }
-</table>
-<script>
-        window.uiInvoiceQuery.voidInvoice = function (mode) {
-            if (!$('input[name="chkItem"]').is(':checked')) {
-                alert('請選擇註銷資料!!');
-                return false;
-            }
-
-            if (!confirm('確定註銷選取的發票？')) {
-                return false;
-            }
-
-            var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
-            $formData = {
-                ...$formData,
-                ...$('#queryResult').find('input,select,textarea').serializeObject(),
-                mode: mode,
-            };
-
-            if (mode == @((int)Naming.VoidActionMode.修正)) {
-                doPost('@(Url.Action("GetReceiptNo", "Dialog"))', null, function (data) {
+                doPost('@(Url.Action("GetSellerName", "Dialog"))', null, function (data) {
                     $('body').append($(data));
                     $global.dialogCallback = function (dialogResult) {
                         $formData.ReviseContent = dialogResult;
-                        doPost('@(Url.Action("VoidInvoice", "InvoiceProcess"))', $formData, function (data) {
+                        doPost('@(Url.Action("ReviseInvoiceContent", "InvoiceProcess"))', $formData, function (data) {
                             var $data = $(data);
                             $('body').append($data);
-                            $data.remove();
                         });
                     };
                 });
-            } else {
-                doPost('@(Url.Action("VoidInvoice", "InvoiceProcess"))', $formData, function (data) {
-                    var $data = $(data);
-                    $('body').append($data);
-                    $data.remove();
-                });
             }
+        </script>
+    </div>
+}
+<script>
+    window.uiInvoiceQuery.voidInvoice = function (mode) {
+        if (!$('input[name="chkItem"]').is(':checked')) {
+            alert('請選擇註銷資料!!');
+            return false;
+        }
 
+        if (!confirm('確定註銷選取的發票？')) {
+            return false;
+        }
+
+        var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
+        $formData = {
+            ...$formData,
+            ...$('#queryResult').find('input,select,textarea').serializeObject(),
+            mode: mode,
         };
 
-</script>
+        if (mode == @((int)Naming.VoidActionMode.修正)) {
+            doPost('@(Url.Action("GetReceiptNo", "Dialog"))', null, function (data) {
+                $('body').append($(data));
+                $global.dialogCallback = function (dialogResult) {
+                    $formData.ReviseContent = dialogResult;
+                    doPost('@(Url.Action("VoidInvoice", "InvoiceProcess"))', $formData, function (data) {
+                        var $data = $(data);
+                        $('body').append($data);
+                        $data.remove();
+                    });
+                };
+            });
+        } else {
+            doPost('@(Url.Action("VoidInvoice", "InvoiceProcess"))', $formData, function (data) {
+                var $data = $(data);
+                $('body').append($data);
+                $data.remove();
+            });
+        }
 
+    };
+
+</script>
