@@ -9,21 +9,32 @@
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
 @{
-
     IQueryable<UnassignedInvoiceNo> _model = (IQueryable<UnassignedInvoiceNo>)this.Model;
 }
-@{
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
-}
 
-
-<div class="border_gray query_result">
+<!-- 上期發票空白號碼查詢／匯出 -->
+<!-- 交易畫面標題 -->
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");
+    }
+</div>
+  
+<div id="queryResult" class="query_result">
     @{
         var recordCount = _model.Count();
     }
     @if (recordCount > 0)
     {
-        await Html.RenderPartialAsync("~/Views/InvoiceNo/VacantNo/ItemList.cshtml", _model);
+        <div class="mt-2 card shadow-sm border-2 rounded-3">
+            <div class="card-body">
+                <div class="table-responsive">
+                    @{
+                        await Html.RenderPartialAsync("~/Views/InvoiceNo/VacantNo/ItemList.cshtml", _model);
+                    }
+                </div>
+            </div>
+        </div>
 
         <div id="tblAction" class="my-3">
             <button type="button" id="btnDownloadXml" name="btnDownloadXml"
@@ -40,6 +51,12 @@
     }
     else
     {
-        <font color="red">查無資料!!</font>
+        <div class="mt-2 card shadow-sm border-2 rounded-3">
+            <div class="card-body">
+                <div class="py-3 fs-6 text-center text-primary">
+                    尚無資料！
+                </div>
+            </div>
+        </div>
     }
 </div>
