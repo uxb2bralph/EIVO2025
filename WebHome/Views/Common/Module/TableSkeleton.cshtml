@@ -31,7 +31,9 @@
     String currentID = $"table{DateTime.Now.Ticks}";
     String[] columns = (string[])ViewBag.TableColumns;
 }
-<table id="@currentID" class="table table-striped itemList" cellspacing="0" cellpadding="0" style="width: 100%;">
+<!-- TableSkeleton -->
+<table id="@currentID" class="table table-striped itemList eivo__table" cellspacing="0" cellpadding="0"
+    style="width: 100%;">
     <thead>
         <tr>
             @{
@@ -40,8 +42,8 @@
             @foreach (var c in columns)
             {
                 <th>
-                @{ 
-                    await Html.RenderPartialAsync(c, (object)_model.FirstOrDefault()); 
+                    @{
+                        await Html.RenderPartialAsync(c, (object)_model.FirstOrDefault());
                     }
                 </th>
             }
@@ -75,4 +77,3 @@
         //$inquiryAgent.onBodyLoad();
     });
 </script>
-

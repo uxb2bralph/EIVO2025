@@ -48,7 +48,8 @@
             int idx = System.Array.IndexOf(viewModel.SortName, "Relative");
             if (idx >= 0)
             {
-                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<BusinessRelationship> ?? (IQueryable<BusinessRelationship>)this.Model).OrderBy(p => p.RelativeID, viewModel.SortType[idx]);
+                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<BusinessRelationship> ??
+                (IQueryable<BusinessRelationship>)this.Model).OrderBy(p => p.RelativeID, viewModel.SortType[idx]);
             }
         }
         break;
@@ -66,8 +67,6 @@
 {
     void editField(QueryViewModel _viewModel, BusinessRelationship item)
     {
-        <input name="CompanyName" class="form-control" type="text" value="@(item?.CompanyName)" />
+        <input name="CompanyName" class="form-control form-control-sm" type="text" value="@(item?.CompanyName)" />
     }
 }
-
-

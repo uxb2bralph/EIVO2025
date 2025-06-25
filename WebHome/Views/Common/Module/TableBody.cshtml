@@ -27,15 +27,14 @@
     async Task showDataRowAsync(Object item)
     {
         TempData["RowNo"] = (int)TempData["RowNo"] + 1;
-        <tr>
-            @if (_viewModel.RowNumber == true)
-            {
-                <td align="center">@(TempData["RowNo"])</td>
-            }
-            @{
-                await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", (object)item);
-            }
-        </tr>
+        @if (_viewModel.RowNumber == true)
+        {
+            <tr>
+                <td class="text-center">@(TempData["RowNo"])</td>
+            </tr>
+        }
+        await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", (object)item);
+
     }
 }
 
@@ -55,7 +54,7 @@
 
     TempData["SortedItems"] = null;
 
-    //if (_viewModel.SortName != null && _viewModel.SortName.Length > 0)    //comment this for default sort
+    //if (_viewModel.SortName != null && _viewModel.SortName.Length > 0) //comment this for default sort
     {
         ViewBag.DisplayType = Naming.FieldDisplayType.SortBy;
         foreach (var c in columns)
@@ -74,8 +73,8 @@
     else
     {
         items = _model
-            .Skip(pageIndex * pageSize)
-            .Take(pageSize);
+        .Skip(pageIndex * pageSize)
+        .Take(pageSize);
 
     }
 }
@@ -88,17 +87,25 @@ else
     else
     {
         items = ((IQueryable<dynamic>)TempData["SortedItems"])
-            .Skip(pageIndex * pageSize)
-            .Take(pageSize);
+        .Skip(pageIndex * pageSize)
+        .Take(pageSize);
     }
 }
 @{
     ViewBag.DisplayType = Naming.FieldDisplayType.DataItem;
+    Console.WriteLine($"ViewBag.Message in View (Console): {ViewBag}");
 }
-@foreach (var item in items)
-{
-    Write(await showDataRowAsync(item));
-}
+<div class="table-responsive">
+    <!--表格 開始-->
+    <table class="table table-striped itemList eivo__table">
+        <tbody>
+            @foreach (var item in items)
+            {
+                await showDataRowAsync(item);
+            }
+        </tbody>
+    </table>
+</div>
 @if (ViewBag.CreateNew != null)
 {
     ViewBag.DisplayType = Naming.FieldDisplayType.Create;
@@ -109,9 +116,3 @@ else
         }
     </tr>
 }
-@*<script>
-        $(function () {
-            $inquiryAgent.onBodyLoad();
-        });
-    </script>*@
-

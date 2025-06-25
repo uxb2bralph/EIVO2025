@@ -39,15 +39,32 @@
         break;
     case Naming.FieldDisplayType.DataItem:
         BusinessRelationship item = this.Model as BusinessRelationship;
-        <div class="btn-group dropdown" data-toggle="dropdown">
-            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-            <ul class="dropdown-menu">
+        <div class="dropdown">
+            <button class="px-3 btn btn-sm eivo__btn--default dropdown-toggle" type="button" id="dropdownMenuButton"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                功能
+            </button>
+            <ul class="dropdown-menu shadow dropdown-menu-end" aria-labelledby="dropdownMenuButton">
                 <li>
-                    <a class="btn" onclick="$inquiryAgent.editItem('@((new {item.MasterID,item.RelativeID,item.BusinessID}).JsonStringify().EncryptData())');">編輯</a>
+                    <a class="dropdown-item" href="#"
+                        onclick="$inquiryAgent.editItem('@((new { item.MasterID, item.RelativeID, item.BusinessID }).JsonStringify().EncryptData())');">
+                        <i class="fas fa-caret-right"></i>
+                        編輯
+                    </a>
                 </li>
-                <li><a class="btn" onclick="$inquiryAgent.deleteItem('@((new {item.MasterID,item.RelativeID,item.BusinessID}).JsonStringify().EncryptData())');">刪除</a></li>
-                <li><a class="btn" onclick="uiInquireBusiness.inquireUser(@(item.RelativeID));">管理使用者</a></li>
+                <li>
+                    <a class="dropdown-item" href="#"
+                        onclick="$inquiryAgent.deleteItem('@((new { item.MasterID, item.RelativeID, item.BusinessID }).JsonStringify().EncryptData())');">
+                        <i class="fas fa-caret-right"></i>
+                        刪除
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="uiInquireBusiness.inquireUser(@(item.RelativeID));">
+                        <i class="fas fa-caret-right"></i>
+                        管理使用者
+                    </a>
+                </li>
             </ul>
         </div>
         break;
@@ -56,16 +73,25 @@
 
     case Naming.FieldDisplayType.Edit:
         item = this.Model as BusinessRelationship;
-        <a class="btn" onclick="$inquiryAgent.commitItem('@(ViewBag.IsNew == true ? _viewModel.EmptyKeyID : (new {item.MasterID,item.RelativeID,item.BusinessID}).JsonStringify().EncryptData())');">確定</a>
-        <a class="btn" onclick="$inquiryAgent.dataItem({ 'keyID': '@((new {item?.MasterID,item?.RelativeID,item?.BusinessID}).JsonStringify().EncryptData())','displayType':@(ViewBag.IsNew == true ? (int)Naming.FieldDisplayType.Create : (int)Naming.FieldDisplayType.DataItem) });">取消</a>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--check text-nowrap"
+            onclick="$inquiryAgent.commitItem('@(ViewBag.IsNew == true ? _viewModel.EmptyKeyID : (new { item.MasterID, item.RelativeID, item.BusinessID }).JsonStringify().EncryptData())');">
+            <i class="fas fa-check"></i>
+            確定
+        </button>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--cancel text-nowrap"
+            onclick="$inquiryAgent.dataItem({ 'keyID': '@((new { item?.MasterID, item?.RelativeID, item?.BusinessID }).JsonStringify().EncryptData())','displayType':@(ViewBag.IsNew == true ? (int)Naming.FieldDisplayType.Create : (int)Naming.FieldDisplayType.DataItem) });">
+            <i class="far fa-times"></i>
+            取消
+        </button>
         break;
 
     case Naming.FieldDisplayType.Create:
         item = this.Model as BusinessRelationship;
-        <a class="btn" onclick="$inquiryAgent.editItem('@(_viewModel.EmptyKeyID)');">新增</a>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--default text-nowrap"
+            onclick="$inquiryAgent.editItem('@(_viewModel.EmptyKeyID)');">
+            <i class="fas fa-plus"></i>
+            新增
+        </button>
         break;
 
 }
-
-
-

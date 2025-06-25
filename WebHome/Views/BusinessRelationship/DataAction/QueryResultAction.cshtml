@@ -20,13 +20,10 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
 }
-<table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
-    <tr>
-        <td class="Bargain_btn">
-            <input type="button" class="btn" name="btnPrint" value="Excel下載" onclick="$inquiryAgent.downloadQuery();" />
-        </td>
-    </tr>
-</table>
-
-
-
+<div id="tblAction" class="my-3">
+    <button type="button" name="btnPrint" class="px-3 btn btn-sm eivo__btn--default"
+        onclick="$inquiryAgent.downloadQuery();">
+        <i class="fas fa-download"></i>
+        Excel下載
+    </button>
+</div>

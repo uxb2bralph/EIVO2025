@@ -32,7 +32,10 @@
 <tr>
     @foreach (var c in columns)
     {
-        <td>@{ await Html.RenderPartialAsync(c, item); }</td>
+        <td class="text-nowrap">
+            @{
+                await Html.RenderPartialAsync(c, item);
+            }
+        </td>
     }
 </tr>
-

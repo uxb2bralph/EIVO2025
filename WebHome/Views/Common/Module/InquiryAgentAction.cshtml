@@ -25,6 +25,7 @@
 }
 
 <script>
+    console.log('InquiryAgentAction.cshtml loaded');
     $(function () {
         $inquiryAgent.viewModel.Paging = @(_viewModel.Paging == false ? "false" : "true");
         $inquiryAgent.inquire = function (pageNum) {
