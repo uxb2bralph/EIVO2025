@@ -40,30 +40,41 @@
         break;
     case Naming.FieldDisplayType.DataItem:
         InvoicePeriodExchangeRate item = this.Model as InvoicePeriodExchangeRate;
-        <div class="btn-group dropdown" data-toggle="dropdown">
-            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-            <ul class="dropdown-menu">
-                <li><a class="btn" onclick="$inquiryAgent.editItem('@((new {item.PeriodID,item.CurrencyID}).JsonStringify().EncryptData())');">修改</a></li>
-                <li><a class="btn" onclick="$inquiryAgent.deleteItem('@((new {item.PeriodID,item.CurrencyID}).JsonStringify().EncryptData())');">刪除</a></li>
-            </ul>
-        </div>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--default text-nowrap"
+            onclick="$inquiryAgent.editItem('@((new { item.PeriodID, item.CurrencyID }).JsonStringify().EncryptData())');">
+            <i class="fal fa-edit"></i>
+            編輯
+        </button>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--red text-nowrap"
+            onclick="$inquiryAgent.deleteItem('@((new { item.PeriodID, item.CurrencyID }).JsonStringify().EncryptData())');">
+            <i class="fal fa-trash-alt"></i>
+            刪除
+        </button>
         break;
 
     case Naming.FieldDisplayType.Edit:
         item = this.Model as InvoicePeriodExchangeRate;
-        <a class="btn" onclick="$inquiryAgent.commitItem('@(ViewBag.IsNew == true ? _viewModel.EmptyKeyID : (new {item.PeriodID,item.CurrencyID}).JsonStringify().EncryptData())');">確定</a>
-        <a class="btn" onclick="$inquiryAgent.dataItem({ 'keyID': '@((new {item?.PeriodID,item?.CurrencyID}).JsonStringify().EncryptData())','displayType':@(ViewBag.IsNew == true ? (int)Naming.FieldDisplayType.Create : (int)Naming.FieldDisplayType.DataItem) });">取消</a>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--check text-nowrap"
+            onclick="$inquiryAgent.commitItem('@(ViewBag.IsNew == true ? _viewModel.EmptyKeyID : (new { item.PeriodID, item.CurrencyID }).JsonStringify().EncryptData())');">
+            <i class="fas fa-check"></i>
+            確定
+        </button>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--cancel text-nowrap"
+            onclick="$inquiryAgent.dataItem({ 'keyID': '@((new { item?.PeriodID, item?.CurrencyID }).JsonStringify().EncryptData())','displayType':@(ViewBag.IsNew == true ? (int)Naming.FieldDisplayType.Create : (int)Naming.FieldDisplayType.DataItem) });">
+            <i class="far fa-times"></i>
+            取消
+        </button>
         break;
 
     case Naming.FieldDisplayType.Create:
         item = this.Model as InvoicePeriodExchangeRate;
-        <a class="btn" onclick="$inquiryAgent.editItem('@(_viewModel.EmptyKeyID)');">新增</a>
+        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--default text-nowrap"
+            onclick="$inquiryAgent.editItem('@(_viewModel.EmptyKeyID)');">
+            <i class="fas fa-plus"></i>
+            新增
+        </button>
         break;
 
     default:
         break;
 }
-
-
-

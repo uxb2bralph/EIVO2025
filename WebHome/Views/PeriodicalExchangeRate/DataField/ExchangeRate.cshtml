@@ -49,7 +49,8 @@
             int idx = System.Array.IndexOf(viewModel.SortName, "ExchangeRate");
             if (idx >= 0)
             {
-                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<InvoicePeriodExchangeRate> ?? (IQueryable<InvoicePeriodExchangeRate>)this.Model).OrderBy(p => p.ExchangeRate, viewModel.SortType[idx]);
+                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<InvoicePeriodExchangeRate> ??
+                (IQueryable<InvoicePeriodExchangeRate>)this.Model).OrderBy(p => p.ExchangeRate, viewModel.SortType[idx]);
             }
         }
         break;
@@ -66,8 +67,7 @@
 {
     void editField(ExchangeRateQueryViewModel _viewModel, InvoicePeriodExchangeRate item)
     {
-        <input name="ExchangeRate" class="form-control" type="text" value="@(item!=null ? item.ExchangeRate : _viewModel?.ExchangeRate)" />
+        <input name="ExchangeRate" class="form-control form-control-sm" type="text"
+            value="@(item != null ? item.ExchangeRate : _viewModel?.ExchangeRate)" />
     }
 }
-
-
