@@ -30,12 +30,12 @@
 {
     <script>
         $(function () {
+            console.log(`@Html.Raw(System.Web.HttpUtility.HtmlDecode(_modelState.ErrorMessage()))`);
             var $scope = $global.$scope;
             if (!$scope) {
                 $scope = $('body');
             }
-            console.log('@(_modelState.ErrorMessage())');
-                                @foreach (var key in _modelState.Keys.Where(k => _modelState[k].Errors.Count > 0))
+                @foreach (var key in _modelState.Keys.Where(k => _modelState[k].Errors.Count > 0))
                 {
                     if (String.IsNullOrEmpty(_dataRole))
                     {
@@ -49,7 +49,7 @@
                         else
                         {
                             <text>
-                                $scope.find('.@(key)').append($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
+                                $scope.find('.@(key)').after($('<label id="@(key)-error" class="error" for="@(key)">@(System.Web.HttpUtility.JavaScriptStringEncode(String.Join("、", _modelState[key].Errors.Select(r => r.ErrorMessage))))</label>'));
                             </text>
                     }
                     }
@@ -70,7 +70,7 @@
                     }
                     }
                 }
-                        });
+                });
     </script>
 
     if (_modelState.ContainsKey("Message"))

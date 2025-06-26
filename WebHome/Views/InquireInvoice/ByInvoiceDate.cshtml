@@ -27,13 +27,17 @@
             日期區間
         </label>
         <div class="col d-flex align-items-center">
-            <input id="DateFrom" name="InvoiceDateFrom" type="text" placeholder="請輸入起日"
-                class="form_date form-control form-control-sm" readonly="readonly"
-                value="@($"{_viewModel?.InvoiceDateFrom:yyyy/MM/dd}")" />
+            <div>
+                <input id="DateFrom" name="InvoiceDateFrom" type="text" placeholder="請輸入起日"
+                    class="form_date form-control form-control-sm InvoiceDateFrom" readonly="readonly"
+                    value="@($"{_viewModel?.InvoiceDateFrom:yyyy/MM/dd}")" />
+            </div>
             <div class="mx-2">~</div>
-            <input id="DateTo" name="InvoiceDateTo" type="text" placeholder="請輸入迄日"
-                class="form_date form-control form-control-sm" readonly="readonly"
-                value='@($"{_viewModel?.InvoiceDateTo:yyyy/MM/dd}")' />
+            <div>
+                <input id="DateTo" name="InvoiceDateTo" type="text" placeholder="請輸入迄日"
+                    class="form_date form-control form-control-sm InvoiceDateTo" readonly="readonly"
+                    value='@($"{_viewModel?.InvoiceDateTo:yyyy/MM/dd}")' />
+            </div>
         </div>
         <div class="text-danger d-flex justify-content-end text-nowrap pt-1">
             <span id="dateAlert" class="text-danger pe-2 d-none pe-1">
@@ -47,4 +51,19 @@
     // 日期選擇器
     const dateAlert = document.querySelector("#dateAlert");
     flatpickr('#DateFrom, #DateTo', config);
+
+    $('#DateFrom').on('click', function () {
+        const DateFrom = document.querySelector('#InvoiceDateFrom-error');
+        if (DateFrom) {
+            DateFrom.remove();
+        };
+    });
+
+    $('#DateTo').on('click', function () {
+        const DateTo = document.querySelector('#InvoiceDateTo-error');
+        console.log({ DateTo });
+        if (DateTo) {
+            DateTo.remove();
+        };
+    });
 </script>
