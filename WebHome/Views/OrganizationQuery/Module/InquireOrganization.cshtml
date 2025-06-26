@@ -246,7 +246,7 @@
 
     function applyAgency(value) {
         $.post('@(Url.Action("ApplyIssuerAgent", "Organization"))', { 'keyID': value }, function (data) {
-            $global.createTab('applyIssuerAgent', '發票經銷商', data, true);
+            $global.createModal('applyIssuerAgent', '設定發票經銷商', data, true);
         });
     }
 

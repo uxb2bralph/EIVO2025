@@ -68,7 +68,6 @@
             $formData.KeyID = '@(_model.CompanyID.EncryptKey())';
             var $file = $('#@(_viewID)PfxFile');
             var $parebtNode = $file.parent();
-            console.log('parent', $parebtNode, 'file', $file);
             uploadFile($file, $formData, '@Html.Raw(Url.Action("CommitItem", "CertificateIdentity"))',
                 function (data) {
                     $parebtNode.append($file);
