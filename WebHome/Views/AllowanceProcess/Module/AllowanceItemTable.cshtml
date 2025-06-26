@@ -28,51 +28,99 @@
     _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 
 }
-<table id="@(_listID)" class="table table-striped itemList">
-    <thead>
-        <tr>
-            <th aria-sort="other">
-                <input name="chkAll" type="checkbox" />
-            </th>
-            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('AllowanceDate',this);">日期</a></th>
-            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('CustomerID',this);">Customer ID</a></th>
-            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('Seller',this);">開立發票營業人</a></th>
-            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">統編</a></th>
-            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('AllowanceNo',this);">折讓號碼</a></th>
-            <th aria-sort="other">大平台折讓單證號碼</th>
-            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('SalesAmount',this);">未稅金額</a></th>
-            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('TaxAmount',this);">稅額</a></th>
-            <th aria-sort="other">含稅金額</th>
-            <th aria-sort="other">幣別</th>
-            <th><a href="javascript:void(0);" onclick="$inquiryAgent.sort('BuyerNo',this);">買受人統編</a></th>
-            <th>狀態</th>
-            <th>買受人EMail</th>
-            <th aria-sort="other">備註</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{ await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/ItemList.cshtml", _model);}
-
-    </tbody>
-    <tfoot>
-        <tr>
-            <td colspan="15">
-                @if (_viewModel?.CurrencySummary == true)
-                {
-                    foreach (var g in _model.GroupBy(i => i.CurrencyID))
+<div class="table-responsive">
+    <table id="@(_listID)" class="table table-striped itemList eivo__table itemList">
+        <thead>
+            <tr>
+                <th scope="col" aria-sort="other" style="min-width: 30px">
+                    <input name="chkAll" type="checkbox" />
+                </th>
+                <th scope="col">
+                    <a href="javascript:void(0);" onclick="$inquiryAgent.sort('AllowanceDate',this);">
+                        日期
+                    </a>
+                </th>
+                <th scope="col" class="text-nowrap">
+                    <a href="javascript:void(0);" onclick="$inquiryAgent.sort('CustomerID',this);">
+                        Customer ID
+                    </a>
+                </th>
+                <th scope="col" class="text-nowrap">
+                    <a href="javascript:void(0);" onclick="$inquiryAgent.sort('Seller',this);">
+                        開立發票營業人
+                    </a>
+                </th>
+                <th scope="col" class="text-nowrap">
+                    <a href="javascript:void(0);" onclick="$inquiryAgent.sort('ReceiptNo',this);">
+                        統編
+                    </a>
+                </th>
+                <th scope="col" class="text-nowrap">
+                    <a href="javascript:void(0);" onclick="$inquiryAgent.sort('AllowanceNo',this);">
+                        折讓號碼
+                    </a>
+                </th>
+                <th scope="col" class="text-nowrap" aria-sort="other">
+                    大平台折讓單證號碼
+                </th>
+                <th scope="col" class="text-end text-nowrap">
+                    <a href="javascript:void(0);" onclick="$inquiryAgent.sort('SalesAmount',this);">
+                        未稅金額
+                    </a>
+                </th>
+                <th scope="col" class="text-end text-nowrap">
+                    <a href="javascript:void(0);" onclick="$inquiryAgent.sort('TaxAmount',this);">
+                        稅額
+                    </a>
+                </th>
+                <th scope="col" aria-sort="other" class="text-end text-nowrap">
+                    含稅金額
+                </th>
+                <th scope="col" aria-sort="other" class="text-nowrap">
+                    幣別
+                </th>
+                <th scope="col" class="text-nowrap">
+                    <a href="javascript:void(0);" onclick="$inquiryAgent.sort('BuyerNo',this);">
+                        買受人統編
+                    </a>
+                </th>
+                <th scope="col" class="text-nowrap">
+                    狀態
+                </th>
+                <th scope="col" class="text-nowrap">
+                    買受人EMail
+                </th>
+                <th scope="col" aria-sort="other" class="text-nowrap" style="min-width: 80px">
+                    備註
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/ItemList.cshtml", _model);
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="15">
+                    @if (_viewModel?.CurrencySummary == true)
                     {
-                        var currency = g.Key.HasValue ? models.GetTable<CurrencyType>().Where(c => c.CurrencyID == g.Key).FirstOrDefault()?.AbbrevName : "TWD-不含境外電商";
-                        <text>
-                            未稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}",g.Sum(i=>i.TotalAmount)))，
-                            稅額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}",g.Sum(i=>i.TaxAmount)))<br />
-                        </text>
+                        foreach (var g in _model.GroupBy(i => i.CurrencyID))
+                        {
+                            var currency = g.Key.HasValue ? models.GetTable<CurrencyType>().Where(c => c.CurrencyID ==
+                            g.Key).FirstOrDefault()?.AbbrevName : "TWD-不含境外電商";
+                            <text>
+                                未稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.TotalAmount)))，
+                                稅額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.TaxAmount)))<br />
+                            </text>
+                        }
                     }
-                }
-                                
-            </td>
-        </tr>
-    </tfoot>
-</table>
+
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 <script>
     $(function () {
         $("#@(_listID)").find("input[name='chkAll']")
@@ -101,6 +149,3 @@
             });
     };
 </script>
-
-
-

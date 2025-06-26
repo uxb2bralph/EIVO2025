@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -27,7 +26,9 @@
 
 @if (_viewModel != null)
 {
-    <button type="button" class="btn" id="@(_viewID)" name="btnVoid">@(_viewModel.ActionTitle)</button>
+    <button type="button" id="@(_viewID)" name="btnVoid" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default">
+        @(_viewModel.ActionTitle)
+    </button>
     <script>
         $(function () {
             $('#@(_viewID)').on('click', function (data) {
@@ -35,7 +36,7 @@
                     return;
                 }
                 showLoading();
-                $.post('@Html.Raw(Url.Action("InvokeCommitAction","AllowanceProcess",new { _viewModel.CommitAction,_viewModel.ActionTitle }))', {}, function (data) {
+                $.post('@Html.Raw(Url.Action("InvokeCommitAction", "AllowanceProcess", new { _viewModel.CommitAction, _viewModel.ActionTitle }))', {}, function (data) {
                     if ($.isPlainObject(data)) {
                         hideLoading();
                         alert(data.message);
@@ -47,6 +48,3 @@
         });
     </script>
 }
-
-
-

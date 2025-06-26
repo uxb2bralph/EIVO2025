@@ -18,7 +18,7 @@
     ModelSource<InvoiceItem>
     models;
     IQueryable<InvoiceAllowance>
-        _model;
+    _model;
     InquireInvoiceViewModel _viewModel;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
@@ -27,13 +27,15 @@
     _model = (IQueryable<InvoiceAllowance>)this.Model;
 }
 @{
-    await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/AllowanceItemTable.cshtml", _model);
+    <div class="mt-2 card shadow-sm border-2 rounded-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                @{
+                    await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/AllowanceItemTable.cshtml", _model);
+                }
+            </div>
+        </div>
+    </div>
     _viewModel.OnPageCallScript = "uiAllowanceQuery.inquire(page)";
     await Html.RenderPartialAsync("~/Views/Common/Module/QueryPagingControl.cshtml", _model);
 }
-
-
-
-
-
-

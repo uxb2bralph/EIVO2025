@@ -22,29 +22,56 @@
     _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 
 }
-<td><input name="chkItem" type="checkbox" value="@(_model.AllowanceID)" /></td>
-<td>@(String.Format("{0:yyyy/MM/dd}", _model.AllowanceDate))</td>
-<td>@(_model.InvoiceAllowanceBuyer.CustomerID)</td>
-<td style="white-space:nowrap;">@(_model.InvoiceAllowanceSeller.CustomerName)</td>
-<td style="white-space:nowrap;">@(_model.InvoiceAllowanceSeller.ReceiptNo)</td>
-<td style="white-space:nowrap;"><a onclick="showAllowanceModal(@(_model.AllowanceID));">@(_model.AllowanceNumber)</a></td>
-<td style="white-space:nowrap;">@(_model.TurnkeyAllowanceNo)</td>
-@*<td style="white-space:nowrap;">@($"{_model.AllowanceID:0000000000000000}")</td>*@
-<td align="right" style="white-space:nowrap;">
-    @{ var amount = _model.InvoiceAllowanceDetails.Sum(d => d.InvoiceAllowanceItem.Amount);}
+<td class="text-center" style="min-width: 30px">
+    <input name="chkItem" type="checkbox" value="@(_model.AllowanceID)" />
+</td>
+<td class="text-center">
+    @(String.Format("{0:yyyy/MM/dd}", _model.AllowanceDate))
+</td>
+<td class="text-center">
+    @(_model.InvoiceAllowanceBuyer.CustomerID)
+</td>
+<td class="text-nowrap">
+    @(_model.InvoiceAllowanceSeller.CustomerName)
+</td>
+<td class="text-center text-nowrap">
+    @(_model.InvoiceAllowanceSeller.ReceiptNo)
+</td>
+<td class="text-center text-nowrap">
+    <a onclick="showAllowanceModal(@(_model.AllowanceID));">
+        @(_model.AllowanceNumber)
+    </a>
+</td>
+<td class="text-center text-nowrap">
+    @(_model.TurnkeyAllowanceNo)
+</td>
+@*<td class="text-nowrap">@($"{_model.AllowanceID:0000000000000000}")</td>*@
+<td class="text-nowrap text-end">
+    @{
+        var amount = _model.InvoiceAllowanceDetails.Sum(d => d.InvoiceAllowanceItem.Amount);
+    }
 
     @(String.Format("{0:##,###,###,##0.##}", amount))
 </td>
-<td align="right" style="white-space:nowrap;">
-    @{ var tax = _model.InvoiceAllowanceDetails.Sum(d => d.InvoiceAllowanceItem.Tax);}
+<td class="text-nowrap text-end">
+    @{
+        var tax = _model.InvoiceAllowanceDetails.Sum(d => d.InvoiceAllowanceItem.Tax);
+    }
 
     @(String.Format("{0:##,###,###,##0.##}", tax))
 </td>
-<td align="right" style="white-space:nowrap;">@(String.Format("{0:##,###,###,##0.##}", amount + tax))</td>
-<td>@(_model.CurrencyType?.AbbrevName)</td>
-<td style="white-space:nowrap;">@(_model.InvoiceAllowanceBuyer.IsB2C() ? "" : _model.InvoiceAllowanceBuyer.ReceiptNo)</td>
-<td style="white-space:nowrap;">
-    @(_model.InvoiceAllowanceCancellation==null ? "" : $"已作廢({_model.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})")
+<td class="text-nowrap text-end">
+    @(String.Format("{0:##,###,###,##0.##}", amount + tax))
+</td>
+<td class="text-center">
+    @(_model.CurrencyType?.AbbrevName)
+</td>
+<td class="text-center text-nowrap">
+    @(_model.InvoiceAllowanceBuyer.IsB2C() ? "" : _model.InvoiceAllowanceBuyer.ReceiptNo)
+</td>
+<td class="text-center text-nowrap">
+    @(_model.InvoiceAllowanceCancellation == null ? "" :
+        $"已作廢({_model.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})")
     @if (_viewModel.MIG == true)
     {
         Write(((Naming.InvoiceProcessType?)_model.CDS_Document.ProcessType)?.ToString() ?? "D0401");
@@ -80,7 +107,9 @@
         }
     }
 </td>
-<td style="white-space:nowrap;">@(_model.InvoiceAllowanceBuyer.EMail)</td>
+<td class="text-nowrap">
+    @(_model.InvoiceAllowanceBuyer.EMail)
+</td>
 <td></td>
 @*<td>
         <div class="btn-group dropdown" data-toggle="dropdown">
