@@ -231,6 +231,7 @@
 
     }
 
+    // 建立憑證資訊
     function applyCertificate(value) {
         showLoading();
         $.post('@(Url.Action("OrganizationCertificate", "CertificateIdentity"))', { 'companyID': value }, function (data) {

@@ -33,47 +33,58 @@
     String _viewID = $"GW{DateTime.Now.Ticks}";
 
 }
-    <table id="@(_viewID)" class="table table-striped table-bordered table-hover">
-        <tr>
-            <td colspan="2" class="Head_style_a">
-                用戶端G/W設定
-            </td>
-        </tr>
-        <tr>
-            <th>
-                選擇傳送Excel發票開立方式：
-            </th>
-            <td>
-                <select class="form-control" name="DefaultProcessType">
-                    @*<option value="">請選擇...</option>*@
+<h5 class="my-2 py-1 fs-5 fw-bold text-success border-2 border-start border-bottom border-success ps-2">
+    <i class="fas fa-caret-right"></i>
+    基本資料
+</h5>
+<div id="@(_viewID)" class="px-2 row row-cols-1">
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ReceiptNo" class="col-md-3 col-form-label fw-bold text-nowrap">
+                選擇傳送Excel發票開立方式
+            </label>
+            <div class="col">
+                <select id="DefaultProcessType" name="DefaultProcessType" class="form-select form-select-sm">
                     <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx)">Excel通用格式</option>
                     <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC)">Excel格式加值中心配號</option>
-                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer)">Excel格式開立人配號</option>
+                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer)">Excel格式開立人配號
+                    </option>
                     <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_CBE)">Excel格式境外電商專用</option>
-                    <option value="@((int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)">Excel格式A0401開立人配號</option>
+                    <option value="@((int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)">Excel格式A0401開立人配號
+                    </option>
                 </select>
-                    <script>
-                        $(function () {
-                            var $select = $('#@(_viewID) select[name="DefaultProcessType"]');
-                            $select.val('@(_model.OrganizationStatus.InvoiceClientDefaultProcessType)');
-                            $select.on('change', function (element) {
-                                commitAction('@Html.Raw(Url.Action("CommitDefaultProcessType","Organization",new { KeyID = _model.CompanyID.EncryptKey() }))', { 'DefaultProcessType': $select.val() },
-                                    function (result) {
-                                        if (result.result) {
-                                            alert('OK!');
-                                        }
-                                    });
-                            });
+                <script>
+                    $(function () {
+                        var $select = $('#@(_viewID) select[name="DefaultProcessType"]');
+                        $select.val('@(_model.OrganizationStatus.InvoiceClientDefaultProcessType)');
+                        $select.on('change', function (element) {
+                            commitAction('@Html.Raw(Url.Action("CommitDefaultProcessType", "Organization", new { KeyID = _model.CompanyID.EncryptKey() }))', { 'DefaultProcessType': $select.val() },
+                                function (result) {
+                                    if (result.result) {
+                                        alert('OK!');
+                                    }
+                                });
                         });
-                    </script>
-            </td>
-        </tr>
-        <tr>
-            <th colspan="2">
-                <a class="btn" onclick="applyCertificate(@(_model.CompanyID));">建立憑證資訊</a>
-            </th>
-        </tr>
-    </table>
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<h5 class="my-2 py-1 fs-5 fw-bold text-success border-2 border-start border-bottom border-success ps-2">
+    <i class="fas fa-caret-right"></i>
+    基本建立憑證資訊
+</h5>
 
-
-
+<div class="px-2 row row-cols-1">
+    <div class="py-2 col">
+        <div class="row">
+            <div class="col">
+                <button id="btnQuery" type="button" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+                    data-bs-dismiss="modal" onclick="applyCertificate(@(_model.CompanyID));">
+                    建立憑證資訊
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

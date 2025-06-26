@@ -69,8 +69,7 @@
             <a class="dropdown-item" href="#" onclick="applyWelfare(@(item.CompanyID));">設定社福機構</a>
             </li>*@
             <li>
-                <a class="dropdown-item" href="#"
-                    onclick="actionHandler('@Html.Raw(Url.Action("GatewaySettings", "Organization", new { KeyID = item.CompanyID.EncryptKey() }))', null, null, 640, 'auto');">
+                <a class="dropdown-item" href="#" onclick="setGW('@Html.Raw(item.CompanyID.EncryptKey())');">
                     <i class="fas fa-caret-right"></i>
                     用戶端 G/W 設定
                 </a>

@@ -26,54 +26,65 @@
     String _viewID = "cert" + DateTime.Now.Ticks;
 
 }
-<div id="@(_viewID)" class="border_gray">
-    <table class="table table-striped">
-        <tr>
-            <th class="Head_style_a" align="left">
-                PKCS12(PFX)憑證檔:<input type="file" style="display:inline;" name="PfxFile" />
-            </th>
-            <td>
-                PIN Code:<input type="password" name="PIN" />&nbsp;&nbsp;&nbsp;
-            </td>
-            <td>
-                <button type="button" class="btn btnUpload">上載</button>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="3">
-                <font color="red" class="msg">
-                    @if (_model?.OrganizationToken?.KeyID != null)
-                    {
-                        Write(String.Format("原憑證金鑰:{0}", _model.OrganizationToken.KeyID));
-                    }
-                </font>
-            </td>
-        </tr>
-    </table>
-    <script>
-        $(function () {
-            $('#@(_viewID) button.btnUpload').click(function (event) {
-                var $formData = $('#@(_viewID)').find('input,select,textArea').serializeObject();
-                $formData.KeyID = '@(_model.CompanyID.EncryptKey())';
-                var $file = $('#@(_viewID) input[name="PfxFile"]');
-                var $th = $file.parent();
-                uploadFile($file, $formData, '@Html.Raw(Url.Action("CommitItem","CertificateIdentity"))',
-                    function (data) {
-                        $th.append($file);
-                        if ($.isPlainObject(data)) {
-                            if (data.result) {
-                                $('#@(_viewID) font.msg').text(data.message);
-                                alert('憑證識別更新完成!!');
-                            } else {
-                                $('#@(_viewID) font.msg').text(data.message);
-                                alert('憑證識別更新失敗!!');
-                            }
-                        }
-                    },
-                    function () {
-                        $th.append($file);
-                    });
-            });
-        });
-    </script>
+
+<div id="@(_viewID)" class="px-2 row row-cols-1">
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ReceiptNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                PKCS12(PFX)憑證檔
+            </label>
+            <div class="col">
+                <input type="file" id="@(_viewID)PfxFile" name="PfxFile" class="form-control form-control-sm">
+            </div>
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ReceiptNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                PIN Code
+            </label>
+            <div class="col">
+                <input type="password" name="PIN" class="form-control form-control-sm" />
+            </div>
+        </div>
+    </div>
+    <div>
+        <span class="text-danger msg">
+            @if (_model?.OrganizationToken?.KeyID != null)
+            {
+                Write(String.Format("原憑證金鑰:{0}", _model.OrganizationToken.KeyID));
+            }
+        </span>
+    </div>
 </div>
+<div class="mt-4 modal-footer">
+    <button type="button" id="@(_viewID)btnUpload" class="mx-1 px-3 btn btn-sm eivo__btn--default">上載</button>
+</div>
+
+<script>
+    $(function () {
+        $('#@(_viewID)btnUpload').click(function (event) {
+            var $formData = $('#@(_viewID)').find('input,select,textArea').serializeObject();
+            $formData.KeyID = '@(_model.CompanyID.EncryptKey())';
+            var $file = $('#@(_viewID)PfxFile');
+            var $parebtNode = $file.parent();
+            console.log('parent', $parebtNode, 'file', $file);
+            uploadFile($file, $formData, '@Html.Raw(Url.Action("CommitItem", "CertificateIdentity"))',
+                function (data) {
+                    $parebtNode.append($file);
+                    if ($.isPlainObject(data)) {
+                        if (data.result) {
+                            $('#@(_viewID) span.msg').text(data.message);
+                            alert('憑證識別更新完成!!');
+                        } else {
+                            $('#@(_viewID) span.msg').text(data.message);
+                            alert('憑證識別更新失敗!!');
+                        }
+                    }
+                },
+                function () {
+                    $parebtNode.append($file);
+                });
+        });
+    });
+</script>

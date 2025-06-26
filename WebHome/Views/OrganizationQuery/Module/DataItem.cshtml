@@ -30,9 +30,9 @@
     bool checkCompany(ModelCore.DataEntity.Organization Org)
     {
         return Org.OrganizationCategory.Any(c => c.CategoryID == (int)Naming.B2CCategoryID.店家發票自動配號
-            || c.CategoryID == (int)Naming.B2CCategoryID.開立發票店家代理
-            || c.CategoryID == (int)Naming.B2CCategoryID.店家
-            || c.CategoryID == (int)Naming.B2CCategoryID.境外電商);
+        || c.CategoryID == (int)Naming.B2CCategoryID.開立發票店家代理
+        || c.CategoryID == (int)Naming.B2CCategoryID.店家
+        || c.CategoryID == (int)Naming.B2CCategoryID.境外電商);
     }
 
 }
@@ -40,7 +40,9 @@
     <td>@(item.CompanyName)</td>
     <td>@(item.ReceiptNo)</td>
     <td>@(item.UndertakerName)</td>
-    <td><pre>@(item.ContactEmail)</pre></td>
+    <td>
+        <pre>@(item.ContactEmail)</pre>
+    </td>
     @*<td>@{ var welfare = item.InvoiceWelfareAgencies.FirstOrDefault();}
         @{ if (welfare != null)
         Writer.Write(welfare.Organization.CompanyName);}
@@ -50,38 +52,78 @@
     <td>
         <div class="btn-group dropdown" data-toggle="dropdown">
             <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span
+                    class="caret"></span></button>
             <ul class="dropdown-menu">
                 @if (item.OrganizationStatus.CurrentLevel != (int)Naming.MemberStatusDefinition.Mark_To_Delete)
                 {
-                    <li><a class="btn btn-primary" onclick="editCompany('@Html.Raw(item.CompanyID.EncryptKey())');">編輯</a></li>
-                    <li><a class="btn btn-primary" onclick="disableCompany(@(item.CompanyID));">停用</a></li>
+                    <li>
+                        <a class="btn btn-primary" onclick="editCompany('@Html.Raw(item.CompanyID.EncryptKey())');">
+                            編輯1111
+                        </a>
+                    </li>
+                    <li>
+                        <a class="btn btn-primary" onclick="disableCompany(@(item.CompanyID));">
+                            停用
+                        </a>
+                    </li>
                     @*<li><a class="btn btn-primary" onclick="applyWelfare(@(item.CompanyID));">設定社福機構</a></li>*@
-                    <li><a class="btn btn-primary" onclick="actionHandler('@Html.Raw(Url.Action("GatewaySettings","Organization",new { KeyID=item.CompanyID.EncryptKey() }))', null, null, 640, 'auto');">用戶端G/W設定</a></li>
+                    <li>
+                        @* <a class="btn btn-primary"
+                            onclick="actionHandler('@Html.Raw(Url.Action("GatewaySettings", "Organization", new { KeyID = item.CompanyID.EncryptKey() }))', null, null, 640, 'auto');">
+                            用戶端G/W設定
+                        </a> *@
+                        <a class="btn btn-primary" onclick="setGW('@Html.Raw(item.CompanyID.EncryptKey())');">
+                            用戶端G/W設定
+                        </a>
+                    </li>
                     if (checkCompany(item))
                     {
-                        <li><a class="btn btn-primary" onclick="applyAgency('@Html.Raw(item.CompanyID.EncryptKey())');">設定發票代理店家</a></li>
+                        <li>
+                            <a class="btn btn-primary" onclick="applyAgency('@Html.Raw(item.CompanyID.EncryptKey())');">
+                                設定發票代理店家
+                            </a>
+                        </li>
                     }
-                    <li><a class="btn btn-primary" onclick="applyPOS(@(item.CompanyID));">設定POS機號</a></li>
+                    <li>
+                        <a class="btn btn-primary" onclick="applyPOS(@(item.CompanyID));">
+                            設定POS機號
+                        </a>
+                    </li>
                     if (!item.IsEnterpriseGroupMember())
                     {
-                        <li><a class="btn btn-primary" onclick="applyRelationship(@(item.CompanyID));">設定為B2B營業人</a></li>
+                        <li>
+                            <a class="btn btn-primary" onclick="applyRelationship(@(item.CompanyID));">
+                                設定為B2B營業人
+                            </a>
+                        </li>
                     }
-                    <li><a class="btn btn-primary" onclick="inquireUser(@(item.CompanyID));">管理使用者</a></li>
+                    <li>
+                        <a class="btn btn-primary" onclick="inquireUser(@(item.CompanyID));">
+                            管理使用者
+                        </a>
+                    </li>
                     String clientTool = "~/resource/Cooperation/" + item.ReceiptNo + ".zip";
                     if (File.Exists(Startup.MapPath(clientTool)))
                     {
-                        <li><a class="btn btn-primary" onclick="window.location.href = '@(VirtualPathUtility.ToAbsolute(clientTool))';">下載G/W</a></li>
+                        <li>
+                            <a class="btn btn-primary"
+                                onclick="window.location.href = '@(VirtualPathUtility.ToAbsolute(clientTool))';">
+                                下載G/W
+                            </a>
+                        </li>
                     }
                 }
                 else
                 {
-                    <li><a class="btn btn-primary" onclick="enableCompany(@(item.CompanyID));">啟用</a></li>
+                    <li>
+                        <a class="btn btn-primary" onclick="enableCompany(@(item.CompanyID));">
+                            啟用
+                        </a>
+                    </li>
                 }
             </ul>
         </div>
 
     </td>
 </tr>
-
-

@@ -87,6 +87,7 @@
         return $modal;
     }
 
+    // 之後替換掉
     function actionHandler(url, data, done, width, height, dialogTitle) {
         showLoading();
         $.post(url, data, function (html) {
@@ -98,7 +99,7 @@
                 resizable: true,
                 //modal: true,
                 title: "<div class='modal-title'><h4><i class='fa fa-clock-o'></i>" + dialogTitle + "</h4></div>",
-@*buttons: [
+                @*buttons: [
                         {
                             text: "關閉",
                             icons: {
@@ -117,6 +118,12 @@
                 }
             });
     });
+    }
+
+    function setGW(value) {
+        $.post('@(Url.Action("GatewaySettings", "Organization"))', { 'keyID': value }, function (data) {
+            $global.createModal('gatewaySettings', '用戶端G/W設定', data, true);
+        });
     }
 
     function commitAction(url, data, done) {

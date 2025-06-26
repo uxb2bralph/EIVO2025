@@ -203,7 +203,7 @@
                 $('#' + tabId).remove(); // remove existing modal with the same id
 
                 const newModal = $('<div class="modal fade" id="' + tabId + '" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="' + tabId + 'Label" aria-hidden="true"></div>');
-                newModal.append($('<div class="modal-dialog modal-dialog-scrollable modal-xl"></div>')
+                newModal.append($('<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl"></div>')
                     .append($('<div class="modal-content"></div>')
                         .append($('<div class="modal-header"></div>')
                             .append($('<h5 class="modal-title fw-bold text-primary" id="' + tabId + 'Label"></h5>').text(tabText))

@@ -25,35 +25,24 @@
     JObject? options = ViewBag.DialogOptions as JObject;
 
 }
-
-<div id="@(_dialogID)">
-    <script>
-        var dialogButtons = [];
-    </script>
-    @RenderBody()
-    <script>
-        $('#@(_dialogID)').dialog({
-            //autoOpen: false,
-            width: '@(options?["Width"]?.ToString() ?? "auto")',
-            resizable: true,
-            //modal: true,
-            title: "<div class='modal-title'><h4><i class='fa fa-clock-o'></i> @(_model?.ActionTitle ?? "訊息")</h4></div>",
-            buttons: dialogButtons,
-            close: function (event, ui) {
-                $('#@(_dialogID)').remove();
-            }
-        });
-
-        $(function () {
-
-            $('#@(_dialogID) input:button.btnClose').on('click', function () {
-                $('#@(_dialogID)').dialog("close");
-            });
-
-            $('#@(_dialogID)').find('input,select,textarea').attr('data-role', '@(_dialogID)');
-        });
-    </script>
-
+<div class="modal fade" id="@(_dialogID)" tabindex="-1" aria-labelledby="@(_dialogID)ModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold text-primary" id="@(_dialogID)ModalLabel">
+                    @(_model?.ActionTitle ?? "訊息")
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
 </div>
 
-
+<script>
+    $(function () {
+        $('#@(_dialogID)').modal('show');
+    });
+</script>
