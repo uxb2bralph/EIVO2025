@@ -611,8 +611,20 @@
 
     // 訊息視窗
     function alertModal(alertMessage) {
-        $('<div>' + alertMessage + '</div>')
-            .dialog({ "title": "<div class='modal-title'><h4><i class='fa fa-clock-o'></i>訊息</h4></div>" });
+        $('#infoModel').remove();
+        const newModal = $('<div class="modal fade" id="infoModel" tabindex="-1" role="dialog" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="infoModelLabel" aria-hidden="true"></div>');
+        newModal.append($('<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"></div>')
+            .append($('<div class="modal-content"></div>')
+                .append($('<div class="modal-header"></div>')
+                    .append($('<h5 class="modal-title fw-bold text-primary" id="infoModelLabel"></h5>').text('訊息'))
+                    .append($('<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>')))
+                .append($('<div class="modal-body"></div>')
+                    .append($('<p class="fs-6 text-center"></p>')
+                        .append(alertMessage)))
+                .append($('<div class="py-2 modal-footer border-top-0"></div>')
+                    .append($('<button type="button" class="px-3 btn btn-sm eivo__btn--close" data-bs-dismiss="modal">關閉</button>')))));
+        $('body').append(newModal);
+        newModal.modal('show');
     }
 
     function ajaxSubmitForm(form) {

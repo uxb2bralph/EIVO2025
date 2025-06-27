@@ -199,7 +199,7 @@
 
     function customSettings(value) {
         $.post('@(Url.Action("CustomSettings", "Organization"))', { 'keyID': value }, function (data) {
-            $global.createTab('customSettings', '營業人客製化服務設訂', data, true);
+            $global.createModal('customSettings', '營業人客製化服務設定', data, true);
         });
     }
 
@@ -264,16 +264,14 @@
 
     function applyBilling(value) {
         $.post('@(Url.Action("ApplyBillingPlan", "Organization"))', { 'keyID': value }, function (data) {
-            $global.createTab('applyBilling', '收費標準', data, true);
+            $global.createModal('applyBilling', '收費標準', data, true);
         });
     }
-
 
     function applyPOS(value) {
         actionHandler('@(Url.Action("ApplyPOSDevice", "InvoiceBusiness"))',
             { 'id': value },
-            function () {
-            }, 800, 560);
+            function () { }, 800, 560);
     }
 
     function applyRelationship(value) {

@@ -58,10 +58,10 @@
 <script>
     $(function () {
         $global.commitMaster = function () {
-            const $form = $('#ApplyMaster');
+            const $formData = $('#ApplyMaster');
             const viewModel = {
                 'KeyID': '@Html.Raw(_model.CompanyID.EncryptKey())',
-                ...$form.serializeObject()
+                ...$formData.serializeObject()
             };
             $.post('@(Url.Action("CommitMaster", "Organization"))', viewModel, function (data) {
                 hideLoading();
@@ -79,8 +79,7 @@
     });
 
     function excludeCheck() {
-        var event = event || window.event;
-        var $this = $(event.target);
+        const $this = $(event.target);
         if ($this.is(':checked')) {
             $('input[name="masterID"]:checked').prop('checked', false);
             $this.prop('checked', true);

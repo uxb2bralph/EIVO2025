@@ -49,18 +49,22 @@
                 }
     </div>
     <div class="mt-4 modal-footer">
-        <input name="Reset" type="reset" class="mx-1 px-3 btn btn-sm eivo__btn--reset" value="重填">
+        <button name="Reset" type="reset" class="mx-1 px-3 btn btn-sm eivo__btn--reset">
+            重填
+        </button>
         <button type="button" name="UpdateButton" class="mx-1 px-3 btn btn-sm eivo__btn--default"
-            data-bs-dismiss="modal" onclick="$global.commitIssuerAgent();">確定</button>
+            data-bs-dismiss="modal" onclick="$global.commitIssuerAgent();">
+            確定
+        </button>
     </div>
 </form>
 <script>
     $(function () {
         $global.commitIssuerAgent = function () {
-            const $form = $('#applyIssuerAgent');
+            const $formData = $('#applyIssuerAgent');
             const viewModel = {
                 'KeyID': '@Html.Raw(_viewModel.KeyID)',
-                ...$form.find('input').serializeObject()
+                ...$formData.find('input').serializeObject()
             };
             showLoading();
             $.post('@(Url.Action("CommitIssuerAgent", "Organization"))', viewModel, function (data) {
