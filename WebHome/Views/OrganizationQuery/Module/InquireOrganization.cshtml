@@ -244,6 +244,12 @@
         });
     }
 
+    function applyGW(value) {
+        $.post('@(Url.Action("GatewaySettings", "Organization"))', { 'keyID': value }, function (data) {
+            $global.createModal('gatewaySettings', '用戶端G/W設定', data, true);
+        });
+    }
+
     function applyAgency(value) {
         $.post('@(Url.Action("ApplyIssuerAgent", "Organization"))', { 'keyID': value }, function (data) {
             $global.createModal('applyIssuerAgent', '設定發票經銷商', data, true);
@@ -252,7 +258,7 @@
 
     function applyMaster(value) {
         $.post('@(Url.Action("ApplyMaster", "Organization"))', { 'keyID': value }, function (data) {
-            $global.createTab('applyMaster', '指派主機構', data, true);
+            $global.createModal('applyMaster', '指派主機構', data, true);
         });
     }
 

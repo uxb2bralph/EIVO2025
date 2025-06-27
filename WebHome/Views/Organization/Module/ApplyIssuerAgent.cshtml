@@ -23,6 +23,8 @@
     _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
     _model = (Organization)this.Model;
 }
+
+<!-- 設定發票經銷商 -->
 @* @{
     await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "設定發票經銷商");
 } *@
@@ -49,15 +51,19 @@
     <div class="mt-4 modal-footer">
         <input name="Reset" type="reset" class="mx-1 px-3 btn btn-sm eivo__btn--reset" value="重填">
         <button type="button" name="UpdateButton" class="mx-1 px-3 btn btn-sm eivo__btn--default"
-            data-bs-dismiss="modal" onclick="$global.commitIssuerAgent();">儲存</button>
+            data-bs-dismiss="modal" onclick="$global.commitIssuerAgent();">確定</button>
     </div>
 </form>
 <script>
     $(function () {
         $global.commitIssuerAgent = function () {
-            $form = $('#applyIssuerAgent');
+            const $form = $('#applyIssuerAgent');
+            const viewModel = {
+                'KeyID': '@Html.Raw(_viewModel.KeyID)',
+                ...$form.find('input').serializeObject()
+            };
             showLoading();
-            $.post('@(Url.Action("CommitIssuerAgent", "Organization", new { _viewModel.KeyID }))', $form.find('input').serializeObject(), function (data) {
+            $.post('@(Url.Action("CommitIssuerAgent", "Organization"))', viewModel, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {

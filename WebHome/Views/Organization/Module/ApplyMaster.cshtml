@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -25,64 +24,50 @@
     _viewModel = (OrganizationViewModel)ViewBag.ViewModel;
     _model = (Organization)this.Model;
 }
+
+<!-- 指派主機構 -->
 @{
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "指派主機構");
+    //await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "指派主機構");
 }
 
-<form>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            主機構
-        </div>
-        <div class="panel-body col-md-12">
-            @{
-                var items = models.GetTable<Organization>()
-                    .Where(o => o.MasterOrganization != null)
-                    .OrderBy(o => o.ReceiptNo);
-            }
-            @foreach (var item in items)
-            {
-                <label class="col-md-6">
-                    <input type="checkbox" onclick="excludeCheck();" name="masterID" value="@(item.CompanyID)" checked="@(models.GetTable<MasterBranch>().Where(b=>b.MasterID==item.CompanyID).Any(b=>b.BranchID==_model.CompanyID))" />
-                    <i></i> @(String.Concat("(",item.ReceiptNo,")",item.CompanyName))
+<form id="ApplyMaster">
+    <div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2">
+        @{
+            var items = models.GetTable<Organization>()
+            .Where(o => o.MasterOrganization != null)
+            .OrderBy(o => o.ReceiptNo);
+        }
+        @foreach (var item in items)
+        {
+            <div class="py-2 col">
+                <input type="radio" onclick="excludeCheck();" name="masterID" id="@(item.CompanyID)"
+                    class="me-1 form-check-input" value="@(item.CompanyID)"
+                    checked="@(models.GetTable<MasterBranch>().Where(b => b.MasterID == item.CompanyID).Any(b => b.BranchID == _model.CompanyID))" />
+                <label class="form-check-label" for="@(item.CompanyID)">
+                    @(String.Concat("(", item.ReceiptNo, ")", item.CompanyName))
                 </label>
-            }
-        </div>
-    </div>
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <div class="table-responsive">
-                <!--表格 開始-->
-                <table class="table table-striped table-bordered table-hover">
-                    <tr>
-                        <td class="Bargain_btn" align="center">
-                            <button type="button" onclick="$global.commitMaster();" name="UpdateButton" class="btn">確定</button>
-                            &nbsp;
-                            <input name="Reset" type="reset" class="btn" value="重填" />
-                        </td>
-                    </tr>
-                </table>
             </div>
-        </div>
+        }
+    </div>
+    <div class="mt-4 modal-footer">
+        <input name="Reset" type="reset" class="mx-1 px-3 btn btn-sm eivo__btn--reset" value="重填">
+        <button type="button" name="UpdateButton" class="mx-1 px-3 btn btn-sm eivo__btn--default"
+            data-bs-dismiss="modal" onclick="$global.commitMaster();">確定</button>
     </div>
 </form>
 <script>
     $(function () {
         $global.commitMaster = function () {
-            var event = event || window.event;
-            var $form = $(event.target).closest('form');
-            var viewModel = {
+            const $form = $('#ApplyMaster');
+            const viewModel = {
                 'KeyID': '@Html.Raw(_model.CompanyID.EncryptKey())',
                 ...$form.serializeObject()
             };
-            showLoading();
-            $.post('@(Url.Action("CommitMaster","Organization"))', viewModel, function (data) {
+            $.post('@(Url.Action("CommitMaster", "Organization"))', viewModel, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {
-                        if (confirm('資料已儲存，是否關閉？')) {
-                            $global.removeTab('applyMaster');
-                        }
+                        alert('資料已儲存');
                     } else {
                         alert(data.message);
                     }
@@ -102,5 +87,3 @@
         }
     }
 </script>
-
-

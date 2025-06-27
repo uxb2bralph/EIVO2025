@@ -13,17 +13,6 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 }
 <script>
-    //var $currentModal;
-    //$(function () {
-    //    $('input[type="button"]').addClass('btn');
-    //    $('button').addClass('btn');
-    //    //$('form').on('submit', function () {
-    //    //    var $currentModal = showLoadingModal();
-    //    //});
-    //    $.datepicker.setDefaults($.datepicker.regional['zh-tw']);
-    //    $('.form_date').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '2012:+1' });
-    //});
-
     function clearErrors() {
         $('.error input,select,textarea').removeClass('error')
         $('label.error').remove();
@@ -118,12 +107,6 @@
                 }
             });
     });
-    }
-
-    function setGW(value) {
-        $.post('@(Url.Action("GatewaySettings", "Organization"))', { 'keyID': value }, function (data) {
-            $global.createModal('gatewaySettings', '用戶端G/W設定', data, true);
-        });
     }
 
     function commitAction(url, data, done) {
