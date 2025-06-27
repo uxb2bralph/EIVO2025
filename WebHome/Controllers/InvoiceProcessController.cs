@@ -1618,7 +1618,7 @@ namespace WebHome.Controllers
 
             if (item == null)
             {
-                return View("~/Views/Shared/AlertMessage.cshtml", model: "資料錯誤!!");
+                return View("~/Views/Shared/AlertMessage.cshtml", model: "資料錯誤 ！");
             }
 
             return View("~/Views/InvoiceProcess/DataQuery/PrepareInvoiceQueryDataItem.cshtml", item);
