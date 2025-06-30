@@ -192,10 +192,10 @@
                     }
                 });
             },
+            // 附件檔管理
             arrangeAttachment: function (keyID) {
                 var event = event || window.event;
-                var $tr = $(event.target).closest('tr');
-
+                var $tr = $(event.target).closest('tr.dataItem');
                 uiInvoiceQuery.refreshDataRow = function () {
                     $tr.empty();
                     showLoading();
@@ -222,11 +222,11 @@
             removeAttachment: function (keyID) {
                 if (confirm('確定刪除此筆資料?')) {
                     var event = event || window.event;
-                    var $tr = $(event.target).closest('tr');
+                    var $itemList = $(event.target).closest('div.itemList');
                     $.post('@(Url.Action("DeleteAttachment", "InvoiceProcess"))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
-                            $tr.remove();
+                            $itemList.remove();
                         } else {
                             alert(data.message);
                         }

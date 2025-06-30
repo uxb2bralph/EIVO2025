@@ -48,7 +48,7 @@
     void ShowHeader(dynamic item)
     {
         <th scope="col" class="text-nowrap" aria-sort="other">
-            附件檔頁數
+            附件檔 / 頁數
         </th>
     }
 
@@ -56,16 +56,19 @@
     {
         InvoiceItem item = (InvoiceItem)po;
         <td>
-            @{
-                foreach (var attachment in item.CDS_Document.Attachment)
-                {
-                    <a href="@($"{VirtualPathUtility.ToAbsolute("~/Helper/DownloadAttachment.ashx")}?keyName={attachment.KeyName}")">
-                        @(attachment.KeyName), 共@(attachment.GetAttachedPdfPageCount())頁
-                    </a>
-    
-                    <br />
+            <ul class="mb-0">
+                @{
+                    foreach (var attachment in item.CDS_Document.Attachment)
+                    {
+                        <li>
+                            <a
+                                href="@($"{VirtualPathUtility.ToAbsolute("~/Helper/DownloadAttachment.ashx")}?keyName={attachment.KeyName}")">
+                                @(attachment.KeyName), 共@(attachment.GetAttachedPdfPageCount())頁
+                            </a>
+                        </li>
+                    }
                 }
-            }
+            </ul>
         </td>
     }
 

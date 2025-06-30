@@ -1,4 +1,3 @@
-
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -47,8 +46,8 @@
         else
         {
             items = _model
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
         }
     }
     else
@@ -60,8 +59,8 @@
         else
         {
             items = ((IQueryable<dynamic>)TempData["SortedItems"])
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
         }
     }
 }
@@ -72,10 +71,9 @@
 @foreach (var item in items)
 {
     idx++;
-    <tr>
+    <tr class="dataItem">
         @{
             await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/DataItem.cshtml", (object)item);
         }
     </tr>
 }
-

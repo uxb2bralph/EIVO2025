@@ -1,5 +1,3 @@
-
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -35,75 +33,62 @@
     _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
 
 }
-<div id="@(_dialogID)">
-
-    <div class="border_gray">
-        <table class="table table-striped itemList" cellspacing="0" cellpadding="0" style="width: 100%;">
-            <thead>
-                <tr>
-                    <th>發票號碼</th>
-                    <th>@($"{_model.TrackCode}{_model.No}")</th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    foreach (var attachment in _model.CDS_Document.Attachment)
-                    {
-                        <tr>
-                            <td>
-                                <a href="@($"{VirtualPathUtility.ToAbsolute("~/Helper/DownloadAttachment.ashx")}?keyName={attachment.KeyName}")">@(attachment.KeyName),共@(attachment.GetAttachedPdfPageCount())頁</a>
-                            </td>
-                            <td>
-                                <button type="button" class="btn" onclick="uiInvoiceQuery.removeAttachment('@((new { attachment.KeyName,attachment.DocID }).JsonStringify().EncryptData())');">刪除</button>
-                            </td>
-                        </tr>
-                    }
-                }
-                @{ 
-                    await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataAction/UploadAttachment.cshtml",_model?.CDS_Document);
-                }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="2" style="text-align:center;">
-                        <input type="button" value="關閉" class="btn btnClose" />
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-
-    <script>
-        $('#@(_dialogID)').dialog({
-            //autoOpen: false,
-            width: 'auto',
-            resizable: true,
-            //modal: true,
-            title: "<div class='modal-title'><h4><i class='fa fa-clock-o'></i> 管理發票附件檔</h4></div>",
-            buttons: [
-            ],
-            close: function (event, ui) {
-                $('#@(_dialogID)').remove();
+<form id="@(_dialogID)">
+    <div class="px-2 row row-cols-1 row-cols-md-1">
+        <div class="py-2 col">
+            <div class="row align-items-center">
+                <p class="col-md-2 col-form-label fw-bold text-nowrap">
+                    發票號碼
+                </p>
+                <div class="col">
+                    @($"{_model.TrackCode}{_model.No}")
+                </div>
+            </div>
+        </div>
+        @{
+            foreach (var attachment in _model.CDS_Document.Attachment)
+            {
+                <div class="py-2 col itemList">
+                    <div class="row align-items-center">
+                        <div class="col col-form-label fw-bold text-nowrap">
+                            <a
+                                href="@($"{VirtualPathUtility.ToAbsolute("~/Helper/DownloadAttachment.ashx")}?keyName={attachment.KeyName}")">@(attachment.KeyName)，共
+                                @(attachment.GetAttachedPdfPageCount()) 頁</a>
+                        </div>
+                        <div class="col text-end">
+                            <button type="button" class="editItem my-1 me-1 px-3 btn btn-sm eivo__btn--red text-nowrap"
+                                onclick="uiInvoiceQuery.removeAttachment('@((new { attachment.KeyName, attachment.DocID }).JsonStringify().EncryptData())');">
+                                <i class="fal fa-trash-alt"></i>
+                                刪除
+                            </button>
+                        </div>
+                    </div>
+                </div>
             }
-        });
-
-        $(function () {
-            $global.onAttached = function () {
-                if (uiInvoiceQuery.refreshDataRow) {
-                    uiInvoiceQuery.refreshDataRow();
+        }
+        <div class="py-2 col">
+            <div class="row align-items-center">
+                @{
+                    await
+                    Html.RenderPartialAsync("~/Views/InvoiceProcess/DataAction/UploadAttachment.cshtml",
+                    _model?.CDS_Document);
                 }
-                $('#@(_dialogID)').dialog("close");
-            };
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    // 附件檔管理 - 開啟視窗
+    $global.createModal('arrangeAttachment', '附件檔管理', $('#@(_dialogID)'), true);
 
-            $('#@(_dialogID) input:button.btnClose').on('click', function () {
-                $global.onAttached();
-            });
+    $(function () {
+        $global.onAttached = function () {
+            if (uiInvoiceQuery.refreshDataRow) {
+                uiInvoiceQuery.refreshDataRow();
+            }
+            $('#arrangeAttachment').modal('hide');
+        };
 
-            $('#@(_dialogID)').find('input,select,textarea').attr('data-role', '@(_dialogID)');
-        });
-    </script>
-
-</div>
-
-
-
+        $('#@(_dialogID)').find('input,select,textarea').attr('data-role', '@(_dialogID)');
+    });
+</script>
