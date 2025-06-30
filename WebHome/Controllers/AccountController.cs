@@ -57,12 +57,12 @@ namespace WebHome.Controllers
                 return View("~/Views/Account/CbsLogin.cshtml");
             }
 
-            if(WebHome.Properties.AppSettings.Default.UseGoogleAuthenticator)
+            if (WebHome.Properties.AppSettings.Default.UseGoogleAuthenticator)
             {
                 var item = UserProfileFactory.CreateInstance(viewModel.PID!, viewModel.Password!);
                 if (item == null)
                 {
-                    ModelState.AddModelError("PID", "login failed !!");
+                    ModelState.AddModelError("PID", "login failed ！");
                     return View("~/Views/Account/CbsLogin.cshtml");
                 }
 
@@ -116,7 +116,7 @@ namespace WebHome.Controllers
             var item = models.GetTable<UserProfile>().Where(u => u.UID == viewModel.UID).FirstOrDefault();
             if (item == null)
             {
-                ModelState.AddModelError("CodeDigit", "login failed !!");
+                ModelState.AddModelError("CodeDigit", "login failed ！");
                 return View("~/Views/Shared/ReportInputError.cshtml");
             }
 
@@ -124,7 +124,7 @@ namespace WebHome.Controllers
             TwoFactorAuthenticator TwoFacAuth = new TwoFactorAuthenticator();
             if (!TwoFacAuth.ValidateTwoFactorPIN(Encoding.Default.GetBytes(item.UserProfileExtension.TwoFactorKey), viewModel.CodeDigit))
             {
-                ModelState.AddModelError("CodeDigit", "login failed !!");
+                ModelState.AddModelError("CodeDigit", "login failed ！");
                 return View("~/Views/Shared/ReportInputError.cshtml");
             }
 
@@ -132,7 +132,7 @@ namespace WebHome.Controllers
             String msg;
             if (!login.ProcessLogin(item.PID, out msg))
             {
-                ModelState.AddModelError("CodeDigit", "login failed !!");
+                ModelState.AddModelError("CodeDigit", "login failed ！");
                 return View("~/Views/Shared/ReportInputError.cshtml");
             }
 
@@ -195,7 +195,7 @@ namespace WebHome.Controllers
             var item = models.GetTable<UserProfile>().Where(u => u.PID == viewModel.PID).FirstOrDefault();
             if (item == null)
             {
-                ModelState.AddModelError("PID", "帳號錯誤!!");
+                ModelState.AddModelError("PID", "帳號錯誤！");
             }
 
             if (!ModelState.IsValid)
@@ -204,7 +204,7 @@ namespace WebHome.Controllers
             }
 
             item.NotifyToResetPassword();
-            return View("ForgetPassword", model: "重設密碼信件已送出至您的信箱!!");
+            return View("ForgetPassword", model: "重設密碼信件已送出至您的信箱！");
 
         }
 
@@ -280,14 +280,14 @@ namespace WebHome.Controllers
             return new EmptyResult();
         }
 
-        [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS,Naming.RoleID.ROLE_SELLER })]
+        [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
         public ActionResult AccountIndex(UserAccountQueryViewModel viewModel, bool? showTab)
         {
             ViewBag.ViewModel = viewModel;
             ViewBag.ShowTab = showTab;
 
             var profile = HttpContext.GetUser();
-            if(profile.IsSystemAdmin())
+            if (profile.IsSystemAdmin())
             {
 
             }
@@ -332,12 +332,12 @@ namespace WebHome.Controllers
             }
 
             viewModel.PID = viewModel.PID.GetEfficientString();
-            if (viewModel.PID!=null)
+            if (viewModel.PID != null)
             {
                 items = items.Where(u => u.PID.StartsWith(viewModel.PID));
             }
             viewModel.UserName = viewModel.UserName.GetEfficientString();
-            if (viewModel.UserName!=null)
+            if (viewModel.UserName != null)
             {
                 items = items.Where(u => u.UserName.Contains(viewModel.UserName));
             }
@@ -351,10 +351,10 @@ namespace WebHome.Controllers
                 items = items.Where(u => u.UserProfileStatus.CurrentLevel == viewModel.LevelID);
             }
 
-            viewModel.PageSize = viewModel.PageSize.HasValue && viewModel.PageSize > 0 
-                ? viewModel.PageSize.Value 
+            viewModel.PageSize = viewModel.PageSize.HasValue && viewModel.PageSize > 0
+                ? viewModel.PageSize.Value
                 : ModelCore.Properties.AppSettings.Default.PageSize;
-            
+
             if (viewModel.PageIndex.HasValue)
             {
                 viewModel.PageIndex -= 1;
@@ -383,7 +383,7 @@ namespace WebHome.Controllers
 
             if (item == null)
             {
-                return View("~/Views/Shared/AlertMessage.cshtml", model: "帳號資料錯誤!!");
+                return View("~/Views/Shared/AlertMessage.cshtml", model: "帳號資料錯誤！");
             }
 
             return View("~/Views/Account/Module/DataItem.ascx", item);
@@ -396,10 +396,10 @@ namespace WebHome.Controllers
             if (item != null)
             {
                 item.NotifyToActivate();
-                return View("~/Views/Shared/AlertMessage.cshtml", model: "確認信已送出!!");
+                return View("~/Views/Shared/AlertMessageDialog.cshtml", model: "確認信已送出！");
             }
 
-            return View("~/Views/Shared/AlertMessage.cshtml", model: "帳號資料錯誤!!");
+            return View("~/Views/Shared/AlertMessageDialog.cshtml", model: "帳號資料錯誤！");
         }
 
         public ActionResult Deactivate(int? id)
@@ -434,7 +434,7 @@ namespace WebHome.Controllers
 
             if (item == null)
             {
-                return Json(new { result = false, message = "帳號資料錯誤!!" });
+                return Json(new { result = false, message = "帳號資料錯誤！" });
             }
 
             var profile = HttpContext.GetUser();
@@ -442,7 +442,7 @@ namespace WebHome.Controllers
             {
                 if (!models.GetTable<UserRole>().Any(r => r.UID == item.UID && r.OrgaCateID == profile.CurrentUserRole.OrgaCateID))
                 {
-                    return Json(new { result = false, message = "帳號非所屬會員使用者!!" });
+                    return Json(new { result = false, message = "帳號非所屬會員使用者！" });
                 }
             }
 
@@ -451,7 +451,7 @@ namespace WebHome.Controllers
                 models.GetTable<UserProfile>().DeleteOnSubmit(item);
                 models.SubmitChanges();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new { result = false, message = ex.Message });
             }
@@ -516,7 +516,7 @@ namespace WebHome.Controllers
             var profile = HttpContext.GetUser();
             if (profile == null)
             {
-                return View("~/Views/Shared/AlertMessageDialog.cshtml", "資料錯誤，請重新登入!!");
+                return View("~/Views/Shared/AlertMessageDialog.cshtml", "資料錯誤，請重新登入！");
             }
 
             UserProfile item = profile.LoadInstance(models!);
@@ -532,7 +532,7 @@ namespace WebHome.Controllers
 
             item!.UpdatePassword(viewModel);
             models!.SubmitChanges();
-            return new JavaScriptResult($"alert('密碼變更完成!!'); window.location.href = '{VirtualPathUtility.ToAbsolute("~/Home/MainPage")}';");
+            return new JavaScriptResult($"alert('密碼變更完成！'); window.location.href = '{VirtualPathUtility.ToAbsolute("~/Home/MainPage")}';");
         }
 
 
