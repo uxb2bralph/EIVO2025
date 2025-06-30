@@ -57,12 +57,14 @@
             <th aria-sort="other">載具資訊</th>
             <th aria-sort="other">列印註記</th>
             <th aria-sort="other">捐贈愛心碼</th>
-            <th aria-sort="other">附件檔頁數</th>
+            <th aria-sort="other">附件檔 / 頁數</th>
             <th aria-sort="other">管理</th>
         </tr>
     </thead>
     <tbody>
-        @{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/ItemList.cshtml", _model);}
+        @{
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/ItemList.cshtml", _model);
+        }
 
     </tbody>
     <tfoot>
@@ -72,15 +74,16 @@
                 {
                     foreach (var g in _model.GroupBy(i => i.InvoiceAmountType.CurrencyID))
                     {
-                        var currency = g.Key.HasValue ? models.GetTable<CurrencyType>().Where(c => c.CurrencyID == g.Key).FirstOrDefault()?.AbbrevName : "TWD";
+                        var currency = g.Key.HasValue ? models.GetTable<CurrencyType>().Where(c => c.CurrencyID ==
+                        g.Key).FirstOrDefault()?.AbbrevName : "TWD";
                         <text>
-                            含稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}",g.Sum(i=>i.InvoiceAmountType.TotalAmount)))，
-                            未稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}",g.Sum(i=>i.InvoiceAmountType.SalesAmount)))，
-                            稅額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}",g.Sum(i=>i.InvoiceAmountType.TaxAmount)))<br />
+                            含稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.InvoiceAmountType.TotalAmount)))，
+                            未稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.InvoiceAmountType.SalesAmount)))，
+                            稅額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.InvoiceAmountType.TaxAmount)))<br />
                         </text>
                     }
                 }
-               
+
             </td>
         </tr>
     </tfoot>

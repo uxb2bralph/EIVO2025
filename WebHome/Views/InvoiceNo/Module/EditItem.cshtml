@@ -1,4 +1,3 @@
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -27,33 +26,45 @@
     _viewModel = (InvoiceNoIntervalViewModel)ViewBag.ViewModel;
     _model = (InvoiceNoInterval)this.Model;
 }
+<!-- 電子發票號碼維護 -->
 <tr>
-    <td>@(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo)</td>
-    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)</td>
-    <td>@(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1, _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2))</td>
-    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)</td>
-    <td>
-        <input type="text" name="StartNo" class="form-control" data-role="edit" placeholder="請輸入配號區間起始號碼" value="@(String.Format("{0:00000000}",_model.StartNo))" />
+    <td class="text-center">
+        @(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo)
     </td>
-    <td>
-        <input type="text" name="EndNo" class="form-control" data-role="edit" placeholder="請輸入配號區間結尾號碼" value="@(String.Format("{0:00000000}",_model.EndNo))" />
+    <td class="text-center">
+        @(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)
     </td>
-    <td>
-        <input type="text" name="DeviceName" class="form-control" data-role="edit" placeholder="POS機號碼" value="@Html.Raw(_model.InvoiceNoSegment?.DeviceName)" />
+    <td class="text-center">
+        @(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1,
+                _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2))
+    </td>
+    <td class="text-center">
+        @(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)
+    </td>
+    <td class="text-center">
+        <input type="text" name="StartNo" class="form-control form-control-sm" data-role="edit"
+            placeholder="請輸入配號區間起始號碼" value="@(String.Format("{0:00000000}", _model.StartNo))" />
+    </td>
+    <td class="text-center">
+        <input type="text" name="EndNo" class="form-control form-control-sm" data-role="edit" placeholder="請輸入配號區間結尾號碼"
+            value="@(String.Format("{0:00000000}", _model.EndNo))" />
+    </td>
+    <td class="text-center">
+        <input type="text" name="DeviceName" class="form-control form-control-sm" data-role="edit" placeholder="POS機號碼"
+            value="@Html.Raw(_model.InvoiceNoSegment?.DeviceName)" />
     </td>
     <td></td>
-    <td colspan="3">
-        <div class="btn-group dropdown" data-toggle="dropdown">
-            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-            <ul class="dropdown-menu">
-                <li><a class="btn" onclick="uiTrackCodeNo.commitItem('@(_model.IntervalID.EncryptKey())');">確定</a></li>
-                <li><a class="btn" onclick="uiTrackCodeNo.showItem('@(_model.IntervalID.EncryptKey())');">取消</a></li>
-            </ul>
-        </div>
+    <td></td>
+    <td colspan="2" class="text-center">
+        <button type="button" class="editItem my-1 me-1 px-3 btn btn-sm eivo__btn--check text-nowrap"
+            onclick="uiTrackCodeNo.commitItem('@(_model.IntervalID.EncryptKey())');">
+            <i class="fas fa-check"></i>
+            確定
+        </button>
+        <button type="button" class="editItem my-1 me-1 px-3 btn btn-sm eivo__btn--cancel text-nowrap"
+            onclick="uiTrackCodeNo.showItem('@(_model.IntervalID.EncryptKey())');">
+            <i class="far fa-times"></i>
+            取消
+        </button>
     </td>
 </tr>
-
-
-
-
