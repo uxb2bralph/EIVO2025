@@ -137,7 +137,7 @@
                             $tr.before($data);
                             if (keyID) {
                                 $tr.remove();
-                                alert('資料已更新!!');
+                                alert('資料已更新！');
                             }
                         } else {
                             $('body').append($data);
@@ -190,7 +190,7 @@
                     var $tr = $(event.target).closest('tr');
                     $.post('@(Url.Action("DeleteNoInterval", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
-                            alert('資料已刪除!!')
+                            alert('資料已刪除！')
                             $tr.remove();
                         } else {
                             alert(data.message);
@@ -210,7 +210,7 @@
                             if ($data.is('tr')) {
                                 $tr.before($data);
                                 $tr.remove();
-                                alert('資料已更新!!');
+                                alert('資料已更新！');
                             } else {
                                 $('body').append($data);
                                 $data.remove();
@@ -241,7 +241,7 @@
                     var $tr = $(event.target).closest('tr');
                     $.post('@(Url.Action("SplitNoInterval", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
-                            alert('配號區間已分割!!')
+                            alert('配號區間已分割！')
                             uiTrackCodeNo.inquire();
                         } else {
                             if (data.message) {

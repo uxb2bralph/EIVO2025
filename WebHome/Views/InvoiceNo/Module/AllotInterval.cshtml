@@ -1,5 +1,3 @@
-
-
 @using System.IO
 @using System.Linq.Expressions
 
@@ -34,84 +32,70 @@
     _viewModel = (InvoiceNoIntervalViewModel)ViewBag.ViewModel;
 
 }
-<div id="@(_dialogID)">
-
-    <div class="border_gray">
-        <table class="table table-striped itemList" cellspacing="0" cellpadding="0" style="width: 100%;">
-            <thead>
-                <tr>
-                    <th>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)/@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1)~@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2)</th>
-                    <th>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)@(_model.StartNo)~@(_model.EndNo)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th>平均分配本數</th>
-                    <td>
-                        <input type="text" name="Parts" value="@(_viewModel.Parts)" />
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="2" style="text-align:center;">
-                        <input type="button" value="確定" class="btn" />
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+<!-- 本組數均分 -->
+<form id="@(_dialogID)">
+    <div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2">
+        <div class="py-2 col">
+            <div class="row">
+                <div class="col-md-4 fw-bold text-nowrap">
+                    @(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)/@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo
+                    *2 - 1)~@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2)
+                </div>
+                <div class="col">
+                    @(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)@(_model.StartNo)~@(_model.EndNo)
+                </div>
+            </div>
+        </div>
+        <div class="py-2 col">
+            <div class="row">
+                <label for="Parts" class="col-md-3 col-form-label fw-bold text-nowrap">
+                    平均分配本數
+                </label>
+                <div class="col">
+                    <input type="text" id="Parts" name="Parts" class="form_date form-control form-control-sm  Parts"
+                        value="@(_viewModel.Parts)" />
+                </div>
+            </div>
+        </div>
     </div>
+    <div class="mt-4 modal-footer">
+        <button type="button" id="saveButton" class="mx-1 px-3 btn btn-sm eivo__btn--default">
+            確定
+        </button>
+    </div>
+    </div>
+</form>
 
-    <script>
-        $('#@(_dialogID)').dialog({
-            //autoOpen: false,
-            width: 'auto',
-            resizable: true,
-            //modal: true,
-            title: "<div class='modal-title'><h4><i class='fa fa-clock-o'></i> 配號區間分配本數</h4></div>",
-            buttons: [
-            ],
-            close: function (event, ui) {
-                $('#@(_dialogID)').remove();
-            }
-        });
+<script>
+    // 本組數均分- 開啟視窗
+    $global.createModal('allotInterval', '本組數均分', $('#@(_dialogID)'), true);
 
-        $(function () {
-            $('#@(_dialogID) input:button[value="確定"]').on('click', function () {
+    $(function () {
+        $('#saveButton').on('click', function () {
+            var event = event || window.event;
+            var $formData = $('#@(_dialogID)').find('input,select,textarea').serializeObject();
+            clearErrors();
 
-                var event = event || window.event;
-                var $formData = $('#@(_dialogID)').find('input,select,textarea').serializeObject();
-                clearErrors();
-
-                showLoading();
-                $.post('@(Url.Action("CommitAllotment", "InvoiceNo", new { keyID = _model.IntervalID.EncryptKey() }))', $formData, function (data) {
-                    hideLoading();
-                    if ($.isPlainObject(data)) {
-                        if (data.result) {
-                            alert('作業完成!!');
-                            $('#@(_dialogID)').dialog("close");
-                            if (uiTrackCodeNo.inquire) {
-                                uiTrackCodeNo.inquire();
-                            }
-                        } else {
-                            alert(data.message);
+            showLoading();
+            $.post('@(Url.Action("CommitAllotment", "InvoiceNo", new { keyID = _model.IntervalID.EncryptKey() }))', $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    if (data.result) {
+                        alert('作業完成！');
+                        $('#allotInterval').modal('hide');
+                        $('#allotInterval').remove();
+                        if (uiTrackCodeNo.inquire) {
+                            uiTrackCodeNo.inquire();
                         }
                     } else {
-                        $(data).appendTo($('body'));
+                        alert(data.message);
                     }
-                });
+                } else {
+                    $(data).appendTo($('body'));
+                }
             });
-
-            $('#@(_dialogID) input:button[value="關閉"]').on('click', function () {
-                $('#@(_dialogID)').dialog("close");
-            });
-
-            $('#@(_dialogID)').find('input,select,textarea').attr('data-role', '@(_dialogID)');
         });
-    </script>
 
-</div>
-
-
-
-
+        $('#@(_dialogID)').find('input,select,textarea').attr('data-role', '@(_dialogID)');
+    });
+</script>

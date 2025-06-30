@@ -35,7 +35,7 @@
             if (!$scope) {
                 $scope = $('body');
             }
-                @foreach (var key in _modelState.Keys.Where(k => _modelState[k].Errors.Count > 0))
+                    @foreach (var key in _modelState.Keys.Where(k => _modelState[k].Errors.Count > 0))
                 {
                     if (String.IsNullOrEmpty(_dataRole))
                     {
@@ -70,7 +70,7 @@
                     }
                     }
                 }
-                });
+                    });
     </script>
 
     if (_modelState.ContainsKey("Message"))

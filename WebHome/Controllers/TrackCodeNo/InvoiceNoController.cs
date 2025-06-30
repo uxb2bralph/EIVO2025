@@ -82,17 +82,17 @@ namespace WebHome.Controllers.TrackCodeNo
 
             //if (!viewModel.SellerID.HasValue)
             //{
-            //    ModelState.AddModelError("SellerID", "請選擇開立人!!");
+            //    ModelState.AddModelError("SellerID", "請選擇開立人！");
             //}
 
             if (!viewModel.Year.HasValue)
             {
-                ModelState.AddModelError("Year", "請選擇年份!!");
+                ModelState.AddModelError("Year", "請選擇年份！");
             }
 
             if (!viewModel.PeriodNo.HasValue)
             {
-                ModelState.AddModelError("PeriodNo", "請選擇期別!!");
+                ModelState.AddModelError("PeriodNo", "請選擇期別！");
             }
 
             if (!ModelState.IsValid)
@@ -145,7 +145,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
             if (items.Count() == 0)
             {
-                ViewBag.Message = "資料不存在!!";
+                ViewBag.Message = "資料不存在！";
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
 
@@ -229,7 +229,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
             if (items.Count() == 0)
             {
-                ViewBag.Message = "資料不存在!!";
+                ViewBag.Message = "資料不存在！";
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
 
@@ -245,27 +245,27 @@ namespace WebHome.Controllers.TrackCodeNo
             {
                 if (!viewModel.TrackID.HasValue)
                 {
-                    ModelState.AddModelError("TrackID", "字軌未設定!!");
+                    ModelState.AddModelError("TrackID", "字軌未設定！");
                 }
 
                 if (!viewModel.SellerID.HasValue)
                 {
-                    ModelState.AddModelError("SellerID", "營業人錯誤!!");
+                    ModelState.AddModelError("SellerID", "營業人錯誤！");
                 }
 
             }
 
             if (!viewModel.StartNo.HasValue || !(viewModel.StartNo >= 0 && viewModel.StartNo < 100000000))
             {
-                ModelState.AddModelError("StartNo", "起號非8位整數!!");
+                ModelState.AddModelError("StartNo", "起號非8位整數！");
             }
             else if (!viewModel.EndNo.HasValue || !(viewModel.EndNo >= 0 && viewModel.EndNo < 100000000))
             {
-                ModelState.AddModelError("EndNo", "迄號非8位整數!!");
+                ModelState.AddModelError("EndNo", "迄號非8位整數！");
             }
             else if (viewModel.EndNo <= viewModel.StartNo || ((viewModel.EndNo - viewModel.StartNo + 1) % 50 != 0))
             {
-                ModelState.AddModelError("StartNo", "不符號碼大小順序與差距為50之倍數原則!!");
+                ModelState.AddModelError("StartNo", "不符號碼大小順序與差距為50之倍數原則！");
             }
             else
             {
@@ -273,12 +273,12 @@ namespace WebHome.Controllers.TrackCodeNo
                 {
                     if (model.InvoiceNoAssignments.Count > 0)
                     {
-                        ModelState.AddModelError("IntervalID", "該區間之號碼已經被使用,不可修改!!!!");
+                        ModelState.AddModelError("IntervalID", "該區間之號碼已經被使用,不可修改！");
                     }
                     //else if (table.Any(t => t.IntervalID != model.IntervalID && t.TrackID == model.TrackID && t.StartNo >= viewModel.EndNo && t.InvoiceNoAssignments.Count > 0
                     //    && t.SellerID == model.SellerID))
                     //{
-                    //    ModelState.AddModelError("StartNo", "違反序時序號原則該區段無法修改!!");
+                    //    ModelState.AddModelError("StartNo", "違反序時序號原則該區段無法修改！");
                     //}
                     else if (table.Any(t => t.IntervalID != model.IntervalID && t.TrackID == model.TrackID
                         && ((t.EndNo <= viewModel.EndNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.StartNo >= viewModel.StartNo) || (t.StartNo <= viewModel.StartNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.EndNo >= viewModel.EndNo))))
@@ -287,8 +287,8 @@ namespace WebHome.Controllers.TrackCodeNo
                                 .Where(t => t.TrackID == viewModel.TrackID
                                     && ((t.EndNo <= viewModel.EndNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.StartNo >= viewModel.StartNo) || (t.StartNo <= viewModel.StartNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.EndNo >= viewModel.EndNo)))
                                 .First();
-                        ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Organization.ReceiptNo})已使用!!");
-                        //ModelState.AddModelError("StartNo", "系統中已存在重疊的區段!!");
+                        ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Organization.ReceiptNo})已使用！");
+                        //ModelState.AddModelError("StartNo", "系統中已存在重疊的區段！");
                     }
                 }
                 else
@@ -296,7 +296,7 @@ namespace WebHome.Controllers.TrackCodeNo
                     //if (table.Any(t => t.TrackID == viewModel.TrackID && t.StartNo >= viewModel.EndNo && t.InvoiceNoAssignments.Count > 0
                     //    && t.SellerID == viewModel.SellerID))
                     //{
-                    //    ModelState.AddModelError("StartNo", "違反序時序號原則該區段無法新增!!");
+                    //    ModelState.AddModelError("StartNo", "違反序時序號原則該區段無法新增！");
                     //}
                     //else 
                     if (table.Any(t => t.TrackID == viewModel.TrackID
@@ -306,7 +306,7 @@ namespace WebHome.Controllers.TrackCodeNo
                                 .Where(t => t.TrackID == viewModel.TrackID
                                     && ((t.EndNo <= viewModel.EndNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.StartNo >= viewModel.StartNo) || (t.StartNo <= viewModel.StartNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.EndNo >= viewModel.EndNo)))
                                 .First();
-                        ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Organization.ReceiptNo})已使用!!");
+                        ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Organization.ReceiptNo})已使用！");
                     }
                 }
             }
@@ -369,7 +369,7 @@ namespace WebHome.Controllers.TrackCodeNo
             models.SubmitChanges();
 
             viewModel.DeviceName = viewModel.DeviceName.GetEfficientString();
-            if(viewModel.DeviceName == null)
+            if (viewModel.DeviceName == null)
             {
                 models.ExecuteCommand("delete InvoiceNoSegment where SegmentID = {0}", model.IntervalID);
             }
@@ -433,7 +433,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult CommitBranch([FromBody]InvoiceNoIntervalViewModel viewModel)
+        public ActionResult CommitBranch([FromBody] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval? model = result.Model as InvoiceNoInterval;
@@ -448,14 +448,14 @@ namespace WebHome.Controllers.TrackCodeNo
                         && t.StartNo <= model.EndNo && t.EndNo >= model.EndNo)
                 .FirstOrDefault();
 
-            if(masterAssignment == null)
+            if (masterAssignment == null)
             {
-                return Json(new { result = false, message = "請先設定總公司之號碼區間!!" });
+                return Json(new { result = false, message = "請先設定總公司之號碼區間！" });
             }
 
             if (!viewModel.SellerID.HasValue)
             {
-                ModelState.AddModelError("SellerID", "營業人錯誤!!");
+                ModelState.AddModelError("SellerID", "營業人錯誤！");
             }
 
             if (!ModelState.IsValid)
@@ -464,7 +464,7 @@ namespace WebHome.Controllers.TrackCodeNo
                 return View("~/Views/Shared/ReportInputError.cshtml");
             }
 
-            InvoiceTrackCodeAssignment? trackCodeAssignment = 
+            InvoiceTrackCodeAssignment? trackCodeAssignment =
                 models!.GetTable<InvoiceTrackCodeAssignment>()
                     .Where(t => t.SellerID == viewModel.SellerID && t.TrackID == model.TrackID)
                     .FirstOrDefault();
@@ -506,7 +506,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
             if (item == null)
             {
-                return View("~/Views/Shared/AlertMessage.cshtml", model: "配號區間資料錯誤!!");
+                return View("~/Views/Shared/AlertMessage.cshtml", model: "配號區間資料錯誤！");
             }
 
             var profile = HttpContext.GetUser();
@@ -514,7 +514,7 @@ namespace WebHome.Controllers.TrackCodeNo
             {
                 if (item.InvoiceTrackCodeAssignment.SellerID != profile.CurrentUserRole.OrganizationCategory.CompanyID
                         && !models.GetTable<InvoiceIssuerAgent>().Any(a => a.IssuerID == item.InvoiceTrackCodeAssignment.SellerID && a.AgentID == profile.CurrentUserRole.OrganizationCategory.CompanyID))
-                    return View("~/Views/Shared/AlertMessage.cshtml", model: "配號區間資料錯誤!!");
+                    return View("~/Views/Shared/AlertMessage.cshtml", model: "配號區間資料錯誤！");
             }
 
             return View("~/Views/InvoiceNo/Module/EditItem.cshtml", item);
@@ -534,8 +534,8 @@ namespace WebHome.Controllers.TrackCodeNo
 
                 models.ExecuteCommand("delete InvoiceNoInterval where IntervalID = {0}", item.IntervalID);
                 return Json(new { result = true });
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 CommonLib.Core.Utility.FileLogger.Logger.Error(ex);
                 return Json(new { result = false, message = ex.Message });
@@ -595,9 +595,9 @@ namespace WebHome.Controllers.TrackCodeNo
             if (item == null)
                 return result;
 
-            if(!viewModel.Parts.HasValue || viewModel.Parts<=0)
+            if (!viewModel.Parts.HasValue || viewModel.Parts <= 0)
             {
-                ModelState.AddModelError("Parts", "請輸入均分本數!!");
+                ModelState.AddModelError("Parts", "請輸入均分本數！");
             }
 
             if (!ModelState.IsValid)
@@ -676,17 +676,17 @@ namespace WebHome.Controllers.TrackCodeNo
 
             if (!viewModel.SellerID.HasValue)
             {
-                ModelState.AddModelError("SellerID", "請選擇開立人!!");
+                ModelState.AddModelError("SellerID", "請選擇開立人！");
             }
 
             if (!viewModel.Year.HasValue)
             {
-                ModelState.AddModelError("Year", "請選擇年份!!");
+                ModelState.AddModelError("Year", "請選擇年份！");
             }
 
             if (!viewModel.PeriodNo.HasValue)
             {
-                ModelState.AddModelError("PeriodNo", "請選擇期別!!");
+                ModelState.AddModelError("PeriodNo", "請選擇期別！");
             }
 
             if (!ModelState.IsValid)
@@ -700,7 +700,7 @@ namespace WebHome.Controllers.TrackCodeNo
             //TrackNoIntervalManager manager = new TrackNoIntervalManager(models);
             //manager.SettleUnassignedInvoiceNOPeriodically(viewModel.Year.Value, viewModel.PeriodNo.Value, viewModel.SellerID);
 
-            ViewBag.Message = "重新整理進行中，請稍後再次查詢!!";
+            ViewBag.Message = "重新整理進行中，請稍後再次查詢！";
             return View("~/Views/Shared/AlertMessage.cshtml");
 
 
@@ -713,7 +713,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
             if (item == null)
             {
-                return View("~/Views/Shared/AlertMessage.cshtml", model: "配號區間資料錯誤!!");
+                return View("~/Views/Shared/AlertMessage.cshtml", model: "配號區間資料錯誤！");
             }
 
             return View("~/Views/InvoiceNo/Module/EditPOSBooklets.cshtml", item);
@@ -753,7 +753,7 @@ namespace WebHome.Controllers.TrackCodeNo
                     }
 
                     items = new List<UploadInvoiceTrackCodeModel>();
-                    foreach(DataRow r in ds.Tables[0].Rows)
+                    foreach (DataRow r in ds.Tables[0].Rows)
                     {
                         UploadInvoiceTrackCodeModel item = new UploadInvoiceTrackCodeModel { };
                         try
@@ -829,7 +829,7 @@ namespace WebHome.Controllers.TrackCodeNo
                 String fileName = Path.Combine(Logger.LogDailyPath, $"{DateTime.Now.Ticks}_{Path.GetFileName(file.FileName)}");
                 file.SaveAs(fileName);
 
-                List<UploadInvoiceTrackCodeModel> items= new List<UploadInvoiceTrackCodeModel>();
+                List<UploadInvoiceTrackCodeModel> items = new List<UploadInvoiceTrackCodeModel>();
                 XmlDocument doc = new XmlDocument();
                 doc.Load(fileName);
 
@@ -843,7 +843,7 @@ namespace WebHome.Controllers.TrackCodeNo
                             item.ReceiptNo = data["Ban"].InnerText;
                             item.TrackCode = data["InvoiceTrack"].InnerText;
                             int yearNo = int.Parse(data["YearMonth"].InnerText);
-                            item.Year = (short)(yearNo/100);
+                            item.Year = (short)(yearNo / 100);
                             item.PeriodNo = (yearNo % 10) / 2;
                             item.StartNo = int.Parse(data["InvoiceBeginNo"].InnerText);
                             item.EndNo = int.Parse(data["InvoiceEndNo"].InnerText);
@@ -960,7 +960,7 @@ namespace WebHome.Controllers.TrackCodeNo
                     }
 
                     var year = viewModel.Year + 1911;
-                    viewModel.TrackID = models.GetTable<InvoiceTrackCode>().Where(t => t.Year == year && t.PeriodNo == viewModel.PeriodNo && t.TrackCode==viewModel.TrackCode)
+                    viewModel.TrackID = models.GetTable<InvoiceTrackCode>().Where(t => t.Year == year && t.PeriodNo == viewModel.PeriodNo && t.TrackCode == viewModel.TrackCode)
                             .FirstOrDefault()?.TrackID;
 
                     checkInput(viewModel, null);
@@ -995,11 +995,11 @@ namespace WebHome.Controllers.TrackCodeNo
                     .Select(k => JsonConvert.DeserializeObject<UploadInvoiceTrackCodeModel>(k.DecryptData()))
                     .ToList();
 
-                foreach(var item in items)
+                foreach (var item in items)
                 {
                     ModelState.Clear();
                     CommitItem(item);
-                    if(!ModelState.IsValid)
+                    if (!ModelState.IsValid)
                     {
                         item.Message = ModelState.ErrorMessage();
                     }
@@ -1013,7 +1013,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
             }
 
-            return Json(new { result = false, message = "資料錯誤!!" });
+            return Json(new { result = false, message = "資料錯誤！" });
 
         }
 
