@@ -32,39 +32,41 @@
     String[] columns = (string[])ViewBag.TableColumns;
 }
 <!-- TableSkeleton -->
-<table id="@currentID" class="table table-striped itemList eivo__table">
-    <thead>
-        <tr>
+<div class="table-responsive">
+    <table id="@currentID" class="table table-striped itemList eivo__table">
+        <thead>
+            <tr>
+                @{
+                    ViewBag.DisplayType = Naming.FieldDisplayType.Header;
+                }
+                @foreach (var c in columns)
+                {
+                    <th scope="col">
+                        @{
+                            await Html.RenderPartialAsync(c, (object)_model.FirstOrDefault());
+                        }
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
             @{
-                ViewBag.DisplayType = Naming.FieldDisplayType.Header;
+                await Html.RenderPartialAsync("~/Views/Common/Module/TableBody.cshtml", _model);
             }
-            @foreach (var c in columns)
-            {
-                <th>
-                    @{
-                        await Html.RenderPartialAsync(c, (object)_model.FirstOrDefault());
-                    }
-                </th>
+        </tbody>
+        <tfoot>
+            @{
+                if (ViewBag.TableFooter != null)
+                {
+                    await Html.RenderPartialAsync((String)ViewBag.TableFooter, _model);
+                }
             }
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            await Html.RenderPartialAsync("~/Views/Common/Module/TableBody.cshtml", _model);
-        }
-    </tbody>
-    <tfoot>
-        @{
-            if (ViewBag.TableFooter != null)
-            {
-                await Html.RenderPartialAsync((String)ViewBag.TableFooter, _model);
-            }
-        }
-        <tr>
-            <td colspan="@(columns.Length)">&nbsp;</td>
-        </tr>
-    </tfoot>
-</table>
+            <tr>
+                <td colspan="@(columns.Length)">&nbsp;</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
 <script>
     $(function () {
 
