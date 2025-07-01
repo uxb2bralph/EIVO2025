@@ -36,15 +36,17 @@
 @switch (displayType)
 {
     case Naming.FieldDisplayType.Header:
-        <text>管理</text>
+        <text>操作</text>
         break;
     case Naming.FieldDisplayType.DataItem:
         ProcessRequest item = this.Model as ProcessRequest;
-        <a class="btn" onclick="$inquiryAgent.deleteItem('@(item.TaskID.EncryptKey())');">刪除</a>
+        <button type="button" class="editItem my-1 me-1 px-3 btn btn-sm eivo__btn--red text-nowrap"
+            onclick="$inquiryAgent.deleteItem('@(item.TaskID.EncryptKey())');">
+            <i class="fal fa-trash-alt"></i>
+            刪除
+        </button>
         break;
 
     default:
         break;
 }
-
-

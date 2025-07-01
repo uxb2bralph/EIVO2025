@@ -62,7 +62,8 @@
                 {
                     if (TempData["SortedItems"] != null)
                     {
-                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p => p.UserProfile.PID);
+                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p =>
+                        p.UserProfile.PID);
                     }
                     else
                     {
@@ -75,18 +76,20 @@
     case Naming.FieldDisplayType.Query:
         if (_profile.IsSystemAdmin())
         {
-<tr>
-    <th>
-        提交人
-    </th>
-    <td class="tdleft">
-        <input name="QuickSearch" class="form-control" type="text" value="@(_viewModel?.QuickSearch)" />
-    </td>
-</tr>
+
+            <div class="py-2 col">
+                <div class="row">
+                    <label for="QuickSearch" class="col-md-4 col-form-label fw-bold text-nowrap">
+                        提交人
+                    </label>
+                    <div class="col">
+                        <input type="text" id="QuickSearch" class="form-control form-control-sm" value="@(_viewModel?.QuickSearch)">
+
+                    </div>
+                </div>
+            </div>
         }
         break;
     default:
         break;
 }
-
-

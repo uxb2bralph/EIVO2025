@@ -537,6 +537,10 @@
     let endAuthorizationDateValue = null;
     let startInvoiceRequestDateValue = null;
     let endInvoiceRequestDateValue = null;
+    let startProcessDateValue = null;
+    let endProcessDateValue = null;
+    let startProcessCompleteDateValue = null;
+    let endProcessCompleteDateValue = null;
 
     // 辨別結束日期須晚於開始日期
     function checkDateTime(dateStr, id) {
@@ -582,6 +586,36 @@
                 dateInvoiceRequestAlert.classList.remove("d-none");
             } else {
                 dateInvoiceRequestAlert.classList.add("d-none");
+            }
+        };
+
+        // 任務開始
+        if (id === "ProcessDateFrom") {
+            startProcessDateValue = dateStr;
+        };
+        if (id === "ProcessDateTo") {
+            endProcessDateValue = dateStr;
+        };
+        if (startProcessDateValue && endProcessDateValue) {
+            if (startProcessDateValue > endProcessDateValue) {
+                processDateAlert.classList.remove("d-none");
+            } else {
+                processDateAlert.classList.add("d-none");
+            }
+        };
+
+        // 任務結束
+        if (id === "ProcessCompleteDateFrom") {
+            startProcessCompleteDateValue = dateStr;
+        };
+        if (id === "ProcessCompleteDateTo") {
+            endProcessCompleteDateValue = dateStr;
+        };
+        if (startProcessCompleteDateValue && endProcessCompleteDateValue) {
+            if (startProcessCompleteDateValue > endProcessCompleteDateValue) {
+                processCompleteDateAlert.classList.remove("d-none");
+            } else {
+                processCompleteDateAlert.classList.add("d-none");
             }
         };
 

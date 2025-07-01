@@ -63,7 +63,8 @@
                 {
                     if (TempData["SortedItems"] != null)
                     {
-                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p => p.ProcessStart);
+                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p =>
+                        p.ProcessStart);
                     }
                     else
                     {
@@ -74,19 +75,35 @@
         }
         break;
     case Naming.FieldDisplayType.Query:
-<tr>
-    <th>
-        任務開始
-    </th>
-    <td class="tdleft">
-        自&nbsp;<input name="ProcessStartFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.ProcessStartFrom:yyyy/MM/dd}")" />
-        &nbsp;至&nbsp;
-        <input name="ProcessStartTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.ProcessStartTo:yyyy/MM/dd}")" />
-    </td>
-</tr>
+        <!-- 任務開始 -->
+        <div class="py-2 col">
+            <div class="row">
+                <label for="ProcessRange" class="col-md-4 col-form-label fw-bold text-nowrap">
+                    任務開始
+                </label>
+                <div class="col d-flex align-items-center">
+                    <input id="ProcessDateFrom" name="ProcessStartFrom" type="text" placeholder="請輸入起日"
+                        class="form_date form-control form-control-sm" readonly="readonly"
+                        value="@($"{_viewModel?.ProcessStartFrom:yyyy/MM/dd}")" />
+                    <div class="mx-2">~</div>
+                    <input id="ProcessDateTo" name="ProcessStartTo" type="text" placeholder="請輸入迄日"
+                        class="form_date form-control form-control-sm" readonly="readonly"
+                        value="@($"{_viewModel?.ProcessStartTo:yyyy/MM/dd}")" />
+                </div>
+                <div class="text-danger d-flex justify-content-end text-nowrap pt-1">
+                    <span id="processDateAlert" class="text-danger pe-2 d-none pe-1">
+                        <span class="mdi mdi-close-thick"></span>
+                        結束日期須晚於開始日期
+                    </span>
+                </div>
+            </div>
+        </div>
         break;
     default:
         break;
 }
-
-
+<script>
+    // 日期選擇器
+    const processDateAlert = document.querySelector("#processDateAlert");
+    flatpickr('#ProcessDateFrom, #ProcessDateTo', config);
+</script>

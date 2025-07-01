@@ -63,7 +63,8 @@
                 {
                     if (TempData["SortedItems"] != null)
                     {
-                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p => p.ProcessComplete);
+                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p =>
+                        p.ProcessComplete);
                     }
                     else
                     {
@@ -74,19 +75,35 @@
         }
         break;
     case Naming.FieldDisplayType.Query:
-<tr>
-    <th>
-        任務結束
-    </th>
-    <td class="tdleft">
-        自&nbsp;<input name="ProcessCompleteFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.ProcessCompleteFrom:yyyy/MM/dd}")" />
-        &nbsp;至&nbsp;
-        <input name="ProcessCompleteTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.ProcessCompleteTo:yyyy/MM/dd}")" />
-    </td>
-</tr>
+        <!-- 任務結束 -->
+        <div class="py-2 col">
+            <div class="row">
+                <div class="col-md-4 col-form-label fw-bold text-nowrap">
+                    任務結束
+                </div>
+                <div class="col d-flex align-items-center">
+                    <input id="ProcessCompleteDateFrom" name="ProcessCompleteFrom" type="text" placeholder="請輸入起日"
+                        class="form_date form-control form-control-sm" readonly="readonly"
+                        value="@($"{_viewModel?.ProcessCompleteFrom:yyyy/MM/dd}")" />
+                    <div class="mx-2">~</div>
+                    <input id="ProcessCompleteDateTo" name="ProcessCompleteTo" type="text" placeholder="請輸入迄日"
+                        class="form_date form-control form-control-sm" readonly="readonly"
+                        value="@($"{_viewModel?.ProcessCompleteTo:yyyy/MM/dd}")" />
+                </div>
+                <div class="text-danger d-flex justify-content-end text-nowrap pt-1">
+                    <span id="processCompleteDateAlert" class="text-danger pe-2 d-none pe-1">
+                        <span class="mdi mdi-close-thick"></span>
+                        結束日期須晚於開始日期
+                    </span>
+                </div>
+            </div>
+        </div>
         break;
     default:
         break;
 }
-
-
+<script>
+    // 日期選擇器
+    const processCompleteDateAlert = document.querySelector("#processCompleteDateAlert");
+    flatpickr('#ProcessCompleteDateFrom, #ProcessCompleteDateTo', config);
+</script>
