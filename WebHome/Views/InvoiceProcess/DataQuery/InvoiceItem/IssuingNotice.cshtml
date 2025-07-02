@@ -55,7 +55,7 @@
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>
+        <td class="text-center">
             @(item.CDS_Document.IssuingNotice!=null ? String.Format("{0:yyyy/MM/dd HH:mm:ss}",item.CDS_Document.IssuingNotice.IssueDate) : "未通知")
         </td>
     }

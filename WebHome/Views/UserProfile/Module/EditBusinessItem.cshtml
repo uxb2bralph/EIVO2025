@@ -20,11 +20,13 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
 
-    var item = models.GetTable<Organization>().Where(o => o.CompanyID == profile.CurrentUserRole.OrganizationCategory.CompanyID).FirstOrDefault();
+    var item = models.GetTable<Organization>().Where(o => o.CompanyID ==
+    profile.CurrentUserRole.OrganizationCategory.CompanyID).FirstOrDefault();
 }
-<!--交易畫面標題-->
+<!-- 營業人資料管理 -->
+<!-- 交易畫面標題 -->
 @{
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "會員管理-修改營業人資料");
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "營業人資料管理");
 }
 
 <div class="border_gray">
@@ -34,6 +36,3 @@
     }
     <!--表格 結束-->
 </div>
-
-
-
