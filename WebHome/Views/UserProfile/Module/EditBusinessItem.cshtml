@@ -25,14 +25,20 @@
 }
 <!-- 營業人資料管理 -->
 <!-- 交易畫面標題 -->
-@{
-    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "營業人資料管理");
-}
-
-<div class="border_gray">
-    <!--表格 開始-->
+<div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
-        await Html.RenderPartialAsync("~/Views/Organization/Module/BusinessForm.cshtml", item);
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "營業人資料管理");
     }
-    <!--表格 結束-->
 </div>
+
+<!-- 查詢框 -->
+<div id="searchArea" class="mb-4 card shadow-sm border-2 rounded-3">
+    <div class="card-body">
+        <!-- 查詢條件 -->
+        @{
+            await Html.RenderPartialAsync("~/Views/Organization/Module/BusinessForm.cshtml", item);
+        }
+    </div>
+</div>
+<!--表格 開始-->
+<div id="resultList"></div>

@@ -14,7 +14,7 @@
 
 @using ModelCore.Helper
 
-
+<!-- 營業人選單 -->
 <nav id="sidebarMenu" class="pb-4 d-block sidebar">
     <div class="accordion" id="accordionSideMenu">
         <div class="accordion-item">
@@ -219,16 +219,19 @@
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="../UserProfile/EditMySelf"><i class="fa fa-hand-o-right" aria-hidden="true"></i>帳號管理</a>
+                        <a href="../UserProfile/EditMySelf"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>帳號管理</a>
                     </li>
                     <li>
-                        <a href="../UserProfile/EditMyBusiness"><i class="fa fa-hand-o-right" aria-hidden="true"></i>營業人資料管理</a>
+                        <a href="../UserProfile/EditMyBusiness"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>營業人資料管理</a>
                     </li>
                     <li>
                         <a href="../Account/AccountIndex"><i class="fa fa-hand-o-right" aria-hidden="true"></i>使用者管理</a>
                     </li>
                     <li>
-                        <a href="../BusinessRelationship/MaintainRelationship"><i class="fa fa-hand-o-right" aria-hidden="true"></i>相對營業人資料維護</a>
+                        <a href="../BusinessRelationship/MaintainRelationship"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>相對營業人資料維護</a>
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("QueryIndex", "ProductCatalog"))"><i class="fa fa-hand-o-right"
@@ -241,13 +244,16 @@
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="../InvoiceNo/MaintainInvoiceNoInterval"><i class="fa fa-hand-o-right" aria-hidden="true"></i>電子發票號碼維護</a>
+                        <a href="../InvoiceNo/MaintainInvoiceNoInterval"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>電子發票號碼維護</a>
                     </li>
                     <li>
-                        <a href="../InvoiceBusiness/CreateInvoice"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上開立發票</a>
+                        <a href="../InvoiceBusiness/CreateInvoice"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>線上開立發票</a>
                     </li>
                     <li>
-                        <a href="../InvoiceProcess/InquireToCancel"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上作廢發票</a>
+                        <a href="../InvoiceProcess/InquireToCancel"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>線上作廢發票</a>
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("InquireToIssueAllowance", "InvoiceProcess"))"><i
@@ -264,19 +270,24 @@
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="../InvoiceProcess/Index"><i class="fa fa-hand-o-right" aria-hidden="true"></i>資料查詢／列印／匯出</a>
+                        <a href="../InvoiceProcess/Index"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>資料查詢／列印／匯出</a>
                     </li>
                     <li>
-                        <a href="../InvoiceNo/VacantNoIndex"><i class="fa fa-hand-o-right" aria-hidden="true"></i>上期發票空白號碼查詢／匯出</a>
+                        <a href="../InvoiceNo/VacantNoIndex"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>上期發票空白號碼查詢／匯出</a>
                     </li>
                     <li>
-                        <a href="../InvoiceQuery/InvoiceMediaReport"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票媒體申報檔查詢／匯出</a>
+                        <a href="../InvoiceQuery/InvoiceMediaReport"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>發票媒體申報檔查詢／匯出</a>
                     </li>
                     <li>
-                        <a href="../InvoiceProcess/InquireToMIG"><i class="fa fa-hand-o-right" aria-hidden="true"></i>下載MIG檔案</a>
+                        <a href="../InvoiceProcess/InquireToMIG"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>下載MIG檔案</a>
                     </li>
                     <li>
-                        <a href="../InvoiceQuery/InvoiceSummary"><i class="fa fa-hand-o-right" aria-hidden="true"></i>發票統計表</a>
+                        <a href="../InvoiceQuery/InvoiceSummary"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>發票統計表</a>
                     </li>
                 </ul>
             </li>
@@ -285,10 +296,12 @@
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="../InvoiceProcess/IssuingNotice"><i class="fa fa-hand-o-right" aria-hidden="true"></i>重送開立發票通知</a>
+                        <a href="../InvoiceProcess/IssuingNotice"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>重送開立發票通知</a>
                     </li>
                     <li>
-                        <a href="../InvoiceProcess/InquireToAuthorize"><i class="fa fa-hand-o-right" aria-hidden="true"></i>核准重印發票</a>
+                        <a href="../InvoiceProcess/InquireToAuthorize"><i class="fa fa-hand-o-right"
+                                aria-hidden="true"></i>核准重印發票</a>
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("QueryIndex", "ProcessRequest"))"><i class="fa fa-hand-o-right"

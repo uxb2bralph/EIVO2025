@@ -23,132 +23,257 @@
     _model = (Organization)this.Model;
 
 }
-<div class="panel panel-default">
-    <div class="panel-heading">
-        營業人
+
+<!-- 查詢條件 -->
+<div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4">
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ReceiptNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                公司統一編號
+            </label>
+            <div class="col">
+                <input type="text" id="ReceiptNo" name="ReceiptNo" class="form-control form-control-sm ReceiptNo"
+                    value='@(_model?.ReceiptNo)' />
+            </div>
+        </div>
     </div>
-    <div class="panel-body">
-        <div class="table-responsive">
-            <div class="form-group">
-                <label for="companyId">公司統一編號</label>
-                <input type="text" class="form-control" name="ReceiptNo" value='@(_model?.ReceiptNo)' />
+    <div class="py-2 col">
+        <div class="row">
+            <label for="CompanyName" class="col-md-4 col-form-label fw-bold text-nowrap">
+                公司名稱
+            </label>
+            <div class="col">
+                <input type="text" id="CompanyName" name="CompanyName" class="form-control form-control-sm CompanyName"
+                    value='@(_model?.CompanyName)' />
             </div>
-            <div class="form-group">
-                <label for="name">名稱</label>
-                <input type="text" class="form-control" name="CompanyName" value='@(_model?.CompanyName)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="Addr" class="col-md-4 col-form-label fw-bold text-nowrap">
+                公司地址
+            </label>
+            <div class="col">
+                <input type="text" id="Addr" name="Addr" class="form-control form-control-sm" maxlength="68"
+                    value='@(_model?.Addr)' />
             </div>
-            <div class="form-group">
-                <label for="address">地址</label>
-                <input type="text" class="form-control" name="Addr" maxlength="68" value='@(_model?.Addr)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="Phone" class="col-md-4 col-form-label fw-bold text-nowrap">
+                公司電話
+            </label>
+            <div class="col">
+                <input type="text" id="Phone" name="Phone" class="form-control form-control-sm"
+                    value='@(_model?.Phone)' />
             </div>
-            <div class="form-group">
-                <label for="phone">電話</label>
-                <input type="text" class="form-control" name="Phone" value='@(_model?.Phone)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="Fax" class="col-md-4 col-form-label fw-bold text-nowrap">
+                公司傳真
+            </label>
+            <div class="col">
+                <input type="text" id="Fax" name="Fax" class="form-control form-control-sm" value='@(_model?.Fax)' />
             </div>
-            <div class="form-group">
-                <label for="fax">傳真</label>
-                <input type="text" class="form-control" name="Fax" value='@(_model?.Fax)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="UndertakerName" class="col-md-4 col-form-label fw-bold text-nowrap">
+                公司負責人
+            </label>
+            <div class="col">
+                <input type="text" id="UndertakerName" name="UndertakerName" class="form-control form-control-sm"
+                    value='@(_model?.UndertakerName)' />
             </div>
-            <div class="form-group">
-                <label for="responsiblePerson">公司負責人</label>
-                <input type="text" class="form-control" name="UndertakerName" value='@(_model?.UndertakerName)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="CustomerNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                營業人店號／別名
+            </label>
+            <div class="col">
+                <input type="text" id="CustomerNo" name="CustomerNo" class="form-control form-control-sm" maxlength="16"
+                    value='@(_model?.OrganizationExtension?.CustomerNo)' />
             </div>
-            <div class="form-group">
-                <label for="alias">營業人店號／別名</label>
-                <input type="text" class="form-control" maxlength="16" name="CustomerNo" value='@(_model?.OrganizationExtension?.CustomerNo)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ContactName" class="col-md-4 col-form-label fw-bold text-nowrap">
+                聯絡人姓名
+            </label>
+            <div class="col">
+                <input type="text" id="ContactName" name="ContactName" class="form-control form-control-sm"
+                    value='@(_model?.ContactName)' />
             </div>
-            <div class="form-group">
-                <label for="contactName">聯絡人姓名</label>
-                <input type="text" class="form-control" name="ContactName" value='@(_model?.ContactName)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ContactTitle" class="col-md-4 col-form-label fw-bold text-nowrap">
+                聯絡人職稱
+            </label>
+            <div class="col">
+                <input type="text" id="ContactTitle" name="ContactTitle" class="form-control form-control-sm"
+                    value='@(_model?.ContactTitle)' />
             </div>
-            <div class="form-group">
-                <label for="contactTitle">聯絡人職稱</label>
-                <input type="text" class="form-control" name="ContactTitle" value='@(_model?.ContactTitle)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ContactPhone" class="col-md-4 col-form-label fw-bold text-nowrap">
+                聯絡人電話
+            </label>
+            <div class="col">
+                <input type="text" id="ContactPhone" name="ContactPhone" class="form-control form-control-sm"
+                    value='@(_model?.ContactPhone)' />
             </div>
-            <div class="form-group">
-                <label for="contactPhone">聯絡人電話</label>
-                <input type="text" class="form-control" name="ContactPhone" value='@(_model?.ContactPhone)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ContactMobilePhone" class="col-md-4 col-form-label fw-bold text-nowrap">
+                聯絡人行動電話
+            </label>
+            <div class="col">
+                <input type="text" id="ContactMobilePhone" name="ContactMobilePhone"
+                    class="form-control form-control-sm" value='@(_model?.ContactMobilePhone)' />
             </div>
-            <div class="form-group">
-                <label for="contactMobile">聯絡人行動電話</label>
-                <input type="text" class="form-control" name="ContactMobilePhone" value='@(_model?.ContactMobilePhone)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="ContactEmail" class="col-md-4 col-form-label fw-bold text-nowrap">
+                聯絡人電子郵件
+            </label>
+            <div class="col">
+                <input type="text" id="ContactEmail" name="ContactEmail" class="form-control form-control-sm"
+                    maxlength="512" value='@(_model?.ContactEmail)' />
             </div>
-            <div class="form-group">
-                <label for="contactEmail">聯絡人電子郵件</label>
-                <input type="text" class="form-control" name="ContactEmail" maxlength="512" value='@(_model?.ContactEmail)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <div class="col-md-4 col-form-label fw-bold text-nowrap">
+                授權期間
             </div>
-            <div class="form-group">
-                <label for="authStart">授權期間(起)</label>
-                <input type="text" class="form_date form-control" name="AuthorizationNotBefore" value='@($"{_model?.OrganizationExtension?.AuthorizationNotBefore:yyyy/MM/dd}")' />
-                <script>
-                    $(function () {
-                        $('input[name="AuthorizationNotBefore"]').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '-1:+10' });
-                    });
-                </script>
+            <div class="col d-flex align-items-center">
+                <input id="AuthorizationNotBefore" name="AuthorizationNotBefore" type="text" placeholder="請輸入起日"
+                    class="form_date form-control form-control-sm" readonly="readonly"
+                    value='@($"{_model?.OrganizationExtension?.AuthorizationNotBefore:yyyy/MM/dd}")' />
+                <div class="mx-2">~</div>
+                <input id="AuthorizationNotAfter" name="AuthorizationNotAfter" type="text" placeholder="請輸入迄日"
+                    class="form_date form-control form-control-sm" readonly="readonly"
+                    value='@($"{_model?.OrganizationExtension?.AuthorizationNotAfter:yyyy/MM/dd}")' />
             </div>
-            <div class="form-group">
-                <label for="authEnd">授權期間(迄)</label>
-                <input type="text" class="form_date form-control" name="AuthorizationNotAfter" value='@($"{_model?.OrganizationExtension?.AuthorizationNotAfter:yyyy/MM/dd}")' />
-                <script>
-                    $(function () {
-                        $('input[name="AuthorizationNotAfter"]').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '-1:+10' });
-                    });
-                </script>
+            <div class="text-danger d-flex justify-content-end text-nowrap pt-1">
+                <span id="dateAuthorizationAlert" class="text-danger pe-2 d-none pe-1">
+                    <span class="mdi mdi-close-thick"></span>
+                    結束日期須晚於開始日期
+                </span>
             </div>
-            <div class="form-group">
-                <label for="invoiceStart">發票期間(起)</label>
-                <input type="text" class="form_date form-control" name="InvoiceRequestNotBefore" value='@($"{_model?.OrganizationExtension?.InvoiceRequestNotBefore:yyyy/MM/dd}")' />
-                <script>
-                    $(function () {
-                        $('input[name="InvoiceRequestNotBefore"]').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '-1:+10' });
-                    });
-                </script>
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="AuthorizationRange" class="col-md-4 col-form-label fw-bold text-nowrap">
+                發票期間
+            </label>
+            <div class="col d-flex align-items-center">
+                <input id="InvoiceRequestNotBefore" name="InvoiceRequestNotBefore" type="text" placeholder="請輸入起日"
+                    class="form_date form-control form-control-sm" readonly="readonly"
+                    value='@($"{_model?.OrganizationExtension?.InvoiceRequestNotBefore:yyyy/MM/dd}")' />
+                <div class="mx-2">~</div>
+                <input id="InvoiceRequestNotAfter" name="InvoiceRequestNotAfter" type="text" placeholder="請輸入迄日"
+                    class="form_date form-control form-control-sm" readonly="readonly"
+                    value='@($"{_model?.OrganizationExtension?.InvoiceRequestNotAfter:yyyy/MM/dd}")' />
             </div>
-            <div class="form-group">
-                <label for="invoiceEnd">發票期間(迄)</label>
-                <input type="text" class="form_date form-control" name="InvoiceRequestNotAfter" value='@($"{_model?.OrganizationExtension?.InvoiceRequestNotAfter:yyyy/MM/dd}")' />
-                <script>
-                    $(function () {
-                        $('input[name="InvoiceRequestNotAfter"]').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '-1:+10' });
-                    });
-                </script>
+            <div class="text-danger d-flex justify-content-end text-nowrap pt-1">
+                <span id="dateInvoiceRequestAlert" class="text-danger pe-2 d-none pe-1">
+                    <span class="mdi mdi-close-thick"></span>
+                    結束日期須晚於開始日期
+                </span>
             </div>
-            <div class="form-group">
-                <label for="taxId">稅籍編號</label>
-                <input type="text" class="form-control" name="TaxNo" value='@(_model?.OrganizationExtension?.TaxNo)' />
+        </div>
+    </div>
+    <div class="py-2 col">
+        <div class="row">
+            <label for="TaxNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                稅籍編號
+            </label>
+            <div class="col">
+                <input type="text" id="TaxNo" name="TaxNo" class="form-control form-control-sm"
+                    value='@(_model?.OrganizationExtension?.TaxNo)' />
             </div>
-            @if (_model != null)
-            {
-                <div class="form-group">
-                    <button type="button" class="btn" onclick="applyE0501();">E0501取號設定</button>
-                    <script>
-                            function applyE0501() {
-                                doPost('@Html.Raw(Url.Action("ApplyE0501Settings", "Organization"))', { 'KeyID': '@Html.Raw(_model.CompanyID.EncryptKey())' }, function (data) {
-                                    var $data = $(data);
-                                    $('body').append($data);
-                                });
-                            }
-                    </script>
-                </div>
-            }
-            <button type="button" class="btn btn-primary" onclick="commitBusiness();">提交</button>
-            <button type="reset" class="btn btn-default">重填</button>
-            <script>
-                    function commitBusiness() {
-                        var $form = $('#theForm');
-                        var $formData = $form.serializeObject();
-                        $formData.KeyID = '@Html.Raw(_model.CompanyID.EncryptKey())';
-                        doPost('@Html.Raw(Url.Action("CommitBusiness", "Organization"))', $formData, function (data) {
-                            if ($.isPlainObject(data)) {
-                                if (data.result) {
-                                    alertModal('資料已儲存');
-                                }
-                            } else {
-                                $(data).appendTo($('body'));
-                            }
-                        });
-                    }
-            </script>
         </div>
     </div>
 </div>
+<!--按鈕-->
+<div class="mt-3 px-1 d-block text-end">
+    @if (_model != null)
+    {
+        @* <div class="py-2 col"> *@
+        <button type="button" class="px-3 me-1 btn btn-sm eivo__btn--check" onclick="applyE0501();">E0501 取號設定</button>
+        <script>
+            function applyE0501() {
+                doPost('@Html.Raw(Url.Action("ApplyE0501Settings", "Organization"))', { 'KeyID': '@Html.Raw(_model.CompanyID.EncryptKey())' }, function (data) {
+                    var $data = $(data);
+                    $('body').append($data);
+                });
+            }
+        </script>
+        @* </div> *@
+        <span class="me-1">|</span>
+    }
+    <button id="btnReset" type="reset" class="px-3 my-1 me-1 btn btn-sm eivo__btn--reset" onclick="reset();">
+        重設
+    </button>
+    <button id="btnQuery" type="button" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+        onclick="commitBusiness();">
+        儲存
+    </button>
+</div>
+
+<script>
+    $('#ReceiptNo').on('click', function () {
+        $('#ReceiptNo-error').remove();
+    });
+
+    $('#CompanyName').on('click', function () {
+        $('#CompanyName-error').remove();
+    });
+
+    $('#btnReset').on('click', function () {
+        $('#ReceiptNo-error').remove();
+        $('#CompanyName-error').remove();
+    });
+
+    function commitBusiness() {
+        var $form = $('#theForm');
+        var $formData = $form.serializeObject();
+        $formData.KeyID = '@Html.Raw(_model.CompanyID.EncryptKey())';
+        doPost('@Html.Raw(Url.Action("CommitBusiness", "Organization"))', $formData, function (data) {
+            if ($.isPlainObject(data)) {
+                if (data.result) {
+                    alertModal('資料已儲存');
+                }
+            } else {
+                $(data).appendTo($('body'));
+            }
+        });
+    }
+</script>
+<script>
+    // 日期選擇器
+    // 授權期間
+    const dateAuthorizationAlert = document.querySelector("#dateAuthorizationAlert");
+    flatpickr('#AuthorizationNotBefore, #AuthorizationNotAfter', config);
+    // 發票期間
+    const dateInvoiceRequestAlert = document.querySelector("#dateInvoiceRequestAlert");
+    flatpickr('#InvoiceRequestNotBefore, #InvoiceRequestNotAfter', config);
+</script>
