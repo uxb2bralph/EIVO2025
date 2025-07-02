@@ -21,6 +21,7 @@
     _viewModel.UrlAction = Url.Action("Inquire", "TrackCode", new { resultAction = ViewBag.ResultAction });
 }
 
+<!-- 電子發票字軌維護 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     <div>
         <!--交易畫面標題-->
@@ -51,3 +52,9 @@
 @{
     await Html.RenderPartialAsync("~/Views/TrackCode/ScriptHelper/Common.cshtml");
 }
+
+<script>
+    window.addEventListener('load', () => {
+        changeMenu('system_01', 'TrackCode');
+    });
+</script>

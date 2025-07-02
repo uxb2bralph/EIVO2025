@@ -20,10 +20,11 @@
 
 }
 
-<!--交易畫面標題-->
+<!-- 發票明細查詢 / 發票報表匯出 -->
+<!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
-        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票報表匯出");
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票明細查詢");
     }
 </div>
 @section QueryFormContent
@@ -81,6 +82,10 @@
     <div id="resultList"></div>
 
     <script>
+        window.addEventListener('load', () => {
+            changeMenu('system_05', 'InvoiceReport');
+        });
+
         // 下載月報表
         function downloadMonthlyReport() {
             var event = event || window.event;

@@ -23,6 +23,7 @@
 }
 @if (_profile.IsSystemAdmin())
 {
+    <!-- 傳送E0402 -->
     <!-- 交易畫面標題 -->
     <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
         @{
@@ -178,6 +179,10 @@
 <div id="resultList"></div>
 
 <script>
+    window.addEventListener('load', () => {
+        changeMenu('system_03', 'VacantNoIndex');
+    });
+
     var uiVacantNoQuery;
     $(function () {
         var $postForm;

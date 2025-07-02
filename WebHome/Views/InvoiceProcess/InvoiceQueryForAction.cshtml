@@ -26,8 +26,8 @@
     _viewModel.UrlAction = Url.Action("Inquire2023", "InvoiceProcess");
 }
 
-<!--交易畫面標題-->
 <!-- 作廢電子發票 / 開立折讓證明 -->
+<!--交易畫面標題-->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
         await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", _viewModel.ActionTitle);
@@ -83,8 +83,11 @@
 <div id="resultList"></div>
 @{
     await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");
-}
-
-@{
     await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/InvoiceAction.cshtml");
 }
+
+<script>
+    window.addEventListener('load', () => {
+        changeMenu('system_03', 'InquireToCancel');
+    });
+</script>

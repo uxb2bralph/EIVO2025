@@ -19,6 +19,7 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 }
 
+<!-- 登錄掛號郵件 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     <div>
         <!--交易畫面標題-->
@@ -219,6 +220,10 @@
 </div>
 
 <script>
+    window.addEventListener('load', () => {
+        changeMenu('system_01', 'MailTracking');
+    });
+
     // 日期選擇器
     const dateAlert = document.querySelector("#dateAlert");
     flatpickr('#DateFrom, #DateTo,#DeliveryDate', config);

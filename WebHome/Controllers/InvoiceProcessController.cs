@@ -85,6 +85,7 @@ namespace WebHome.Controllers
                     ViewBag.InquiryView = "~/Views/InvoiceProcess/InvoiceQueryByBuyer.cshtml";
                     break;
                 default:
+                    // 買受人資料管理
                     ViewBag.InquiryView = "~/Views/InvoiceProcess/Module/InvoiceQuery.cshtml";
                     break;
             }

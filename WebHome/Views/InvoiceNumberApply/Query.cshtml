@@ -34,10 +34,12 @@
 
 }
 
-<!--交易畫面標題-->
+<!-- 新登錄營業人資料受理 -->
+<!-- 電子發票號申請 -->
+<!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
-        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票號申請");
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "新登錄營業人資料受理");
     }
 </div>
 
@@ -71,3 +73,9 @@
 </div>
 <!-- 顯示列表 -->
 <div id="resultList"></div>
+
+<script>
+    window.addEventListener('load', () => {
+        changeMenu('system_02', 'InvoiceNumberApply');
+    });
+</script>

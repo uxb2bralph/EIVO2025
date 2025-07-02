@@ -24,10 +24,11 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
 }
 
+<!-- 資料管理 -->
 <!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
-        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "資料修改");
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "資料管理");
     }
 </div>
 
@@ -134,8 +135,11 @@
 </div>
 
 <script>
-    $(function () {
+    window.addEventListener('load', () => {
+        changeMenu('system_03', 'DataExchange');
+    });
 
+    $(function () {
         var $formDownload;
         var $data;
         var $oriAction;

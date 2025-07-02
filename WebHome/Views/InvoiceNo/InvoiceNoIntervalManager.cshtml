@@ -24,15 +24,16 @@
     _profile = Context.GetUser();
 }
 
+<!-- 電子發票號碼維護 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     <div>
-        <!--交易畫面標題-->
+        <!-- 交易畫面標題 -->
         @{
             await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票號碼維護");
         }
     </div>
     <div>
-        <!--匯入匯率資料-->
+        <!-- 匯入匯率資料 -->
         <button id="UploadInvoiceTrackCodeModal" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default" type="button"
             data-bs-toggle="modal" data-bs-target="#uploadInvoiceTrackCode">
             <i class="fas fa-upload"></i>
@@ -120,6 +121,10 @@
 <div id="resultList"></div>
 
 <script>
+    window.addEventListener('load', () => {
+        changeMenu('system_03', 'MaintainInvoiceNoInterval');
+    });
+
     var uiTrackCodeNo;
     $(function () {
         uiTrackCodeNo = {
@@ -185,7 +190,7 @@
                 });
             },
             deleteItem: function (keyID) {
-                if (confirm('確定刪除此筆資料?')) {
+                if (confirm('確定刪除此筆資料？')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
                     $.post('@(Url.Action("DeleteNoInterval", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
@@ -236,7 +241,7 @@
                 });
             },
             splitItem: function (keyID) {
-                if (confirm('確定分割此配號區間?')) {
+                if (confirm('確定分割此配號區間？')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
                     $.post('@(Url.Action("SplitNoInterval", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
@@ -276,7 +281,7 @@
         commitAction('@Html.Raw(Url.Action("CommitInvoiceNoSafetyStock", "Organization"))', { 'keyID': keyID, 'InvoiceNoSafetyStock': $('input[name="InvoiceNoSafetyStock"]').val() },
             function (result) {
                 if (result.result) {
-                    alert('資料已更新!');
+                    alert('資料已更新！');
                 }
             });
     }

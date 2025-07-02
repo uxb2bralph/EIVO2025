@@ -27,7 +27,7 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     UserProfile _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
-    ViewBag.ActionName = "首頁 > 電子發票號碼維護";
+    ViewBag.ActionName = "發票作業";
 }
 
 @section headContent {
@@ -35,6 +35,8 @@
 }
 
 @section formContent {
-    @{ await Html.RenderPartialAsync("~/Views/InvoiceNo/InvoiceNoIntervalManager.cshtml");}
+    @{
+        await Html.RenderPartialAsync("~/Views/InvoiceNo/InvoiceNoIntervalManager.cshtml");
+    }
 
 }

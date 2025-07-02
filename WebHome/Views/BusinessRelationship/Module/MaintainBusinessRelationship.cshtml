@@ -58,7 +58,8 @@
     </tbody>
 </table>*@
 
-<!--交易畫面標題-->
+<!-- 相對營業人資料維護 -->
+<!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     <div>
         @{
@@ -166,6 +167,11 @@
 <div id="resultList"></div>
 
 <script>
+    window.addEventListener('load', () => {
+        changeMenu('system_02', 'MaintainRelationship');
+    });
+
+
     var uiInquireBusiness;
     $(function () {
 

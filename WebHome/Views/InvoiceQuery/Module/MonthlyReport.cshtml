@@ -20,10 +20,11 @@
 
 }
 
-<!--交易畫面標題-->
+<!-- 下載發票月報表 -->
+<!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
-        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "每月統計報表匯出");
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "下載發票月報表");
     }
 </div>
 
@@ -55,11 +56,13 @@
     </div>
 
     <script>
+        window.addEventListener('load', () => {
+            changeMenu('system_05', 'MonthlyReport');
+        });
+
         function downloadMonthlyReport() {
             var event = event || window.event;
-
             var $formData = $('input,select,textarea').serializeObject();
-
             clearErrors();
             showLoading();
             $.post('@(Url.Action("InquireMonthlyReport", "InvoiceQuery"))', $formData, function (data) {

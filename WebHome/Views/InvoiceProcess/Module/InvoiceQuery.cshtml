@@ -108,3 +108,9 @@
 @{
     await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");
 }
+
+<script>
+    window.addEventListener('load', () => {
+        changeMenu('system_02', 'InquireToProcess');
+    });
+</script>

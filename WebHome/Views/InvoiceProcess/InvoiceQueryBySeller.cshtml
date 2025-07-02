@@ -25,8 +25,10 @@
     _viewModel.UrlAction = Url.Action("Inquire2023", "InvoiceProcess");
 
 }
-<!--交易畫面標題-->
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", (ViewBag.Title as String) ?? "發票報表匯出");}
+<!-- 交易畫面標題 -->
+@{
+    await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", (ViewBag.Title as String) ?? "發票報表匯出");
+}
 
 <div class="border_gray">
     <!--表格 開始-->
@@ -37,15 +39,21 @@
                 <input type="hidden" name="ResultAction" value="@(_viewModel.ResultAction)" />
             </th>
         </tr>
-        @{ 
+        @{
             await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/QueryDirective.cshtml", 0);
             ViewBag.QueryAll = true;
-            @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>());
-            @(await Component.InvokeAsync<InquireCustomerIDViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireCustomerIDViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>())
+            ;
         }
 
         @{
@@ -80,7 +88,6 @@
     </tbody>
 </table>
 <!--表格 開始-->
-@{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");}
-
-
-
+@{
+    await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");
+}

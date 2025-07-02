@@ -25,10 +25,11 @@
     _viewModel.UrlAction = Url.Action("Inquire2023", "InvoiceProcess");
 
 }
+<!-- MIG 格式下載 -->
 <!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
-        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "MIG格式下載");
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "MIG 格式下載");
     }
 </div>
 
@@ -84,3 +85,9 @@
     await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");
     await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/ForMIG.cshtml");
 }
+
+<script>
+    window.addEventListener('load', () => {
+        changeMenu('system_03', 'InquireToMIG');
+    });
+</script>

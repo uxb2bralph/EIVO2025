@@ -29,13 +29,14 @@
     OrganizationQueryViewModel _viewModel = (OrganizationQueryViewModel)ViewBag.ViewModel;
     _viewModel.UrlAction = Url.Action("InquireCompany", "OrganizationQuery");
 
-    ViewBag.ActionName = "營業人資料維護";
+    ViewBag.ActionName = "營業人資料管理";
 
 }
-<!--交易畫面標題-->
+<!-- 營業人資料管理 -->
+<!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
-        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "營業人資料維護");
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "營業人資料管理");
     }
 </div>
 
@@ -159,6 +160,10 @@
 <div id="resultList"></div>
 
 <script>
+    window.addEventListener('load', () => {
+        changeMenu('system_02', 'OrganizationQuery');
+    });
+
     var $result;
     function inquireCompany(pageNum, onPaging) {
         $('form').ajaxForm({

@@ -15,7 +15,8 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 
-<!--交易畫面標題-->
+<!-- 捐贈統計表 -->
+<!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
         await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "捐贈統計表");
@@ -65,3 +66,8 @@
         </form>
     </div>
 </div>
+<script>
+    window.addEventListener('load', () => {
+        changeMenu('system_05', 'DonatedInvoice');
+    });
+</script>

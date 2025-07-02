@@ -13,6 +13,7 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 }
 <script>
+    console.log('GlobalScript loaded');
     function clearErrors() {
         $('.error input,select,textarea').removeClass('error')
         $('label.error').remove();
@@ -170,6 +171,10 @@
     // 側選單切換
     function urlHandler(url) {
         window.location.href = url;
+    }
+
+    function changeMenu(system, tab) {
+        console.log(`切換到系統: ${system}, 分頁: ${tab}`);
     }
 
     // 頁面載入時的狀態顯示

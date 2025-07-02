@@ -28,6 +28,7 @@
     _profile = Context.GetUser();
 
 }
+<!-- 使用者帳號管理 -->
 <!-- 交易畫面標題 -->
 <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
     @{
@@ -119,5 +120,10 @@
 @{
     await Html.RenderPartialAsync("~/Views/Account/ScriptHelper/Common.cshtml");
 }
+<script>
+    window.addEventListener('load', () => {
+        changeMenu('system_02', 'AccountIndex');
+    });
+</script>
 
 

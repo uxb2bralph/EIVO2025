@@ -80,3 +80,8 @@
 @{
     await Html.RenderPartialAsync("~/Views/WinningNumber/ScriptHelper/MatchWinning.cshtml");
 }
+<script>
+    window.addEventListener('load', () => {
+        changeMenu('system_01', 'WinningNumber');
+    });
+</script>
