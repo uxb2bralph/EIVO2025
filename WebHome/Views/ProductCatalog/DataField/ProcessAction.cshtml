@@ -36,34 +36,45 @@
 @switch (displayType)
 {
     case Naming.FieldDisplayType.Header:
-        <text>管理</text>
+        <text>操作</text>
         break;
     case Naming.FieldDisplayType.DataItem:
         ProductCatalog item = this.Model as ProductCatalog;
-        <div class="btn-group dropdown" data-toggle="dropdown">
-            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
-            <ul class="dropdown-menu">
-                <li><a class="btn" onclick="$inquiryAgent.editItem('@(item.ProductID.EncryptKey())');">修改</a></li>
-                <li><a class="btn" onclick="$inquiryAgent.deleteItem('@(item.ProductID.EncryptKey())');">刪除</a></li>
-            </ul>
-        </div>
+        <button type="button" class="editItem px-3 my-1 me-1 btn btn-sm eivo__btn--default text-nowrap"
+            onclick="$inquiryAgent.editItem('@(item.ProductID.EncryptKey())');">
+            <i class="fal fa-edit"></i>
+            編輯
+        </button>
+        <button type="button" class="editItem px-3 my-1 me-1 btn btn-sm eivo__btn--red text-nowrap"
+            onclick="$inquiryAgent.deleteItem('@(item.ProductID.EncryptKey())');">
+            <i class="fal fa-trash-alt"></i>
+            刪除
+        </button>
         break;
 
     case Naming.FieldDisplayType.Edit:
         item = this.Model as ProductCatalog;
-        <a class="btn" onclick="$inquiryAgent.commitItem('@(item?.ProductID.EncryptKey())');">確定</a>
-        <a class="btn" onclick="$inquiryAgent.dataItem('@(item?.ProductID.EncryptKey())');">取消</a>
+        <button type="button" class="editItem px-3 my-1 me-1 btn btn-sm eivo__btn--check text-nowrap"
+            onclick="$inquiryAgent.commitItem('@(item?.ProductID.EncryptKey())');">
+            <i class="fas fa-check"></i>
+            確定
+        </button>
+        <button type="button" class="editItem px-3 my-1 me-1 btn btn-sm eivo__btn--cancel text-nowrap"
+            onclick="$inquiryAgent.dataItem('@(item?.ProductID.EncryptKey())');">
+            <i class="far fa-times"></i>
+            取消
+        </button>
         break;
 
     case Naming.FieldDisplayType.Create:
         item = this.Model as ProductCatalog;
-        <a class="btn" onclick="$inquiryAgent.editItem('@((-1).EncryptKey())');">新增</a>
+        <button type="button" class="editItem px-3 my-1 me-1 btn btn-sm eivo__btn--default text-nowrap"
+            onclick="$inquiryAgent.editItem('@((-1).EncryptKey())');">
+            <i class="fas fa-plus"></i>
+            新增
+        </button>
         break;
 
     default:
         break;
 }
-
-
-

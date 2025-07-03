@@ -31,15 +31,15 @@
 @{
     String[] columns = (string[])ViewBag.TableColumns;
 }
-@{ 
-//var item = _model.FirstOrDefault();
-//if (item == null)
-//{
-//    item = new ProductCatalog { };
-//}
-//ViewBag.DisplayType = Naming.FieldDisplayType.Create;
-//await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", item);
+@{
+    //var item = _model.FirstOrDefault();
+    //if (item == null)
+    //{
+    // item = new ProductCatalog { };
+    //}
+    //ViewBag.DisplayType = Naming.FieldDisplayType.Create;
+    //await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", item);
 }
 <tr>
-    <td colspan="@(columns.Length)"></td>
+    <td colspan="@(columns.Length)" class="text-end"></td>
 </tr>

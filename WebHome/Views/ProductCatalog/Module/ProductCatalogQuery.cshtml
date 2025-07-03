@@ -21,6 +21,7 @@
 
 @{
     Layout = "~/Views/Template/QueryIndex.cshtml";
+    ViewBag.ActionName = "系統使用設定";
 
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
@@ -35,39 +36,56 @@
 
 @section QueryForm
 {
-    <!--交易畫面標題-->
-    @{
-        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "發票品名");
-    }
+    <!-- 常用品項維護 -->
+    <!-- 交易畫面標題 -->
+    <div class="py-2 eivo__title d-flex align-items-center justify-content-between">
+        @{
+            await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "常用品項維護");
+        }
+    </div>
+
     @{
         ViewBag.DisplayType = Naming.FieldDisplayType.Query;
     }
-    <div class="border_gray" id="queryArea">
-        <table class="table table-striped">
-            <tr>
-                <th colspan="2" class="Head_style_a">查詢條件</th>
-            </tr>
-            <tr>
-                <th>營業人</th>
-                <td>
-                    @{
-                        ViewBag.FieldName = "SupplierID";
-                        await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _profile.InitializeOrganizationQuery(models));
-                    }
-                </td>
-            </tr>
-            @{
-                await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/ProductName.cshtml");
-                await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/Barcode.cshtml");
-                await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/Spec.cshtml");
-            }
-            <tr>
-                <td colspan="2" style="text-align:center;">
-                    <input name="btnQuery" class="btn" type="button" value="查詢" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();" />
-                </td>
-            </tr>
-        </table>
+    <!-- 查詢框 -->
+    <div id="searchArea" class="mb-4 card shadow-sm border-2 rounded-3">
+        <div class="card-body">
+            <!-- 查詢條件 -->
+            <div class="px-2 row row-cols-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 row-cols-xxl-4">
+                <div class="py-2 col">
+                    <div class="row">
+                        <label for="ReceiptNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                            營業人
+                        </label>
+                        <div class="col">
+                            @{
+                                ViewBag.FieldName = "SupplierID";
+                                await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml",
+                                _profile.InitializeOrganizationQuery(models));
+                            }
+                        </div>
+                    </div>
+                </div>
+                @{
+                    await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/ProductName.cshtml");
+                    await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/Barcode.cshtml");
+                    await Html.RenderPartialAsync("~/Views/ProductCatalog/DataField/Spec.cshtml");
+                }
+            </div>
+            <!--按鈕-->
+            <div class="mt-3 px-1 d-block text-end">
+                <button id="btnReset" type="reset" class="px-3 my-1 me-1 btn btn-sm eivo__btn--reset" onclick="reset();">
+                    重設
+                </button>
+                <button id="btnQuery" type="button" class="px-3 my-1 me-1 btn btn-sm eivo__btn--default"
+                    onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">
+                    查詢
+                </button>
+            </div>
+        </div>
     </div>
+    <!--表格 開始-->
+    <div id="resultList"></div>
 
     <script>
         $(function () {
@@ -76,7 +94,7 @@
                 if (confirm('確定刪除此項目?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@Html.Raw(Url.Action("DeleteItem","ProductCatalog",new { displayType = (int)Naming.FieldDisplayType.Edit }))', { 'keyID': keyID }, function (data) {
+                    $.post('@Html.Raw(Url.Action("DeleteItem", "ProductCatalog", new { displayType = (int)Naming.FieldDisplayType.Edit }))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -100,25 +118,25 @@
                 });
             };
 
-        $inquiryAgent.dataItem = function (keyID, scope, done) {
-            var event = event || window.event;
-            var $tr = scope || $(event.target).closest('tr');
-            $global.$scope = $tr;
-            var viewModel = $tr.find('input,select,textArea').serializeObject();
-            viewModel.keyID = keyID;
-            viewModel.supplierID = $('#queryArea [name="SupplierID"]').val();
-            viewModel.displayType = @((int)Naming.FieldDisplayType.DataItem);
-            $inquiryAgent.loadItem(viewModel, function (data) {
-                $tr.after(data).remove();
-                if (done) {
-                    done();
-                }
-            });
-        };
+            $inquiryAgent.dataItem = function (keyID, scope, done) {
+                var event = event || window.event;
+                var $tr = scope || $(event.target).closest('tr');
+                $global.$scope = $tr;
+                var viewModel = $tr.find('input,select,textArea').serializeObject();
+                viewModel.keyID = keyID;
+                viewModel.supplierID = $('#queryArea [name="SupplierID"]').val();
+                viewModel.displayType = @((int)Naming.FieldDisplayType.DataItem);
+                $inquiryAgent.loadItem(viewModel, function (data) {
+                    $tr.after(data).remove();
+                    if (done) {
+                        done();
+                    }
+                });
+            };
 
             $inquiryAgent.loadItem = function (viewModel, onload) {
                 showLoading();
-                $.post('@Html.Raw(Url.Action("ProcessDataItem","ProductCatalog"))', viewModel, function (data) {
+                $.post('@Html.Raw(Url.Action("ProcessDataItem", "ProductCatalog"))', viewModel, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
@@ -128,32 +146,32 @@
                 });
             };
 
-        $inquiryAgent.commitItem = function (keyID) {
-            var event = event || window.event;
-            var $tr = $(event.target).closest('tr');
-            $global.$scope = $tr;
-            var $parent = $tr.parent();
-            var viewModel = $tr.find('input,select,textArea').serializeObject();
-            viewModel.keyID = keyID;
-            viewModel.supplierID = $('#queryArea [name="SupplierID"]').val();
-            clearErrors();
-            $.post('@Html.Raw(Url.Action("CommitItem","ProductCatalog"))', viewModel, function (data) {
-                if ($.isPlainObject(data)) {
-                    if (data.result) {
-                        $inquiryAgent.dataItem(data.keyID, $tr, function () {
-                            $inquiryAgent.loadItem({ 'displayType':@((int)Naming.FieldDisplayType.Create), 'keyID': '@((-1).EncryptKey())' }, function (d) {
-                                $parent.append(d);
+            $inquiryAgent.commitItem = function (keyID) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                $global.$scope = $tr;
+                var $parent = $tr.parent();
+                var viewModel = $tr.find('input,select,textArea').serializeObject();
+                viewModel.keyID = keyID;
+                viewModel.supplierID = $('#queryArea [name="SupplierID"]').val();
+                clearErrors();
+                $.post('@Html.Raw(Url.Action("CommitItem", "ProductCatalog"))', viewModel, function (data) {
+                    if ($.isPlainObject(data)) {
+                        if (data.result) {
+                            $inquiryAgent.dataItem(data.keyID, $tr, function () {
+                                $inquiryAgent.loadItem({ 'displayType':@((int)Naming.FieldDisplayType.Create), 'keyID': '@((-1).EncryptKey())' }, function (d) {
+                                    $parent.append(d);
+                                });
                             });
-                        });
+                        } else {
+                            alert(data.message);
+                        }
                     } else {
-                        alert(data.message);
+                        $(data).appendTo($('body')).remove();
                     }
-                } else {
-                    $(data).appendTo($('body')).remove();
-                }
-            });
-        };
-    });
+                });
+            };
+        });
 
     </script>
     @if (_viewModel.StartQuery == true)
@@ -166,4 +184,3 @@
     }
 
 }
-

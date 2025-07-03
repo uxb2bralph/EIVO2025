@@ -50,19 +50,24 @@
             int idx = System.Array.IndexOf(viewModel.SortName, "Barcode");
             if (idx >= 0)
             {
-                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<ProductCatalog> ?? (IQueryable<ProductCatalog>)this.Model).OrderBy(p => p.Barcode, viewModel.SortType[idx]);
+                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<ProductCatalog> ??
+                (IQueryable<ProductCatalog>)this.Model).OrderBy(p => p.Barcode, viewModel.SortType[idx]);
             }
         }
         break;
     case Naming.FieldDisplayType.Query:
-        <tr>
-            <th>
-                條碼
-            </th>
-            <td class="tdleft">
-                @{editField(_viewModel, null); }
-            </td>
-        </tr>
+        <div class="py-2 col">
+            <div class="row">
+                <label for="Barcode" class="col-md-4 col-form-label fw-bold text-nowrap">
+                    條碼
+                </label>
+                <div class="col">
+                    @{
+                        editField(_viewModel, null);
+                    }
+                </div>
+            </div>
+        </div>
         break;
 
     case Naming.FieldDisplayType.Edit:
@@ -77,8 +82,7 @@
 {
     void editField(ProductCatalogQueryViewModel _viewModel, ProductCatalog item)
     {
-        <input name="Barcode" class="form-control" type="text" value="@(item!=null ? item.Barcode : _viewModel?.Barcode)" />
+        <input id="Barcode" name="Barcode" class="form-control form-control-sm" type="text"
+            value="@(item != null ? item.Barcode : _viewModel?.Barcode)" />
     }
 }
-
-

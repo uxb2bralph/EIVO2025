@@ -49,7 +49,8 @@
             int idx = System.Array.IndexOf(viewModel.SortName, "SalePrice");
             if (idx >= 0)
             {
-                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<ProductCatalog> ?? (IQueryable<ProductCatalog>)this.Model).OrderBy(p => p.SalePrice, viewModel.SortType[idx]);
+                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<ProductCatalog> ??
+                (IQueryable<ProductCatalog>)this.Model).OrderBy(p => p.SalePrice, viewModel.SortType[idx]);
             }
         }
         break;
@@ -66,8 +67,7 @@
 {
     void editField(ProductCatalogQueryViewModel _viewModel, ProductCatalog item)
     {
-        <input name="SalePrice" class="form-control" type="text" value="@(item!=null ? item.SalePrice : _viewModel?.SalePrice)" />
+        <input name="SalePrice" class="form-control form-control-sm" type="text"
+            value="@(item != null ? item.SalePrice : _viewModel?.SalePrice)" />
     }
 }
-
-

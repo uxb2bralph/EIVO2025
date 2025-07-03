@@ -73,12 +73,12 @@
 
     case Naming.FieldDisplayType.Edit:
         item = this.Model as BusinessRelationship;
-        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--check text-nowrap"
+        <button type="button" class="editItem px-3 my-1 me-1 btn btn-sm eivo__btn--check text-nowrap"
             onclick="$inquiryAgent.commitItem('@(ViewBag.IsNew == true ? _viewModel.EmptyKeyID : (new { item.MasterID, item.RelativeID, item.BusinessID }).JsonStringify().EncryptData())');">
             <i class="fas fa-check"></i>
             確定
         </button>
-        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--cancel text-nowrap"
+        <button type="button" class="editItem px-3 my-1 me-1 btn btn-sm eivo__btn--cancel text-nowrap"
             onclick="$inquiryAgent.dataItem({ 'keyID': '@((new { item?.MasterID, item?.RelativeID, item?.BusinessID }).JsonStringify().EncryptData())','displayType':@(ViewBag.IsNew == true ? (int)Naming.FieldDisplayType.Create : (int)Naming.FieldDisplayType.DataItem) });">
             <i class="far fa-times"></i>
             取消
@@ -87,7 +87,7 @@
 
     case Naming.FieldDisplayType.Create:
         item = this.Model as BusinessRelationship;
-        <button type="button" class="editItem my-1 px-3 btn btn-sm eivo__btn--default text-nowrap"
+        <button type="button" class="editItem px-3 my-1 me-1 btn btn-sm eivo__btn--default text-nowrap"
             onclick="$inquiryAgent.editItem('@(_viewModel.EmptyKeyID)');">
             <i class="fas fa-plus"></i>
             新增

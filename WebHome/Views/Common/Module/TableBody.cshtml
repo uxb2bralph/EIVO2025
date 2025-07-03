@@ -110,7 +110,6 @@ else
 {
     ViewBag.DisplayType = Naming.FieldDisplayType.Create;
     <tr>
-        <td></td>
         @{
             await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", (object)ViewBag.CreateNew);
         }
