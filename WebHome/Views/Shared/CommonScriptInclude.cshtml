@@ -103,7 +103,7 @@
             }
 
             if (container == null) {
-                alert('列印失敗!! 請重試...');
+                alert('列印失敗！ 請重試...');
             }
 
             $element.find('style').attr('nonce', 'Y2hiY29kZQ==');
@@ -234,7 +234,7 @@
                     $.post('<%= Html.Raw(Url.Action("PrintPage", "Helper")) %>', {}, function (data) {
                         hideLoading();
                         if ($.isPlainObject(data)) {
-                            alertModal("無法取得列印文件!!");
+                            alertModal("無法取得列印文件！");
                         } else {
                             $printContainer = { 'documentTemplate': data };
                             doPrint($element, printDone);

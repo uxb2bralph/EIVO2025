@@ -51,7 +51,8 @@ footer {
             align-items: center;
             padding-top: 40px;
             padding-bottom: 40px;
-            background-color: #f5f5f5;
+            background: #f5f5f5 url(../images/login_bg1.png) no-repeat center center;
+            background-size: cover;
         }
 
         &-form {
