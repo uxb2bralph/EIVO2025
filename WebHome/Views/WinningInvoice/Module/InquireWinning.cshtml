@@ -4,7 +4,7 @@
 @using WebHome.Helper
 @using WebHome.Models
 @using WebHome.Controllers
-@using WebHome.Components  
+@using WebHome.Components
 @using ModelCore.DataEntity
 @using ModelCore.Helper
 @using ModelCore.Locale
@@ -15,7 +15,7 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 <!--路徑名稱-->
-@{ 
+@{
     await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "中獎統計表");
 }
 <div class="border_gray">
@@ -28,13 +28,20 @@
         </tr>
         @{
             ViewBag.QueryAll = true;
-            @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>());
-            @(await Component.InvokeAsync<InquireCustomerIDViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
-            @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>());
+            @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceBuyerViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireCustomerIDViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>())
+            ;
+            @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>())
+            ;
         }
 
         @{
@@ -53,9 +60,8 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
         <td class="Bargain_btn">
-            <input type="button" value="查詢" name="btnQuery" class="btn" onclick="$('form').prop('action', '@(Url.Action("InquireReport"))    ').submit();" />
+            <input type="button" value="查詢" name="btnQuery" class="btn"
+                onclick="$('form').prop('action', '@(Url.Action("InquireReport"))    ').submit();" />
         </td>
     </tr>
 </table>
-
-
