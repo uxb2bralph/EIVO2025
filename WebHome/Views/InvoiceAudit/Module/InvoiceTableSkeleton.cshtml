@@ -32,41 +32,47 @@
     String currentID = $"table{DateTime.Now.Ticks}";
     String[] columns = (string[])ViewBag.TableColumns;
 }
-<table id="@currentID" class="table table-striped itemList" cellspacing="0" cellpadding="0" style="width: 100%;">
-    <thead>
-        <tr>
+<!-- 發票資料 -->
+<div class="table-responsive">
+    <table id="@currentID" class="table table-striped itemList eivo__table">
+        <thead>
+            <tr>
+                @{
+                    ViewBag.DisplayType = Naming.FieldDisplayType.Header;
+                }
+                @foreach (var c in columns)
+                {
+                    <th scope="col">
+                        @{
+                            await Html.RenderPartialAsync(c, _model.FirstOrDefault());
+                        }
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
             @{
-                ViewBag.DisplayType = Naming.FieldDisplayType.Header;
+                await Html.RenderPartialAsync("~/Views/InvoiceAudit/Module/InvoiceTableBody.cshtml", _model);
             }
-            @foreach (var c in columns)
-            {
-                <th>@{ await Html.RenderPartialAsync(c, _model.FirstOrDefault()); }</th>
+        </tbody>
+        <tfoot>
+            @{
+                if (ViewBag.TableFooter != null)
+                {
+                    await Html.RenderPartialAsync((String)ViewBag.TableFooter, _model);
+                }
             }
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            await Html.RenderPartialAsync("~/Views/InvoiceAudit/Module/InvoiceTableBody.cshtml", _model);
-        }
-    </tbody>
-    <tfoot>
-        @{
-            if (ViewBag.TableFooter != null)
-            {
-                await Html.RenderPartialAsync((String)ViewBag.TableFooter, _model);
-            }
-        }
-    </tfoot>
-</table>
+        </tfoot>
+    </table>
+</div>
 <script>
-    $(function () {
+    //$(function () {
 
-        $inquiryAgent.onBodyLoad = function () {
-            var $table = $('#@currentID');
-            $table.find('tr:odd').addClass('OldLace');
-        };
+    //$inquiryAgent.onBodyLoad = function () {
+    //    var $table = $('#@currentID');
+    //    $table.find('tr:odd').addClass('OldLace');
+    //};
 
-        //$inquiryAgent.onBodyLoad();
-    });
+    //$inquiryAgent.onBodyLoad();
+    //});
 </script>
-

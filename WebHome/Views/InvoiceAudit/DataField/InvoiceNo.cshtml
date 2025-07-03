@@ -39,7 +39,8 @@
         break;
     case Naming.FieldDisplayType.DataItem:
         InvoiceItem item = this.Model as InvoiceItem;
-        <text><a onclick="javascript:showInvoiceModalByKeyID('@(item.InvoiceID.EncryptKey())');">@(item.TrackCode)@(item.No)</a></text>
+        <text><a
+                onclick="javascript:showInvoiceModalByKeyID('@(item.InvoiceID.EncryptKey())');">@(item.TrackCode)@(item.No)</a></text>
         break;
     case Naming.FieldDisplayType.SortBy:
         InquireInvoiceViewModel viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
@@ -52,7 +53,8 @@
                 {
                     if (TempData["SortedItems"] != null)
                     {
-                        TempData["SortedItems"] = ((IOrderedQueryable<InvoiceItem>)TempData["SortedItems"]).ThenBy(p => p.TrackCode).ThenBy(p => p.No);
+                        TempData["SortedItems"] = ((IOrderedQueryable<InvoiceItem>)TempData["SortedItems"]).ThenBy(p => p.TrackCode).ThenBy(p =>
+                        p.No);
                     }
                     else
                     {
@@ -63,26 +65,31 @@
                 {
                     if (TempData["SortedItems"] != null)
                     {
-                        TempData["SortedItems"] = ((IOrderedQueryable<InvoiceItem>)TempData["SortedItems"]).ThenByDescending(p => p.TrackCode).ThenByDescending(p => p.No);
+                        TempData["SortedItems"] = ((IOrderedQueryable<InvoiceItem>)TempData["SortedItems"]).ThenByDescending(p =>
+                        p.TrackCode).ThenByDescending(p => p.No);
                     }
                     else
                     {
-                        TempData["SortedItems"] = ((IQueryable<InvoiceItem>)this.Model).OrderByDescending(p => p.TrackCode).OrderByDescending(p => p.No);
+                        TempData["SortedItems"] = ((IQueryable<InvoiceItem>)this.Model).OrderByDescending(p => p.TrackCode).OrderByDescending(p
+                        => p.No);
                     }
                 }
             }
         }
         break;
     case Naming.FieldDisplayType.Query:
-        <tr>
-            <th>發票號碼</th>
-            <td class="tdleft">
-                <input name="InvoiceNo" type="text" class="form-control" value="@( _viewModel?.InvoiceNo )" />
-            </td>
-        </tr>
+        <div class="py-2 col">
+            <div class="row">
+                <label for="InvoiceNo" class="col-md-4 col-form-label fw-bold text-nowrap">
+                    發票號碼
+                </label>
+                <div class="col">
+                    <input id="InvoiceNo" name="InvoiceNo" type="text" class="form-control form-control-sm"
+                        value="@( _viewModel?.InvoiceNo )" />
+                </div>
+            </div>
+        </div>
         break;
     default:
         break;
 }
-
-
