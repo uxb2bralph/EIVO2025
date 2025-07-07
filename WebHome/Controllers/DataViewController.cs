@@ -84,7 +84,10 @@ namespace WebHome.Controllers
         protected String getInvoiceViewPath(InvoiceItem item, out String[] useThermalPOSArgs, String paperStyle = null, Naming.InvoiceProcessType? processType = null)
         {
             useThermalPOSArgs = null;
-            if ((item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401 || processType == Naming.InvoiceProcessType.A0401)
+            if ((item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401 
+                || processType == Naming.InvoiceProcessType.A0401
+                || item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101 
+                || processType == Naming.InvoiceProcessType.A0101)
                     && !item.InvoiceBuyer.IsB2C())
             {
                 return "~/Views/DataView/A0401.cshtml";
@@ -180,7 +183,7 @@ namespace WebHome.Controllers
 
         public ActionResult PrintInvoiceAsPDF(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
         {
-            String workUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ShowInvoice", "DataView", Merge(viewModel, queryModel))}";
+            String workUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("ShowInvoice", "DataView", Merge(viewModel, queryModel))}";
             String pdfFile = Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.pdf");
 
             workUrl.ConvertHtmlToPDF(pdfFile, 1);

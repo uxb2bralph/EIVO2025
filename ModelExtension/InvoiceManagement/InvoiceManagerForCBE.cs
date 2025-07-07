@@ -48,8 +48,8 @@ namespace ModelCore.InvoiceManagement
                         if (!validator.DuplicateProcess)
                         {
                             this.EntityList.InsertOnSubmit(newItem);
-                            F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
-                            F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                            newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                            newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
                             this.SubmitChanges();
                         }

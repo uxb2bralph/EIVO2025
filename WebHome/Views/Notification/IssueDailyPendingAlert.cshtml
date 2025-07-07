@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -36,7 +36,7 @@
     if (!String.IsNullOrEmpty(mailTo))
     {
         String subject = $"({_viewModel.DateFrom:yyyy/MM/dd})發票資料未傳送大平台警告";
-        String body = (await Html.PartialAsync("~/Views/Notification/Module/DailyPendingAlert.cshtml", _model)).ToString();
+        String body = (await Html.PartialAsync("~/Views/Notification/Module/DailyPendingAlert.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
         try
         {
             body.SendMailMessage(mailTo, subject);

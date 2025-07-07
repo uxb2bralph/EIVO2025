@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -54,7 +54,7 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
     {
         var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
         String subject = $"{_model.Organization.CompanyName} 電子發票中獎通知(發票號碼:{_model.TrackCode}{_model.No})";
-        String body = Html.Partial(notificationView, _model).ToString();
+        String body = (await Html.PartialAsync(notificationView, _model)).RenderHtmlContentToString(HtmlEncoder);
         body.SendMailMessage(mailTo, subject, smtpSettings);
     }
 

@@ -1,0 +1,77 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@functions
+{
+    ModelSource<InvoiceItem>? models;
+    InquireInvoiceViewModel? _viewModel;
+}
+@{
+    ModelStateDictionary _modelState;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+@{
+    _viewModel.DataColumns!.Add(new QueryResultDataColumnHelper
+    {
+        ShowHeader = item => BuildHelperResult(ShowHeader, item),
+        ShowBody = item => BuildHelperResult(ShowBody, item),
+        ShowFooter = item => BuildHelperResult(ShowFooter, item)
+    });
+}
+
+@functions
+{
+    HelperResult BuildHelperResult(Action<dynamic> action, dynamic item)
+    {
+        return new HelperResult(async (writer) =>
+        {
+            var original = ViewContext.Writer;
+            ViewContext.Writer = writer;
+            action(item);
+            await writer.WriteAsync("");
+            ViewContext.Writer = original;
+        });
+    }
+
+    void ShowHeader(dynamic item)
+    {
+    }
+
+    void ShowBody(dynamic po)
+    {
+    }
+
+    void ShowFooter(dynamic item)
+    {
+        IQueryable<InvoiceAllowance> items = (IQueryable<InvoiceAllowance>)item;
+        <td colspan="25">
+            @if (_viewModel?.CurrencySummary == true)
+            {
+                foreach (var g in items.GroupBy(i => i.CurrencyID))
+                {
+                    var currency = g.Key.HasValue ? models!.GetTable<CurrencyType>().Where(c => c.CurrencyID == g.Key).FirstOrDefault()?.AbbrevName : "TWD";
+                    <text>
+                        含稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.TotalAmount + i.TaxAmount)))，
+                        未稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.TotalAmount)))，
+                        稅額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.TaxAmount)))<br />
+                    </text>
+                }
+            }
+        </td>
+    }
+}

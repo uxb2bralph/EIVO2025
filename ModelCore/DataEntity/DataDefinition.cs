@@ -6,6 +6,7 @@ using System.Text;
 using CommonLib.Utility;
 using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
+using ModelCore.Schema.TurnKey.Invoice;
 using Newtonsoft.Json;
 
 namespace ModelCore.DataEntity
@@ -130,7 +131,7 @@ namespace ModelCore.DataEntity
         public Naming.Truth? DisableE0501AutoUpdate { get; set; }
         public Naming.Truth? E0501InitialLock { get; set; }
         public int? E0501ReservedBooklets { get; set; }
-        public ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum? ZeroTaxRateReason { get; set; }
+        public ZeroTaxRateReasonEnum? ZeroTaxRateReason { get; set; }
     }
 
     public partial class CategoryDefinition

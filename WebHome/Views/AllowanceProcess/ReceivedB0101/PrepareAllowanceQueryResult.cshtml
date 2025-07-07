@@ -1,0 +1,50 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/InvoiceProcess/DataQuery/PrepareQueryResultTemplate.cshtml";
+    ModelSource<InvoiceItem> models;
+    QueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+
+@section DataColumns
+{
+    @{ 
+        var _profile = Context.GetUser();
+
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/EncItemCheckBox.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/CompanyName.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/ReceiptNo.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/AllowanceNumber.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/AllowanceDate.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/BuyerName.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/BuyerNo.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/MIGStatus.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/Currency.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/SalesAmount.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/TaxType.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/TaxAmount.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/TotalAmount.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/Remark.cshtml");
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/InvoiceAllowance/QuerySummary.cshtml");
+    }
+}

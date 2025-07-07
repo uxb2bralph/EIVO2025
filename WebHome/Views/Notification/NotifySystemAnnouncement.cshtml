@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -64,8 +64,8 @@
 @if (_model!=null)
 {
     String Subject = $"網際優勢電子發票加值中心 系統公告";
-    String body = Html.Partial("~/Views/Notification/Module/Announcement.cshtml").ToString();
-    foreach(var mailTo in _model)
+    String body = (await Html.PartialAsync("~/Views/Notification/Module/Announcement.cshtml")).RenderHtmlContentToString(HtmlEncoder);
+    foreach (var mailTo in _model)
     {
         try
         {

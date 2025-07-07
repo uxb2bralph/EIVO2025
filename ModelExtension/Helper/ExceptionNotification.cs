@@ -19,10 +19,10 @@ namespace ModelCore.Helper
         public Dictionary<int, Exception> ExceptionItems { get; set; }
         public InvoiceRoot InvoiceData { get; set; }
         public SellerInvoiceRoot B2BInvoiceData { get; set; }
-        public ModelCore.Schema.TurnKey.C0401.Invoice InvoiceData_C0401 { get; set; }
-        public ModelCore.Schema.TurnKey.C0501.CancelInvoice CancelInvoiceData_C0501 { get; set; }
-        public ModelCore.Schema.TurnKey.D0401.Allowance AllowanceData_D0401 { get; set; }
-        public ModelCore.Schema.TurnKey.D0501.CancelAllowance CancelAllowanceData_D0501 { get; set; }
+        public ModelCore.Schema.TurnKey.Invoice.Invoice F0401 { get; set; }
+        public ModelCore.Schema.TurnKey.Invoice.CancelInvoice F0501 { get; set; }
+        public ModelCore.Schema.TurnKey.Allowance.Allowance G0401 { get; set; }
+        public ModelCore.Schema.TurnKey.Allowance.CancelAllowance G0501 { get; set; }
         public CancelInvoiceRoot CancelInvoiceData { get; set; }
         public AllowanceRoot AllowanceData { get; set; }
         public CancelAllowanceRoot CancelAllowanceData { get; set; }
@@ -75,7 +75,7 @@ namespace ModelCore.Helper
                 {
                     notifyExceptionWhenUploadB2BInvoice(info);
                 }
-                else if (info.InvoiceData_C0401 != null)
+                else if (info.F0401 != null)
                 {
                     notifyExceptionWhenUploadInvoice_C0401(info);
                 }
@@ -83,7 +83,7 @@ namespace ModelCore.Helper
                 {
                     notifyExceptionWhenUploadCancellation(info);
                 }
-                else if (info.CancelInvoiceData_C0501 != null)
+                else if (info.F0501 != null)
                 {
                     notifyExceptionWhenUploadCancellation_C0501(info);
                 }
@@ -259,7 +259,7 @@ namespace ModelCore.Helper
                     LogTime = DateTime.Now,
                     TypeID = (int)Naming.DocumentTypeDefinition.E_Invoice,
                     Message = e.Value.Message,
-                    DataContent = info.InvoiceData_C0401.GetXml()
+                    DataContent = info.F0401.GetXml()
                 }));
                 mgr.SubmitChanges();
             }
@@ -434,7 +434,7 @@ namespace ModelCore.Helper
                     LogTime = DateTime.Now,
                     TypeID = (int)Naming.DocumentTypeDefinition.E_InvoiceCancellation,
                     Message = e.Value.Message,
-                    DataContent = info.CancelInvoiceData_C0501.GetXml()
+                    DataContent = info.F0501.GetXml()
                 }));
                 mgr.SubmitChanges();
             }

@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -49,7 +49,7 @@
 @if (_model.Organization.OrganizationSettings.Any(s => s.Settings == "AllowPrintAll"))
 {
     <p>
-        列印電子發票證明聯請<a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("GetPrint","IndividualProcess",new { KeyID = _model.InvoiceID.EncryptKey() })}")">按此</a>。
+        列印電子發票證明聯請<a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("GetPrint","IndividualProcess",new { KeyID = _model.InvoiceID.EncryptKey() })}")">按此</a>。
     </p>
 }
 <p class="red">

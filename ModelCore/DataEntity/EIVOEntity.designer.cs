@@ -508,9 +508,6 @@ namespace ModelCore.DataEntity
     partial void InsertC0401DispatchQueue(C0401DispatchQueue instance);
     partial void UpdateC0401DispatchQueue(C0401DispatchQueue instance);
     partial void DeleteC0401DispatchQueue(C0401DispatchQueue instance);
-    partial void InsertDataProcessLog(DataProcessLog instance);
-    partial void UpdateDataProcessLog(DataProcessLog instance);
-    partial void DeleteDataProcessLog(DataProcessLog instance);
     partial void InsertDocumentPostLog(DocumentPostLog instance);
     partial void UpdateDocumentPostLog(DocumentPostLog instance);
     partial void DeleteDocumentPostLog(DocumentPostLog instance);
@@ -532,6 +529,12 @@ namespace ModelCore.DataEntity
     partial void InsertInvoiceNoMainAssignment(InvoiceNoMainAssignment instance);
     partial void UpdateInvoiceNoMainAssignment(InvoiceNoMainAssignment instance);
     partial void DeleteInvoiceNoMainAssignment(InvoiceNoMainAssignment instance);
+    partial void InsertDataProcessQueue(DataProcessQueue instance);
+    partial void UpdateDataProcessQueue(DataProcessQueue instance);
+    partial void DeleteDataProcessQueue(DataProcessQueue instance);
+    partial void InsertDataProcessLog(DataProcessLog instance);
+    partial void UpdateDataProcessLog(DataProcessLog instance);
+    partial void DeleteDataProcessLog(DataProcessLog instance);
     #endregion
 		
 		public EIVOEntityDataContext(string connection) : 
@@ -1838,14 +1841,6 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		public System.Data.Linq.Table<DataProcessLog> DataProcessLog
-		{
-			get
-			{
-				return this.GetTable<DataProcessLog>();
-			}
-		}
-		
 		public System.Data.Linq.Table<DocumentPostLog> DocumentPostLog
 		{
 			get
@@ -1899,6 +1894,22 @@ namespace ModelCore.DataEntity
 			get
 			{
 				return this.GetTable<InvoiceNoMainAssignment>();
+			}
+		}
+		
+		public System.Data.Linq.Table<DataProcessQueue> DataProcessQueue
+		{
+			get
+			{
+				return this.GetTable<DataProcessQueue>();
+			}
+		}
+		
+		public System.Data.Linq.Table<DataProcessLog> DataProcessLog
+		{
+			get
+			{
+				return this.GetTable<DataProcessLog>();
 			}
 		}
 		
@@ -5341,9 +5352,11 @@ namespace ModelCore.DataEntity
 		
 		private EntitySet<C0401DispatchQueue> _C0401DispatchQueue;
 		
-		private EntitySet<DataProcessLog> _DataProcessLog;
-		
 		private EntityRef<VoidInvoiceRequest> _VoidInvoiceRequest;
+		
+		private EntitySet<DataProcessQueue> _DataProcessQueue;
+		
+		private EntitySet<DataProcessLog> _DataProcessLog;
 		
 		private EntityRef<DocumentType> _DocumentType;
 		
@@ -6587,27 +6600,8 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessLog", Storage="_DataProcessLog", ThisKey="DocID", OtherKey="DocID")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=52, EmitDefaultValue=false)]
-		public EntitySet<DataProcessLog> DataProcessLog
-		{
-			get
-			{
-				if ((this.serializing 
-							&& (this._DataProcessLog.HasLoadedOrAssignedValues == false)))
-				{
-					return null;
-				}
-				return this._DataProcessLog;
-			}
-			set
-			{
-				this._DataProcessLog.Assign(value);
-			}
-		}
-		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_VoidInvoiceRequest", Storage="_VoidInvoiceRequest", ThisKey="DocID", OtherKey="DocID", IsUnique=true, IsForeignKey=false)]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=53, EmitDefaultValue=false)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=52, EmitDefaultValue=false)]
 		public VoidInvoiceRequest VoidInvoiceRequest
 		{
 			get
@@ -6638,6 +6632,44 @@ namespace ModelCore.DataEntity
 					}
 					this.SendPropertyChanged("VoidInvoiceRequest");
 				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessQueue", Storage="_DataProcessQueue", ThisKey="DocID", OtherKey="DocID")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=53, EmitDefaultValue=false)]
+		public EntitySet<DataProcessQueue> DataProcessQueue
+		{
+			get
+			{
+				if ((this.serializing 
+							&& (this._DataProcessQueue.HasLoadedOrAssignedValues == false)))
+				{
+					return null;
+				}
+				return this._DataProcessQueue;
+			}
+			set
+			{
+				this._DataProcessQueue.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessLog", Storage="_DataProcessLog", ThisKey="DocID", OtherKey="DocID")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=54, EmitDefaultValue=false)]
+		public EntitySet<DataProcessLog> DataProcessLog
+		{
+			get
+			{
+				if ((this.serializing 
+							&& (this._DataProcessLog.HasLoadedOrAssignedValues == false)))
+				{
+					return null;
+				}
+				return this._DataProcessLog;
+			}
+			set
+			{
+				this._DataProcessLog.Assign(value);
 			}
 		}
 		
@@ -7101,6 +7133,18 @@ namespace ModelCore.DataEntity
 			entity.CDS_Document = null;
 		}
 		
+		private void attach_DataProcessQueue(DataProcessQueue entity)
+		{
+			this.SendPropertyChanging();
+			entity.CDS_Document = this;
+		}
+		
+		private void detach_DataProcessQueue(DataProcessQueue entity)
+		{
+			this.SendPropertyChanging();
+			entity.CDS_Document = null;
+		}
+		
 		private void attach_DataProcessLog(DataProcessLog entity)
 		{
 			this.SendPropertyChanging();
@@ -7160,8 +7204,9 @@ namespace ModelCore.DataEntity
 			this._ProcessRequestDocument = default(EntityRef<ProcessRequestDocument>);
 			this._CustomerDefined = default(EntityRef<CustomerDefined>);
 			this._C0401DispatchQueue = new EntitySet<C0401DispatchQueue>(new Action<C0401DispatchQueue>(this.attach_C0401DispatchQueue), new Action<C0401DispatchQueue>(this.detach_C0401DispatchQueue));
-			this._DataProcessLog = new EntitySet<DataProcessLog>(new Action<DataProcessLog>(this.attach_DataProcessLog), new Action<DataProcessLog>(this.detach_DataProcessLog));
 			this._VoidInvoiceRequest = default(EntityRef<VoidInvoiceRequest>);
+			this._DataProcessQueue = new EntitySet<DataProcessQueue>(new Action<DataProcessQueue>(this.attach_DataProcessQueue), new Action<DataProcessQueue>(this.detach_DataProcessQueue));
+			this._DataProcessLog = new EntitySet<DataProcessLog>(new Action<DataProcessLog>(this.attach_DataProcessLog), new Action<DataProcessLog>(this.detach_DataProcessLog));
 			this._DocumentType = default(EntityRef<DocumentType>);
 			this._LevelExpression = default(EntityRef<LevelExpression>);
 			OnCreated();
@@ -47909,248 +47954,6 @@ namespace ModelCore.DataEntity
 		}
 	}
 	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="[proc].DataProcessLog")]
-	[global::System.Runtime.Serialization.DataContractAttribute()]
-	public partial class DataProcessLog : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _LogID;
-		
-		private int _DocID;
-		
-		private System.DateTime _LogDate;
-		
-		private int _Status;
-		
-		private System.Nullable<int> _StepID;
-		
-		private string _Content;
-		
-		private EntityRef<CDS_Document> _CDS_Document;
-		
-    #region 擴充性方法定義
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnLogIDChanging(int value);
-    partial void OnLogIDChanged();
-    partial void OnDocIDChanging(int value);
-    partial void OnDocIDChanged();
-    partial void OnLogDateChanging(System.DateTime value);
-    partial void OnLogDateChanged();
-    partial void OnStatusChanging(int value);
-    partial void OnStatusChanged();
-    partial void OnStepIDChanging(System.Nullable<int> value);
-    partial void OnStepIDChanged();
-    partial void OnContentChanging(string value);
-    partial void OnContentChanged();
-    #endregion
-		
-		public DataProcessLog()
-		{
-			this.Initialize();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LogID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=1)]
-		public int LogID
-		{
-			get
-			{
-				return this._LogID;
-			}
-			set
-			{
-				if ((this._LogID != value))
-				{
-					this.OnLogIDChanging(value);
-					this.SendPropertyChanging();
-					this._LogID = value;
-					this.SendPropertyChanged("LogID");
-					this.OnLogIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DocID", DbType="Int NOT NULL")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=2)]
-		public int DocID
-		{
-			get
-			{
-				return this._DocID;
-			}
-			set
-			{
-				if ((this._DocID != value))
-				{
-					if (this._CDS_Document.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnDocIDChanging(value);
-					this.SendPropertyChanging();
-					this._DocID = value;
-					this.SendPropertyChanged("DocID");
-					this.OnDocIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LogDate", DbType="DateTime NOT NULL")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=3)]
-		public System.DateTime LogDate
-		{
-			get
-			{
-				return this._LogDate;
-			}
-			set
-			{
-				if ((this._LogDate != value))
-				{
-					this.OnLogDateChanging(value);
-					this.SendPropertyChanging();
-					this._LogDate = value;
-					this.SendPropertyChanged("LogDate");
-					this.OnLogDateChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Status", DbType="Int NOT NULL")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=4)]
-		public int Status
-		{
-			get
-			{
-				return this._Status;
-			}
-			set
-			{
-				if ((this._Status != value))
-				{
-					this.OnStatusChanging(value);
-					this.SendPropertyChanging();
-					this._Status = value;
-					this.SendPropertyChanged("Status");
-					this.OnStatusChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_StepID", DbType="Int")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=5)]
-		public System.Nullable<int> StepID
-		{
-			get
-			{
-				return this._StepID;
-			}
-			set
-			{
-				if ((this._StepID != value))
-				{
-					this.OnStepIDChanging(value);
-					this.SendPropertyChanging();
-					this._StepID = value;
-					this.SendPropertyChanged("StepID");
-					this.OnStepIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Content", DbType="NVarChar(MAX)")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=6)]
-		public string Content
-		{
-			get
-			{
-				return this._Content;
-			}
-			set
-			{
-				if ((this._Content != value))
-				{
-					this.OnContentChanging(value);
-					this.SendPropertyChanging();
-					this._Content = value;
-					this.SendPropertyChanged("Content");
-					this.OnContentChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessLog", Storage="_CDS_Document", ThisKey="DocID", OtherKey="DocID", IsForeignKey=true, DeleteOnNull=true, DeleteRule="CASCADE")]
-		public CDS_Document CDS_Document
-		{
-			get
-			{
-				return this._CDS_Document.Entity;
-			}
-			set
-			{
-				CDS_Document previousValue = this._CDS_Document.Entity;
-				if (((previousValue != value) 
-							|| (this._CDS_Document.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._CDS_Document.Entity = null;
-						previousValue.DataProcessLog.Remove(this);
-					}
-					this._CDS_Document.Entity = value;
-					if ((value != null))
-					{
-						value.DataProcessLog.Add(this);
-						this._DocID = value.DocID;
-					}
-					else
-					{
-						this._DocID = default(int);
-					}
-					this.SendPropertyChanged("CDS_Document");
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-		
-		private void Initialize()
-		{
-			this._CDS_Document = default(EntityRef<CDS_Document>);
-			OnCreated();
-		}
-		
-		[global::System.Runtime.Serialization.OnDeserializingAttribute()]
-		[global::System.ComponentModel.EditorBrowsableAttribute(EditorBrowsableState.Never)]
-		public void OnDeserializing(StreamingContext context)
-		{
-			this.Initialize();
-		}
-	}
-	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.DocumentPostLog")]
 	[global::System.Runtime.Serialization.DataContractAttribute()]
 	public partial class DocumentPostLog : INotifyPropertyChanging, INotifyPropertyChanged
@@ -49755,6 +49558,490 @@ namespace ModelCore.DataEntity
 		public void OnSerialized(StreamingContext context)
 		{
 			this.serializing = false;
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="[proc].DataProcessQueue")]
+	[global::System.Runtime.Serialization.DataContractAttribute()]
+	public partial class DataProcessQueue : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _DocID;
+		
+		private int _StepID;
+		
+		private int _ProcessType;
+		
+		private System.DateTime _DispatchDate;
+		
+		private System.Nullable<System.DateTime> _BookingTime;
+		
+		private EntityRef<CDS_Document> _CDS_Document;
+		
+    #region 擴充性方法定義
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnDocIDChanging(int value);
+    partial void OnDocIDChanged();
+    partial void OnStepIDChanging(int value);
+    partial void OnStepIDChanged();
+    partial void OnProcessTypeChanging(int value);
+    partial void OnProcessTypeChanged();
+    partial void OnDispatchDateChanging(System.DateTime value);
+    partial void OnDispatchDateChanged();
+    partial void OnBookingTimeChanging(System.Nullable<System.DateTime> value);
+    partial void OnBookingTimeChanged();
+    #endregion
+		
+		public DataProcessQueue()
+		{
+			this.Initialize();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DocID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+		public int DocID
+		{
+			get
+			{
+				return this._DocID;
+			}
+			set
+			{
+				if ((this._DocID != value))
+				{
+					if (this._CDS_Document.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnDocIDChanging(value);
+					this.SendPropertyChanging();
+					this._DocID = value;
+					this.SendPropertyChanged("DocID");
+					this.OnDocIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_StepID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+		public int StepID
+		{
+			get
+			{
+				return this._StepID;
+			}
+			set
+			{
+				if ((this._StepID != value))
+				{
+					this.OnStepIDChanging(value);
+					this.SendPropertyChanging();
+					this._StepID = value;
+					this.SendPropertyChanged("StepID");
+					this.OnStepIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProcessType", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=3)]
+		public int ProcessType
+		{
+			get
+			{
+				return this._ProcessType;
+			}
+			set
+			{
+				if ((this._ProcessType != value))
+				{
+					this.OnProcessTypeChanging(value);
+					this.SendPropertyChanging();
+					this._ProcessType = value;
+					this.SendPropertyChanged("ProcessType");
+					this.OnProcessTypeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DispatchDate", DbType="DateTime NOT NULL")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=4)]
+		public System.DateTime DispatchDate
+		{
+			get
+			{
+				return this._DispatchDate;
+			}
+			set
+			{
+				if ((this._DispatchDate != value))
+				{
+					this.OnDispatchDateChanging(value);
+					this.SendPropertyChanging();
+					this._DispatchDate = value;
+					this.SendPropertyChanged("DispatchDate");
+					this.OnDispatchDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_BookingTime", DbType="DateTime")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=5)]
+		public System.Nullable<System.DateTime> BookingTime
+		{
+			get
+			{
+				return this._BookingTime;
+			}
+			set
+			{
+				if ((this._BookingTime != value))
+				{
+					this.OnBookingTimeChanging(value);
+					this.SendPropertyChanging();
+					this._BookingTime = value;
+					this.SendPropertyChanged("BookingTime");
+					this.OnBookingTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessQueue", Storage="_CDS_Document", ThisKey="DocID", OtherKey="DocID", IsForeignKey=true, DeleteOnNull=true, DeleteRule="CASCADE")]
+		public CDS_Document CDS_Document
+		{
+			get
+			{
+				return this._CDS_Document.Entity;
+			}
+			set
+			{
+				CDS_Document previousValue = this._CDS_Document.Entity;
+				if (((previousValue != value) 
+							|| (this._CDS_Document.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._CDS_Document.Entity = null;
+						previousValue.DataProcessQueue.Remove(this);
+					}
+					this._CDS_Document.Entity = value;
+					if ((value != null))
+					{
+						value.DataProcessQueue.Add(this);
+						this._DocID = value.DocID;
+					}
+					else
+					{
+						this._DocID = default(int);
+					}
+					this.SendPropertyChanged("CDS_Document");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void Initialize()
+		{
+			this._CDS_Document = default(EntityRef<CDS_Document>);
+			OnCreated();
+		}
+		
+		[global::System.Runtime.Serialization.OnDeserializingAttribute()]
+		[global::System.ComponentModel.EditorBrowsableAttribute(EditorBrowsableState.Never)]
+		public void OnDeserializing(StreamingContext context)
+		{
+			this.Initialize();
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="[proc].DataProcessLog")]
+	[global::System.Runtime.Serialization.DataContractAttribute()]
+	public partial class DataProcessLog : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _LogID;
+		
+		private int _DocID;
+		
+		private System.DateTime _LogDate;
+		
+		private int _Status;
+		
+		private System.Nullable<int> _StepID;
+		
+		private string _Content;
+		
+		private System.Nullable<int> _ProcessType;
+		
+		private EntityRef<CDS_Document> _CDS_Document;
+		
+    #region 擴充性方法定義
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnLogIDChanging(int value);
+    partial void OnLogIDChanged();
+    partial void OnDocIDChanging(int value);
+    partial void OnDocIDChanged();
+    partial void OnLogDateChanging(System.DateTime value);
+    partial void OnLogDateChanged();
+    partial void OnStatusChanging(int value);
+    partial void OnStatusChanged();
+    partial void OnStepIDChanging(System.Nullable<int> value);
+    partial void OnStepIDChanged();
+    partial void OnContentChanging(string value);
+    partial void OnContentChanged();
+    partial void OnProcessTypeChanging(System.Nullable<int> value);
+    partial void OnProcessTypeChanged();
+    #endregion
+		
+		public DataProcessLog()
+		{
+			this.Initialize();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LogID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+		public int LogID
+		{
+			get
+			{
+				return this._LogID;
+			}
+			set
+			{
+				if ((this._LogID != value))
+				{
+					this.OnLogIDChanging(value);
+					this.SendPropertyChanging();
+					this._LogID = value;
+					this.SendPropertyChanged("LogID");
+					this.OnLogIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DocID", DbType="Int NOT NULL")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+		public int DocID
+		{
+			get
+			{
+				return this._DocID;
+			}
+			set
+			{
+				if ((this._DocID != value))
+				{
+					if (this._CDS_Document.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnDocIDChanging(value);
+					this.SendPropertyChanging();
+					this._DocID = value;
+					this.SendPropertyChanged("DocID");
+					this.OnDocIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LogDate", DbType="DateTime NOT NULL")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=3)]
+		public System.DateTime LogDate
+		{
+			get
+			{
+				return this._LogDate;
+			}
+			set
+			{
+				if ((this._LogDate != value))
+				{
+					this.OnLogDateChanging(value);
+					this.SendPropertyChanging();
+					this._LogDate = value;
+					this.SendPropertyChanged("LogDate");
+					this.OnLogDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Status", DbType="Int NOT NULL")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=4)]
+		public int Status
+		{
+			get
+			{
+				return this._Status;
+			}
+			set
+			{
+				if ((this._Status != value))
+				{
+					this.OnStatusChanging(value);
+					this.SendPropertyChanging();
+					this._Status = value;
+					this.SendPropertyChanged("Status");
+					this.OnStatusChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_StepID", DbType="Int")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=5)]
+		public System.Nullable<int> StepID
+		{
+			get
+			{
+				return this._StepID;
+			}
+			set
+			{
+				if ((this._StepID != value))
+				{
+					this.OnStepIDChanging(value);
+					this.SendPropertyChanging();
+					this._StepID = value;
+					this.SendPropertyChanged("StepID");
+					this.OnStepIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Content", DbType="NVarChar(MAX)")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=6)]
+		public string Content
+		{
+			get
+			{
+				return this._Content;
+			}
+			set
+			{
+				if ((this._Content != value))
+				{
+					this.OnContentChanging(value);
+					this.SendPropertyChanging();
+					this._Content = value;
+					this.SendPropertyChanged("Content");
+					this.OnContentChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProcessType", DbType="Int")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=7)]
+		public System.Nullable<int> ProcessType
+		{
+			get
+			{
+				return this._ProcessType;
+			}
+			set
+			{
+				if ((this._ProcessType != value))
+				{
+					this.OnProcessTypeChanging(value);
+					this.SendPropertyChanging();
+					this._ProcessType = value;
+					this.SendPropertyChanged("ProcessType");
+					this.OnProcessTypeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessLog", Storage="_CDS_Document", ThisKey="DocID", OtherKey="DocID", IsForeignKey=true, DeleteOnNull=true, DeleteRule="CASCADE")]
+		public CDS_Document CDS_Document
+		{
+			get
+			{
+				return this._CDS_Document.Entity;
+			}
+			set
+			{
+				CDS_Document previousValue = this._CDS_Document.Entity;
+				if (((previousValue != value) 
+							|| (this._CDS_Document.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._CDS_Document.Entity = null;
+						previousValue.DataProcessLog.Remove(this);
+					}
+					this._CDS_Document.Entity = value;
+					if ((value != null))
+					{
+						value.DataProcessLog.Add(this);
+						this._DocID = value.DocID;
+					}
+					else
+					{
+						this._DocID = default(int);
+					}
+					this.SendPropertyChanged("CDS_Document");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void Initialize()
+		{
+			this._CDS_Document = default(EntityRef<CDS_Document>);
+			OnCreated();
+		}
+		
+		[global::System.Runtime.Serialization.OnDeserializingAttribute()]
+		[global::System.ComponentModel.EditorBrowsableAttribute(EditorBrowsableState.Never)]
+		public void OnDeserializing(StreamingContext context)
+		{
+			this.Initialize();
 		}
 	}
 	

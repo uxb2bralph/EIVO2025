@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -58,7 +58,7 @@ else if(invoiceItems.Any() || cancelInvoices.Any() || allowanceItems.Any() || ca
         var smtpSettings = orgItem.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
         String subject = $"{orgItem.CompanyName}({_viewModel.DateFrom:yyyy/MM/dd})開立發票統計通知";
-        String body = Html.Partial("~/Views/Notification/Module/DailyReportIssued.cshtml", _model).ToString();
+        String body = (await Html.PartialAsync("~/Views/Notification/Module/DailyReportIssued.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
         try
         {
             body.SendMailMessage(mailTo, subject, smtpSettings);

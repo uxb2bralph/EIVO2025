@@ -300,7 +300,7 @@ namespace WebHome.Helper
                 using (WebClient client = new WebClient())
                 {
                     String tempPDF = client.DownloadString(String.Format("{0}{1}?id={2}&nameOnly=true",
-                                            Properties.Settings.Default.HostDomain,
+                                            ModelExtension.Properties.AppSettings.Default.HostUrl,
                                             VirtualPathUtility.ToAbsolute("~/DataView/PrintSingleAllowanceAsPDF"),
                                             item.AllowanceID));
 

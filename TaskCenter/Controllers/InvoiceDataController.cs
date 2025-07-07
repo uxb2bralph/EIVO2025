@@ -270,7 +270,7 @@ namespace TaskCenter.Controllers
                             DocDate = d.CDS_Document.DocDate,
                             No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.InvoiceNo(),
                             ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.Organization?.ReceiptNo,
-                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501().GetXml()
+                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501()?.OuterXml
                         }).ToArray();
                     break;
 
@@ -308,7 +308,7 @@ namespace TaskCenter.Controllers
                             DocDate = d.CDS_Document.DocDate,
                             No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.InvoiceNo(),
                             ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.Organization?.ReceiptNo,
-                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501().GetXml()
+                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501()?.OuterXml
                         }).ToArray();
                     break;
 
@@ -327,7 +327,7 @@ namespace TaskCenter.Controllers
                             DocDate = d.CDS_Document.DocDate,
                             No = d.CDS_Document.InvoiceAllowance?.AllowanceNumber,
                             ReceiptNo = d.CDS_Document.InvoiceAllowance?.InvoiceAllowanceSeller?.ReceiptNo,
-                            MIG = d.CDS_Document.InvoiceAllowance?.CreateG0401().GetXml()
+                            MIG = d.CDS_Document.InvoiceAllowance?.CreateG0401().OuterXml
                         }).ToArray();
                     break;
 
@@ -346,7 +346,7 @@ namespace TaskCenter.Controllers
                             DocDate = d.CDS_Document.DocDate,
                             No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.AllowanceNumber,
                             ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.InvoiceAllowanceSeller?.ReceiptNo,
-                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.CreateG0501().GetXml()
+                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.CreateG0501()?.OuterXml
                         }).ToArray();
                     break;
 
@@ -365,7 +365,7 @@ namespace TaskCenter.Controllers
                             DocDate = d.CDS_Document.DocDate,
                             No = d.CDS_Document.InvoiceAllowance?.AllowanceNumber,
                             ReceiptNo = d.CDS_Document.InvoiceAllowance?.InvoiceAllowanceSeller?.ReceiptNo,
-                            MIG = d.CDS_Document.InvoiceAllowance?.CreateG0401().GetXml()
+                            MIG = d.CDS_Document.InvoiceAllowance?.CreateG0401().OuterXml
                         }).ToArray();
                     break;
 
@@ -384,7 +384,7 @@ namespace TaskCenter.Controllers
                             DocDate = d.CDS_Document.DocDate,
                             No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.AllowanceNumber,
                             ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.InvoiceAllowanceSeller?.ReceiptNo,
-                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.CreateG0501().GetXml()
+                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.CreateG0501()?.OuterXml
                         }).ToArray();
                     break;
 

@@ -1,4 +1,16 @@
-﻿using System;
+﻿using ClosedXML.Excel;
+using CommonLib.DataAccess;
+using CommonLib.Utility;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ModelCore.DataEntity;
+using ModelCore.Helper;
+using ModelCore.InvoiceManagement;
+using ModelCore.InvoiceManagement.InvoiceProcess;
+using ModelCore.Locale;
+using ModelCore.Models;
+using ModelCore.Models.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Linq;
@@ -9,27 +21,12 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web;
-using Microsoft.AspNetCore.Mvc;
-
-
-using ClosedXML.Excel;
 using WebHome.Helper;
 using WebHome.Models;
-using ModelCore.Models.ViewModel;
 using WebHome.Models.ViewModel;
 using WebHome.Properties;
-using ModelCore.DataEntity;
-using ModelCore.Locale;
-using ModelCore.Helper;
-
-using ModelCore.Helper;
-using CommonLib.Utility;
-using ModelCore.InvoiceManagement;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using CommonLib.DataAccess;
-using ModelCore.Models;
 
 namespace WebHome.Controllers
 {
@@ -77,10 +74,10 @@ namespace WebHome.Controllers
 
             if(viewModel.Status == "ReadyToMIG")
             {
-                var d0401Ready = models.GetTable<D0401DispatchQueue>().Where(s => s.StepID == (int)Naming.InvoiceStepDefinition.待批次傳送);
-                var b0401Ready = models.GetTable<B0401DispatchQueue>().Where(s => s.StepID == (int)Naming.InvoiceStepDefinition.待批次傳送);
-                modelSource.Items = modelSource.Items.Where(a => d0401Ready.Any(d => d.DocID == a.AllowanceID)
-                    || b0401Ready.Any(d => d.DocID == a.AllowanceID));
+                var d0401Ready = models.GetTable<DataProcessQueue>()
+                    .Where(s => s.ProcessType == (int)Naming.InvoiceProcessType.G0401)
+                    .Where(s => s.StepID == (int)Naming.InvoiceStepDefinition.待批次傳送);
+                modelSource.Items = modelSource.Items.Where(a => d0401Ready.Any(d => d.DocID == a.AllowanceID));
             }
 
             if (viewModel.PageIndex.HasValue)
@@ -92,6 +89,50 @@ namespace WebHome.Controllers
             {
                 viewModel.PageIndex = 0;
                 return View("~/Views/AllowanceProcess/Module/QueryResult.cshtml", modelSource.Items);
+            }
+        }
+
+        public ActionResult InquireReceivedB0101(InquireInvoiceViewModel viewModel)
+        {
+            bool hasPaging = viewModel.PageIndex.HasValue;
+            ViewResult result = (ViewResult)Inquire(viewModel);
+            IQueryable<InvoiceAllowance> items = (result.Model as IQueryable<InvoiceAllowance>)!;
+            items = items.Where(i => i.CDS_Document.DataProcessQueue
+                                .Where(q => q.ProcessType == (int)Naming.InvoiceProcessType.B0101)
+                                .Where(s => s.StepID == (int)Naming.InvoiceStepDefinition.待接收)
+                                .Any());
+            viewModel.RecordCount = items?.Count();
+
+            if (hasPaging)
+            {
+                return View("~/Views/AllowanceProcess/ReceivedB0101/AllowanceQueryList.cshtml", items);
+            }
+            else
+            {
+                return View("~/Views/AllowanceProcess/ReceivedB0101/AllowanceQueryResult.cshtml", items);
+            }
+        }
+
+        public ActionResult InquireReceivedB0201(InquireInvoiceViewModel viewModel)
+        {
+            bool hasPaging = viewModel.PageIndex.HasValue;
+            ViewResult result = (ViewResult)Inquire(viewModel);
+            IQueryable<InvoiceAllowance> items = (result.Model as IQueryable<InvoiceAllowance>)!;
+            var derivedItems = models!.GetTable<DerivedDocument>()
+                                .Where(i => i.CDS_Document.DataProcessQueue
+                                .Where(q => q.ProcessType == (int)Naming.InvoiceProcessType.B0201)
+                                .Where(s => s.StepID == (int)Naming.InvoiceStepDefinition.待接收)
+                                .Any());
+            items = items.Join(derivedItems, i => i.AllowanceID, d => d.SourceID, (i, d) => i);
+            viewModel.RecordCount = items?.Count();
+
+            if (hasPaging)
+            {
+                return View("~/Views/AllowanceProcess/ReceivedB0101/AllowanceQueryList.cshtml", items);
+            }
+            else
+            {
+                return View("~/Views/AllowanceProcess/ReceivedB0201/AllowanceQueryResult.cshtml", items);
             }
         }
 
@@ -322,8 +363,10 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult VoidAllowance(int?[] chkItem, Naming.InvoiceProcessType? proceType)
+        public ActionResult VoidAllowance(InquireInvoiceViewModel viewModel)
         {
+            ViewBag.ViewModel = viewModel;
+            var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
                 InvoiceManager mgr = new InvoiceManager(models);
@@ -331,7 +374,7 @@ namespace WebHome.Controllers
                 if (mgr.EventItems_Allowance != null && mgr.EventItems_Allowance.Count > 0)
                 {
                     ViewBag.Message = "下列折讓已作廢完成!!\r\n" + String.Join("\r\n", mgr.EventItems_Allowance.Select(i => i.AllowanceNumber));
-                    EIVOTurnkeyFactory.Notify();
+                    //EIVOTurnkeyFactory.Notify();
                 }
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
@@ -379,8 +422,10 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult TransferToMIG(int?[] chkItem)
+        public ActionResult TransferToMIG([FromBody] QueryViewModel viewModel)
         {
+            ViewBag.ViewModel = viewModel;
+            var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
                 foreach(var id in chkItem)
@@ -434,13 +479,132 @@ namespace WebHome.Controllers
             }
 
         }
+        public async Task<ActionResult> CommitReceivedB0101Async([FromBody] QueryViewModel viewModel)
+        {
+            ViewBag.ViewModel = viewModel;
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<QueryViewModel>();
+                ModelState.Clear();
+            }
 
-        //protected override void HandleUnknownAction(string actionName)
-        //{
-        //    if (!String.IsNullOrEmpty(actionName))
-        //    {
-        //        this.View(actionName).ExecuteResult(this.ControllerContext);
-        //    }
-        //}
+            bool? hasError = null;
+            if (viewModel.KeyItems?.Any() == true)
+            {
+                InvoiceHandler handler = new InvoiceHandler(models!);
+                var chkItem = viewModel.KeyItems.Select(k => k.DecryptKeyValue());
+
+                foreach (var id in chkItem)
+                {
+                    InvoiceAllowance? item = models!.GetTable<InvoiceAllowance>().Where(i => i.AllowanceID == id)
+                        .FirstOrDefault();
+
+                    if (item == null)
+                    {
+                        hasError = true;
+                        continue;
+                    }
+
+                    var queueItem = InvoiceHandler.GetReadyItem(models!, item.CDS_Document, Naming.InvoiceStepDefinition.待接收, Naming.InvoiceProcessType.B0101);
+                    if (queueItem == null)
+                    {
+                        hasError = true;
+                        continue;
+                    }
+
+                    handler.PrepareStep(queueItem, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.B0102);
+
+                    if (!hasError.HasValue)
+                    {
+                        hasError = false;
+                    }
+                }
+            }
+
+            if (!hasError.HasValue)
+            {
+                return Json(new { result = false, message = "請選擇接收資料!!" });
+            }
+            else if (hasError == true)
+            {
+                return Json(new { result = true, message = "部份資料未完成!!" });
+            }
+            else
+            {
+                return Json(new
+                {
+                    result = true,
+                    message = "發票已確認接收!!"
+                });
+            }
+        }
+
+        public async Task<ActionResult> CommitReceivedB0201Async([FromBody] QueryViewModel viewModel)
+        {
+            ViewBag.ViewModel = viewModel;
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<QueryViewModel>();
+                ModelState.Clear();
+            }
+
+            bool? hasError = null;
+            if (viewModel.KeyItems?.Any() == true)
+            {
+                InvoiceHandler handler = new InvoiceHandler(models!);
+                var chkItem = viewModel.KeyItems.Select(k => k.DecryptKeyValue());
+
+                foreach (var id in chkItem)
+                {
+                    InvoiceAllowance? item = models!.GetTable<InvoiceAllowance>().Where(i => i.AllowanceID == id)
+                        .FirstOrDefault();
+
+                    if (item == null)
+                    {
+                        hasError = true;
+                        continue;
+                    }
+
+                    CDS_Document? doc;
+                    if (item == null || (doc = item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document) == null)
+                    {
+                        hasError = true;
+                        continue;
+                    }
+
+                    var queueItem = InvoiceHandler.GetReadyItem(models!, doc, Naming.InvoiceStepDefinition.待接收, Naming.InvoiceProcessType.B0201);
+                    if (queueItem == null)
+                    {
+                        hasError = true;
+                        continue;
+                    }
+
+                    handler.PrepareStep(queueItem, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.B0202);
+
+                    if (!hasError.HasValue)
+                    {
+                        hasError = false;
+                    }
+                }
+            }
+
+            if (!hasError.HasValue)
+            {
+                return Json(new { result = false, message = "請選擇接收資料!!" });
+            }
+            else if (hasError == true)
+            {
+                return Json(new { result = true, message = "部份資料未完成!!" });
+            }
+            else
+            {
+                return Json(new
+                {
+                    result = true,
+                    message = "發票已確認接收!!"
+                });
+            }
+        }
+
     }
 }

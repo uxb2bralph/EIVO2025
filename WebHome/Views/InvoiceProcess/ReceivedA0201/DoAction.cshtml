@@ -1,0 +1,52 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+    <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td colspan="2">
+                <button type="button" class="btn" name="btnConfirm" onclick="uiInvoiceQuery.processA0201('@Html.Raw((int)Naming.ActionType.Allow)');">確認接收</button>
+            </td>
+        </tr>
+    </table>
+    <script>
+        $(function () {
+            var $postForm;
+            if (!window.uiInvoiceQuery) {
+                window.uiInvoiceQuery = {};
+            }
+            window.uiInvoiceQuery.processA0201 = function (processAction) {
+                if (!$('input[name="KeyItems"]').is(':checked')) {
+                    alert('請選擇接收資料!!');
+                    return false;
+                }
+                var $formData = $('input[name="KeyItems"]:checked').serializeObject();
+                $formData.ProcessAction = processAction;
+                toArrayField($formData, 'KeyItems');
+                console.log($formData);
+                showLoading();
+                doPost('@(Url.Action("CommitReceivedA0201", "InvoiceProcess"))', $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alertModal(data.message);
+                        if (data.result) {
+                            $inquiryAgent.inquire($inquiryAgent.viewModel.PageIndex);
+                        } 
+                    } else {
+                        $(data).appendTo($('body')).remove();
+                    }
+                });
+
+            };
+        });
+    </script>
+
+
+

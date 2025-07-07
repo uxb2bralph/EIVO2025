@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -17,7 +17,7 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 @{
-    Layout = "~/Views/InvoiceProcess/DataQuery/DataItemListTemplate.cshtml";
+    Layout = "~/Views/Common/DataQuery/DataItemListTemplate.cshtml";
     ModelSource<InvoiceItem> models;
     IQueryable<InvoiceItem> _model;
     String _listID = "itemList" + DateTime.Now.Ticks;
@@ -31,11 +31,18 @@
 
 @section PrepareQueryResult
 {
-    @{ 
+    @{
         if (_viewModel.DataColumns == null)
         {
             await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/PrepareInvoiceQueryResult.cshtml");
         }
+    }
+}
+
+@section PrepareSorting
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/ItemListSorting.cshtml");
     }
 }
 

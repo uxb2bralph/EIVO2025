@@ -8,6 +8,7 @@ using ModelCore.InvoiceManagement.InvoiceProcess;
 using ModelCore.Locale;
 using ModelCore.Resource;
 using ModelCore.Schema.EIVO;
+using ModelCore.Helper;
 
 namespace ModelCore.InvoiceManagement.Validator
 {
@@ -62,7 +63,7 @@ namespace ModelCore.InvoiceManagement.Validator
             _models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
 
             //yuki 加一筆到Queue、DataProcessLog
-            F0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+            newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
             //yuki 加一筆到ProcessRequestDocument
             //C0401Handler.PushProcessRequestDocumentOnSubmit(_mgr, newItem.CDS_Document, taskID);
@@ -81,7 +82,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 }
                 else
                 {
-                    F0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                 }
                 _models.SubmitChanges();
             }

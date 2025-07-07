@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -39,7 +39,7 @@
     <input type="hidden" name="card_no1" value="@(_viewModel.CardNo1)" />
     <input type="hidden" name="card_no2" value="@(_viewModel.CardNo1)" />
     <input type="hidden" name="card_type" value="@(_viewModel.CardType)" />
-    <input type="hidden" name="back_url" value="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ValidateUserToken","IndividualProcess")}")" />
+    <input type="hidden" name="back_url" value="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("ValidateUserToken","IndividualProcess")}")" />
     <input type="hidden" name="token" value="@Html.Raw(_viewModel.Token)" />
 </form>
 <script>

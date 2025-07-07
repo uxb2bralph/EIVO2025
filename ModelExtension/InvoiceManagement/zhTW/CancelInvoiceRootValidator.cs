@@ -9,14 +9,17 @@ using ModelCore.DataEntity;
 using ModelCore.InvoiceManagement.ErrorHandle;
 using CommonLib.Utility;
 using CommonLib.DataAccess;
+using ModelCore.Locale;
+using ModelCore.InvoiceManagement.Validator;
 
 namespace ModelCore.InvoiceManagement.zhTW
 {
     public static partial class CancelInvoiceRootValidator
     {
         //檢查基本必填項目(作廢發票)
-        public static Exception CheckMandatoryFields(this CancelInvoiceRootCancelInvoice invItem, GenericManager<EIVOEntityDataContext> mgr, OrganizationToken owner, out InvoiceItem invoice, out DateTime cancelDate)
+        public static Exception? CheckMandatoryFields(this CancelInvoiceRootCancelInvoice invItem, GenericManager<EIVOEntityDataContext> mgr, OrganizationToken? owner, out InvoiceItem? invoice, out DateTime cancelDate, out bool duplicateProcess, Naming.InvoiceProcessType? processType = Naming.InvoiceProcessType.F0501)
         {
+            duplicateProcess = false;
             invoice = null;
             cancelDate = default(DateTime);
 
@@ -74,15 +77,23 @@ namespace ModelCore.InvoiceManagement.zhTW
                 return new Exception(String.Format("開立人統編錯誤:{0}", invItem.SellerId));
             }
 
-            int sellerID = invoice.SellerID.Value;
-            if (sellerID != owner.CompanyID && !mgr.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == owner.CompanyID && a.IssuerID == sellerID))
+            var sellerID = invoice.SellerID;
+            if (owner != null && sellerID != owner.CompanyID && !mgr.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == owner.CompanyID && a.IssuerID == sellerID))
             {
                 return new Exception(String.Format("作廢之發票非原發票開立人,發票號碼:{0}", invItem.CancelInvoiceNumber));
             }
 
             if (invoice.InvoiceCancellation != null)
             {
-                return new Exception(String.Format("作廢發票已存在,發票號碼:{0}", invItem.CancelInvoiceNumber));
+                if(processType.IgnoreDuplicatedNo())
+                {
+                    duplicateProcess = true;
+                    return null;
+                }
+                else
+                {
+                    return new Exception(String.Format("作廢發票已存在,發票號碼:{0}", invItem.CancelInvoiceNumber));
+                }   
             }
 
             if (String.IsNullOrEmpty(invItem.SellerId))

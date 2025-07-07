@@ -126,13 +126,20 @@ namespace WebHome.Controllers
         }
 
         [HttpGet]
-        public JsonResult SysSupplier(string sysSupplierID)
+        public ActionResult SysSupplier(string sysSupplierID)
         {
-            return Json(
-                 AppSettings.Default.InvoiceNumberApplySetting.SysSupplier
+            var item = AppSettings.Default.InvoiceNumberApplySetting.SysSupplier
                     .Where(x => x.ID == sysSupplierID)
-                    .FirstOrDefault().JsonStringify()
-                );
+                    .FirstOrDefault();
+
+            if (item == null)
+            {
+                item = AppSettings.Default.InvoiceNumberApplySetting.SysSupplier
+                    .Where(x => x.BusinessID.Contains(sysSupplierID))
+                    .FirstOrDefault();
+            }
+
+            return Content(item?.JsonStringify() ?? "{ }", "application/json");
         }
 
         [HttpGet]
@@ -341,7 +348,7 @@ namespace WebHome.Controllers
                         }
                     }
 
-                    return File(memoryStream.ToArray(), "application/zip", AppSettings.Default.InvoiceNumberApplySetting.GetZipFileName(businessID));
+                    return File(memoryStream.ToArray(), "application/octet-stream", AppSettings.Default.InvoiceNumberApplySetting.GetZipFileName(businessID));
                 };
             }
             catch (Exception ex)

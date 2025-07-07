@@ -1,4 +1,4 @@
-using ModelCore.DataEntity;
+ï»¿using ModelCore.DataEntity;
 using ModelCore.InvoiceManagement;
 using ModelCore.Locale;
 using ModelCore.Models;
@@ -40,7 +40,7 @@ namespace EIVOConsole
                     default:
                         Console.WriteLine(@"
 Use command:
-    001    °õ¦æ«e´ÁªÅ¥Õµo²¼¸¹µ²ºâ
+    001    åŸ·è¡Œå‰æœŸç©ºç™½ç™¼ç¥¨è™Ÿçµç®—
 ");
                         break;
                 }

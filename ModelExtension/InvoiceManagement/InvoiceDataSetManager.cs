@@ -192,9 +192,9 @@ namespace ModelCore.InvoiceManagement
                     }
                     else
                     {
-                        F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                        F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
-                            deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知);
+                        newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+                        newItem.CDS_Document.PushStepQueueOnSubmit(this, 
+                            deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                     }
 
                     this.EntityList.InsertOnSubmit(newItem);
@@ -434,9 +434,9 @@ namespace ModelCore.InvoiceManagement
                                 }
                                 else
                                 {
-                                    F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                                    F0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
-                                        deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知);
+                                    newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+                                    newItem.CDS_Document.PushStepQueueOnSubmit(this, 
+                                        deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                                 }
                             }
 

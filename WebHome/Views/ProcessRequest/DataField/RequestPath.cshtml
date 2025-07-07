@@ -42,7 +42,7 @@
         ProcessRequest item = this.Model as ProcessRequest;
         if (item.RequestPath != null)
         {
-            <a href="@($"/{WebHome.Properties.Settings.Default.TaskCenter}/InvoiceData/GetResource?path={System.Web.HttpUtility.UrlEncode(item.RequestPath.EncryptData())}")">@(System.IO.Path.GetFileName(item.RequestPath))</a>
+            <a href="@($"{WebHome.Properties.Settings.Default.TaskCenter}/InvoiceData/GetResource?path={System.Web.HttpUtility.UrlEncode(item.RequestPath.EncryptData())}")">@(System.IO.Path.GetFileName(item.RequestPath))</a>
         }
         break;
 

@@ -28,7 +28,6 @@ namespace ModelCore.Models.ViewModel
         public bool? Cancelled { get; set; }
         public bool? IsAttached { get; set; }
         public bool? QueryAtStart { get; set; }
-        public int? SellerID { get; set; }
         public bool? IsNoticed { get; set; }
         public String? CarrierType { get; set; }
         public String? CarrierNo { get; set; }
@@ -144,15 +143,7 @@ namespace ModelCore.Models.ViewModel
     public partial class UserRoleViewModel : CommonQueryViewModel
     {
         public int? UID { get; set; }
-        [JsonIgnore]
-        public int? SellerID { get; set; }
-        public String? EncSellerID
-        {
-            get => SellerID.HasValue ? SellerID.Value.EncryptKey() : null;
-            set => SellerID = (value != null ? value.DecryptKeyValue() : (int?)null);
-        }
         public Naming.RoleID? RoleID { get; set; }
-
     }
 
     public partial class UserProfileViewModel : UserRoleViewModel
@@ -182,7 +173,6 @@ namespace ModelCore.Models.ViewModel
     {
         public int? IntervalID { get; set; }
         public int? TrackID { get; set; }
-        public int? SellerID { get; set; }
         public int? StartNo { get; set; }
         public int? EndNo { get; set; }
         public int? Parts { get; set; }
@@ -198,7 +188,28 @@ namespace ModelCore.Models.ViewModel
         public String? TrackCode { get; set; }
     }
 
-    public partial class AuthQueryViewModel : QueryViewModel
+    public partial class EncQueryViewModel : QueryViewModel
+    {
+        [JsonIgnore]
+        public int? SellerID { get; set; }
+        public String? EncSellerID
+        {
+            get => SellerID.HasValue ? SellerID.Value.EncryptKey() : null;
+            set => SellerID = (value != null ? value.DecryptKeyValue() : (int?)null);
+        }
+
+        [JsonIgnore]
+        public int? BuyerID { get; set; }
+        public String? EncBuyerID
+        {
+            get => BuyerID.HasValue ? BuyerID.Value.EncryptKey() : null;
+            set => BuyerID = (value != null ? value.DecryptKeyValue() : (int?)null);
+        }
+
+
+    }
+
+    public partial class AuthQueryViewModel : EncQueryViewModel
     {
         public int? AgentID { get; set; }
         public String? AccessToken
@@ -363,6 +374,7 @@ namespace ModelCore.Models.ViewModel
         public bool? ForceTodo { get; set; }
         [JsonIgnore]
         public List<QueryResultDataColumnHelper>? DataColumns { get; set; }
+        public Naming.ActionType? ProcessAction { get; set; }
     }
 
     public class QueryResultDataColumnHelper
@@ -512,7 +524,6 @@ namespace ModelCore.Models.ViewModel
     {
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
-        public int? SellerID { get; set; }
         [JsonIgnore]
         public DateTime? InvoiceDateFrom
         {

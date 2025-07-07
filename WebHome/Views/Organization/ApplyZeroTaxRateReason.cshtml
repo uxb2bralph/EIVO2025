@@ -1,20 +1,19 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
-
-
-@using ModelCore.Locale
-@using ModelCore.DataEntity
-@using WebHome.Controllers
-@using WebHome.Helper
-@using ModelCore.Models.ViewModel
-@using WebHome.Models.ViewModel
-@using ModelCore.DataExchange
 @using CommonLib.Core.Utility
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using ModelCore.DataEntity
+@using ModelCore.DataExchange
 @using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using ModelCore.Schema.TurnKey.Invoice
 @using Newtonsoft.Json.Linq
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
 @{
     Layout = "~/Views/Shared/Module/MessageDialog.cshtml";
     ModelStateDictionary _modelState;
@@ -71,15 +70,15 @@ else
                 <label class="col-sm-6 col-form-label">預設零稅率原因</label>
                 <select name="ZeroTaxRateReason" class="form-control">
                     <option value="">取消預設</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item71)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item71)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item71)</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item72)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item72)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item72)</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item73)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item73)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item73)</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item74)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item74)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item74)</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item75)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item75)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item75)</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item76)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item76)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item76)</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item77)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item77)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item77)</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item78)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item78)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item78)</option>
-                    <option selected="@(currentValue == ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item79)" value="@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item79)">@((int)ModelCore.Schema.TurnKey.ZeroTaxRateReasonEnum.Item79)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item71)" value="@((int)ZeroTaxRateReasonEnum.Item71)">@((int)ZeroTaxRateReasonEnum.Item71)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item72)" value="@((int)ZeroTaxRateReasonEnum.Item72)">@((int)ZeroTaxRateReasonEnum.Item72)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item73)" value="@((int)ZeroTaxRateReasonEnum.Item73)">@((int)ZeroTaxRateReasonEnum.Item73)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item74)" value="@((int)ZeroTaxRateReasonEnum.Item74)">@((int)ZeroTaxRateReasonEnum.Item74)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item75)" value="@((int)ZeroTaxRateReasonEnum.Item75)">@((int)ZeroTaxRateReasonEnum.Item75)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item76)" value="@((int)ZeroTaxRateReasonEnum.Item76)">@((int)ZeroTaxRateReasonEnum.Item76)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item77)" value="@((int)ZeroTaxRateReasonEnum.Item77)">@((int)ZeroTaxRateReasonEnum.Item77)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item78)" value="@((int)ZeroTaxRateReasonEnum.Item78)">@((int)ZeroTaxRateReasonEnum.Item78)</option>
+                    <option selected="@(currentValue == ZeroTaxRateReasonEnum.Item79)" value="@((int)ZeroTaxRateReasonEnum.Item79)">@((int)ZeroTaxRateReasonEnum.Item79)</option>
                 </select>
             </div>
         </div>

@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -37,7 +37,7 @@
 }
 else
 {
-    String body = Html.Partial("~/Views/Notification/Module/GeneralMessage.cshtml").ToString();
+    String body = (await Html.PartialAsync("~/Views/Notification/Module/GeneralMessage.cshtml")).RenderHtmlContentToString(HtmlEncoder);
     var smtpSettings = _model.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
     String mailTo = _viewModel.MailTo.GetEfficientString();

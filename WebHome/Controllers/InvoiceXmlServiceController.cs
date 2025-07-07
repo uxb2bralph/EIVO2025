@@ -83,13 +83,10 @@ namespace WebHome.Controllers
         public ActionResult B2BReceiveB0501() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BReceiveB0501(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult B2BUploadAllowance() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadAllowance(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult B2BUploadAllowanceCancellation() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadAllowanceCancellation(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult B2BUploadBuyerInvoice() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadBuyerInvoice(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult B2BUploadInvoice() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadInvoice(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult B2BUploadInvoiceCancellation() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadInvoiceCancellation(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult B2BUploadReceipt() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadReceipt(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult B2BUploadReceiptCancellation() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadReceiptCancellation(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult B2CUploadInvoice() { var result = (new eInvoiceService(_httpContextAccessor!)).B2CUploadInvoice(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult B2CUploadInvoiceCancellation() { var result = (new eInvoiceService(_httpContextAccessor!)).B2CUploadInvoiceCancellation(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult DeleteTempForReceivePDF(String pdfFile)
         {
             var result = (new eInvoiceService(_httpContextAccessor!)).DeleteTempForReceivePDF(uploadData,pdfFile);
@@ -101,9 +98,6 @@ namespace WebHome.Controllers
             var result = (new eInvoiceService(_httpContextAccessor!)).GetCustomerIdListByAgent(uploadData);
             return Content(result.ConvertToXml().OuterXml, "text/xml");
         }
-        public ActionResult GetIncomingAllowanceCancellations() { var result = (new eInvoiceService(_httpContextAccessor!)).GetIncomingAllowanceCancellations(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult GetIncomingAllowances() { var result = (new eInvoiceService(_httpContextAccessor!)).GetIncomingAllowances(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult GetIncomingInvoiceCancellations() { var result = (new eInvoiceService(_httpContextAccessor!)).GetIncomingInvoiceCancellations(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult GetIncomingInvoices() { var result = (new eInvoiceService(_httpContextAccessor!)).GetIncomingInvoices(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult GetIncomingWinningInvoices() { var result = (new eInvoiceService(_httpContextAccessor!)).GetIncomingWinningInvoices(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult GetInvoiceMailTracking(String clientID)
@@ -146,15 +140,13 @@ namespace WebHome.Controllers
             return Content(result.ConvertToXml().OuterXml, "text/xml");
         }
         public ActionResult UploadA0201() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadA0201(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult UploadA0401() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadA0401(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult UploadA0501() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadA0501(uploadData); return Content(result?.OuterXml, "text/xml"); }
+        public ActionResult UploadF0401() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadF0401(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadAllowance() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadAllowance(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadAllowanceCancellation() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadAllowanceCancellation(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadAllowanceCancellationV2() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadAllowanceCancellationV2(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadAllowanceV2() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadAllowanceV2(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadB0201() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadB0201(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult UploadB0401() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadB0401(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult UploadB0501() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadB0501(uploadData); return Content(result?.OuterXml, "text/xml"); }
+        public ActionResult UploadG0401() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadG0401(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadBranchTrack() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadBranchTrack(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadBranchTrackBlank() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadBranchTrackBlank(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadCounterpartBusiness() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadCounterpartBusiness(uploadData); return Content(result?.OuterXml, "text/xml"); }
@@ -169,11 +161,9 @@ namespace WebHome.Controllers
         public ActionResult UploadInvoiceAutoTrackNoV2() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadInvoiceAutoTrackNoV2(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadInvoiceCancellation() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadInvoiceCancellationV2(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadInvoiceCancellationV2() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadInvoiceCancellationV2(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult UploadInvoiceCancellationV2_C0501() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadInvoiceCancellationV2_C0501(uploadData); return Content(result?.OuterXml, "text/xml"); }
+        public ActionResult UploadF0501() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadF0501(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadInvoiceEnterprise() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadInvoiceEnterprise(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult UploadInvoiceV2() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadInvoiceV2(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult UploadInvoiceV2_C0401() { var result = (new eInvoiceService(_httpContextAccessor!)).UploadInvoiceV2_C0401(uploadData); return Content(result?.OuterXml, "text/xml"); }
-
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             base.OnActionExecuting(filterContext);

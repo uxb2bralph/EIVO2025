@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns="urn:GEINV:eInvoiceMessage:E0401:4.0"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:GEINV:eInvoiceMessage:E0401:4.0"
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="urn:GEINV:eInvoiceMessage:E0401:4.1"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:GEINV:eInvoiceMessage:E0401:4.1"
 	elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xsd:include schemaLocation="GenericType_4.0.xsd" />
 	<!-- 分支機構配號檔 E0401 -->

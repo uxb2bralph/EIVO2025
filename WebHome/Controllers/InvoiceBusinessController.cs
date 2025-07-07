@@ -223,15 +223,15 @@ namespace WebHome.Controllers
                     return View("~/Views/DataView/Module/InvoiceContent.cshtml", newItem);
                 }
 
-                models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
-                F0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                models!.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+                newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
                 if (viewModel.Counterpart == true || !String.IsNullOrEmpty(viewModel.BuyerReceiptNo) || !String.IsNullOrEmpty(viewModel.EMail))
                 {
-                    F0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                 }
                 models.SubmitChanges();
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
 
                 viewModel.TrackCode = newItem.TrackCode;
                 viewModel.No = newItem.No;
@@ -279,12 +279,12 @@ namespace WebHome.Controllers
             A0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
             models.SubmitChanges();
 
-            EIVOTurnkeyFactory.Notify();
+            //EIVOTurnkeyFactory.Notify();
 
             viewModel.TrackCode = newItem.TrackCode;
             viewModel.No = newItem.No;
 
-            return View("~/Views/InvoiceBusiness/Module/A0401Created.ascx", newItem);
+            return View("~/Views/InvoiceBusiness/Module/A0401Created.cshtml", newItem);
 
         }
 
@@ -314,16 +314,16 @@ namespace WebHome.Controllers
                 return View("~/Views/DataView/Module/InvoiceContent.cshtml", newItem);
             }
 
-            models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
-            A0101Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.待傳送);
+            models!.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+            newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0101);
             models.SubmitChanges();
 
-            EIVOTurnkeyFactory.Notify();
+            //EIVOTurnkeyFactory.Notify();
 
             viewModel.TrackCode = newItem.TrackCode;
             viewModel.No = newItem.No;
 
-            return View("~/Views/InvoiceBusiness/Module/A0401Created.ascx", newItem);
+            return View("~/Views/InvoiceBusiness/Module/A0401Created.cshtml", newItem);
 
         }
 
@@ -351,16 +351,15 @@ namespace WebHome.Controllers
 
             InvoiceAllowance newItem = validator.Allowance;
             //newItem.CDS_Document.ProcessType = (int)viewModel.ProcessType;
-            models.GetTable<InvoiceAllowance>().InsertOnSubmit(newItem);
-            if (newItem.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.D0401)
+            models!.GetTable<InvoiceAllowance>().InsertOnSubmit(newItem);
+            if (newItem.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.G0401)
             {
-                G0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
-                G0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
+                newItem.CDS_Document.PushStepQueueOnSubmit(models, validator.Seller!.StepReadyToAllowanceMIG(), Naming.InvoiceProcessType.G0401);
+                newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
             }
             else
             {
-                B0101Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
-                B0101Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
+                newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.B0101);
             }
             models.SubmitChanges();
 

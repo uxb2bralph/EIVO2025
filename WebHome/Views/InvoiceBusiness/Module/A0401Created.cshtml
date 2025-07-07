@@ -1,0 +1,45 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using WebHome.Properties
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.InvoiceManagement.InvoiceProcess
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using ModelCore.Helper
+@{
+
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InvoiceItem _model;
+
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceItem)this.Model;
+}
+
+@if (_model != null)
+{
+    <div>
+        <a href="@(Url.Action("PrintSingleInvoiceAsPDF", "DataView", new { keyID = _model.InvoiceID.EncryptKey() }))" target="_blank">列印資料下載</a>
+        <br />
+        <a href="@(Url.Action("ShowInvoice", "DataView", new { keyID = _model.InvoiceID.EncryptKey(), ResultMode = Naming.DataResultMode.Print }))" target="_blank">立即檢視列印</a>
+        <br />
+    </div>
+    <script>
+        $('form').resetForm();
+    </script>
+}

@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -64,7 +64,7 @@ else if (_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice
         attached.Insert(0, pdfFile);
 
         String subject = $"{_model.Organization.OrganizationExtension?.MailSubjectAlias ?? _model.Organization.CompanyName} 電子發票開立通知(發票號碼:{_model.TrackCode}{_model.No})";
-        String body = Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedA0401.cshtml", _model).ToString();
+        String body = (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedA0401.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
         body.SendMailMessage(mailTo, subject, smtpSettings, attached.ToArray());
 
         if (models.GetTable<IssuingNotice>().Any(d => d.DocID == _model.InvoiceID))

@@ -22,9 +22,9 @@ namespace InvoiceClient.Agent.TurnkeyProcess
 {
     public class TurnkeyProcessTransferManager : ITransferManager
     {
-        private InvoiceWatcher _SummaryResultWatcher;
+        private InvoiceWatcher? _SummaryResultWatcher;
 
-        public ITabWorkItem WorkItem { get; set; }
+        public ITabWorkItem? WorkItem { get; set; }
 
         public TurnkeyProcessTransferManager()
         {
@@ -33,67 +33,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
             {
                 switch (msgType)
                 {
-                    //case "C0401":
-                    //case "A0401":
-                    //    watcher = new C0401ResultWatcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
-                    //    {
-                    //        TransferManager = this,
-                    //    };
-                    //    watcher.StartUp();
 
-                    //    watcher = new C0401FailedResultWatcher(TurnkeyProcessResultSettings.Default.MessageResponseFailed[msgType])
-                    //    {
-                    //        TransferManager = this,
-                    //    };
-                    //    watcher.StartUp();
-
-                    //    break;
-
-                    //case "C0501":
-                    //case "A0501":
-                    //    watcher = new C0501ResultWatcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
-                    //    {
-                    //        TransferManager = this,
-                    //    };
-                    //    watcher.StartUp();
-
-                    //    watcher = new C0501FailedResultWatcher(TurnkeyProcessResultSettings.Default.MessageResponseFailed[msgType])
-                    //    {
-                    //        TransferManager = this,
-                    //    };
-                    //    watcher.StartUp();
-
-                    //    break;
-                    //case "D0401":
-                    //case "B0401":
-                    //    watcher = new D0401ResultWatcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
-                    //    {
-                    //        TransferManager = this,
-                    //    };
-                    //    watcher.StartUp();
-
-                    //    watcher = new D0401FailedResultWatcher(TurnkeyProcessResultSettings.Default.MessageResponseFailed[msgType])
-                    //    {
-                    //        TransferManager = this,
-                    //    };
-                    //    watcher.StartUp();
-
-                    //    break;
-                    //case "D0501":
-                    //case "B0501":
-                    //    watcher = new D0501ResultWatcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
-                    //    {
-                    //        TransferManager = this,
-                    //    };
-                    //    watcher.StartUp();
-
-                    //    watcher = new D0501FailedResultWatcher(TurnkeyProcessResultSettings.Default.MessageResponseFailed[msgType])
-                    //    {
-                    //        TransferManager = this,
-                    //    };
-                    //    watcher.StartUp();
-
-                    //    break;
                     case "E0501":
                         watcher = new E0501Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
                         {
@@ -104,18 +44,95 @@ namespace InvoiceClient.Agent.TurnkeyProcess
                         break;
 
                     case "A0101":
-                        watcher = new A0101Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        watcher = new ReceivedA0101Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
                         {
                             TransferManager = this,
                         };
                         watcher.StartUp();
 
                         break;
+
+                    case "A0102":
+                        watcher = new ReceivedA0102Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
+
+                    case "A0301":
+                        watcher = new ReceivedA0301Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
+
+                    case "A0302":
+                        watcher = new ReceivedA0302Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
+
+                    case "A0201":
+                        watcher = new ReceivedA0201Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
+
+                    case "A0202":
+                        watcher = new ReceivedA0202Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
+
+                    case "B0101":
+                        watcher = new ReceivedB0101Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
+
+                    case "B0102":
+                        watcher = new ReceivedB0102Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
+
+                    case "B0201":
+                        watcher = new ReceivedB0201Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+                        break;
+
+                    case "B0202":
+                        watcher = new ReceivedB0202Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+                        break;
+
                 }
             }
-
-            //JobHelper.Tasks.CheckTurnkeyLog.Notify();
-            //EIVOPlatformFactory.CheckTurnkey.Notify();
         }
 
         public void EnableAll(String fullPath)
@@ -148,7 +165,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
             //_SummaryResultWatcher.Retry();
         }
 
-        public Type UIConfigType
+        public Type? UIConfigType
         {
             get
             {

@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 @using System.Web
 @using WebHome.Helper
@@ -67,7 +67,9 @@
         String invoiceNo = _viewModel.InvoiceNo.GetEfficientString();
         String endNo = _viewModel.EndNo.GetEfficientString();
 
-        String storedPath = ModelExtension.Properties.AppSettings.Default.F0401Outbound;
+        String storedPath = _viewModel.ProcessType == Naming.InvoiceProcessType.A0101
+            ? ModelExtension.Properties.AppSettings.Default.A0101Outbound
+            : ModelExtension.Properties.AppSettings.Default.F0401Outbound;
         storedPath.CheckStoredPath();
 
         IQueryable<InvoiceItem> invoiceItems = models.GetTable<InvoiceItem>();
@@ -149,7 +151,7 @@
     void storedMIG(InvoiceItem item, String storedPath)
     {
         String invoiceNo = item.TrackCode + item.No;
-        CreateMIG(item, _viewModel).Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
+        CreateMIG(item, _viewModel).Save(System.IO.Path.Combine(storedPath, $"{_viewModel.ProcessType}_{invoiceNo}.xml"));
     }
 }
 

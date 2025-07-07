@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommonLib.Core.Utility;
+﻿using CommonLib.Core.Utility;
 using CommonLib.DataAccess;
 using CommonLib.Utility;
 using DocumentFormat.OpenXml.Office.CustomUI;
@@ -13,14 +6,22 @@ using ModelCore.DataEntity;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
+using ModelCore.Schema.TurnKey;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ModelCore.Helper
 {
     public static class InvoiceExtensionMethods
     {
 
-        public static void GetInvoiceNo(this String invoiceNumber, out String invNo, out String trackCode)
+        public static void GetInvoiceNo(this String? invoiceNumber, out String? invNo, out String? trackCode)
         {
             if (!String.IsNullOrEmpty(invoiceNumber) && invoiceNumber.Length >= 10)
             {
@@ -34,55 +35,18 @@ namespace ModelCore.Helper
             }
         }
 
-        public static InvoiceItem ConvertToInvoiceItem(this GenericManager<EIVOEntityDataContext> models, ModelCore.Schema.TurnKey.A0401.Invoice invoice, OrganizationToken owner)
+        public static InvoiceItem? ConvertToInvoiceItem(this GenericManager<EIVOEntityDataContext> models, ModelCore.Schema.TurnKey.Invoice.Invoice? invoice, OrganizationToken? owner)
         {
-            Organization buyer = models.GetTable<Organization>().Where(o => o.ReceiptNo == invoice.Main.Buyer.Identifier).FirstOrDefault();
-            if (buyer == null)
+            if (invoice == null)
             {
-                buyer = new Organization
-                {
-                    Addr = invoice.Main.Buyer.Address,
-                    CompanyName = invoice.Main.Buyer.Name,
-                    UndertakerName = invoice.Main.Buyer.PersonInCharge,
-                    Phone = invoice.Main.Buyer.TelephoneNumber,
-                    Fax = invoice.Main.Buyer.FacsimileNumber,
-                    ContactEmail = invoice.Main.Buyer.EmailAddress,
-                    ReceiptNo = invoice.Main.Buyer.Identifier,
-                    OrganizationStatus = new OrganizationStatus
-                    {
-                        IronSteelIndustry = false
-                    }
-                };
+                return null;
             }
 
-            Organization seller = models.GetTable<Organization>().Where(o => o.ReceiptNo == invoice.Main.Seller.Identifier).FirstOrDefault();
-            if (seller == null)
-            {
-                seller = new Organization
-                {
-                    Addr = invoice.Main.Seller.Address,
-                    CompanyName = invoice.Main.Seller.Name,
-                    UndertakerName = invoice.Main.Seller.PersonInCharge,
-                    Phone = invoice.Main.Seller.TelephoneNumber,
-                    Fax = invoice.Main.Seller.FacsimileNumber,
-                    ContactEmail = invoice.Main.Seller.EmailAddress,
-                    ReceiptNo = invoice.Main.Seller.Identifier,
-                    OrganizationStatus = new OrganizationStatus
-                    {
-                        IronSteelIndustry = false
-                    }
-                };
-            }
-            else if (seller.OrganizationStatus == null)
-            {
-                seller.OrganizationStatus = new OrganizationStatus
-                {
-                    IronSteelIndustry = false
-                };
-            }
+            Organization? buyer = CheckBusinessRoleFromMIG(models, invoice.Main!.Buyer!);
+            Organization? seller = CheckBusinessRoleFromMIG(models, invoice.Main!.Seller!);
 
-            String invNo, trackCode;
-            invoice.Main.InvoiceNumber.GetInvoiceNo(out invNo, out trackCode);
+            String? invNo, trackCode;
+            invoice!.Main!.InvoiceNumber.GetInvoiceNo(out invNo, out trackCode);
 
             InvoiceItem newItem = new InvoiceItem
             {
@@ -93,8 +57,8 @@ namespace ModelCore.Helper
                 },
                 InvoiceBuyer = new InvoiceBuyer
                 {
-                    BuyerMark = invoice.Main.BuyerRemarkSpecified ? (int)invoice.Main.BuyerRemark : (int?)null,
-                    Name = invoice.Main.Buyer.Name,
+                    BuyerMark = (int?)invoice.Main.BuyerRemark,
+                    Name = invoice.Main!.Buyer!.Name,
                     ReceiptNo = invoice.Main.Buyer.Identifier,
                     ContactName = invoice.Main.Buyer.PersonInCharge,
                     Address = invoice.Main.Buyer.Address,
@@ -109,28 +73,27 @@ namespace ModelCore.Helper
                 },
                 InvoiceSeller = new InvoiceSeller
                 {
-                    Name = invoice.Main.Seller.Name,
+                    Name = invoice.Main!.Seller!.Name,
                     ReceiptNo = invoice.Main.Seller.Identifier,
-                    ContactName = invoice.Main.Seller.PersonInCharge,
-                    Address = invoice.Main.Seller.Address,
-                    CustomerID = invoice.Main.Seller.CustomerNumber,
-                    CustomerName = invoice.Main.Seller.Name,
-                    EMail = invoice.Main.Seller.EmailAddress,
-                    Fax = invoice.Main.Seller.FacsimileNumber,
-                    PersonInCharge = invoice.Main.Seller.PersonInCharge,
-                    Phone = invoice.Main.Seller.TelephoneNumber,
-                    RoleRemark = invoice.Main.Seller.RoleRemark,
+                    ContactName = invoice.Main!.Seller!.PersonInCharge,
+                    Address = invoice.Main!.Seller!.Address,
+                    CustomerID = invoice.Main!.Seller!.CustomerNumber,
+                    CustomerName = invoice.Main!.Seller!.Name,
+                    EMail = invoice.Main!.Seller!.EmailAddress,
+                    Fax = invoice.Main!.Seller!.FacsimileNumber,
+                    PersonInCharge = invoice.Main!.Seller!.PersonInCharge,
+                    Phone = invoice.Main!.Seller!.TelephoneNumber,
+                    RoleRemark = invoice.Main!.Seller!.RoleRemark,
                     Organization = seller
                 },
-                InvoiceDate = DateTime.ParseExact(String.Format("{0}", invoice.Main.InvoiceDate), "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).Add(invoice.Main.InvoiceTime.TimeOfDay),
-                InvoiceType = (byte)((int)invoice.Main.InvoiceType),
+                InvoiceDate = invoice.Main.InvoiceDateTime,
+                InvoiceType = (byte?)(invoice.Main.InvoiceType),
                 No = invNo,
                 TrackCode = trackCode,
                 Organization = seller,
                 BuyerRemark = (byte?)invoice.Main.BuyerRemark,
                 Category = invoice.Main.Category,
-                CheckNo = invoice.Main.CheckNumber,
-                DonateMark = ((int)invoice.Main.DonateMark).ToString(),
+                DonateMark = $"{(int?)invoice.Main.DonateMark}",
                 CustomsClearanceMark = (byte?)invoice.Main.CustomsClearanceMark,
                 GroupMark = invoice.Main.GroupMark,
                 //PermitDate = String.IsNullOrEmpty(invoice.Main.PermitDate) ? (DateTime?)null : DateTime.ParseExact(invoice.Main.PermitDate, "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture),
@@ -141,16 +104,16 @@ namespace ModelCore.Helper
                 //TaxCenter = invoice.Main.TaxCenter,
                 InvoiceAmountType = new InvoiceAmountType
                 {
-                    DiscountAmount = invoice.Amount.DiscountAmountSpecified ? invoice.Amount.DiscountAmount : (decimal?)null,
+                    DiscountAmount = invoice.Amount!.DiscountAmount,
                     SalesAmount = invoice.Amount.SalesAmount,
                     TaxAmount = invoice.Amount.TaxAmount,
                     TaxType = (byte)((int)invoice.Amount.TaxType),
                     TotalAmount = invoice.Amount.TotalAmount,
                     TotalAmountInChinese = ValidityAgent.MoneyShow(invoice.Amount.TotalAmount),
                     TaxRate = invoice.Amount.TaxRate,
-                    CurrencyID = invoice.Amount.CurrencySpecified ? (int)invoice.Amount.Currency : (int?)null,
-                    ExchangeRate = invoice.Amount.ExchangeRateSpecified ? invoice.Amount.ExchangeRate : (decimal?)null,
-                    OriginalCurrencyAmount = invoice.Amount.OriginalCurrencyAmountSpecified ? invoice.Amount.OriginalCurrencyAmount : (decimal?)null
+                    CurrencyID = (int?)invoice.Amount.Currency,
+                    ExchangeRate = invoice.Amount.ExchangeRate,
+                    OriginalCurrencyAmount = invoice.Amount.OriginalCurrencyAmount
                 },
                 PrintMark = "Y",
             };
@@ -165,7 +128,7 @@ namespace ModelCore.Helper
 
             short seqNo = 1;
 
-            var productItems = invoice.Details.Select(i => new InvoiceProductItem
+            var productItems = invoice.Details!.Select(i => new InvoiceProductItem
             {
                 InvoiceProduct = new InvoiceProduct { Brief = i.Description },
                 CostAmount = i.Amount,
@@ -184,6 +147,48 @@ namespace ModelCore.Helper
                 InvoiceProduct = p.InvoiceProduct
             }));
             return newItem;
+        }
+
+        public static Organization CheckBusinessRoleFromMIG(this GenericManager<EIVOEntityDataContext> models, RoleDescription roleDescription)
+        {
+            var receiptNo = roleDescription.Identifier;
+            Organization? orgItem = models.GetTable<Organization>().Where(o => o.ReceiptNo == receiptNo).FirstOrDefault();
+            bool hasUpdate = false;
+            if (orgItem == null)
+            {
+                orgItem = new Organization
+                {
+                    Addr = roleDescription.Address,
+                    CompanyName = roleDescription.Name,
+                    UndertakerName = roleDescription.PersonInCharge,
+                    Phone = roleDescription.TelephoneNumber,
+                    Fax = roleDescription.FacsimileNumber,
+                    ContactEmail = roleDescription.EmailAddress,
+                    ReceiptNo = roleDescription.Identifier,
+                    OrganizationStatus = new OrganizationStatus
+                    {
+                        IronSteelIndustry = false
+                    }
+                };
+
+                models.GetTable<Organization>().InsertOnSubmit(orgItem);
+                hasUpdate = true;
+            }
+            else if (orgItem.OrganizationStatus == null)
+            {
+                orgItem.OrganizationStatus = new OrganizationStatus
+                {
+                    IronSteelIndustry = false
+                };
+                hasUpdate = true;
+            }
+
+            if (hasUpdate)
+            {
+                models.SubmitChanges();
+            }
+
+            return orgItem;
         }
 
         public static InvoiceItem ConvertToInvoiceItem(this GenericManager<EIVOEntityDataContext> models, InvoiceEntity invoice)
@@ -632,7 +637,7 @@ namespace ModelCore.Helper
 
         }
 
-        public static InvoiceAllowanceCancellation PrepareVoidItem(this InvoiceAllowance allowance, GenericManager<EIVOEntityDataContext> models, ref DerivedDocument? doc, Naming.InvoiceProcessType processType = Naming.InvoiceProcessType.G0501)
+        public static InvoiceAllowanceCancellation PrepareVoidItem(this InvoiceAllowance allowance, GenericManager<EIVOEntityDataContext> models, ref DerivedDocument? doc, Naming.InvoiceProcessType? processType = Naming.InvoiceProcessType.G0501)
         {
             InvoiceAllowanceCancellation voidItem = new InvoiceAllowanceCancellation
             {
@@ -648,7 +653,7 @@ namespace ModelCore.Helper
                     DocType = (int)Naming.DocumentTypeDefinition.E_AllowanceCancellation,
                     ProcessType = allowance.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0101
                                     ? (int)Naming.InvoiceProcessType.B0201
-                                    : (int)processType,
+                                    : (int?)processType,
                 },
                 SourceID = allowance.AllowanceID,
             };
@@ -666,12 +671,12 @@ namespace ModelCore.Helper
 
             if (doc.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0201)
             {
-                B0201Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.待傳送);
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.B0201);
             }
             else
             {
-                G0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                G0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.G0501);
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0501);
             }
 
             return voidItem;
@@ -712,12 +717,16 @@ namespace ModelCore.Helper
 
             if (doc.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0201)
             {
-                A0201Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.待傳送);
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0201);
+            }
+            else if (doc.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.ReceivedA0201)
+            {
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待接收, Naming.InvoiceProcessType.A0201);
             }
             else
             {
-                F0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                F0501Handler.PushStepQueueOnSubmit(models, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0501);
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
             }
 
             return voidItem;
@@ -947,7 +956,6 @@ namespace ModelCore.Helper
         private static void CommitVoidInvoiceRequest(this GenericManager<EIVOEntityDataContext> models, VoidInvoiceRequest request)
         {
             var item = request.CDS_Document.InvoiceItem;
-            request.InvoiceContent = item.GetJsonString();
 
             var c0401 = item.CreateF0401().ConvertToXml();
             models.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
@@ -985,7 +993,7 @@ namespace ModelCore.Helper
                     }
                 }
 
-                F0401Handler.PushStepQueueOnSubmit(models, request.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                request.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
                 models.SubmitChanges();
 
@@ -1003,15 +1011,22 @@ namespace ModelCore.Helper
                 String storedPath = Path.Combine(Logger.LogPath, "Archive").CheckStoredPath();
                 c0401.Save(Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
 
-                request.CDS_Document.DocType = (int)Naming.DocumentTypeDefinition.E_InvoiceVoid;
-                models.SubmitChanges();
+                CommitToVoidInvoice(models, request);
+            }
+        }
 
-                models.ExecuteCommand(@"DELETE FROM CDS_Document
+        public static void CommitToVoidInvoice(this GenericManager<EIVOEntityDataContext> models, VoidInvoiceRequest request)
+        {
+            var item = request.CDS_Document.InvoiceItem;
+            request.InvoiceContent = item.GetJsonString();
+            request.CDS_Document.DocType = (int)Naming.DocumentTypeDefinition.E_InvoiceVoid;
+            models.SubmitChanges();
+
+            models.ExecuteCommand(@"DELETE FROM CDS_Document
                         FROM    DerivedDocument INNER JOIN
                                 CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
                         WHERE   (DerivedDocument.SourceID = {0})", item.InvoiceID);
-                models.ExecuteCommand("delete InvoiceItem where InvoiceID={0}", item.InvoiceID);
-            }
+            models.ExecuteCommand("delete InvoiceItem where InvoiceID={0}", item.InvoiceID);
         }
     }
 }

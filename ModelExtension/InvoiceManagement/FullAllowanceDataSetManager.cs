@@ -52,18 +52,17 @@ namespace ModelCore.InvoiceManagement
                             continue;
                         }
 
-                        InvoiceAllowance newItem = validator.Allowance;
+                        InvoiceAllowance newItem = validator.Allowance!;
 
-                        table.InsertOnSubmit(newItem);
-                        if (newItem.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.D0401)
+                        table.InsertOnSubmit(newItem!);
+                        if (newItem!.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.G0401)
                         {
-                            G0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
-                            G0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                            newItem.CDS_Document.PushStepQueueOnSubmit(this, validator.Seller!.StepReadyToAllowanceMIG(), Naming.InvoiceProcessType.G0401);
+                            newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
                         }
                         else
                         {
-                            B0101Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, validator.Seller.StepReadyToAllowanceMIG());
-                            B0101Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                            newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.B0101);
                         }
 
                         this.SubmitChanges();

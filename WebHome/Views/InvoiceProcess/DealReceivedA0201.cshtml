@@ -1,0 +1,103 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using WebHome.Helper
+@using WebHome.Models.ViewModel
+@using WebHome.Controllers
+@using WebHome.Components
+
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/Template/QueryIndex.cshtml";
+    ViewBag.ActionName = "首頁 > A0201作廢發票待確認";
+
+    ModelSource<InvoiceItem> models;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    if (_viewModel == null)
+    {
+        _viewModel = new InquireInvoiceViewModel();
+        ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+    _viewModel.UrlAction = Url.Action("InquireReceivedA0201", "InvoiceProcess");
+
+}
+
+@section QueryForm
+{
+    <!--交易畫面標題-->
+    @{
+        await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "接收作廢發票待確認");
+    }
+
+    <div class="border_gray">
+        <!--表格 開始-->
+        <table id="queryArea" class="table table-striped">
+            <tr>
+                <th colspan="2" class="Head_style_a">
+                    查詢條件
+                    <input type="hidden" name="ResultAction" value="@(_viewModel.ResultAction)" />
+                </th>
+            </tr>
+            <tr>
+                <th>營業人統編</th>
+                <td class="tdleft">
+                    @{
+                        ViewBag.QueryAll = true;
+                        await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml");
+                    }
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    買受人統編
+                </th>
+                <td class="tdleft">
+                    @{
+                        var userProfile = Context.GetUser();
+                        var orgItems = userProfile.InitializeOrganizationQuery(models);
+                    }
+                    <select class="form-control" name="EncBuyerID">
+                        @foreach (var o in orgItems.OrderBy(o => o.ReceiptNo))
+                        {
+                            <option value="@(o.CompanyID.EncryptKey())">@(String.Format("{0} {1}", o.ReceiptNo, o.CompanyName))</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+            @{
+                @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>                        ());
+                @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>                                ());
+            }
+        </table>
+        <!--表格 結束-->
+    </div>
+
+    <!--按鈕-->
+    <table border="0" cellspacing="0" cellpadding="0" width="100%" class="queryAction">
+        <tbody>
+            <tr>
+                <td class="Bargain_btn">
+                    <button type="button" onclick="$inquiryAgent.initQuery = true; $inquiryAgent.inquire();">查詢</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <!--表格 開始-->
+    @{
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");
+    }
+
+}

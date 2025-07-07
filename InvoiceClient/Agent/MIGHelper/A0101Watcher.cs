@@ -16,7 +16,7 @@ using CommonLib.Utility;
 
 namespace InvoiceClient.Agent.MIGHelper
 {
-    public class A0101Watcher : C0401Watcher
+    public class A0101Watcher : F0401Watcher
     {
         public A0101Watcher(String fullPath)
             : base(fullPath)

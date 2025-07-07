@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 using ModelCore.DataEntity;
 using ModelCore.Helper;
@@ -15,7 +16,6 @@ using ModelCore.Models.ViewModel;
 using CommonLib.Utility;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using CommonLib.DataAccess;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ModelCore.InvoiceManagement.Validator
 {
@@ -36,7 +36,7 @@ namespace ModelCore.InvoiceManagement.Validator
             };
 
         protected GenericManager<EIVOEntityDataContext> _models;
-        protected Organization _owner;
+        protected Organization? _owner;
 
         protected InvoiceRootInvoice _invItem;
 
@@ -59,7 +59,7 @@ namespace ModelCore.InvoiceManagement.Validator
         protected Naming.InvoiceProcessType? processType;
 
 
-        public InvoiceRootInvoiceValidator(GenericManager<EIVOEntityDataContext> mgr, Organization owner)
+        public InvoiceRootInvoiceValidator(GenericManager<EIVOEntityDataContext> mgr, Organization? owner)
         {
             _models = mgr;
             _owner = owner;
@@ -251,6 +251,17 @@ namespace ModelCore.InvoiceManagement.Validator
             }
         }
 
+        public virtual ModelStateDictionary Validate(InvoiceItem item)
+        {
+            ModelStateDictionary modelState = new ModelStateDictionary();
+            var ex = CheckInvoiceNo(item, item!.InvoiceDate!.Value);
+            if (ex != null)
+            {
+                modelState.AddModelError("InvoiceNo", ex.Message);
+            }
+
+            return modelState;
+        }
 
         public virtual Exception? Validate(InvoiceRootInvoice dataItem)
         {
@@ -309,12 +320,22 @@ namespace ModelCore.InvoiceManagement.Validator
             return null;
         }
 
-        protected virtual Exception checkInvoiceNo(InvoiceItem item, DateTime invoiceDate, String invoiceNo)
+        protected virtual Exception? CheckInvoiceNo(InvoiceItem item, DateTime invoiceDate, String? invoiceNo)
         {
-            item.TrackCode = invoiceNo.Substring(0, 2);
-            item.No = invoiceNo.Substring(2);
+            if (invoiceNo == null || !Regex.IsMatch(invoiceNo, "^[a-zA-Z]{2}[0-9]{8}$"))
+            {
+                return new Exception(String.Format(MessageResources.AlertInvoiceNumber, invoiceNo));
+            }
 
-            if (_seller.OrganizationStatus?.EnableTrackCodeInvoiceNoValidation == true)
+            item.TrackCode = invoiceNo[..2];
+            item.No = invoiceNo[2..];
+
+            return CheckInvoiceNo(item, invoiceDate);
+        }
+
+        protected virtual Exception? CheckInvoiceNo(InvoiceItem item, DateTime invoiceDate)
+        {
+            if (_seller?.OrganizationStatus?.EnableTrackCodeInvoiceNoValidation == true)
             {
                 int periodNo = (invoiceDate.Month + 1) / 2;
 
@@ -324,7 +345,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
                 if (trackCode == null)
                 {
-                    return new Exception(String.Format(MessageResources.InvalidTrackCode, invoiceNo));
+                    return new Exception(String.Format(MessageResources.InvalidTrackCode, $"{item.TrackCode}{item.No}"));
                 }
 
                 item.TrackID = trackCode.TrackID;
@@ -356,12 +377,12 @@ namespace ModelCore.InvoiceManagement.Validator
                 DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
                 DocumentOwner = new DocumentOwner
                 {
-                    OwnerID = _owner.CompanyID
+                    OwnerID = _owner?.CompanyID ?? _seller!.CompanyID
                 },
                 ProcessType = (int)(processType ?? Naming.InvoiceProcessType.C0401),
             };
             _container.DonateMark = _donation == null ? "0" : "1";
-            _container.SellerID = _seller.CompanyID;
+            _container.SellerID = _seller!.CompanyID;
             _container.CustomsClearanceMark = _invItem.CustomsClearanceMark;
             _container.InvoiceSeller = new InvoiceSeller
             {
@@ -494,13 +515,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 _container.InvoiceDate = invoiceDate;
                 DateTime periodStart = new DateTime(invoiceDate.Year, (invoiceDate.Month - 1) / 2 * 2 + 1, 1);
 
-
-                if (_invItem.InvoiceNumber == null || !Regex.IsMatch(_invItem.InvoiceNumber, "^[a-zA-Z]{2}[0-9]{8}$"))
-                {
-                    return new Exception(String.Format(MessageResources.AlertInvoiceNumber, _invItem.InvoiceNumber));
-                }
-
-                var ex = checkInvoiceNo(_container, invoiceDate, _invItem.InvoiceNumber);
+                var ex = CheckInvoiceNo(_container, invoiceDate, _invItem.InvoiceNumber);
                 if (ex != null)
                 {
                     return ex;
@@ -511,7 +526,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
                 if (currentItem != null)
                 {
-                    if (currentItem.SellerID == _seller.CompanyID && (currentItem.RandomNo == _invItem.RandomNumber || _seller.IgnoreDuplicatedNo()))
+                    if (currentItem.SellerID == _seller.CompanyID && (currentItem.RandomNo == _invItem.RandomNumber || _seller.IgnoreDuplicatedNo() || processType.IgnoreDuplicatedNo()))
                     {
                         DuplicateProcess = true;
                         _newItem = currentItem;
@@ -658,13 +673,13 @@ namespace ModelCore.InvoiceManagement.Validator
                     return new Exception(String.Format(MessageResources.AlertInvalidSeller, _invItem.SellerId));
                 }
 
-                if (_seller.CompanyID != _owner.CompanyID && !_models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
+                if (_owner != null && _seller.CompanyID != _owner.CompanyID && !_models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
                 {
                     //return new Exception(String.Format(MessageResources.AlertSellerSignature, _invItem.SellerId));
                     return new Exception(String.Format(MessageResources.InvalidSellerOrAgent, _invItem.SellerId, _owner.ReceiptNo));
                 }
 
-                if (_seller.OrganizationStatus.CurrentLevel == (int)Naming.MemberStatusDefinition.Mark_To_Delete)
+                if (_seller!.OrganizationStatus?.CurrentLevel == (int)Naming.MemberStatusDefinition.Mark_To_Delete)
                 {
                     return new Exception(String.Format("開立人已註記停用,開立人統一編號:{0}，TAG:<SellerId />", _invItem.SellerId));
                 }
@@ -908,22 +923,25 @@ namespace ModelCore.InvoiceManagement.Validator
                 _buyer.EMail = _invItem.CarrierId1 ?? _invItem.CarrierId2;
             }
 
-            BusinessRelationship relationship = null;
-            if (processType == Naming.InvoiceProcessType.A0401 || processType == Naming.InvoiceProcessType.A0101)
+            BusinessRelationship? relationship = null;
+            if (processType == Naming.InvoiceProcessType.A0401
+                || processType == Naming.InvoiceProcessType.F0401
+                || processType == Naming.InvoiceProcessType.A0101
+                || processType == Naming.InvoiceProcessType.ReceivedA0101)
             {
-                relationship = _models.GetTable<BusinessRelationship>()
-                                    .Where(r => r.MasterID == _seller.CompanyID)
-                                    .Join(_models.GetTable<Organization>().Where(b => b.ReceiptNo == _buyer.ReceiptNo),
-                                        r => r.RelativeID, b => b.CompanyID, (r, b) => r).FirstOrDefault();
-                if (relationship != null)
+                var buyerOrg = _models.GetTable<Organization>().Where(b => b.ReceiptNo == _buyer.ReceiptNo).FirstOrDefault();
+                if (buyerOrg != null)
                 {
-                    _buyer.BuyerID = relationship.RelativeID;
+                    relationship = _models.GetTable<BusinessRelationship>()
+                                        .Where(r => r.MasterID == _seller!.CompanyID)
+                                        .Where(r => r.RelativeID == buyerOrg.CompanyID)
+                                        .FirstOrDefault();
+                    _buyer.BuyerID = buyerOrg.CompanyID;
                 }
             }
 
             if (_invItem.Contact != null)
             {
-
                 if (!String.IsNullOrEmpty(_invItem.Contact.Name) && _invItem.Contact.Name.Length > 64)
                 {
                     return new Exception(String.Format(MessageResources.InvalidContactName, _invItem.Contact.Name));

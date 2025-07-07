@@ -72,7 +72,7 @@ namespace ModelCore.InvoiceManagement
 
                             if (ex == null)
                             {
-                                newItem = googlePlayValidator.Allowance;
+                                newItem = googlePlayValidator.Allowance!;
                             }
                             else
                             {
@@ -89,13 +89,13 @@ namespace ModelCore.InvoiceManagement
                         }
                         else
                         {
-                            newItem = validator.Allowance;
+                            newItem = validator.Allowance!;
                         }
 
                         newItem.CDS_Document.DocumentOwner.ClientID = this.InvoiceClientID;
                         newItem.CDS_Document.ChannelID = this.ChannelID;
                         table.InsertOnSubmit(newItem);
-                        G0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+                        newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.G0401);
                         //D0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
                         newItem.CDS_Document.DocumentSubscriptionQueue = new DocumentSubscriptionQueue { };
                         this.SubmitChanges();

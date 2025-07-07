@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -52,7 +52,7 @@ else
     {
 
         String subject = $"UXB2B eGUI Exception Notification";
-        String body = Html.Partial("~/Views/Notification/Module/NotifyProcessException.cshtml", _model).ToString();
+        String body = (await Html.PartialAsync("~/Views/Notification/Module/NotifyProcessException.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
         body.SendMailMessage(mailTo, subject);
 
     }

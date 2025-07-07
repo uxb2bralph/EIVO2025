@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -35,7 +35,7 @@
 @if (!String.IsNullOrEmpty(mailTo))
 {
     String Subject = $"網際優勢電子發票加值中心 設定兩步驟驗證";
-    String body = Html.Partial("~/Views/Account/Module/TwoFactorSettings.cshtml", _model).ToString();
+    String body = (await Html.PartialAsync("~/Views/Account/Module/TwoFactorSettings.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
     body.SendMailMessage(mailTo, Subject);
 }
  @{ 

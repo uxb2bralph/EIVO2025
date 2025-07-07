@@ -1,18 +1,19 @@
-﻿using System;
+﻿using CommonLib.DataAccess;
+using CommonLib.Utility;
+using DocumentFormat.OpenXml.Spreadsheet;
+using ModelCore.DataEntity;
+using ModelCore.Helper;
+using ModelCore.InvoiceManagement.InvoiceProcess;
+using ModelCore.Locale;
+using ModelCore.Security.MembershipManagement;
+using ModelCore.UploadManagement;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-
-
-using ModelCore.DataEntity;
-using ModelCore.Helper;
-using ModelCore.Locale;
-using ModelCore.Security.MembershipManagement;
-using ModelCore.UploadManagement;
-using CommonLib.Utility;
-using CommonLib.DataAccess;
 
 namespace ModelCore.InvoiceManagement
 {
@@ -95,7 +96,7 @@ namespace ModelCore.InvoiceManagement
         protected override bool validate(ItemUpload<InvoiceAllowance> item)
         {
             string[] column = item.Columns;
-            item.Entity = new InvoiceAllowance
+            item.Entity = new InvoiceAllowance()
             {
                 CDS_Document = new CDS_Document
                 {
@@ -139,7 +140,21 @@ namespace ModelCore.InvoiceManagement
             checkDateValue(item);
             var invItem = checkInvoiceNo(item);
             if (invItem != null)
+            {
                 checkAmountValue(item, invItem);
+                item.Entity.CDS_Document.ProcessType = invItem!.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101
+                                    ? (int)Naming.InvoiceProcessType.B0101
+                                    : (int)Naming.InvoiceProcessType.G0401;
+                if (item.Entity.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0101)
+                {
+                    item.Entity.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.B0101);
+                }
+                else
+                {
+                    item.Entity.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.G0401);
+                    item.Entity.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
+                }
+            }
 
             return _bResult;
         }

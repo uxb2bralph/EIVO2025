@@ -38,6 +38,7 @@ using CommonLib.Core.Utility;
 using ModelCore.Notification;
 using ModelCore.Service;
 using ModelCore.InvoiceManagement.InvoiceProcess;
+using Business.Helper.InvoiceProcessor;
 
 namespace WebHome.Published
 {
@@ -82,7 +83,7 @@ namespace WebHome.Published
                         try
                         {
                             client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                            client.UploadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/IssueC0401")}", p.JsonStringify());
+                            client.UploadString($"{ModelExtension.Properties.AppSettings.Default.NotifyIssuedInvoiceUrl}", p.JsonStringify());
                         }
                         catch (Exception ex)
                         {
@@ -534,7 +535,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
 
             }
             catch (Exception ex)
@@ -657,7 +658,18 @@ namespace WebHome.Published
         //}
 
         [OperationContract]
-        public virtual XmlDocument UploadB0401(XmlDocument uploadData)
+        public virtual XmlDocument UploadG0401(XmlDocument uploadData)
+        {
+            Root result = createMessageToken();
+            using (InvoiceManagerV3 manager = new InvoiceManagerV3 { })
+            {
+                manager.UploadAllowance(uploadData, result, Naming.InvoiceProcessType.G0401);
+            }
+            return result.ConvertToXml();
+        }
+
+        [OperationContract]
+        public virtual XmlDocument UploadG0501(XmlDocument uploadData)
         {
             Root result = createMessageToken();
 
@@ -667,15 +679,14 @@ namespace WebHome.Published
                 uploadData.PreserveWhitespace = true;
                 if (crypto.VerifyXmlSignature(uploadData))
                 {
-                    ModelCore.Schema.TurnKey.B0401.Allowance allowance = uploadData.TrimAll().ConvertTo<ModelCore.Schema.TurnKey.B0401.Allowance>();
-                    using (B2BInvoiceManager mgr = new B2BInvoiceManager { ProcessType = Naming.InvoiceProcessType.B0401 })
+                    using (B2BInvoiceManager mgr = new B2BInvoiceManager())
                     {
                         ///憑證資料檢查
                         ///
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-                            mgr.SaveB0401(allowance, token);
+                            mgr.SaveAllowanceCancellationMIG(uploadData, Naming.InvoiceProcessType.G0501);
                             result.Result.value = 1;
                         }
                         else
@@ -688,8 +699,7 @@ namespace WebHome.Published
                 {
                     result.Result.message = "發票資料簽章不符!!";
                 }
-
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -698,6 +708,7 @@ namespace WebHome.Published
             }
             return result.ConvertToXml();
         }
+
 
         [OperationContract]
         public virtual XmlDocument UploadInvoiceAutoTrackNo(XmlDocument uploadData)
@@ -848,7 +859,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
 
             }
             catch (Exception ex)
@@ -1167,49 +1178,6 @@ namespace WebHome.Published
         }
 
         [OperationContract]
-        public virtual XmlDocument UploadB0501(XmlDocument uploadData)
-        {
-            Root result = createMessageToken();
-
-            try
-            {
-                CryptoUtility crypto = new CryptoUtility();
-                uploadData.PreserveWhitespace = true;
-                if (crypto.VerifyXmlSignature(uploadData))
-                {
-                    ModelCore.Schema.TurnKey.B0501.CancelAllowance item = uploadData.TrimAll().ConvertTo<ModelCore.Schema.TurnKey.B0501.CancelAllowance>();
-                    using (B2BInvoiceManager mgr = new B2BInvoiceManager { ProcessType = Naming.InvoiceProcessType.B0501 })
-                    {
-                        ///憑證資料檢查
-                        ///
-                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null)
-                        {
-                            mgr.SaveB0501(item, token);
-                            result.Result.value = 1;
-                        }
-                        else
-                        {
-                            result.Result.message = "會員憑證資料驗證不符!!";
-                        }
-                    }
-                }
-                else
-                {
-                    result.Result.message = "發票資料簽章不符!!";
-                }
-
-                //                EIVOPlatformFactory.Notify();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Result.message = ex.Message;
-            }
-            return result.ConvertToXml();
-        }
-
-        [OperationContract]
         public XmlDocument GetUpdatedWelfareAgenciesInfo(String sellerReceiptNo)
         {
             try
@@ -1440,219 +1408,6 @@ namespace WebHome.Published
         }
 
         [OperationContract]
-        public XmlDocument GetIncomingInvoiceCancellations(XmlDocument sellerInfo)
-        {
-            RootA0201 result = new RootA0201
-            {
-                UXB2B = "電子發票系統",
-                Result = new RootResult
-                {
-                    timeStamp = DateTime.Now,
-                    value = 0
-                }
-            };
-
-            try
-            {
-                CryptoUtility crypto = new CryptoUtility();
-                sellerInfo.PreserveWhitespace = true;
-                if (crypto.VerifyXmlSignature(sellerInfo))
-                {
-                    using (InvoiceManager mgr = new InvoiceManager())
-                    {
-                        ///憑證資料檢查
-                        ///
-                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null)
-                        {
-                            buildIncomingInvoiceCancellations(result, mgr, token.CompanyID);
-                        }
-                        else
-                        {
-                            result.Result.message = "營業人憑證資料驗證不符!!";
-                        }
-                    }
-                }
-                else
-                {
-                    result.Result.message = "發票資料簽章不符!!";
-                }
-
-                //
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Result.message = ex.Message;
-            }
-            return result.ConvertToXml();
-        }
-
-        protected void buildIncomingInvoiceCancellations(Root result, InvoiceManager mgr, int companyID)
-        {
-            var table = mgr.GetTable<DocumentDownloadQueue>();
-            var items = table.Join(mgr.GetTable<CDS_Document>()
-                    .Where(d => d.DocumentOwner.OwnerID == companyID && d.DocType == (int)Naming.DocumentTypeDefinition.E_InvoiceCancellation),
-                    l => l.DocID, d => d.DocID, (l, d) => l);
-
-            if (items.Count() > 0)
-            {
-                result.Response = new RootResponseForA0201
-                {
-                    CancelInvoice =
-                    items.Select(d => d.CDS_Document.InvoiceItem.BuildA0201()).ToArray()
-                };
-
-                table.DeleteAllOnSubmit(items);
-                mgr.SubmitChanges();
-
-                result.Result.value = 1;
-            }
-        }
-
-        [OperationContract]
-        public XmlDocument GetIncomingAllowances(XmlDocument sellerInfo)
-        {
-            RootB0101 result = new RootB0101
-            {
-                UXB2B = "電子發票系統",
-                Result = new RootResult
-                {
-                    timeStamp = DateTime.Now,
-                    value = 0
-                }
-            };
-
-            try
-            {
-                CryptoUtility crypto = new CryptoUtility();
-                sellerInfo.PreserveWhitespace = true;
-                if (crypto.VerifyXmlSignature(sellerInfo))
-                {
-                    using (InvoiceManager mgr = new InvoiceManager())
-                    {
-                        ///憑證資料檢查
-                        ///
-                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null)
-                        {
-                            buildIncomingAllowances(result, mgr, token.CompanyID);
-                        }
-                        else
-                        {
-                            result.Result.message = "營業人憑證資料驗證不符!!";
-                        }
-                    }
-                }
-                else
-                {
-                    result.Result.message = "發票資料簽章不符!!";
-                }
-
-                //
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Result.message = ex.Message;
-            }
-            return result.ConvertToXml();
-        }
-
-        protected void buildIncomingAllowances(Root result, InvoiceManager mgr, int companyID)
-        {
-            var table = mgr.GetTable<DocumentDownloadQueue>();
-            var items = table.Join(mgr.GetTable<CDS_Document>()
-                    .Where(d => d.DocumentOwner.OwnerID == companyID && d.DocType == (int)Naming.DocumentTypeDefinition.E_Allowance),
-                    l => l.DocID, d => d.DocID, (l, d) => l);
-
-            if (items.Count() > 0)
-            {
-                result.Response = new RootResponseForB0101
-                {
-                    Allowance =
-                    items.Select(d => d.CDS_Document.InvoiceAllowance.BuildB0101()).ToArray()
-                };
-
-                table.DeleteAllOnSubmit(items);
-                mgr.SubmitChanges();
-
-                result.Result.value = 1;
-            }
-        }
-
-        [OperationContract]
-        public XmlDocument GetIncomingAllowanceCancellations(XmlDocument sellerInfo)
-        {
-            RootB0201 result = new RootB0201
-            {
-                UXB2B = "電子發票系統",
-                Result = new RootResult
-                {
-                    timeStamp = DateTime.Now,
-                    value = 0
-                }
-            };
-
-            try
-            {
-                CryptoUtility crypto = new CryptoUtility();
-                sellerInfo.PreserveWhitespace = true;
-                if (crypto.VerifyXmlSignature(sellerInfo))
-                {
-                    using (InvoiceManager mgr = new InvoiceManager())
-                    {
-                        ///憑證資料檢查
-                        ///
-                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null)
-                        {
-                            buildIncomingAllowanceCancellations(result, mgr, token.CompanyID);
-                        }
-                        else
-                        {
-                            result.Result.message = "營業人憑證資料驗證不符!!";
-                        }
-                    }
-                }
-                else
-                {
-                    result.Result.message = "發票資料簽章不符!!";
-                }
-
-                //
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Result.message = ex.Message;
-            }
-            return result.ConvertToXml();
-        }
-
-        protected void buildIncomingAllowanceCancellations(Root result, InvoiceManager mgr, int companyID)
-        {
-            var table = mgr.GetTable<DocumentDownloadQueue>();
-            var items = table.Join(mgr.GetTable<CDS_Document>()
-                    .Where(d => d.DocumentOwner.OwnerID == companyID && d.DocType == (int)Naming.DocumentTypeDefinition.E_AllowanceCancellation),
-                    l => l.DocID, d => d.DocID, (l, d) => l);
-
-            if (items.Count() > 0)
-            {
-                result.Response = new RootResponseForB0201
-                {
-                    CancelAllowance =
-                    items.Select(d => d.CDS_Document.InvoiceAllowance.BuildB0201()).ToArray()
-                };
-
-                table.DeleteAllOnSubmit(items);
-                mgr.SubmitChanges();
-
-                result.Result.value = 1;
-            }
-        }
-
-        [OperationContract]
         public void AcknowledgeLivingReport(XmlDocument sellerInfo)
         {
             try
@@ -1870,7 +1625,7 @@ namespace WebHome.Published
         //}
 
         [OperationContract]
-        public virtual XmlDocument UploadA0401(XmlDocument uploadData)
+        public virtual XmlDocument UploadF0401(XmlDocument uploadData)
         {
             Root result = createMessageToken();
 
@@ -1880,7 +1635,6 @@ namespace WebHome.Published
                 uploadData.PreserveWhitespace = true;
                 if (crypto.VerifyXmlSignature(uploadData))
                 {
-                    ModelCore.Schema.TurnKey.A0401.Invoice invoice = uploadData.TrimAll().ConvertTo<ModelCore.Schema.TurnKey.A0401.Invoice>();
                     using (B2BInvoiceManager mgr = new B2BInvoiceManager { ProcessType = Naming.InvoiceProcessType.A0401 })
                     {
                         ///憑證資料檢查
@@ -1888,7 +1642,7 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-                            mgr.SaveA0401(invoice, token);
+                            mgr.SaveInvoiceMIG(uploadData, Naming.InvoiceProcessType.F0401);
                             result.Result.value = 1;
                         }
                         else
@@ -1902,7 +1656,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -1911,6 +1665,48 @@ namespace WebHome.Published
             }
             return result.ConvertToXml();
         }
+
+        [OperationContract]
+        public virtual XmlDocument UploadF0501(XmlDocument uploadData)
+        {
+            Root result = createMessageToken();
+
+            try
+            {
+                CryptoUtility crypto = new CryptoUtility();
+                uploadData.PreserveWhitespace = true;
+                if (crypto.VerifyXmlSignature(uploadData))
+                {
+                    using (B2BInvoiceManager mgr = new B2BInvoiceManager())
+                    {
+                        ///憑證資料檢查
+                        ///
+                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
+                        if (token != null)
+                        {
+                            mgr.SaveAllowanceCancellationMIG(uploadData, Naming.InvoiceProcessType.F0501);
+                            result.Result.value = 1;
+                        }
+                        else
+                        {
+                            result.Result.message = "會員憑證資料驗證不符!!";
+                        }
+                    }
+                }
+                else
+                {
+                    result.Result.message = "發票資料簽章不符!!";
+                }
+                //EIVOTurnkeyFactory.Notify();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                result.Result.message = ex.Message;
+            }
+            return result.ConvertToXml();
+        }
+
 
         //[OperationContract]
         //public virtual XmlDocument UploadB1101(XmlDocument uploadData)
@@ -1966,7 +1762,6 @@ namespace WebHome.Published
                 uploadData.PreserveWhitespace = true;
                 if (crypto.VerifyXmlSignature(uploadData))
                 {
-                    ModelCore.Schema.TurnKey.A0201.CancelInvoice item = uploadData.TrimAll().ConvertTo<ModelCore.Schema.TurnKey.A0201.CancelInvoice>();
                     using (B2BInvoiceManager mgr = new B2BInvoiceManager { ProcessType = Naming.InvoiceProcessType.A0201 })
                     {
                         ///憑證資料檢查
@@ -1975,7 +1770,7 @@ namespace WebHome.Published
                         if (token != null)
                         {
 
-                            mgr.SaveA0201(item, token);
+                            mgr.SaveA0201(uploadData);
                             result.Result.value = 1;
                         }
                         else
@@ -1989,52 +1784,8 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
 
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Result.message = ex.Message;
-            }
-            return result.ConvertToXml();
-        }
-
-        [OperationContract]
-        public virtual XmlDocument UploadA0501(XmlDocument uploadData)
-        {
-            Root result = createMessageToken();
-
-            try
-            {
-                CryptoUtility crypto = new CryptoUtility();
-                uploadData.PreserveWhitespace = true;
-                if (crypto.VerifyXmlSignature(uploadData))
-                {
-                    ModelCore.Schema.TurnKey.A0501.CancelInvoice item = uploadData.TrimAll().ConvertTo<ModelCore.Schema.TurnKey.A0501.CancelInvoice>();
-                    using (B2BInvoiceManager mgr = new B2BInvoiceManager { ProcessType = Naming.InvoiceProcessType.A0501 })
-                    {
-                        ///憑證資料檢查
-                        ///
-                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null)
-                        {
-
-                            mgr.SaveA0501(item, token);
-                            result.Result.value = 1;
-                        }
-                        else
-                        {
-                            result.Result.message = "營業人憑證資料驗證不符!!";
-                        }
-                    }
-                }
-                else
-                {
-                    result.Result.message = "發票資料簽章不符!!";
-                }
-
-                EIVOTurnkeyFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -2055,7 +1806,6 @@ namespace WebHome.Published
                 uploadData.PreserveWhitespace = true;
                 if (crypto.VerifyXmlSignature(uploadData))
                 {
-                    ModelCore.Schema.TurnKey.B0201.CancelAllowance item = uploadData.TrimAll().ConvertTo<ModelCore.Schema.TurnKey.B0201.CancelAllowance>();
                     using (B2BInvoiceManager mgr = new B2BInvoiceManager { ProcessType = Naming.InvoiceProcessType.B0201 })
                     {
                         ///憑證資料檢查
@@ -2063,8 +1813,7 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-
-                            mgr.SaveB0201(item, token);
+                            mgr.SaveB0201(uploadData);
                             result.Result.value = 1;
                         }
                         else
@@ -2078,7 +1827,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -2156,88 +1905,7 @@ namespace WebHome.Published
             }
             return result.ConvertToXml();
         }
-
-        [OperationContract]
-        public XmlDocument B2CUploadInvoiceCancellation(XmlDocument uploadData)
-        {
-            Root result = createMessageToken();
-
-            try
-            {
-                CryptoUtility crypto = new CryptoUtility();
-                uploadData.PreserveWhitespace = true;
-                if (crypto.VerifyXmlSignature(uploadData))
-                {
-                    CancelInvoiceRoot item = uploadData.TrimAll().ConvertTo<CancelInvoiceRoot>();
-                    using (B2CInvoiceManager mgr = new B2CInvoiceManager())
-                    {
-                        ///憑證資料檢查
-                        ///
-                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null)
-                        {
-
-                            var items = mgr.SaveUploadInvoiceCancellation(item, token);
-                            if (items.Count > 0)
-                            {
-                                result.Response = new RootResponse
-                                {
-                                    InvoiceNo =
-                                    items.Select(d => new RootResponseInvoiceNo
-                                    {
-                                        Value = item.CancelInvoice[d.Key].CancelInvoiceNumber,
-                                        Description = d.Value.Message,
-                                        ItemIndexSpecified = true,
-                                        ItemIndex = d.Key
-                                    }).ToArray()
-                                };
-
-                                ThreadPool.QueueUserWorkItem(ExceptionNotification.SendNotification,
-                                                                    new ExceptionInfo
-                                                                    {
-                                                                        Token = token,
-                                                                        ExceptionItems = items,
-                                                                        CancelInvoiceData = item
-                                                                    });
-                            }
-                            else
-                            {
-                                result.Result.value = 1;
-                            }
-                        }
-                        else
-                        {
-                            result.Result.message = "營業人憑證資料驗證不符!!";
-                        }
-                    }
-                }
-                else
-                {
-                    result.Result.message = "發票資料簽章不符!!";
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Result.message = ex.Message;
-            }
-            return result.ConvertToXml();
-        }
-
-        //public static String CreatePdfFile(int InvoiceID)
-        //{
-        //    String File = string.Empty;
-        //    using (WebClient client = new WebClient())
-        //    {
-        //        File = client.DownloadString(String.Format("{0}{1}?id={2}&nameOnly=true&printAll='0'",
-        //                                ModelExtension.Properties.AppSettings.Default.HostUrl,
-        //                                VirtualPathUtility.ToAbsolute("~/DataView/PrintSingleInvoiceAsPDF"),
-        //                                InvoiceID));
-        //    }
-        //    return File;
-        //}
+        
 
         [OperationContract]
         public String[] ReceiveContentAsPDFForSeller(XmlDocument sellerInfo, String clientID)
@@ -2799,77 +2467,6 @@ namespace WebHome.Published
         }
 
         [OperationContract()]
-        public XmlDocument B2BUploadInvoice(System.Xml.XmlDocument uploadData)
-        {
-            Root result = createMessageToken();
-
-            try
-            {
-                CryptoUtility crypto = new CryptoUtility();
-                uploadData.PreserveWhitespace = true;
-                if (crypto.VerifyXmlSignature(uploadData))
-                {
-                    ModelCore.Schema.EIVO.B2B.SellerInvoiceRoot invoice = uploadData.ConvertTo<ModelCore.Schema.EIVO.B2B.SellerInvoiceRoot>();
-                    using (B2BInvoiceManager mgr = new B2BInvoiceManager { ProcessType = Naming.InvoiceProcessType.A0401 })
-                    {
-                        ///憑證資料檢查
-                        ///
-                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null)
-                        {
-                            mgr.PrepareSignerCertificate(token.Organization);
-
-                            var items = mgr.SaveUploadInvoice(invoice, token);
-                            if (items.Count > 0)
-                            {
-                                result.Response = new RootResponse
-                                {
-                                    InvoiceNo =
-                                    items.Select(d => new RootResponseInvoiceNo
-                                    {
-                                        Value = invoice.Invoice[d.Key].InvoiceNumber,
-                                        Description = d.Value.Message,
-                                        ItemIndexSpecified = true,
-                                        ItemIndex = d.Key
-                                    }).ToArray()
-                                };
-
-                                ThreadPool.QueueUserWorkItem(ExceptionNotification.SendNotification,
-                                    new ExceptionInfo
-                                    {
-                                        Token = token,
-                                        ExceptionItems = items,
-                                        B2BInvoiceData = invoice
-                                    });
-                            }
-                            else
-                            {
-                                result.Result.value = 1;
-                            }
-                        }
-                        else
-                        {
-                            result.Result.message = "會員憑證資料驗證不符!!";
-                        }
-                    }
-                }
-                else
-                {
-                    result.Result.message = "發票資料簽章不符!!";
-                }
-
-                //
-                //EIVOPlatformFactory.Notify();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Result.message = ex.Message;
-            }
-            return result.ConvertToXml();
-        }
-
-        [OperationContract()]
         public XmlDocument B2BUploadAllowance(XmlDocument uploadData)
         {
             Root result = createMessageToken();
@@ -3080,75 +2677,6 @@ namespace WebHome.Published
             return result.ConvertToXml();
         }
 
-        [OperationContract()]
-        public XmlDocument B2BUploadBuyerInvoice(XmlDocument uploadData)
-        {
-            Root result = createMessageToken();
-
-            try
-            {
-                CryptoUtility crypto = new CryptoUtility();
-                uploadData.PreserveWhitespace = true;
-                if (crypto.VerifyXmlSignature(uploadData))
-                {
-                    BuyerInvoiceRoot invoice = uploadData.ConvertTo<BuyerInvoiceRoot>();
-                    using (B2BInvoiceManager mgr = new B2BInvoiceManager { ProcessType = Naming.InvoiceProcessType.A0401 })
-                    {
-                        ///憑證資料檢查
-                        ///
-                        var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null)
-                        {
-                            var items = mgr.SaveUploadInvoice(invoice, token);
-                            if (items.Count > 0)
-                            {
-                                result.Response = new RootResponse
-                                {
-                                    InvoiceNo =
-                                    items.Select(d => new RootResponseInvoiceNo
-                                    {
-                                        Value = invoice.Invoice[d.Key].DataNumber,
-                                        Description = d.Value.Message,
-                                        ItemIndexSpecified = true,
-                                        ItemIndex = d.Key
-                                    }).ToArray()
-                                };
-
-                                ThreadPool.QueueUserWorkItem(ExceptionNotification.SendNotification,
-                                    new ExceptionInfo
-                                    {
-                                        Token = token,
-                                        ExceptionItems = items,
-                                        BuyerInvoiceData = invoice
-                                    });
-                            }
-                            else
-                            {
-                                result.Result.value = 1;
-                            }
-                        }
-                        else
-                        {
-                            result.Result.message = "會員憑證資料驗證不符!!";
-                        }
-                    }
-                }
-                else
-                {
-                    result.Result.message = "發票資料簽章不符!!";
-                }
-
-                //EIVOPlatformFactory.Notify();
-
-                //
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                result.Result.message = ex.Message;
-            }
-            return result.ConvertToXml();
-        }
         [OperationContract]
         public XmlDocument UploadBranchTrackBlank(XmlDocument uploadData)
         {
@@ -3398,7 +2926,7 @@ namespace WebHome.Published
                 {
                     //EIVOPlatformManager mgr = new EIVOPlatformManager();
                     //mgr.NotifyToProcess();
-                    EIVOTurnkeyFactory.Notify();
+                    //EIVOTurnkeyFactory.Notify();
                 }
             }
             catch (Exception ex)
@@ -3454,7 +2982,7 @@ namespace WebHome.Published
         //}
 
         [OperationContract]
-        public XmlDocument B2BReceiveA0501(XmlDocument sellerInfo)
+        public XmlDocument? B2BReceiveA0501(XmlDocument sellerInfo)
         {
             try
             {
@@ -3485,7 +3013,7 @@ namespace WebHome.Published
 
                                 item.MoveToNextStep(mgr);
 
-                                return result.ConvertToXml();
+                                return result;
                             }
 
                         }
@@ -3500,7 +3028,7 @@ namespace WebHome.Published
         }
 
         [OperationContract]
-        public XmlDocument B2BReceiveB0501(XmlDocument sellerInfo)
+        public XmlDocument? B2BReceiveB0501(XmlDocument sellerInfo)
         {
             try
             {
@@ -3532,7 +3060,7 @@ namespace WebHome.Published
 
                                 item.MoveToNextStep(mgr);
 
-                                return result.ConvertToXml();
+                                return result;
                             }
 
                         }
@@ -3782,7 +3310,7 @@ namespace WebHome.Published
                             ServiceInfo info = new ServiceInfo
                             {
                                 AgentToken = token.CompanyID.EncryptKey(),
-                                TaskCenterUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}/{Settings.Default.TaskCenter}",
+                                TaskCenterUrl = $"{Settings.Default.TaskCenter}",
                                 ServiceHost = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~")}",
                                 AgentUID = user?.UID,
                                 DefaultProcessType = (Naming.InvoiceProcessType?)token.Organization.OrganizationStatus.InvoiceClientDefaultProcessType,

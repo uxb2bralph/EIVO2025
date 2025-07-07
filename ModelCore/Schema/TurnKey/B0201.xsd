@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns="urn:GEINV:eInvoiceMessage:B0201:4.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:GEINV:eInvoiceMessage:B0201:4.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="urn:GEINV:eInvoiceMessage:B0201:4.1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:GEINV:eInvoiceMessage:B0201:4.1" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xsd:include schemaLocation="GenericType_4.0.xsd"/>
 	<!-- 作廢折讓單: B0201-->
 	<xsd:element name="CancelAllowance">
@@ -17,6 +17,8 @@
 				<xsd:element name="CancelDate" type="DateType"/>
 				<!-- 作廢時間 -->
 				<xsd:element name="CancelTime" type="TimeType"/>
+				<!-- 折讓種類 -->
+				<xsd:element name="AllowanceType" type="AllowanceTypeEnum"/>
 				<!-- 備註 -->
 				<xsd:element name="CancelReason">
 					<xsd:simpleType>

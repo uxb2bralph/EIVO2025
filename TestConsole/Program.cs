@@ -45,8 +45,8 @@ using CommonLib.Core.Utility;
 using CommonLib.Utility;
 using CommonLib.Security.UseCrypto;
 using CommonLib.DataAccess;
-using ModelCore.Schema.TurnKey;
 using System.Xml.Serialization;
+using ModelCore.Schema.TurnKey.Invoice;
 
 namespace TestConsole
 {
@@ -486,8 +486,7 @@ namespace TestConsole
                 foreach (var d in migC0501)
                 {
                     var a = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501();
-                    var x = a.ConvertToXml();
-                    var s = a.GetXml();
+                    var s = a?.OuterXml;
                     var c = new MIGContent
                     {
                         DocID = d.DocID,
@@ -506,7 +505,7 @@ namespace TestConsole
                         DocDate = d.CDS_Document.DocDate,
                         No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.InvoiceNo(),
                         ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.Organization?.ReceiptNo,
-                        MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501().GetXml()
+                        MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501()?.OuterXml
                     }).ToArray();
 
                 //File.WriteAllText("G:\\temp\\data.json", items.JsonStringify());
@@ -1126,14 +1125,14 @@ namespace TestConsole
                     .OrderByDescending(i => i.InvoiceID)
                                 .Take(20);
 
-                jsonData = JsonConvert.SerializeObject(cancelItems.Select(i => i.CreateF0501(false)).ToArray());
+                jsonData = JsonConvert.SerializeObject(cancelItems.Select(i => i.CreateCancelInvoiceMIG(false)).ToArray());
                 File.WriteAllText("G:\\temp\\INV0501.json", jsonData);
 
                 var allowanceItems = models.GetTable<InvoiceAllowance>()
                     .OrderByDescending(i => i.AllowanceID)
                                 .Take(20);
 
-                jsonData = JsonConvert.SerializeObject(allowanceItems.Select(i => i.CreateG0401(models, false)).ToArray());
+                jsonData = JsonConvert.SerializeObject(allowanceItems.Select(i => i.CreateAllowanceMIG(models, false)).ToArray());
                 File.WriteAllText("G:\\temp\\ALN0401.json", jsonData.Replace(".00000", ""));
 
                 var cancelAllowance = models.GetTable<InvoiceAllowanceCancellation>()
@@ -1222,8 +1221,8 @@ namespace TestConsole
         {
             using (InvoiceManager models = new InvoiceManager())
             {
-                A0201Handler a0501 = new A0201Handler(models);
-                a0501.WriteToTurnkey();
+                InvoiceHandler a0501 = new InvoiceHandler(models);
+                a0501.WriteA0201ToTurnkey();
             }
         }
 
@@ -1345,9 +1344,9 @@ namespace TestConsole
         {
             using (InvoiceManager models = new InvoiceManager())
             {
-                F0501Handler c0501 = new F0501Handler(models);
+                InvoiceHandler c0501 = new InvoiceHandler(models);
                 //c0501.NotifyIssued();
-                c0501.WriteToTurnkey();
+                c0501.WriteF0501ToTurnkey();
             }
         }
 
@@ -1715,7 +1714,7 @@ namespace TestConsole
                 var item = models.GetTable<InvoiceItem>().OrderByDescending(i => i.InvoiceID).FirstOrDefault();
                 var a0401 = item.CreateF0401();
                 var data = JsonConvert.SerializeObject(a0401);
-                var a0101 = JsonConvert.DeserializeObject<ModelCore.Schema.TurnKey.A0101.Invoice>(data);
+                var a0101 = JsonConvert.DeserializeObject<ModelCore.Schema.TurnKey.Invoice.Invoice>(data);
             }
         }
 

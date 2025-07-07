@@ -137,148 +137,6 @@ namespace ModelCore.Helper
         //    return items.ToArray();
         //}
 
-        public static ModelCore.Schema.TurnKey.B0101.Allowance BuildB0101(this InvoiceAllowance item)
-        {
-            var result = new ModelCore.Schema.TurnKey.B0101.Allowance
-            {
-                Main = new ModelCore.Schema.TurnKey.B0101.Main
-                {
-                    AllowanceDate = $"{item.AllowanceDate:yyyyMMdd}",
-                    AllowanceNumber = item.AllowanceNumber,
-                    AllowanceType = (ModelCore.Schema.TurnKey.B0101.AllowanceTypeEnum?)item.AllowanceType ?? Schema.TurnKey.B0101.AllowanceTypeEnum.Item1
-                },
-                Amount = new ModelCore.Schema.TurnKey.B0101.Amount
-                {
-                    TaxAmount = item.TaxAmount.HasValue ? (long)item.TaxAmount.Value : 0,
-                    TotalAmount = item.TotalAmount.HasValue ? (long)item.TotalAmount.Value : 0
-                }
-            };
-
-            result.Details = item.InvoiceAllowanceDetails.Select(d => new ModelCore.Schema.TurnKey.B0101.DetailsProductItem
-            {
-                AllowanceSequenceNumber = d.InvoiceAllowanceItem.No.ToString(),
-                Amount = d.InvoiceAllowanceItem.Amount.Value,
-                OriginalDescription = d.InvoiceAllowanceItem.OriginalDescription,
-                OriginalInvoiceNumber = d.InvoiceAllowanceItem.InvoiceNo,
-                Quantity = d.InvoiceAllowanceItem.Piece.HasValue ? d.InvoiceAllowanceItem.Piece.Value : 0.00000M,
-                Tax = (long)d.InvoiceAllowanceItem.Tax.Value,
-                TaxType = (ModelCore.Schema.TurnKey.B0101.TaxTypeEnum)d.InvoiceAllowanceItem.TaxType.Value,
-                Unit = d.InvoiceAllowanceItem.PieceUnit,
-                UnitPrice = d.InvoiceAllowanceItem.UnitCost.HasValue ? d.InvoiceAllowanceItem.UnitCost.Value : 0
-            }).ToArray();
-
-            if (item.InvoiceAllowanceSeller != null)
-            {
-                Organization seller = item.InvoiceAllowanceSeller.Organization;
-                result.Main.Seller = new ModelCore.Schema.TurnKey.B0101.MainSeller
-                {
-                    Address = seller.Addr,
-                    CustomerNumber = "",
-                    EmailAddress = seller.ContactEmail,
-                    FacsimileNumber = seller.Fax,
-                    Identifier = seller.ReceiptNo,
-                    Name = seller.CompanyName,
-                    //PersonInCharge = seller.UndertakerName,
-                    //RoleRemark = "",
-                    TelephoneNumber = seller.Phone
-                };
-            }
-            else
-            {
-                result.Main.Seller = new ModelCore.Schema.TurnKey.B0101.MainSeller
-                {
-                    Identifier = item.SellerId
-                };
-            }
-
-            if (item.InvoiceAllowanceBuyer != null)
-            {
-                Organization buyerOrg = item.InvoiceAllowanceBuyer.Organization;
-                if (buyerOrg != null)
-                {
-                    result.Main.Buyer = new ModelCore.Schema.TurnKey.B0101.MainBuyer
-                    {
-                        Address = buyerOrg.Addr,
-                        CustomerNumber = "",
-                        EmailAddress = buyerOrg.ContactEmail,
-                        FacsimileNumber = buyerOrg.Fax,
-                        Identifier = buyerOrg.ReceiptNo,
-                        Name = buyerOrg.CompanyName,
-                        //PersonInCharge = buyerOrg.UndertakerName,
-                        //RoleRemark = "",
-                        TelephoneNumber = buyerOrg.Phone
-                    };
-                }
-                else
-                {
-                    result.Main.Buyer = new ModelCore.Schema.TurnKey.B0101.MainBuyer
-                    {
-                        Address = item.InvoiceAllowanceBuyer.Address,
-                        CustomerNumber = "",
-                        EmailAddress = item.InvoiceAllowanceBuyer.EMail,
-                        FacsimileNumber = "",
-                        Identifier = item.InvoiceAllowanceBuyer.ReceiptNo,
-                        Name = item.InvoiceAllowanceBuyer.CustomerName,
-                        //PersonInCharge = buyerOrg.UndertakerName,
-                        //RoleRemark = "",
-                        TelephoneNumber = item.InvoiceAllowanceBuyer.Phone
-                    };
-                }
-            }
-            else
-            {
-                result.Main.Buyer = new ModelCore.Schema.TurnKey.B0101.MainBuyer
-                {
-                    Identifier = item.BuyerId
-                };
-            }
-            return result;
-        }
-
-        public static ModelCore.Schema.TurnKey.A0201.CancelInvoice BuildA0201(this InvoiceItem item)
-        {
-            Organization seller = item.Organization;
-            InvoiceCancellation cancelItem = item.InvoiceCancellation;
-
-            if (cancelItem == null)
-                return null;
-
-            var result = new ModelCore.Schema.TurnKey.A0201.CancelInvoice
-            {
-                CancelDate = $"{cancelItem.CancelDate:yyyyMMdd}",
-                BuyerId =  item.InvoiceBuyer.BuyerID.HasValue ? item.InvoiceBuyer.Organization.ReceiptNo : item.InvoiceBuyer.ReceiptNo,
-                CancelInvoiceNumber = cancelItem.CancellationNo,
-                CancelTime = cancelItem.CancelDate.Value,
-                InvoiceDate = $"{item.InvoiceDate:yyyyMMdd}",
-                Remark = cancelItem.Remark,
-                ReturnTaxDocumentNumber = cancelItem.ReturnTaxDocumentNo,
-                SellerId = seller.ReceiptNo
-            };
-
-            return result;
-        }
-
-        public static ModelCore.Schema.TurnKey.B0201.CancelAllowance BuildB0201(this InvoiceAllowance item)
-        {
-            InvoiceAllowanceCancellation cancelItem = item.InvoiceAllowanceCancellation;
-
-            if (cancelItem == null)
-                return null;
-
-            var result = new ModelCore.Schema.TurnKey.B0201.CancelAllowance
-            {
-                AllowanceDate = $"{item.AllowanceDate:yyyyMMdd}",
-                CancelDate = $"{cancelItem.CancelDate:yyyyMMdd}",
-                CancelTime = cancelItem.CancelDate.Value,
-                CancelAllowanceNumber = item.AllowanceNumber,
-                Remark = cancelItem.Remark,
-                BuyerId = item.BuyerId,
-                SellerId = item.InvoiceAllowanceSeller.Organization.ReceiptNo
-            };
-
-            return result;
-        }
-
         public static bool SignAndCheck(X509Certificate2 certificate, StringBuilder sb,Naming.CACatalogDefinition catalog,int docID,Naming.DocumentTypeDefinition typeID)
         {
             SignedCms signedCms;
@@ -518,7 +376,7 @@ namespace ModelCore.Helper
             return SignAndCheck(certificate, sb, Naming.CACatalogDefinition.平台自動開立, docID, Naming.DocumentTypeDefinition.E_ReceiptCancellation);
         }
 
-        public static void PushLogOnSubmit(this CDS_Document docItem, GenericManager<EIVOEntityDataContext> models, Naming.InvoiceStepDefinition stepID, Naming.DataProcessStatus status,String content = null)
+        public static void PushLogOnSubmit(this CDS_Document docItem, GenericManager<EIVOEntityDataContext> models, Naming.InvoiceStepDefinition stepID, Naming.DataProcessStatus status,String? content = null, Naming.InvoiceProcessType? processType = null)
         {
             models.GetTable<DataProcessLog>().InsertOnSubmit(
                 new DataProcessLog
@@ -528,7 +386,36 @@ namespace ModelCore.Helper
                     StepID = (int)stepID,
                     Status = (int)status,
                     Content = content,
+                    ProcessType = (int?)processType,
                 });
+        }
+
+        public static void PushStepLogOnSubmit(this DataProcessQueue stepItem, GenericManager<EIVOEntityDataContext> models, Naming.DataProcessStatus status, String? content = null)
+        {
+            models.GetTable<DataProcessLog>().InsertOnSubmit(
+                new DataProcessLog
+                {
+                    CDS_Document = stepItem.CDS_Document,
+                    LogDate = DateTime.Now,
+                    StepID = stepItem.StepID,
+                    Status = (int)status,
+                    Content = content,
+                    ProcessType = stepItem.ProcessType,
+                });
+        }
+
+        public static void PushStepQueueOnSubmit(this CDS_Document docItem, GenericManager<EIVOEntityDataContext> models, Naming.InvoiceStepDefinition stepID, Naming.InvoiceProcessType processType)
+        {
+            models.GetTable<DataProcessQueue>().InsertOnSubmit(
+                new DataProcessQueue
+                {
+                    CDS_Document = docItem,
+                    StepID = (int)stepID,
+                    ProcessType = (int)processType,
+                    DispatchDate = DateTime.Now,
+                });
+
+            docItem.PushLogOnSubmit(models, stepID, Naming.DataProcessStatus.Ready);
         }
 
         public static String CheckB2CMIGName(this String name)

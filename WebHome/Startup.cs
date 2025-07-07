@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -211,6 +211,8 @@ namespace WebHome
             //set it as the primary LoggerFactory to use everywhere
             ApplicationLogging.LoggerFactory = loggerFactory;
             Environment = env;
+
+            eInvoiceService.StartUp(); // 初始化eInvoiceService相關設定
         }
     }
 }

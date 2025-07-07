@@ -20,8 +20,8 @@ namespace ModelCore.Schema.TurnKey.E0504 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0504:4.0")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0504:4.0", IsNullable=false)]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0504:4.1")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0504:4.1", IsNullable=false)]
     public partial class Award {
         
         /// <remarks/>
@@ -37,7 +37,7 @@ namespace ModelCore.Schema.TurnKey.E0504 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0504:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0504:4.1")]
     public partial class Main {
         
         /// <remarks/>
@@ -67,7 +67,7 @@ namespace ModelCore.Schema.TurnKey.E0504 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0504:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0504:4.1")]
     public partial class DetailsPrizeInvoice {
         
         /// <remarks/>
@@ -135,7 +135,7 @@ namespace ModelCore.Schema.TurnKey.E0504 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0504:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0504:4.1")]
     public partial class DetailsPrizeInvoiceSeller {
         
         /// <remarks/>

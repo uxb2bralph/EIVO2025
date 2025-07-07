@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -38,7 +38,7 @@
 <br />
 請於附件(PDF)列印本期的電子發票，如附件列印有問題再麻煩請您登入
 <br />
-『電子發票服務平台』進行後續列印作業，登入電子發票網址 <a href="@($"{ModelExtension.Properties.AppSettings.Default.HostUrl}")">@($"{ModelExtension.Properties.AppSettings.Default.HostUrl}")</a>。
+『電子發票服務平台』進行後續列印作業，登入電子發票網址 <a href="@($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/Account/CbsLogin")">@($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/Account/CbsLogin")</a>。
 <br />
 @if (_model.InvoiceSeller.ReceiptNo == "70762419")
 {

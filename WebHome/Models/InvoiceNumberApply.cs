@@ -19,12 +19,12 @@ namespace WebHome.Models
 
     public class InvoiceNumberApply
     {
-        public string PID { get; set; }
+        public string? PID { get; set; }
 
         [Required(ErrorMessage = "必輸欄位")]
-        public string MOFBranch { get; set; }
+        public string MOFBranch { get; set; } = string.Empty; //財政部分支機關名稱
         [Required(ErrorMessage = "必輸欄位")]
-        public string TaxBranch { get; set; }
+        public string TaxBranch { get; set; } = string.Empty;
         #region 申請整合服務平台
         public bool ApplyUse { get; set; } = false;
         public int? ApplyUse_NeedNumber { get; set; } //取用1, 查詢2
@@ -36,7 +36,7 @@ namespace WebHome.Models
         public int? ApplyNumberQuantity { get; set; } = null;
         public int? NumberDuration { get; set; } = null; //期配1,年配2
         public int? GetNumberByYearReason { get; set; } = null; //[年配資格]
-        public string GetNumberByYearReasonBusiness { get; set; } = string.Empty;    //[年配資格為連鎖加盟經營]
+        public string? GetNumberByYearReasonBusiness { get; set; } = string.Empty;    //[年配資格為連鎖加盟經營]
 
         //[停用整合服務平台功能]
         public bool StopUse { get; set; } = false;
@@ -62,7 +62,7 @@ namespace WebHome.Models
         public DateTime? AgentDate { get; set; }
         #endregion
 
-        public bool IsApplyB2B { get; set; }
+        public bool IsApplyB2B { get; set; } = false;
         #region 僅開立B2B或B2G電子發票營業人文件
         //必備文件
         public bool b2bRequiredDoc1 { get; set; } = false;
@@ -71,10 +71,10 @@ namespace WebHome.Models
         public bool b2bRequiredDoc4 { get; set; } = false;
         //傳輸方式
         public bool? b2bTransferDoc1 { get; set; } = null;
-        public string b2bTransferDoc1TurnkeyToken { get; set; } = string.Empty;
+        public string? b2bTransferDoc1TurnkeyToken { get; set; }
         public bool? b2bTransferDoc2 { get; set; } = null;
-        public string b2bTransferDoc2BusinessID { get; set; } = string.Empty;
-        public string b2bTransferDoc2BusinessTaxID { get; set; } = string.Empty;
+        public string? b2bTransferDoc2BusinessID { get; set; }
+        public string? b2bTransferDoc2BusinessTaxID { get; set; }
         public bool? b2bTransferDoc3 { get; set; } = null;
         //其他文件
         public bool? b2bDoc1 { get; set; } = null;
@@ -84,7 +84,8 @@ namespace WebHome.Models
         public bool? b2bDoc5 { get; set; } = null;
         public bool? b2bDoc6 { get; set; } = null; //一,委託專業代理人事務委任書
         #endregion
-        public bool IsApplyB2C { get; set; }
+        public bool IsApplyB2C { get; set; } = false;
+        public bool? b2cDoc1 { get; set; } = null;
         #region 同時開立b2c及b2c電子發票營業人文件
         //必備文件
         public bool b2cRequiredDoc1 { get; set; } = false;
@@ -97,15 +98,15 @@ namespace WebHome.Models
         public bool b2cRequiredDoc7 { get; set; } = false;
         //傳輸方式
         public bool? b2cTransferDoc1 { get; set; } = null;
-        public string b2cTransferDoc1TurnkeyToken { get; set; } = string.Empty;
+        public string? b2cTransferDoc1TurnkeyToken { get; set; } = string.Empty;
         public bool? b2cTransferDoc2 { get; set; } = null;
-        public string b2cTransferDoc2BusinessID { get; set; } = string.Empty;
-        public string b2cTransferDoc2BusinessTaxID { get; set; } = string.Empty;
+        public string? b2cTransferDoc2BusinessID { get; set; } = string.Empty;
+        public string? b2cTransferDoc2BusinessTaxID { get; set; } = string.Empty;
         public bool? b2cTransferDoc3 { get; set; } = null;
 
         //其他文件
         public int? b2cDoc1Type { get; set; } = null;
-        public string b2cDoc1Other { get; set; } = string.Empty;
+        public string? b2cDoc1Other { get; set; } = string.Empty;
 
         public bool? b2cDoc2 { get; set; } = null;
         public bool? b2cDoc3 { get; set; } = null;
@@ -174,7 +175,7 @@ namespace WebHome.Models
         [RegularExpression(@"^(09)([0-9]{2})$|(\d{2,3}-{1}\d{3,4}\d{4})$", ErrorMessage = "格式有誤, 市話請輸入XX-XXXXXXXX 或 XXX-XXXXXXX")]
         [Display(Name = "聯絡人電話")]
         public string AgentTelNo { get; set; }
-        public string AppointDuration { get; set; }
+        public string? AppointDuration { get; set; }
         [RegularExpression(@"^[\u4E00-\u9FFFA-Za-z-, ]{0,40}$", ErrorMessage = "限中英文或長度過長")]
         [Display(Name = "負責人")]
         public string AgentBoss { get; set; }
@@ -221,7 +222,7 @@ namespace WebHome.Models
         public DateTime? SysChkDatetime { get; set; }
         [RegularExpression(@"^[\u4E00-\u9FFFA-Za-z0-9\。\，]{0,200}$", ErrorMessage = "限中英文(全形。或，)或長度過長")]
         [Display(Name = "檢測項目之檢測結果為「不具備」者，其原因詳述如下：")]
-        public string SysChkMessage { get; set; }
+        public string? SysChkMessage { get; set; }
         #endregion 
 
         #region 發票開立系統檢測項目
@@ -403,117 +404,116 @@ namespace WebHome.Models
 
         public InvoiceNumberApply getDefaultData()
         {
-            return new InvoiceNumberApply(
-            PID = string.Empty,
-            MOFBranch = string.Empty,
-            TaxBranch = string.Empty,
-            ApplyUse = false,
-            ApplyUse_NeedNumber = null,
-            ApplyNumber = false,
-            ApplyNumberNomal = null,
-            ApplyNumberType = ApplyNumberType.None,
-            ApplyNumberQuantity = null,
-            NumberDuration = null,
-            GetNumberByYearReason = null,
-            GetNumberByYearReasonBusiness = string.Empty,
-            StopUse = false,
-            ApplyByAppoint = false,
-            ApplyByAppointDateFrom = null,
-            ApplyByAppointDateTo = null,
-            IsApplyB2B = false,
-            b2bRequiredDoc1 = false,
-            b2bRequiredDoc2 = false,
-            b2bRequiredDoc3 = false,
-            b2bRequiredDoc4 = false,
-            b2bTransferDoc1 = null,
-            b2bTransferDoc1TurnkeyToken = string.Empty,
-            b2bTransferDoc2 = null,
-            b2bTransferDoc2BusinessID = string.Empty,
-            b2bTransferDoc2BusinessTaxID = string.Empty,
-            b2bTransferDoc3 = null,
-            b2bDoc1 = null,
-            b2bDoc2 = null,
-            b2bDoc3 = null,
-            b2bDoc4 = null,
-            b2bDoc5 = null,
-            IsApplyB2C = false,
-            b2cRequiredDoc1 = false,
-            b2cRequiredDoc2 = false,
-            b2cRequiredDoc3 = false,
-            b2cRequiredDoc4 = false,
-            b2cRequiredDoc5 = false,
-            b2cTransferDoc1 = false,
-            b2cTransferDoc1TurnkeyToken = string.Empty,
-            b2cTransferDoc2 = false,
-            b2cTransferDoc2BusinessID = string.Empty,
-            b2cTransferDoc2BusinessTaxID = string.Empty,
-            b2cTransferDoc3 = false,
-            b2cRequiredDoc8 = false,
-            b2cDoc1Type = null,
-            b2cDoc1Other = string.Empty,
-            b2cDoc2 = null,
-            b2cDoc3 = null,
-            b2cDoc4 = null,
-            b2cDoc5 = null,
-            b2cDoc6 = null,
-            b2cDoc7 = null,
-            BusinessName = string.Empty,
-            BusinessID = string.Empty,
-            BusinessTaxID = string.Empty,
-            BusinessAddr = string.Empty,
-            BusinessOwner = string.Empty,
-            BusinessContactName = string.Empty,
-            BusinessMobile = string.Empty,
-            BusinessTelNo = string.Empty,
-            BusinessFaxNo = string.Empty,
-            BusinessContactAddr = string.Empty,
-            BusinessEmail = string.Empty,
-            AgentName = string.Empty,
-            AgentID = string.Empty,
-            AgentContactName = string.Empty,
-            AgentTelNo = string.Empty,
-            SysSupplierBusinessID = string.Empty,
-            SysSupplierNo = string.Empty,
-            SysSupplierName = string.Empty,
-            SysSupplierVersion = string.Empty,
-            TestBusinessName = string.Empty,
-            SubmitBusinessName = string.Empty,
-            ReportNo = string.Empty,
-            PaperName = string.Empty,
-            PaperNo = string.Empty,
-            SysChkEmployeeTitle = string.Empty,
-            SysChkEmployeeName = string.Empty,
-            SysChkDatetime = null,
-            SysChkMessage = string.Empty,
-            SysChk11 = null,
-            SysChk12 = null,
-            SysChk13 = null,
-            SysChk21 = null,
-            SysChk31 = null,
-            SysChk32 = null,
-            SysChk41 = null,
-            SysChk42 = null,
-            SysChk51 = null,
-            SysChk61 = null,
-            SysChk71 = null,
-            SysChk81 = null,
-            SysChk82 = null,
-            SysChk83 = null,
-            SysChk84 = null,
-            SysChk85 = null,
-            SysChk86 = null,
-            SysChk87 = null,
-            SysChk88 = null,
-            SysChk89 = null,
-            SysChk91 = null,
-            SysChk92 = null,
-            SysChk93 = null,
-            SysChk94 = null,
-            SysChk101 = null,
-            SysChk111 = null
-
-
-        );
+            return new InvoiceNumberApply
+            {
+                PID = string.Empty,
+                MOFBranch = string.Empty,
+                TaxBranch = string.Empty,
+                ApplyUse = false,
+                ApplyUse_NeedNumber = null,
+                ApplyNumber = false,
+                ApplyNumberNomal = null,
+                ApplyNumberType = ApplyNumberType.None,
+                ApplyNumberQuantity = null,
+                NumberDuration = null,
+                GetNumberByYearReason = null,
+                GetNumberByYearReasonBusiness = string.Empty,
+                StopUse = false,
+                ApplyByAppoint = false,
+                ApplyByAppointDateFrom = null,
+                ApplyByAppointDateTo = null,
+                IsApplyB2B = false,
+                b2bRequiredDoc1 = false,
+                b2bRequiredDoc2 = false,
+                b2bRequiredDoc3 = false,
+                b2bRequiredDoc4 = false,
+                b2bTransferDoc1 = null,
+                b2bTransferDoc1TurnkeyToken = string.Empty,
+                b2bTransferDoc2 = null,
+                b2bTransferDoc2BusinessID = string.Empty,
+                b2bTransferDoc2BusinessTaxID = string.Empty,
+                b2bTransferDoc3 = null,
+                b2bDoc1 = null,
+                b2bDoc2 = null,
+                b2bDoc3 = null,
+                b2bDoc4 = null,
+                b2bDoc5 = null,
+                IsApplyB2C = false,
+                b2cRequiredDoc1 = false,
+                b2cRequiredDoc2 = false,
+                b2cRequiredDoc3 = false,
+                b2cRequiredDoc4 = false,
+                b2cRequiredDoc5 = false,
+                b2cTransferDoc1 = false,
+                b2cTransferDoc1TurnkeyToken = string.Empty,
+                b2cTransferDoc2 = false,
+                b2cTransferDoc2BusinessID = string.Empty,
+                b2cTransferDoc2BusinessTaxID = string.Empty,
+                b2cTransferDoc3 = false,
+                b2cRequiredDoc8 = false,
+                b2cDoc1Type = null,
+                b2cDoc1Other = string.Empty,
+                b2cDoc2 = null,
+                b2cDoc3 = null,
+                b2cDoc4 = null,
+                b2cDoc5 = null,
+                b2cDoc6 = null,
+                b2cDoc7 = null,
+                BusinessName = string.Empty,
+                BusinessID = string.Empty,
+                BusinessTaxID = string.Empty,
+                BusinessAddr = string.Empty,
+                BusinessOwner = string.Empty,
+                BusinessContactName = string.Empty,
+                BusinessMobile = string.Empty,
+                BusinessTelNo = string.Empty,
+                BusinessFaxNo = string.Empty,
+                BusinessContactAddr = string.Empty,
+                BusinessEmail = string.Empty,
+                AgentName = string.Empty,
+                AgentID = string.Empty,
+                AgentContactName = string.Empty,
+                AgentTelNo = string.Empty,
+                SysSupplierBusinessID = string.Empty,
+                SysSupplierNo = string.Empty,
+                SysSupplierName = string.Empty,
+                SysSupplierVersion = string.Empty,
+                TestBusinessName = string.Empty,
+                SubmitBusinessName = string.Empty,
+                ReportNo = string.Empty,
+                PaperName = string.Empty,
+                PaperNo = string.Empty,
+                SysChkEmployeeTitle = string.Empty,
+                SysChkEmployeeName = string.Empty,
+                SysChkDatetime = null,
+                SysChkMessage = string.Empty,
+                SysChk11 = null,
+                SysChk12 = null,
+                SysChk13 = null,
+                SysChk21 = null,
+                SysChk31 = null,
+                SysChk32 = null,
+                SysChk41 = null,
+                SysChk42 = null,
+                SysChk51 = null,
+                SysChk61 = null,
+                SysChk71 = null,
+                SysChk81 = null,
+                SysChk82 = null,
+                SysChk83 = null,
+                SysChk84 = null,
+                SysChk85 = null,
+                SysChk86 = null,
+                SysChk87 = null,
+                SysChk88 = null,
+                SysChk89 = null,
+                SysChk91 = null,
+                SysChk92 = null,
+                SysChk93 = null,
+                SysChk94 = null,
+                SysChk101 = null,
+                SysChk111 = null
+            };
         }
 
         public InvoiceNumberApply getTestDataWithWrongFormat()
@@ -538,122 +538,7 @@ namespace WebHome.Models
             return applyViewModel;
         }
         #endregion
-
-
-        public InvoiceNumberApply(string pID, string mOFBranch, string taxBranch, bool applyUse
-            , int? applyUse_NeedNumber, bool applyNumber, int? applyNumberNomal, ApplyNumberType applyNumberType
-            , int? applyNumberQuantity, int? isGetNumberByYear, int? getNumberByYearReason
-            , string getNumberByYearReasonBusiness, bool stopUse, bool applyByAppoint, DateTime? applyByAppointDateFrom
-            , DateTime? applyByAppointDateTo, bool isApplyB2B, bool b2bRequiredDoc1, bool b2bRequiredDoc2, bool b2bRequiredDoc3, bool b2bRequiredDoc4, bool? b2bTransferDoc1, string b2bTransferDoc1TurnkeyToken, bool? b2bTransferDoc2, string b2bTransferDoc2BusinessID, string b2bTransferDoc2BusinessTaxID, bool? b2bTransferDoc3, bool? b2bDoc1, bool? b2bDoc2, bool? b2bDoc3, bool? b2bDoc4, bool? b2bDoc5, bool isApplyB2C, bool b2cRequiredDoc1, bool b2cRequiredDoc2, bool b2cRequiredDoc3, bool b2cRequiredDoc4, bool b2cRequiredDoc5, bool? b2cTransferDoc1, string b2cTransferDoc1TurnkeyToken, bool? b2cTransferDoc2, string b2cTransferDoc2BusinessID, string b2cTransferDoc2BusinessTaxID, bool? b2cTransferDoc3, bool? b2cDoc1, int? b2cDoc1Type, string b2cDoc1Other, bool? b2cDoc2, bool? b2cDoc3, bool? b2cDoc4, bool? b2cDoc5, bool? b2cDoc6, bool? b2cDoc7, string businessName, string businessID, string businessTaxID, string businessAddr, string businessOwner, string businessContactName, string businessMobile, string businessTelNo, string businessFaxNo, string businessContactAddr, string businessEmail, string agentName, string agentID, string agentContactName, string agentTelNo, string sysSupplierBusinessID, string sysSupplierNo, string sysSupplierName, string sysSupplierVersion, string testBusinessName, string submitBusinessName, string reportNo, string paperName, string paperNo, string sysChkEmployeeTitle, string sysChkEmployeeName, DateTime? sysChkDatetime, string sysChkMessage, bool? sysChk11, bool? sysChk12, bool? sysChk13, bool? sysChk21, bool? sysChk31, bool? sysChk32, bool? sysChk41, bool? sysChk42, bool? sysChk51, bool? sysChk61, bool? sysChk71, bool? sysChk81, bool? sysChk82, bool? sysChk83, bool? sysChk84, bool? sysChk85, bool? sysChk86, bool? sysChk87, bool? sysChk88, bool? sysChk89, bool? sysChk91, bool? sysChk92, bool? sysChk93, bool? sysChk94, bool? sysChk101, bool? sysChk111)
-        {
-            PID = pID;
-            MOFBranch = mOFBranch;
-            TaxBranch = taxBranch;
-            ApplyUse = applyUse;
-            ApplyUse_NeedNumber = applyUse_NeedNumber;
-            ApplyNumber = applyNumber;
-            ApplyNumberNomal = applyNumberNomal;
-            ApplyNumberType = applyNumberType;
-            ApplyNumberQuantity = applyNumberQuantity;
-            NumberDuration = isGetNumberByYear;
-            GetNumberByYearReason = getNumberByYearReason;
-            GetNumberByYearReasonBusiness = getNumberByYearReasonBusiness;
-            StopUse = stopUse;
-            ApplyByAppoint = applyByAppoint;
-            ApplyByAppointDateFrom = applyByAppointDateFrom;
-            ApplyByAppointDateTo = applyByAppointDateTo;
-            IsApplyB2B = isApplyB2B;
-            this.b2bRequiredDoc1 = b2bRequiredDoc1;
-            this.b2bRequiredDoc2 = b2bRequiredDoc2;
-            this.b2bRequiredDoc3 = b2bRequiredDoc3;
-            this.b2bRequiredDoc4 = b2bRequiredDoc4;
-            this.b2bTransferDoc1 = b2bTransferDoc1;
-            this.b2bTransferDoc1TurnkeyToken = b2bTransferDoc1TurnkeyToken;
-            this.b2bTransferDoc2 = b2bTransferDoc2;
-            this.b2bTransferDoc2BusinessID = b2bTransferDoc2BusinessID;
-            this.b2bTransferDoc2BusinessTaxID = b2bTransferDoc2BusinessTaxID;
-            this.b2bTransferDoc3 = b2bTransferDoc3;
-            this.b2bDoc1 = b2bDoc1;
-            this.b2bDoc2 = b2bDoc2;
-            this.b2bDoc3 = b2bDoc3;
-            this.b2bDoc4 = b2bDoc4;
-            this.b2bDoc5 = b2bDoc5;
-            IsApplyB2C = isApplyB2C;
-            this.b2cRequiredDoc1 = b2cRequiredDoc1;
-            this.b2cRequiredDoc2 = b2cRequiredDoc2;
-            this.b2cRequiredDoc3 = b2cRequiredDoc3;
-            this.b2cRequiredDoc4 = b2cRequiredDoc4;
-            this.b2cRequiredDoc5 = b2cRequiredDoc5;
-            this.b2cTransferDoc1 = b2cTransferDoc1;
-            this.b2cTransferDoc1TurnkeyToken = b2cTransferDoc1TurnkeyToken;
-            this.b2cTransferDoc2 = b2cTransferDoc2;
-            this.b2cTransferDoc2BusinessID = b2cTransferDoc2BusinessID;
-            this.b2cTransferDoc2BusinessTaxID = b2cTransferDoc2BusinessTaxID;
-            this.b2cTransferDoc3 = b2cTransferDoc3;
-            this.b2cRequiredDoc8 = b2cRequiredDoc8;
-            this.b2cDoc1Type = b2cDoc1Type;
-            this.b2cDoc1Other = b2cDoc1Other;
-            this.b2cDoc2 = b2cDoc2;
-            this.b2cDoc3 = b2cDoc3;
-            this.b2cDoc4 = b2cDoc4;
-            this.b2cDoc5 = b2cDoc5;
-            this.b2cDoc6 = b2cDoc6;
-            this.b2cDoc7 = b2cDoc7;
-            BusinessName = businessName;
-            BusinessID = businessID;
-            BusinessTaxID = businessTaxID;
-            BusinessAddr = businessAddr;
-            BusinessOwner = businessOwner;
-            BusinessContactName = businessContactName;
-            BusinessMobile = businessMobile;
-            BusinessTelNo = businessTelNo;
-            BusinessFaxNo = businessFaxNo;
-            BusinessContactAddr = businessContactAddr;
-            BusinessEmail = businessEmail;
-            AgentName = agentName;
-            AgentID = agentID;
-            AgentContactName = agentContactName;
-            AgentTelNo = agentTelNo;
-            SysSupplierBusinessID = sysSupplierBusinessID;
-            SysSupplierNo = sysSupplierNo;
-            SysSupplierName = sysSupplierName;
-            SysSupplierVersion = sysSupplierVersion;
-            TestBusinessName = testBusinessName;
-            SubmitBusinessName = submitBusinessName;
-            ReportNo = reportNo;
-            PaperName = paperName;
-            PaperNo = paperNo;
-            SysChkEmployeeTitle = sysChkEmployeeTitle;
-            SysChkEmployeeName = sysChkEmployeeName;
-            SysChkDatetime = sysChkDatetime;
-            SysChkMessage = sysChkMessage;
-            SysChk11 = sysChk11;
-            SysChk12 = sysChk12;
-            SysChk13 = sysChk13;
-            SysChk21 = sysChk21;
-            SysChk31 = sysChk31;
-            SysChk32 = sysChk32;
-            SysChk41 = sysChk41;
-            SysChk42 = sysChk42;
-            SysChk51 = sysChk51;
-            SysChk61 = sysChk61;
-            SysChk71 = sysChk71;
-            SysChk81 = sysChk81;
-            SysChk82 = sysChk82;
-            SysChk83 = sysChk83;
-            SysChk84 = sysChk84;
-            SysChk85 = sysChk85;
-            SysChk86 = sysChk86;
-            SysChk87 = sysChk87;
-            SysChk88 = sysChk88;
-            SysChk89 = sysChk89;
-            SysChk91 = sysChk91;
-            SysChk92 = sysChk92;
-            SysChk93 = sysChk93;
-            SysChk94 = sysChk94;
-            SysChk101 = sysChk101;
-            SysChk111 = sysChk111;
-        }
+     
 
         public InvoiceNumberApply()
         {

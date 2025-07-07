@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -44,7 +44,7 @@
         var smtpSettings = _model.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
         String subject = $"{_model.CompanyName}({_model.ReceiptNo}) 電子發票可用開立號碼存量不足通知";
-        String body = Html.Partial("~/Views/Notification/Module/AlertInvoiceNoSafetyStock.cshtml", _model).ToString();
+        String body = (await Html.PartialAsync("~/Views/Notification/Module/AlertInvoiceNoSafetyStock.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
         body.SendMailMessage(mailTo, subject, smtpSettings);
     }
 

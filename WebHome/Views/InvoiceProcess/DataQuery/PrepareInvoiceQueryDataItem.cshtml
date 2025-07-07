@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -28,7 +28,7 @@
         await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/PrepareInvoiceQueryResult.cshtml");
     }
 
-    await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/DataItem.cshtml");
+    await Html.RenderPartialAsync("~/Views/Common/DataQuery/DataItem.cshtml");
 }
 
 

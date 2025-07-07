@@ -9,14 +9,17 @@ using System.Text.RegularExpressions;
 using ModelCore.Helper;
 using CommonLib.DataAccess;
 using ModelCore.Locale;
+using ModelCore.InvoiceManagement.Validator;
+
 
 namespace ModelCore.InvoiceManagement.zhTW
 {
     public static partial class CancelAllowanceRootValidator
     {
         //檢查基本必填項目(作廢折讓單)
-        public static Exception? VoidAllowance(this CancelAllowanceRootCancelAllowance item, GenericManager<EIVOEntityDataContext> models, Organization owner,ref InvoiceAllowanceCancellation? voidItem, ref DerivedDocument? p,Naming.InvoiceProcessType processType = Naming.InvoiceProcessType.G0501)
+        public static Exception? VoidAllowance(this CancelAllowanceRootCancelAllowance item, GenericManager<EIVOEntityDataContext> models, Organization? owner,ref InvoiceAllowanceCancellation? voidItem, ref DerivedDocument? derivedDoc, out bool duplicateProcess, Naming.InvoiceProcessType? processType = Naming.InvoiceProcessType.G0501)
         {
+            duplicateProcess = false;
             DateTime cancelDate= DateTime.Now;
             InvoiceAllowance? allowance = models.GetTable<InvoiceAllowance>().Where(a => a.AllowanceNumber == item.CancelAllowanceNumber).FirstOrDefault();
             if (allowance == null)
@@ -26,7 +29,15 @@ namespace ModelCore.InvoiceManagement.zhTW
 
             if (allowance.InvoiceAllowanceCancellation != null)
             {
-                return new Exception(String.Format("作廢折讓單已存在,折讓單號碼:{0}", item.CancelAllowanceNumber));
+                if (processType.IgnoreDuplicatedNo())
+                {
+                    duplicateProcess = true;
+                    voidItem = allowance.InvoiceAllowanceCancellation;
+                    derivedDoc = allowance.CDS_Document.ChildDocument.FirstOrDefault();
+                    return null;
+                }
+                else
+                    return new Exception(String.Format("作廢折讓單已存在,折讓單號碼:{0}", item.CancelAllowanceNumber));
             }
 
 
@@ -53,7 +64,7 @@ namespace ModelCore.InvoiceManagement.zhTW
                 return new Exception(String.Format("賣方為非註冊營業人,開立人統一編號:{0}，TAG:< SellerId />", item.SellerId));
             }
 
-            if (seller.CompanyID != owner.CompanyID && !models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == owner.CompanyID && a.IssuerID == seller.CompanyID))
+            if (owner != null && seller.CompanyID != owner.CompanyID && !models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == owner.CompanyID && a.IssuerID == seller.CompanyID))
             {
                 return new Exception(String.Format("簽章設定人與發票開立人不符,開立人統一編號:{0}，TAG:< SellerId />", item.SellerId));
             }
@@ -88,7 +99,7 @@ namespace ModelCore.InvoiceManagement.zhTW
                 return new Exception(String.Format("備註資料長度不可超過200，傳送資料：{0}，TAG：< Remark />", item.Remark));
             }
 
-            voidItem = allowance.PrepareVoidItem(models, ref p, processType);
+            voidItem = allowance.PrepareVoidItem(models, ref derivedDoc, processType);
             voidItem.Remark = item.Remark;
             voidItem.CancelDate = cancelDate;
             voidItem.CancelReason = item.CancelReason;

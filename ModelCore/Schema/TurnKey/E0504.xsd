@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xsd:schema xmlns="urn:GEINV:eInvoiceMessage:E0504:4.0"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema xmlns="urn:GEINV:eInvoiceMessage:E0504:4.1"
             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            targetNamespace="urn:GEINV:eInvoiceMessage:E0504:4.0"
+            targetNamespace="urn:GEINV:eInvoiceMessage:E0504:4.1"
             elementFormDefault="qualified"
             attributeFormDefault="unqualified">
   <xsd:include schemaLocation="GenericType_4.0.xsd" />

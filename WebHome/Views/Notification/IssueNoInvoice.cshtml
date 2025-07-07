@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -49,7 +49,7 @@ else
         var smtpSettings = _model.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
         String subject = $"{_model.CompanyName}({_viewModel.DateFrom:yyyy/MM/dd})開立發票未傳送通知";
-        String body = Html.Partial("~/Views/Notification/Module/NoInvoiceIssued.cshtml", _model).ToString();
+        String body = (await Html.PartialAsync("~/Views/Notification/Module/NoInvoiceIssued.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
         try
         {
             body.SendMailMessage(mailTo, subject, smtpSettings);

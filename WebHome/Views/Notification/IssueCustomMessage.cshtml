@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -37,7 +37,7 @@
 else
 {
     String subject = "中獎電子發票郵件通知（更正通知）";
-    String body = Html.Partial("~/Views/Notification/Module/CustomMessage.cshtml").ToString();
+    String body = Html.Partial("~/Views/Notification/Module/CustomMessage.cshtml").RenderHtmlContentToString(HtmlEncoder);
     var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
     var items = models.GetTable<InvoiceItem>()

@@ -5,6 +5,7 @@ using ModelCore.DataEntity;
 using ModelCore.Helper;
 using ModelCore.InvoiceManagement;
 using ModelCore.InvoiceManagement.ErrorHandle;
+using ModelCore.Locale;
 using ModelCore.Schema.EIVO;
 using ModelCore.Schema.TXN;
 using System;
@@ -36,7 +37,7 @@ namespace Business.Helper.InvoiceProcessor
             {
                 UploadInvoiceAutoTrackNoCore(models, result, token, invoice);
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
                 
             }
             catch (Exception ex)
@@ -74,7 +75,7 @@ namespace Business.Helper.InvoiceProcessor
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
                 
             }
             catch (Exception ex)
@@ -387,7 +388,7 @@ namespace Business.Helper.InvoiceProcessor
             result.Automation = automation.ToArray();
         }
 
-        public static void UploadAllowance(this InvoiceManagerV2 models, XmlDocument uploadData, Root result)
+        public static void UploadAllowance(this InvoiceManagerV2 models, XmlDocument uploadData, Root result, Naming.InvoiceProcessType? processType = null)
         {
             try
             {
@@ -396,7 +397,9 @@ namespace Business.Helper.InvoiceProcessor
                 uploadData.PreserveWhitespace = true;
                 if (crypto.VerifyXmlSignature(uploadData))
                 {
-                    AllowanceRoot allowance = uploadData.TrimAll().ConvertTo<AllowanceRoot>();
+                    AllowanceRoot allowance = processType.HasValue
+                        ? models.ConvertToAllowanceRoot(uploadData, processType.Value)
+                        : uploadData.TrimAll().ConvertTo<AllowanceRoot>();
 
                     ///憑證資料檢查
                     ///
@@ -513,7 +516,7 @@ namespace Business.Helper.InvoiceProcessor
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -601,7 +604,7 @@ namespace Business.Helper.InvoiceProcessor
                     result.Result.message = "營業人憑證資料驗證不符!!";
                 }
 
-                EIVOTurnkeyFactory.Notify();
+                //EIVOTurnkeyFactory.Notify();
 
             }
             catch (Exception ex)

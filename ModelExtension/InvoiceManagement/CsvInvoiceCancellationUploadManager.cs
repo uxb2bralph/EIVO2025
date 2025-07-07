@@ -1,18 +1,17 @@
-﻿using System;
+﻿using CommonLib.DataAccess;
+using CommonLib.Utility;
+using ModelCore.DataEntity;
+using ModelCore.Helper;
+using ModelCore.InvoiceManagement.InvoiceProcess;
+using ModelCore.Locale;
+using ModelCore.Security.MembershipManagement;
+using ModelCore.UploadManagement;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-
-using ModelCore.DataEntity;
-using ModelCore.Locale;
-using ModelCore.Security.MembershipManagement;
-using CommonLib.Utility;
-using ModelCore.UploadManagement;
-
-using ModelCore.InvoiceManagement.InvoiceProcess;
-using CommonLib.DataAccess;
 
 namespace ModelCore.InvoiceManagement
 {
@@ -143,15 +142,14 @@ namespace ModelCore.InvoiceManagement
                     SourceID = item.Entity.InvoiceID
                 };
                 this.GetTable<DerivedDocument>().InsertOnSubmit(doc);
-                if (item.Entity.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401)
+                if (item.Entity.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101)
                 {
-                    A0201Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                    A0201Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    doc.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0201);
                 }
                 else
                 {
-                    F0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                    F0501Handler.PushStepQueueOnSubmit(this, doc.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+                    doc.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0501);
+                    doc.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
                 }
 
                 new InvoiceCancellationUploadList

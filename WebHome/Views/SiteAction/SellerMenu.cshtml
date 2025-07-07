@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -56,6 +56,29 @@
                     </li>
                     <li>
                         <a href="@Html.Raw(Url.Action("InquireToVoid","InvoiceProcess"))"><i class="fa fa-hand-o-right" aria-hidden="true"></i>線上註銷發票</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-angle-double-right" aria-hidden="true"></i>發票交換 <span class="fa arrow"></span></a>
+                        <ul class="nav nav-third-level">
+                            <li>
+                                <a href="../InvoiceProcess/DealReceivedA0101"><i class="fa fa-hand-o-right" aria-hidden="true"></i>A0101接收待確認</a>
+                            </li>
+                            <li>
+                                <a href="../InvoiceProcess/DealReceivedA0301"><i class="fa fa-hand-o-right" aria-hidden="true"></i>A0301退回待確認</a>
+                            </li>
+                            <li>
+                                <a href="../InvoiceProcess/DealReceivedA0302"><i class="fa fa-hand-o-right" aria-hidden="true"></i>A0302接收退回待確認</a>
+                            </li>
+                            <li>
+                                <a href="../InvoiceProcess/DealReceivedA0201"><i class="fa fa-hand-o-right" aria-hidden="true"></i>A0201接收待確認</a>
+                            </li>
+                            <li>
+                                <a href="../AllowanceProcess/DealReceivedB0101"><i class="fa fa-hand-o-right" aria-hidden="true"></i>B0101接收待確認</a>
+                            </li>
+                            <li>
+                                <a href="../AllowanceProcess/DealReceivedB0201"><i class="fa fa-hand-o-right" aria-hidden="true"></i>B0201接收待確認</a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </li>

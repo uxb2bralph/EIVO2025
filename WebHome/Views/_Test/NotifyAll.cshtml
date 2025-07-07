@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -38,7 +38,7 @@
     foreach (var item in items)
     {
         String Subject = $"荷蘭商聯邦快遞國際股份有限公司台灣分公司 電子發票開立通知#錯誤發送請忽略#(發票號碼:{item.TrackCode}{item.No})";
-        String body = $"{await Html.PartialAsync("~/Views/_Test/NotifyAll_BuildTitle")}{await Html.PartialAsync("~/Views/Notification/Module/IssuedC0401.cshtml", item)}";
+        String body = $"{await Html.PartialAsync("~/Views/_Test/NotifyAll_BuildTitle")}{(await Html.PartialAsync("~/Views/Notification/Module/IssuedC0401.cshtml", item)).RenderHtmlContentToString(HtmlEncoder)}";
 
         var mailing = models.GetUserListByCompanyID(item.InvoiceBuyer.BuyerID)
                 .Select(u => u.EMail).ToList();

@@ -94,6 +94,11 @@ namespace ModelCore.Helper
                 modelSource.Items = modelSource.Items.Where(i => i.PrintMark == viewModel.PrintMark);
             }
 
+            if (viewModel.BuyerID.HasValue)
+            {
+                modelSource.Items = modelSource.Items.Where(i => i.InvoiceBuyer.BuyerID == viewModel.BuyerID);
+            }
+
             IQueryable<InvoiceCarrier>? carrierItems = null;
             if (!String.IsNullOrEmpty(viewModel.CarrierType))
             {

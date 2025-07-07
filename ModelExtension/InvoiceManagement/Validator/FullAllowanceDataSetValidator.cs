@@ -187,9 +187,9 @@ namespace ModelCore.InvoiceManagement.Validator
                 {
                     DocDate = DateTime.Now,
                     DocType = (int)Naming.DocumentTypeDefinition.E_Allowance,
-                    ProcessType = originalInvoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401
-                                    ? (int)Naming.InvoiceProcessType.B0401
-                                    : (int)Naming.InvoiceProcessType.D0401,
+                    ProcessType = originalInvoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101
+                                    ? (int)Naming.InvoiceProcessType.B0101
+                                    : (int)Naming.InvoiceProcessType.G0401,
                 },
                 AllowanceDate = _allowanceDate,
                 IssueDate = _allowanceDate,

@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -28,8 +28,7 @@
 
 }
 
-@if (_viewModel.InvoiceProcessType == Naming.InvoiceProcessType.A0101
-           || _viewModel.InvoiceProcessType == Naming.InvoiceProcessType.A0401)
+@if (_viewModel.InvoiceProcessType == Naming.InvoiceProcessType.A0101)
 {
     await Html.RenderPartialAsync("~/Views/Forms/B2BInvoice.cshtml");
 }
@@ -37,7 +36,7 @@ else
 {
     if (!_viewModel.InvoiceProcessType.HasValue)
     {
-        _viewModel.InvoiceProcessType = Naming.InvoiceProcessType.C0401;
+        _viewModel.InvoiceProcessType = Naming.InvoiceProcessType.F0401;
     }
     await Html.RenderPartialAsync("~/Views/Forms/SimpleInvoice.cshtml");
 }

@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -43,11 +43,11 @@
         <br />
         @if (_viewModel.ResetPass == true)
         {
-            <span>密碼變更連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ResetPassword","UserProfile",new { _viewModel.ResetID })}")'> 會員密碼變更 </a>
+            <span>密碼變更連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("ResetPassword","UserProfile",new { _viewModel.ResetID })}")'> 會員密碼變更 </a>
         }
         else
         {
-            <span>帳號啟用連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ResetPassword","UserProfile",new { _viewModel.ResetID })}")'> 會員帳號啟用 </a>
+            <span>帳號啟用連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("ResetPassword","UserProfile",new { _viewModel.ResetID })}")'> 會員帳號啟用 </a>
         }
         <br />
         <br />

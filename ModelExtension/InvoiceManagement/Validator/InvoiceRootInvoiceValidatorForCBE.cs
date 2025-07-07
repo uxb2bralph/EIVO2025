@@ -8,6 +8,7 @@ using ModelCore.InvoiceManagement.InvoiceProcess;
 using ModelCore.Locale;
 using ModelCore.Resource;
 using ModelCore.Schema.EIVO;
+using ModelCore.Helper;
 using CommonLib.Utility;
 using CommonLib.DataAccess;
 
@@ -106,8 +107,8 @@ namespace ModelCore.InvoiceManagement.Validator
             InvoiceItem newItem = this.InvoiceItem;
             _models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
 
-            F0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
-            F0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+            newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+            newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
             _models.SubmitChanges();
 

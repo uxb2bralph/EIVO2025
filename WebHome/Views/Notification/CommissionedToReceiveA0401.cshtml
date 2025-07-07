@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -52,7 +52,7 @@ else
         var enterprise = _model.InvoiceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
         var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
         String Subject = $"{(enterprise?.EnterpriseGroup.EnterpriseName)} 自動接收通知(發票號碼:{_model.TrackCode}{_model.No})";
-        String body = Html.Partial("~/Views/Notification/Module/CommissionedToReceiveA0401.cshtml", _model).ToString();
+        String body = (await Html.PartialAsync("~/Views/Notification/Module/CommissionedToReceiveA0401.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
 
         body.SendMailMessage(mailTo, Subject, new System.Net.Mail.Attachment[] { attachment }, smtpSettings);
     }

@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -306,7 +306,7 @@
             </span>
         </p>
         <p>
-            如上述收件人資料內容有缺少或變更請將無法正確寄達，如需進行相關資料填寫或變更請<a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("EditInvoiceBuyer","IndividualProcess",new { KeyID = _model.InvoiceID.EncryptKey() })}")">按此</a><br />
+            如上述收件人資料內容有缺少或變更請將無法正確寄達，如需進行相關資料填寫或變更請<a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("EditInvoiceBuyer","IndividualProcess",new { KeyID = _model.InvoiceID.EncryptKey() })}")">按此</a><br />
             以下為您的中獎發票內容：
         </p>
         @{ 

@@ -7,7 +7,7 @@ using CommonLib.Utility;
 
 namespace ModelCore.Models.ViewModel
 {
-    public class InvoiceViewModel : QueryViewModel
+    public class InvoiceViewModel : EncQueryViewModel
     {
         public InvoiceViewModel()
         {
@@ -19,7 +19,6 @@ namespace ModelCore.Models.ViewModel
             TaxRate = 0.05m;
             DonateMark = "0";
         }
-        public int? SellerID { get; set; }
         public String? SellerName { get; set; }
         public String? SellerReceiptNo { get; set; }
         public String? BuyerReceiptNo { get; set; }

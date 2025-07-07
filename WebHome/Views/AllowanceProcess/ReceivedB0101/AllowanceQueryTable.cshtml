@@ -1,0 +1,41 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/InvoiceProcess/DataQuery/DataItemTableTemplate.cshtml";
+    ModelSource<InvoiceItem> models;
+    QueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+
+}
+
+@section PrepareQueryResult
+{
+    @{ 
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/ReceivedB0101/PrepareAllowanceQueryResult.cshtml");
+    }
+}
+
+@section DataItemList
+{
+    @{ 
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/ReceivedB0101/AllowanceQueryList.cshtml");
+    }
+}

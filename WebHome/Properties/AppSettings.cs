@@ -34,12 +34,11 @@ namespace WebHome.Properties
         public double LoginExpireMinutes { get; set; } = 1440 * 7;
         public String LoginUrl { get; set; } = "/Account/Login";
         public String LogoutUrl { get; set; } = "/Account/Logout";
-        public String HostDomain { get; set; } = "http://localhost:5000";
         public bool UseGoogleAuthenticator { get; set; } = false;
         public int EIVO_Service { get; set; } = 1;
         public string DefaultUILanguage { get; set; } = "zh-TW";
         public string ThermalPOS { get; set; } = "0 0 162 792";
-        public String TaskCenter { get; set; } = "TaskCenter";
+        public String TaskCenter { get; set; } = "http://localhost:5050";
 
         public MonthlyBilling Billing { get; set; } = new MonthlyBilling { };
         public String InvoiceCarrierProviderID { get; set; } = "70762419";
@@ -54,7 +53,12 @@ namespace WebHome.Properties
 
     public class InvoiceNumberApplySetting
     {
-        public string ApplyFileBaseFolder { get; set; } = Path.Combine(Logger.LogPath, "InvoiceNumberApply").CheckStoredPath();
+        public InvoiceNumberApplySetting()
+        {
+            ApplyFileBaseFolder = Path.Combine(Logger.LogPath, "InvoiceNumberApply").CheckStoredPath();
+        }
+
+        public string ApplyFileBaseFolder { get; private set; }
         public string WordTemplateFolder { get; set; } = Path.Combine(AppSettings.AppRoot, "resource", "InvoiceNumberApply");
         public string GetWordTemplateFilePath(string wordFileName)
         {
@@ -69,10 +73,10 @@ namespace WebHome.Properties
         public string ZipFileNameFormat { get; set; } = "{0}.zip";
         public string GetZipFileName(string businessId) { return string.Format(ZipFileNameFormat, businessId); }
         public string GetZipFilePath(string businessId) { return Path.Combine(ApplyFileBaseFolder, GetZipFileName(businessId)); }
-        public string ApplyFileNameFormatReg { get; set; }
+        public string? ApplyFileNameFormatReg { get; set; }
         public bool NotifyEnable { get; set; }
-        public IEnumerable<InvoiceNumberApplySysSupplier> SysSupplier { get; set; }
-        public IEnumerable<InvoiceNumberApplyPaperTestSet> PaperTestSet { get; set; }
+        public IEnumerable<InvoiceNumberApplySysSupplier>? SysSupplier { get; set; }
+        public IEnumerable<InvoiceNumberApplyPaperTestSet>? PaperTestSet { get; set; }
     }
 
     public class InvoiceNumberApplyWordSetting

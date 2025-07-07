@@ -27,11 +27,12 @@ namespace WebHome.Models.ViewModel
 
         [Display(Name = "ValidCode")]
         [CaptchaValidation("EncryptedCode", ErrorMessage = "驗證碼錯誤!!")]
-        public string ValidCode { get; set; }
+        public string? ValidCode { get; set; }
 
         [Display(Name = "EncryptedCode")]
-        public string EncryptedCode { get; set; }
-        public bool IsTransferToOrganization { get; set; }
+        public string? EncryptedCode { get; set; }
+        public bool? IsTransferToOrganization { get; set; }
+        public bool IsApplyB2B { get; set; } = false;
 
         public InvoiceNumberApply Apply { get; set; }
         public IEnumerable<ValueObject> GetSysSupplierList()

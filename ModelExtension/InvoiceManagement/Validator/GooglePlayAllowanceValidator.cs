@@ -219,7 +219,8 @@ namespace ModelCore.InvoiceManagement.Validator
                 CDS_Document = new CDS_Document
                 {
                     DocDate = DateTime.Now,
-                    DocType = (int)Naming.DocumentTypeDefinition.E_Allowance
+                    DocType = (int)Naming.DocumentTypeDefinition.E_Allowance,
+                    ProcessType = (int)Naming.InvoiceProcessType.G0401,
                 },
                 AllowanceDate = _allowanceDate,
                 IssueDate = _allowanceDate,

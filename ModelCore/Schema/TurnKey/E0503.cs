@@ -20,8 +20,8 @@ namespace ModelCore.Schema.TurnKey.E0503 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0503:4.0")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.0", IsNullable=false)]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0503:4.1")]
+    [System.Xml.Serialization.XmlRootAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.1", IsNullable=false)]
     public partial class InputAllowance {
         
         /// <remarks/>
@@ -43,7 +43,7 @@ namespace ModelCore.Schema.TurnKey.E0503 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.1")]
     public partial class Main {
         
         /// <remarks/>
@@ -74,7 +74,7 @@ namespace ModelCore.Schema.TurnKey.E0503 {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.8.3928.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.1")]
     public enum AllowanceTypeEnum {
         
         /// <remarks/>
@@ -91,7 +91,7 @@ namespace ModelCore.Schema.TurnKey.E0503 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.1")]
     public partial class Cancel {
         
         /// <remarks/>
@@ -113,7 +113,7 @@ namespace ModelCore.Schema.TurnKey.E0503 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.1")]
     public partial class Amount {
         
         /// <remarks/>
@@ -128,7 +128,7 @@ namespace ModelCore.Schema.TurnKey.E0503 {
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0503:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:E0503:4.1")]
     public partial class DetailsProductItem {
         
         /// <remarks/>
@@ -168,7 +168,7 @@ namespace ModelCore.Schema.TurnKey.E0503 {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.8.3928.0")]
     [System.SerializableAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="urn:GEINV:eInvoiceMessage:E0503:4.1")]
     public enum TaxTypeEnum {
         
         /// <remarks/>

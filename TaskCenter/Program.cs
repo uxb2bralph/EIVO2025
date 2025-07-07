@@ -1,4 +1,7 @@
-using CommonLib.Core.Utility;
+﻿using CommonLib.Core.Utility;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TaskCenter.Controllers.Filters;
@@ -11,6 +14,33 @@ namespace TaskCenter
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddMemoryCache();
+
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            builder.Services.AddMvc(config =>
+            {
+                config.Filters.Add(new ExceptionFilter());
+            }).ConfigureApiBehaviorOptions(options =>
+            {
+                options.SuppressMapClientErrors = true;
+                options.SuppressModelStateInvalidFilter = true;
+            })
+            .AddRazorRuntimeCompilation();
+
+            //builder.Services.AddDbContext<BFDataContext>(options =>
+            //    {
+            //        options
+            //            .UseLazyLoadingProxies()
+            //            .UseSqlServer(Configuration.GetConnectionString("BFDbConnection"),
+            //                 sqlOptions => sqlOptions.CommandTimeout((int)TimeSpan.FromMinutes(30).TotalSeconds));
+            //    });
+
             // Add services to the container.
             builder.Services
                 .AddControllersWithViews(configure =>
@@ -19,6 +49,9 @@ namespace TaskCenter
                     }
                 )
                 .AddRazorRuntimeCompilation();
+
+            // 加上這行↓↓
+            builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             builder.Logging
                 .AddConsole()
@@ -35,7 +68,8 @@ namespace TaskCenter
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseDeveloperExceptionPage();
+                //app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -44,7 +78,7 @@ namespace TaskCenter
             app.UseRouting();
 
             app.UseAuthentication();
-            app.UseAuthorization();//Controller�BAction�~��[�W [Authorize] �ݩ�
+            app.UseAuthorization();//Controller、Action才能加上 [Authorize] 屬性
             app.UseSession();
 
             app.Use(next =>

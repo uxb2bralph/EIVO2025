@@ -154,7 +154,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult IssueC0401(DocumentQueryViewModel viewModel)
+        public ActionResult IssueC0401([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;

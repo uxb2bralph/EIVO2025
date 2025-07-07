@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -14,11 +14,12 @@
 @using ModelCore.DataEntity
 @using ModelCore.Helper
 @using ModelCore.Locale
-@using ModelCore.Service 
+@using ModelCore.Service
 @using CommonLib.Core.Utility
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
 
 @{
 
@@ -73,9 +74,12 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
             || _model.Organization.OrganizationStatus.UseB2BStandalone == true)
         {
 
-            String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
-                ? (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model)).ToString()
-                : (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model)).ToString();
+            IHtmlContent htmlContent =
+                _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
+                    ? await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model)
+                    : await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model);
+
+            String body = htmlContent.RenderHtmlContentToString(HtmlEncoder);
 
             if (_viewModel.AppendAttachment == true)
             {
@@ -93,7 +97,7 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
             renderViewModel.DocID = _model.InvoiceID;
             String pdfFile = System.IO.Path.Combine(Logger.LogPath.GetDateStylePath(_model.InvoiceDate.Value), $"{_model.TrackCode}{_model.No}.pdf");
             String fileName = PdfDocumentGenerator.CreateInvoicePdf(renderViewModel);
-            if(File.Exists(pdfFile))
+            if (File.Exists(pdfFile))
             {
                 File.Delete(pdfFile);
             }
@@ -103,7 +107,7 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
             {
                 File.Delete(fileName);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Logger.Error(ex);
             }
@@ -114,33 +118,31 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
                 var attached = _model.CDS_Document.Attachment.Select(a => a.StoredPath).ToList();
                 attached.Insert(0, pdfFile);
                 String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
-                    ? Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model).ToString()
-                    : Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model).ToString();
+                    ? (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder)
+                    : (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
                 body.SendMailMessage(mailTo, subject, smtpSettings, attached.ToArray());
             }
             else
             {
                 String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
-                    ? Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model).ToString()
-                    : Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model).ToString();
+                    ? (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder)
+                    : (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
                 body.SendMailMessage(mailTo, subject, smtpSettings, pdfFile);
             }
         }
 
-        if (models.GetTable<IssuingNotice>().Any(d => d.DocID == _model.InvoiceID))
+        lock(this.GetType())
         {
-            models.ExecuteCommand(
-                @"UPDATE IssuingNotice
+            if (models.ExecuteCommand(
+                    @"UPDATE IssuingNotice
                     SET IssueDate = {1}
-                    WHERE (DocID = {0})", _model.InvoiceID, DateTime.Now);
-        }
-        else
-        {
-            models.ExecuteCommand(
-                @"Insert IssuingNotice (DocID,IssueDate)
+                    WHERE (DocID = {0})", _model.InvoiceID, DateTime.Now) == 0)
+            {
+                models.ExecuteCommand(
+                    @"Insert IssuingNotice (DocID,IssueDate)
                     values ({0},{1})", _model.InvoiceID, DateTime.Now);
+            }
         }
-
     }
 
 }

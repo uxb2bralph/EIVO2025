@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -97,12 +97,12 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("UploadB0401")]
+        [HttpPost("UploadG0401")]
         [Consumes("application/xml", "text/xml")]
-        public IActionResult UploadB0401()
+        public IActionResult UploadG0401()
         {
             
-            var result = _invoiceService.UploadB0401(uploadData!);
+            var result = _invoiceService.UploadG0401(uploadData!);
             return Content(result.OuterXml, "text/xml");
         }
 
@@ -116,18 +116,21 @@ namespace WebHome.Controllers
         }
 
         [HttpPost("UploadInvoiceCmsCSVAutoTrackNo")]
+        [Produces("application/xml")]
         public XmlDocument UploadInvoiceCmsCSVAutoTrackNo([FromBody] byte[] uploadData)
         {
             return _invoiceService.UploadInvoiceCmsCSVAutoTrackNo(uploadData!);
         }
 
         [HttpPost("UploadInvoiceCancellationCmsCSV")]
+        [Produces("application/xml")]
         public XmlDocument UploadInvoiceCancellationCmsCSV([FromBody] byte[] uploadData)
         {
             return _invoiceService.UploadInvoiceCancellationCmsCSV(uploadData!);
         }
 
         [HttpPost("UploadAllowanceCancellationCmsCSV")]
+        [Produces("application/xml")]
         public XmlDocument UploadAllowanceCancellationCmsCSV([FromBody] byte[] uploadData)
         {
             return _invoiceService.UploadAllowanceCancellationCmsCSV(uploadData!);
@@ -151,22 +154,16 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("UploadB0501")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult UploadB0501()
-        {
-            
-            var result = _invoiceService.UploadB0501(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
 
         [HttpGet("GetUpdatedWelfareAgenciesInfo/{sellerReceiptNo}")]
+        [Produces("application/xml")]
         public XmlDocument GetUpdatedWelfareAgenciesInfo(string sellerReceiptNo)
         {
             return _invoiceService.GetUpdatedWelfareAgenciesInfo(sellerReceiptNo);
         }
 
         [HttpGet("GetWelfareAgenciesInfo/{sellerReceiptNo}")]
+        [Produces("application/xml")]
         public XmlDocument GetWelfareAgenciesInfo(string sellerReceiptNo)
         {
             return _invoiceService.GetWelfareAgenciesInfo(sellerReceiptNo);
@@ -190,32 +187,6 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("GetIncomingInvoiceCancellations")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult GetIncomingInvoiceCancellations()
-        {
-            
-            var result = _invoiceService.GetIncomingInvoiceCancellations(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
-
-        [HttpPost("GetIncomingAllowances")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult GetIncomingAllowances()
-        {
-            
-            var result = _invoiceService.GetIncomingAllowances(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
-
-        [HttpPost("GetIncomingAllowanceCancellations")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult GetIncomingAllowanceCancellations()
-        {
-            
-            var result = _invoiceService.GetIncomingAllowanceCancellations(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
 
         [HttpPost("AcknowledgeLivingReport")]
         [Consumes("application/xml", "text/xml")]
@@ -248,12 +219,12 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("UploadA0401")]
+        [HttpPost("UploadF0401")]
         [Consumes("application/xml", "text/xml")]
-        public IActionResult UploadA0401()
+        public IActionResult UploadF0401()
         {
             
-            var result = _invoiceService.UploadA0401(uploadData!);
+            var result = _invoiceService.UploadF0401(uploadData!);
             return Content(result.OuterXml, "text/xml");
         }
 
@@ -266,14 +237,6 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("UploadA0501")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult UploadA0501()
-        {
-            
-            var result = _invoiceService.UploadA0501(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
 
         [HttpPost("UploadB0201")]
         [Consumes("application/xml", "text/xml")]
@@ -290,15 +253,6 @@ namespace WebHome.Controllers
         {
             
             var result = _invoiceService.B2CUploadInvoice(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
-
-        [HttpPost("B2CUploadInvoiceCancellation")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult B2CUploadInvoiceCancellation()
-        {
-            
-            var result = _invoiceService.B2CUploadInvoiceCancellation(uploadData!);
             return Content(result.OuterXml, "text/xml");
         }
 
@@ -376,15 +330,6 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("B2BUploadInvoice")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult B2BUploadInvoice()
-        {
-            
-            var result = _invoiceService.B2BUploadInvoice(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
-
         [HttpPost("B2BUploadAllowance")]
         [Consumes("application/xml", "text/xml")]
         public IActionResult B2BUploadAllowance()
@@ -412,15 +357,6 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("B2BUploadBuyerInvoice")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult B2BUploadBuyerInvoice()
-        {
-            
-            var result = _invoiceService.B2BUploadBuyerInvoice(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
-
         [HttpPost("UploadBranchTrackBlank")]
         [Consumes("application/xml", "text/xml")]
         public IActionResult UploadBranchTrackBlank()
@@ -432,6 +368,7 @@ namespace WebHome.Controllers
 
         [HttpPost("B2BReceiveA0501")]
         [Consumes("application/xml", "text/xml")]
+        [Produces("application/xml")]
         public XmlDocument B2BReceiveA0501()
         {
             return _invoiceService.B2BReceiveA0501(uploadData!);
@@ -439,6 +376,7 @@ namespace WebHome.Controllers
 
         [HttpPost("B2BReceiveB0501")]
         [Consumes("application/xml", "text/xml")]
+        [Produces("application/xml")]
         public XmlDocument B2BReceiveB0501()
         {
             return _invoiceService.B2BReceiveB0501(uploadData!);
@@ -490,12 +428,14 @@ namespace WebHome.Controllers
 
         #region Methods from eInvoiceService_201612
         [HttpPost("UploadInvoiceBuyerCmsCSV")]
+        [Produces("application/xml")]
         public XmlDocument UploadInvoiceBuyerCmsCSV([FromBody] byte[] uploadData)
         {
             return _invoiceService.UploadInvoiceBuyerCmsCSV(uploadData!);
         }
 
         [HttpPost("UploadInvoiceCmsCSV")]
+        [Produces("application/xml")]
         public XmlDocument UploadInvoiceCmsCSV([FromBody] byte[] uploadData)
         {
             return _invoiceService.UploadInvoiceCmsCSV(uploadData!);
@@ -505,6 +445,7 @@ namespace WebHome.Controllers
         #region Methods from eInvoiceService_201311
         [HttpPost("UploadInvoiceAutoTrackNoByClient")]
         [Consumes("application/xml", "text/xml")]
+        [Produces("application/xml")]
         public XmlDocument UploadInvoiceAutoTrackNoByClient( [FromQuery] string clientID, [FromQuery] int channelID)
         {
             return _invoiceService.UploadInvoiceAutoTrackNoByClient(uploadData!, clientID, channelID);
@@ -512,6 +453,7 @@ namespace WebHome.Controllers
 
         [HttpPost("UploadInvoiceByClient")]
         [Consumes("application/xml", "text/xml")]
+        [Produces("application/xml")]
         public XmlDocument UploadInvoiceByClient( [FromQuery] string clientID, [FromQuery] int channelID, [FromQuery] bool autoTrackNo, [FromQuery] int processType)
         {
             return _invoiceService.UploadInvoiceByClient(uploadData!, clientID, channelID, autoTrackNo, processType);
@@ -519,6 +461,7 @@ namespace WebHome.Controllers
 
         [HttpPost("UploadAllowanceByClient")]
         [Consumes("application/xml", "text/xml")]
+        [Produces("application/xml")]
         public XmlDocument UploadAllowanceByClient( [FromQuery] string clientID, [FromQuery] int channelID)
         {
             return _invoiceService.UploadAllowanceByClient(uploadData!, clientID, channelID);
@@ -570,12 +513,14 @@ namespace WebHome.Controllers
         }
 
         [HttpPost("UploadInvoiceCmsCSVAutoTrackNoV2")]
+        [Produces("application/xml")]
         public XmlDocument UploadInvoiceCmsCSVAutoTrackNoV2([FromBody] byte[] uploadData)
         {
             return _invoiceService.UploadInvoiceCmsCSVAutoTrackNoV2(uploadData!);
         }
 
         [HttpPost("UploadAllowanceCmsCSV")]
+        [Produces("application/xml")]
         public XmlDocument UploadAllowanceCmsCSV([FromBody] byte[] uploadData)
         {
             return _invoiceService.UploadAllowanceCmsCSV(uploadData!);
@@ -590,39 +535,22 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("UploadInvoiceV2_C0401")]
+
+        [HttpPost("UploadF0501")]
         [Consumes("application/xml", "text/xml")]
-        public IActionResult UploadInvoiceV2_C0401()
+        public IActionResult UploadF0501()
         {
             
-            var result = _invoiceService.UploadInvoiceV2_C0401(uploadData!);
+            var result = _invoiceService.UploadF0501(uploadData!);
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("UploadAllowance_D0401")]
+        [HttpPost("UploadG0501")]
         [Consumes("application/xml", "text/xml")]
-        public IActionResult UploadAllowance_D0401()
+        public IActionResult UploadG0501()
         {
             
-            var result = _invoiceService.UploadAllowance_D0401(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
-
-        [HttpPost("UploadInvoiceCancellationV2_C0501")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult UploadInvoiceCancellationV2_C0501()
-        {
-            
-            var result = _invoiceService.UploadInvoiceCancellationV2_C0501(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
-
-        [HttpPost("UploadAllowanceCancellationV2_D0501")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult UploadAllowanceCancellationV2_D0501()
-        {
-            
-            var result = _invoiceService.UploadAllowanceCancellationV2_D0501(uploadData!);
+            var result = _invoiceService.UploadG0501(uploadData!);
             return Content(result.OuterXml, "text/xml");
         }
 
@@ -637,6 +565,7 @@ namespace WebHome.Controllers
 
         [HttpPost("GetCurrentYearInvoiceTrackCode")]
         [Consumes("application/xml", "text/xml")]
+        [Produces("application/xml")]
         public XmlDocument GetCurrentYearInvoiceTrackCode()
         {
             return _invoiceService.GetCurrentYearInvoiceTrackCode(uploadData!);
@@ -651,7 +580,7 @@ namespace WebHome.Controllers
 
         [HttpPost("GetVacantInvoiceNo")]
         [Consumes("application/xml", "text/xml")]
-        [Produces("text/xml")]
+        [Produces("application/xml")]
         public XmlDocument GetVacantInvoiceNo( [FromQuery] string receiptNo)
         {
             return _invoiceService.GetVacantInvoiceNo(uploadData!, receiptNo);

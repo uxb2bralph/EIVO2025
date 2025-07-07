@@ -1,30 +1,28 @@
-﻿using System;
+﻿using CommonLib.Core.Utility;
+using CommonLib.DataAccess;
+using CommonLib.Utility;
+using MessagingToolkit.QRCode.Codec;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using ModelCore.DataEntity;
+using ModelCore.Helper;
+using ModelCore.Locale;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
-using Microsoft.AspNetCore.Mvc;
-
-
-using CommonLib.DataAccess;
-
-using WebHome.Properties;
-using MessagingToolkit.QRCode.Codec;
-using ModelCore.DataEntity;
-using ModelCore.Locale;
-
-using CommonLib.Utility;
 using WebHome.Controllers;
-using CommonLib.Core.Utility;
-using System.Data;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using ModelCore.Helper;
+using WebHome.Properties;
 
 namespace WebHome.Helper
 {
@@ -105,5 +103,14 @@ namespace WebHome.Helper
             System.IO.File.Delete(tmpPath);
         }
 
+        public static string RenderHtmlContentToString(this IHtmlContent htmlContent, HtmlEncoder encoder)
+        {
+            var builder = new System.Text.StringBuilder();
+            using (var writer = new StringWriter(builder))
+            {
+                htmlContent.WriteTo(writer, encoder);
+            }
+            return builder.ToString();
+        }
     }
 }

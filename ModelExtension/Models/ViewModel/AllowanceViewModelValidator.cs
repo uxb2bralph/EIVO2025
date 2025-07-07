@@ -161,7 +161,7 @@ namespace ModelCore.Models.ViewModel
             _productItems = new List<InvoiceAllowanceItem>();
             var invTable = _mgr.GetTable<InvoiceItem>();
 
-            InvoiceItem originalInvoice = null;
+            InvoiceItem? originalInvoice = null;
 
             if (!(_allowanceItem.OriginalInvoiceNo?.Length > 0))
             {
@@ -171,11 +171,11 @@ namespace ModelCore.Models.ViewModel
             for (int i = 0; i < _allowanceItem.OriginalInvoiceNo?.Length; i++)
             {
 
-                if (!String.IsNullOrEmpty(_allowanceItem.OriginalInvoiceNo[i]) && _allowanceItem.OriginalInvoiceNo[i].Length == 10)
+                if (!String.IsNullOrEmpty(_allowanceItem.OriginalInvoiceNo[i]) && _allowanceItem.OriginalInvoiceNo[i]!.Length == 10)
                 {
                     String invNo, trackCode;
-                    trackCode = _allowanceItem.OriginalInvoiceNo[i].Substring(0, 2);
-                    invNo = _allowanceItem.OriginalInvoiceNo[i].Substring(2);
+                    trackCode = _allowanceItem.OriginalInvoiceNo[i]!.Substring(0, 2);
+                    invNo = _allowanceItem.OriginalInvoiceNo[i]!.Substring(2);
                     originalInvoice = invTable.Where(n => n.TrackCode == trackCode && n.No == invNo).FirstOrDefault();
                 }
 
@@ -189,7 +189,7 @@ namespace ModelCore.Models.ViewModel
                     return new Exception(MessageResources.InvalidAllowance_InvoiceHasBeenCanceled);
                 }
 
-                _allowanceItem.OriginalInvoiceDate[i] = originalInvoice.InvoiceDate.Value;
+                _allowanceItem.OriginalInvoiceDate[i] = originalInvoice.InvoiceDate!.Value;
 
                 if (originalInvoice.SellerID != _allowanceItem.SellerID)
                 {
@@ -251,14 +251,14 @@ namespace ModelCore.Models.ViewModel
                 {
                     DocDate = DateTime.Now,
                     DocType = (int)Naming.DocumentTypeDefinition.E_Allowance,
-                    ProcessType = originalInvoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401
-                                    ? (int)Naming.InvoiceProcessType.B0401
-                                    : (int)Naming.InvoiceProcessType.D0401,
+                    ProcessType = originalInvoice!.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101
+                                    ? (int)Naming.InvoiceProcessType.B0101
+                                    : (int)Naming.InvoiceProcessType.G0401,
                 },
                 AllowanceDate = _allowanceDate,
                 IssueDate = _allowanceDate,
                 AllowanceNumber = _allowanceItem.AllowanceNumber,
-                AllowanceType = (byte)_allowanceItem.AllowanceType,
+                AllowanceType = (byte?)_allowanceItem.AllowanceType,
                 BuyerId = _allowanceItem.BuyerReceiptNo,
                 SellerId = _seller.ReceiptNo,
                 TaxAmount = _allowanceItem.TaxAmount,

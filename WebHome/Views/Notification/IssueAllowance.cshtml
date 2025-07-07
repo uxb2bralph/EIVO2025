@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -54,7 +54,7 @@ else if (_model.InvoiceAllowanceSeller.Organization.OrganizationStatus.InvoiceNo
     var smtpSettings = _model.InvoiceAllowanceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
     String Subject = $"{(enterprise?.EnterpriseGroup.EnterpriseName)} 折讓證明開立通知(折讓證明單號碼:{_model.AllowanceNumber})";
-    String body = Html.Partial(notificationView ?? "~/Views/Notification/Module/IssuedAllowance.cshtml", _model).ToString();
+    String body = (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedAllowance.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
 
     body.SendMailMessage(mailTo, Subject, new System.Net.Mail.Attachment[] { attachment }, smtpSettings);
 }

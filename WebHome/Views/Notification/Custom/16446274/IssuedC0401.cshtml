@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -236,13 +236,13 @@
             if (_model.InvoiceBuyer.IsB2C())
             {
                 <p class="printBtn">
-                    <a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ShowInvoicePageView","DataView",new { keyID = _model.InvoiceID.EncryptKey() })}")">》請點此連結檢視發票</a>
+                    <a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("ShowInvoicePageView","DataView",new { keyID = _model.InvoiceID.EncryptKey() })}")">》請點此連結檢視發票</a>
                 </p>
             }
             else /*if (_model.Organization.OrganizationStatus.SubscribeB2BInvoicePDF == false)*/
             {
                 <p class="printBtn">
-                    <a href="@($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("InquireForIncoming","InvoiceProcess",new { queryAtStart=true,invoiceNo =  _model.TrackCode + _model.No})}")">》請點此連結列印發票</a>
+                    <a href="@($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("InquireForIncoming","InvoiceProcess",new { queryAtStart=true,invoiceNo =  _model.TrackCode + _model.No})}")">》請點此連結列印發票</a>
                 </p>
             }
         }

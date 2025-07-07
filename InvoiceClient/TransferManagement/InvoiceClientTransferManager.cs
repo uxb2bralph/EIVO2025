@@ -212,7 +212,7 @@ namespace InvoiceClient.TransferManagement
         void PauseAll();
         String ReportError();
         void SetRetry();
-        Type UIConfigType { get; }
+        Type? UIConfigType { get; }
         ITabWorkItem? WorkItem { get; set; }
     }
 }

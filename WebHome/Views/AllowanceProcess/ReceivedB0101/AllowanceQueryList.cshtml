@@ -1,0 +1,47 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/Common/DataQuery/DataItemListTemplate.cshtml";
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceAllowance> _model;
+    String _listID = "itemList" + DateTime.Now.Ticks;
+    InquireInvoiceViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<InvoiceAllowance>)this.Model;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+}
+
+@section PrepareQueryResult
+{
+    @{
+        if (_viewModel.DataColumns == null)
+        {
+            await Html.RenderPartialAsync("~/Views/AllowanceProcess/ReceivedB0101/PrepareAllowanceQueryResult.cshtml");
+        }
+    }
+}
+
+@section PrepareSorting
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/AllowanceProcess/DataQuery/ItemListSorting.cshtml");
+    }
+}

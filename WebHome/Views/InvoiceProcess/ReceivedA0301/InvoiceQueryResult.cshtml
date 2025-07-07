@@ -1,0 +1,53 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    IQueryable<InvoiceItem> _model;
+    InquireInvoiceViewModel _viewModel;
+
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    _model = (IQueryable<InvoiceItem>)this.Model;
+}
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果");}
+
+
+<div class="border_gray query_result">
+    @{
+        var recordCount = _model.Count();
+        if (recordCount > 0)
+        {
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ReceivedA0101/InvoiceQueryTable.cshtml", _model);
+            await Html.RenderPartialAsync("~/Views/Common/Module/QueryPagingControl.cshtml", _model);
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ReceivedA0301/DoAction.cshtml");
+        }
+        else
+        {
+            <font color="red">查無資料!!</font>
+        }
+    }
+</div>
+
+
+
+
+

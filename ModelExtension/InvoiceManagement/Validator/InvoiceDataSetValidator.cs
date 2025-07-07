@@ -448,7 +448,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
                     DocumentOwner = new DocumentOwner
                     {
-                        OwnerID = _owner.CompanyID
+                        OwnerID = _owner?.CompanyID ?? _seller!.CompanyID,
                     },
                     ProcessType = processType == Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer
                         ? (int)Naming.InvoiceProcessType.A0401
@@ -570,7 +570,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     return new Exception(String.Format(MessageResources.AlertInvoiceNumber, InvoiceNo()));
                 }
 
-                var ex = checkInvoiceNo(_newItem, invoiceDate.Value, InvoiceNo());
+                var ex = CheckInvoiceNo(_newItem, invoiceDate.Value, InvoiceNo());
                 if (ex != null)
                 {
                     return ex;
@@ -684,7 +684,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
                 ExpectedSeller = _seller;
 
-                if (_seller.CompanyID != _owner.CompanyID && !_models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
+                if (_owner != null && _seller.CompanyID != _owner.CompanyID && !_models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
                 {
                     //return new Exception(String.Format(MessageResources.AlertSellerSignature, SellerID()));
                     return new Exception(String.Format(MessageResources.InvalidSellerOrAgent, SellerID(), _owner.ReceiptNo));

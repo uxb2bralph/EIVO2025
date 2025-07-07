@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-
+using ModelCore.Schema.TurnKey.Invoice;
 using ModelCore.Schema.TXN;
 
 namespace ModelCore.Schema.EIVO
@@ -18,20 +18,7 @@ namespace ModelCore.Schema.EIVO
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Invoice")]
-        public ModelCore.Schema.TurnKey.Invoice[] Invoice;
-    }
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "A0201" /*AnonymousType = true*/)]
-    public partial class RootResponseForA0201 : RootResponse
-    {
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CancelInvoice")]
-        public ModelCore.Schema.TurnKey.A0201.CancelInvoice[] CancelInvoice;
+        public Invoice[] Invoice;
     }
 
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
@@ -47,69 +34,32 @@ namespace ModelCore.Schema.EIVO
     }
 
 
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
-    [XmlInclude(typeof(ModelCore.Schema.EIVO.RootResponseForA0201))]
-    public partial class RootA0201 : Root
-    {
 
-    }
+    //[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
+    //[System.SerializableAttribute()]
+    //[System.Diagnostics.DebuggerStepThroughAttribute()]
+    //[System.ComponentModel.DesignerCategoryAttribute("code")]
+    //[System.Xml.Serialization.XmlTypeAttribute(TypeName = "B0101" /*AnonymousType = true*/)]
+    //public partial class RootResponseForB0101 : RootResponse
+    //{
 
+    //    /// <remarks/>
+    //    [System.Xml.Serialization.XmlElementAttribute("Allowance")]
+    //    public ModelCore.Schema.TurnKey.B0101.Allowance[] Allowance;
+    //}
+   
 
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "B0101" /*AnonymousType = true*/)]
-    public partial class RootResponseForB0101 : RootResponse
-    {
+    //[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
+    //[System.SerializableAttribute()]
+    //[System.Diagnostics.DebuggerStepThroughAttribute()]
+    //[System.ComponentModel.DesignerCategoryAttribute("code")]
+    //[System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    //[System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
+    //[XmlInclude(typeof(ModelCore.Schema.EIVO.RootResponseForB0101))]
+    //public partial class RootB0101 : Root
+    //{
 
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Allowance")]
-        public ModelCore.Schema.TurnKey.B0101.Allowance[] Allowance;
-    }
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "B0201" /*AnonymousType = true*/)]
-    public partial class RootResponseForB0201 : RootResponse
-    {
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CancelAllowance")]
-        public ModelCore.Schema.TurnKey.B0201.CancelAllowance[] CancelAllowance;
-    }
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
-    [XmlInclude(typeof(ModelCore.Schema.EIVO.RootResponseForB0101))]
-    public partial class RootB0101 : Root
-    {
-
-    }
-
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
-    [XmlInclude(typeof(ModelCore.Schema.EIVO.RootResponseForB0201))]
-    public partial class RootB0201 : Root
-    {
-
-    }
+    //}
 
 
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]

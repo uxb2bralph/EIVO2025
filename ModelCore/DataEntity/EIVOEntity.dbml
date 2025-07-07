@@ -169,8 +169,9 @@
       <Association Name="CDS_Document_ProcessRequestDocument" Member="ProcessRequestDocument" ThisKey="DocID" OtherKey="DocID" Type="ProcessRequestDocument" Cardinality="One" />
       <Association Name="CDS_Document_CustomerDefined" Member="CustomerDefined" ThisKey="DocID" OtherKey="DocID" Type="CustomerDefined" Cardinality="One" />
       <Association Name="CDS_Document_C0401DispatchQueue" Member="C0401DispatchQueue" ThisKey="DocID" OtherKey="DocID" Type="C0401DispatchQueue" />
-      <Association Name="CDS_Document_DataProcessLog" Member="DataProcessLog" ThisKey="DocID" OtherKey="DocID" Type="DataProcessLog" />
       <Association Name="CDS_Document_VoidInvoiceRequest" Member="VoidInvoiceRequest" ThisKey="DocID" OtherKey="DocID" Type="VoidInvoiceRequest" Cardinality="One" />
+      <Association Name="CDS_Document_DataProcessQueue" Member="DataProcessQueue" ThisKey="DocID" OtherKey="DocID" Type="DataProcessQueue" />
+      <Association Name="CDS_Document_DataProcessLog" Member="DataProcessLog" ThisKey="DocID" OtherKey="DocID" Type="DataProcessLog" />
       <Association Name="DocumentType_CDS_Document" Member="DocumentType" ThisKey="DocType" OtherKey="TypeID" Type="DocumentType" IsForeignKey="true" />
       <Association Name="LevelExpression_CDS_Document" Member="LevelExpression" ThisKey="CurrentStep" OtherKey="LevelID" Type="LevelExpression" IsForeignKey="true" />
     </Type>
@@ -1885,17 +1886,6 @@
       <Association Name="CDS_Document_C0401DispatchQueue" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
-  <Table Name="[proc].DataProcessLog" Member="DataProcessLog">
-    <Type Name="DataProcessLog">
-      <Column Name="LogID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="DocID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="LogDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
-      <Column Name="Status" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="StepID" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="Content" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
-      <Association Name="CDS_Document_DataProcessLog" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
-    </Type>
-  </Table>
   <Table Name="dbo.DocumentPostLog" Member="DocumentPostLog">
     <Type Name="DocumentPostLog">
       <Column Name="LogID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -1964,6 +1954,28 @@
       <Column Name="EndNo" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
       <Association Name="InvoiceNoMainAssignment_InvoiceTrackCodeAssignment" Member="BranchNoAssignment" ThisKey="AssignmentID" OtherKey="AssignmentID" Type="InvoiceTrackCodeAssignment" />
       <Association Name="InvoiceTrackCodeAssignment_InvoiceNoMainAssignment" Member="InvoiceTrackCodeAssignment" ThisKey="TrackID,MasterID" OtherKey="TrackID,SellerID" Type="InvoiceTrackCodeAssignment" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="[proc].DataProcessQueue" Member="DataProcessQueue">
+    <Type Name="DataProcessQueue">
+      <Column Name="DocID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="StepID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ProcessType" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="DispatchDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="BookingTime" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="CDS_Document_DataProcessQueue" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="[proc].DataProcessLog" Member="DataProcessLog">
+    <Type Name="DataProcessLog">
+      <Column Name="LogID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="DocID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LogDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="Status" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="StepID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Content" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="ProcessType" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="CDS_Document_DataProcessLog" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
   <Function Name="dbo.MatchDocumentAttachment" Method="MatchDocumentAttachment">

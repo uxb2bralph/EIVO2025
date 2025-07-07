@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ModelCore.DataEntity;
+using ModelCore.Locale;
 
 namespace ModelCore.InvoiceManagement.Validator
 {
@@ -50,6 +51,14 @@ namespace ModelCore.InvoiceManagement.Validator
         public static Match ParseInvoiceNo(this String invoiceNo)
         {
             return Regex.Match(invoiceNo ?? "", __InvoiceNoPattern);
+        }
+
+        public static bool IgnoreDuplicatedNo(this Naming.InvoiceProcessType? processType)
+        {
+            return processType == Naming.InvoiceProcessType.ReceivedA0101
+                    || processType == Naming.InvoiceProcessType.ReceivedA0201
+                    || processType == Naming.InvoiceProcessType.ReceivedB0101
+                    || processType == Naming.InvoiceProcessType.ReceivedB0201;
         }
     }
 }

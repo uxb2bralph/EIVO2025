@@ -245,7 +245,7 @@ namespace InvoiceClient.Agent
             {
                 foreach (var response in _reponseTo)
                 {
-                    response.InvokeProcess();
+                    response.doProcess();
                 }
             }
         }
@@ -381,7 +381,11 @@ namespace InvoiceClient.Agent
                 if (Settings.Default.ResponseUpload && result.Automation != null)
                 {
                     Automation auto = new Automation { Item = result.Automation };
-                    auto.ConvertToXml().SaveDocumentWithEncoding(Path.Combine(_ResponsedPath, fileName));
+                    auto.ConvertToXml()
+                        .SaveDocumentWithEncoding(
+                            Path.Combine(_ResponsedPath, 
+                                fileName.EndsWith(".xml", StringComparison.InvariantCultureIgnoreCase) 
+                                    ? fileName : $"{fileName}.xml"));
                 }
             }
 

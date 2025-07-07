@@ -20,24 +20,25 @@ namespace ModelCore.InvoiceManagement.Validator
     public partial class AllowanceRootAllowanceValidator
     {
         protected GenericManager<EIVOEntityDataContext> models;
-        protected Organization _owner;
+        protected Organization? _owner;
 
         protected AllowanceRootAllowance _allowanceItem;
 
-        protected InvoiceAllowance _newItem;
-        protected Organization _seller;
+        protected InvoiceAllowance? _newItem;
+        protected Organization? _seller;
         protected List<InvoiceAllowanceItem> _productItems;
         protected DateTime _allowanceDate;
-        protected CurrencyType _currency;
+        protected CurrencyType? _currency;
+        protected Naming.InvoiceProcessType? processType;
 
 
-        public AllowanceRootAllowanceValidator(GenericManager<EIVOEntityDataContext> mgr, Organization owner)
+        public AllowanceRootAllowanceValidator(GenericManager<EIVOEntityDataContext> mgr, Organization? owner)
         {
             models = mgr;
             _owner = owner;
         }
 
-        public InvoiceAllowance Allowance
+        public InvoiceAllowance? Allowance
         {
             get
             {
@@ -47,11 +48,17 @@ namespace ModelCore.InvoiceManagement.Validator
 
         public Naming.InvoiceProcessType? ProcessType
         {
-            get;
-            set;
+            get
+            {
+                return processType;
+            }
+            set
+            {
+                processType = value;
+            }
         }
 
-        public Organization Seller
+        public Organization? Seller
         {
             get
             {
@@ -59,12 +66,12 @@ namespace ModelCore.InvoiceManagement.Validator
             }
         }
 
-        InvoiceItem _originalInvoice;
-        public virtual Exception Validate(AllowanceRootAllowance dataItem)
+        InvoiceItem? _originalInvoice;
+        public virtual Exception? Validate(AllowanceRootAllowance dataItem)
         {
             _allowanceItem = dataItem;
 
-            Exception ex;
+            Exception? ex;
 
             _seller = null;
             _newItem = null;
@@ -88,7 +95,7 @@ namespace ModelCore.InvoiceManagement.Validator
             return null;
         }
 
-        protected virtual Exception CheckBusiness()
+        protected virtual Exception? CheckBusiness()
         {
             _seller = models.GetTable<Organization>().Where(o => o.ReceiptNo == _allowanceItem.SellerId).FirstOrDefault();
 
@@ -97,7 +104,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 return new Exception(String.Format(MessageResources.AlertInvalidSeller, _allowanceItem.SellerId));
             }
 
-            if (_seller.CompanyID != _owner.CompanyID && !models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
+            if (_owner != null && _seller.CompanyID != _owner.CompanyID && !models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
             {
                 return new Exception(String.Format(MessageResources.AlertSellerSignature, _allowanceItem.SellerId));
             }
@@ -114,7 +121,7 @@ namespace ModelCore.InvoiceManagement.Validator
                             v => v.InvoiceID, p => p.InvoiceID, (v, p) => v).FirstOrDefault();
             }
 
-            String dataNo = null;
+            String? dataNo = null;
             if (_originalInvoice == null)
             {
                 dataNo = _allowanceItem.AllowanceItem?.Select(a => a.OriginalDataNumber.GetEfficientString())
@@ -167,7 +174,7 @@ namespace ModelCore.InvoiceManagement.Validator
             return null;
         }
 
-        protected virtual Exception CheckMandatoryFields()
+        protected virtual Exception? CheckMandatoryFields()
         {
 
             if (String.IsNullOrEmpty(_allowanceItem.AllowanceNumber))
@@ -182,12 +189,13 @@ namespace ModelCore.InvoiceManagement.Validator
             }
 
             var currentItem = models.GetTable<InvoiceAllowance>().Where(a => a.AllowanceNumber == _allowanceItem.AllowanceNumber)
-                        .Join(models.GetTable<InvoiceAllowanceSeller>().Where(s => s.SellerID == _seller.CompanyID),
+                        .Join(models.GetTable<InvoiceAllowanceSeller>().Where(s => s.SellerID == _seller!.CompanyID),
                             a => a.AllowanceID, s => s.AllowanceID, (a, s) => a).FirstOrDefault();
             if (currentItem != null)
             {
-                if (currentItem.InvoiceAllowanceSeller.SellerID == _seller.CompanyID && _seller.IgnoreDuplicatedNo())
+                if (currentItem.InvoiceAllowanceSeller.SellerID == _seller!.CompanyID && (_seller.IgnoreDuplicatedNo() || processType.IgnoreDuplicatedNo()))
                 {
+                    _newItem = currentItem;
                     return new DuplicateAllowanceNumberException(String.Format(MessageResources.AlertAllowanceDuplicated, _allowanceItem.AllowanceNumber)) { CurrentAllowance = currentItem };
                 }
                 else
@@ -230,13 +238,13 @@ namespace ModelCore.InvoiceManagement.Validator
             return null;
         }
 
-        protected virtual Exception CheckAllowanceItem()
+        protected virtual Exception? CheckAllowanceItem()
         {
             _productItems = new List<InvoiceAllowanceItem>();
             var invTable = models.GetTable<InvoiceItem>()
-                            .Where(v => v.SellerID == _seller.CompanyID);
+                            .Where(v => v.SellerID == _seller!.CompanyID);
 
-            InvoiceItem originalInvoice = null;
+            InvoiceItem? originalInvoice = null;
             foreach (var i in _allowanceItem.AllowanceItem)
             {
 
@@ -246,7 +254,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     trackCode = i.OriginalInvoiceNumber.Substring(0, 2);
                     invNo = i.OriginalInvoiceNumber.Substring(2);
                     originalInvoice = invTable
-                        .Where(n => n.SellerID == _seller.CompanyID)
+                        .Where(n => n.SellerID == _seller!.CompanyID)
                         .Where(n => n.TrackCode == trackCode)
                         .Where(n => n.No == invNo)
                         .OrderByDescending(n => n.InvoiceID)

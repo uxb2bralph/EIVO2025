@@ -501,6 +501,7 @@ namespace ModelCore.Locale
             索取紙本= 2,
             修正 = 3,
             修改營業人資料 = 4,
+            確認接收退回 = 5,
         }
 
         public enum InvoiceProcessType
@@ -518,6 +519,12 @@ namespace ModelCore.Locale
             A0201,
             B0101,
             B0201,
+            A0102,
+            A0202,
+            A0301,
+            A0302,
+            B0102,
+            B0202,
             E0401 = 31,
             E0402 = 32,
             F0401 = 41,
@@ -540,6 +547,10 @@ namespace ModelCore.Locale
             C0501_Json = 202,
             D0401_Json = 203,
             D0501_Json = 204,
+            ReceivedA0101 = 701,
+            ReceivedA0201,
+            ReceivedB0101,
+            ReceivedB0201,
         }
 
         public enum AllowanceTypeDefinition
@@ -603,5 +614,16 @@ namespace ModelCore.Locale
             True = 1,
         }
 
+        public enum ActionType
+        {
+            Deny = 0,
+            Allow = 1,
+        }
+
+        public enum TransportType
+        {
+            存證 = 1, 
+            交換 = 2, 
+        }
     }
 }

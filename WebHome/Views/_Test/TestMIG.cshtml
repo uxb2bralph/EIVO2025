@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 @using WebHome.Helper
 @using ModelCore.Locale
@@ -31,8 +31,8 @@
     IQueryable<InvoiceAllowance> allowanceItems;
     String storedPath = null;
     int recordCount = 0;
-    Func<InvoiceItem, System.Xml.XmlDocument> ConvertInvoiceMIG;
-    Func<InvoiceAllowance, System.Xml.XmlDocument> ConvertAllowanceMIG;
+    Func<InvoiceItem, System.Xml.XmlDocument?> ConvertInvoiceMIG;
+    Func<InvoiceAllowance, System.Xml.XmlDocument?> ConvertAllowanceMIG;
     HttpResponse Response;
 
     async Task WriteInvioceMIGAsync()
@@ -118,7 +118,7 @@
             case Naming.InvoiceProcessType.F0501:
                 storedPath = global::ModelExtension.Properties.AppSettings.Default.F0501Outbound;
                 invoiceItems = invoiceItems.Join(models.GetTable<InvoiceCancellation>(), i => i.InvoiceID, c => c.InvoiceID, (i, c) => i);
-                ConvertInvoiceMIG = i => i.CreateF0501().ConvertToXml();
+                ConvertInvoiceMIG = i => i.CreateF0501();
                 await WriteInvioceMIGAsync();
                 break;
 
@@ -126,7 +126,7 @@
             case Naming.InvoiceProcessType.B0401:
             case Naming.InvoiceProcessType.G0401:
                 storedPath = global::ModelExtension.Properties.AppSettings.Default.G0401Outbound;
-                ConvertAllowanceMIG = i => i.CreateG0401().ConvertToXml();
+                ConvertAllowanceMIG = i => i.CreateG0401();
                 await WriteAllowanceMIGAsync();
                 break;
 
@@ -135,7 +135,7 @@
             case Naming.InvoiceProcessType.G0501:
                 storedPath = global::ModelExtension.Properties.AppSettings.Default.G0501Outbound;
                 allowanceItems = allowanceItems.Join(models.GetTable<InvoiceAllowanceCancellation>(), a => a.AllowanceID, c => c.AllowanceID, (a, c) => a);
-                ConvertAllowanceMIG = i => i.CreateG0501().ConvertToXml();
+                ConvertAllowanceMIG = i => i.CreateG0501();
                 await WriteAllowanceMIGAsync();
                 break;
 

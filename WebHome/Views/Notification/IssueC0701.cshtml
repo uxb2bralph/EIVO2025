@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -48,7 +48,7 @@ else if (_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice
         var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
         String subject = _model.Organization.CompanyName + "註銷電子發票郵件通知(此張發票因屬發票系統問題致使錯誤開立已由營業人上傳註銷)";
-        String body = Html.Partial("~/Views/Notification/Module/IssuedC0701.cshtml", _model).ToString();
+        String body = Html.Partial("~/Views/Notification/Module/IssuedC0701.cshtml", _model).RenderHtmlContentToString(HtmlEncoder);
         body.SendMailMessage(mailTo, subject, smtpSettings);
     }
 

@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -35,6 +35,7 @@
         await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/CompanyName.cshtml");
         await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/ReceiptNo.cshtml");
         await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/InvoiceNo.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/ProcessType.cshtml");
         await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/InvoiceDate.cshtml");
         await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/BuyerName.cshtml");
         await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/BuyerNo.cshtml");

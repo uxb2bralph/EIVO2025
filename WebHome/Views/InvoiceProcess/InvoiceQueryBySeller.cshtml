@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Models
@@ -37,7 +37,7 @@
                 <input type="hidden" name="ResultAction" value="@(_viewModel.ResultAction)" />
             </th>
         </tr>
-        @{ 
+        @{
             await Html.RenderPartialAsync("~/Views/InvoiceProcess/Module/QueryDirective.cshtml", 0);
             ViewBag.QueryAll = true;
             @(await Component.InvokeAsync<InquireInvoiceConsumptionViewComponent>());
@@ -55,7 +55,17 @@
             await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierType.cshtml");
             await Html.RenderPartialAsync("~/Views/InquireInvoice/ByCarrierNo.cshtml");
         }
-
+        <tr>
+            <th>
+                開立通知未送出
+            </th>
+            <td class="tdleft">
+                <select name="IsNoticed">
+                    <option value="">全部</option>
+                    <option value="False">是</option>
+                </select>
+            </td>
+        </tr>
         <tr>
             <th>
                 附加查詢顯示

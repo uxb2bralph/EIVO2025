@@ -79,12 +79,12 @@ namespace ModelCore.InvoiceManagement.Validator
                 DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
                 DocumentOwner = new DocumentOwner
                 {
-                    OwnerID = _owner.CompanyID
+                    OwnerID = _owner?.CompanyID ?? _seller!.CompanyID
                 },
                 ProcessType = (int)(processType ?? Naming.InvoiceProcessType.C0401),
             };
             _container.DonateMark = _donation == null ? "0" : "1";
-            _container.SellerID = _seller.CompanyID;
+            _container.SellerID = _seller!.CompanyID;
             _container.CustomsClearanceMark = _invItem.CustomsClearanceMark;
             _container.InvoiceSeller = new InvoiceSeller
             {
@@ -289,7 +289,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     _seller = new Organization { };
                 }
 
-                if (_seller.CompanyID != _owner.CompanyID && !_models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
+                if (_owner != null && _seller.CompanyID != _owner.CompanyID && !_models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
                 {
                     //return new Exception(String.Format(MessageResources.AlertSellerSignature, _invItem.SellerId));
                     exceptions.Add(new Exception(String.Format(MessageResources.InvalidSellerOrAgent, _invItem.SellerId, _owner.ReceiptNo)));

@@ -4,8 +4,8 @@
 }
 
 <div class="border_gray">
-    【@Html.Raw(Html.ActionLink(linkText, switchAction, "InvoiceNo"))】
-    <input type="button" name="btnTrackCodeSample" value="下載範本" />&nbsp;&nbsp;
+    【@{ Html.ActionLink(linkText, switchAction, "InvoiceNo").WriteTo(Output, HtmlEncoder); }】
+    < input type="button" name="btnTrackCodeSample" value="下載範本" />&nbsp;&nbsp;
 
     <script>
         $(function () {

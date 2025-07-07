@@ -1,4 +1,4 @@
-@using Microsoft.AspNetCore.Mvc
+﻿@using Microsoft.AspNetCore.Mvc
 @model WebHome.Models.ViewModel.InvoiceNumberApplyViewModel
 @{
     ViewBag.Title = "New";
@@ -55,7 +55,7 @@
                 @using (Html.BeginForm("Create", "InvoiceNumberApply", new { @id="applyForm", @autocomplete = "off" }))
                 {
                     @Html.AntiForgeryToken()
-                    @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+                    @*@Html.ValidationSummary(false, "", new { @class = "text-danger" })*@
                     <div class="p-3 mb-3" id="applyPage">
                         <div class="p-3 mb-3">
                             <h2>受理機關</h2>
@@ -848,10 +848,10 @@
                         <div class="row mb-2">
                             @Html.LabelFor(m => m.Apply.SysSupplierID, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
                             <div class="col-sm-10">
-                                @Html.DropDownListFor(m => m.Apply.SysSupplierID, new SelectList(Model.GetSysSupplierList(), "ID", "Value"), new { @class = "form-control" })
+                                @Html.TextBoxFor(m => m.Apply.SysSupplierBusinessID, new { @class = "form-control" })
                                 @Html.ValidationMessageFor(m => m.Apply.SysSupplierID, "", new { @class = "text-danger" })
                             </div>
-                            @Html.TextBoxFor(m => m.Apply.SysSupplierBusinessID, new { @class = "form-control", @style = "display: none;" })
+                            @Html.HiddenFor(m => m.Apply.SysSupplierID)
                         </div>
                         <div class="row mb-2">
                             @Html.LabelFor(m => m.Apply.SysSupplierNo, htmlAttributes: new { @class = "col-sm-2 col-form-label" })
@@ -1468,7 +1468,7 @@
         });
 
         ChangeSysSupplier();
-        $('#Apply_SysSupplierID').change(function () { ChangeSysSupplier(); });
+        $('#Apply_SysSupplierBusinessID').change(function () { ChangeSysSupplier(); });
         ChangePaperTestSet();
         $('#Apply_PaperTestID').change(function () { ChangePaperTestSet(); })
 
@@ -1511,7 +1511,7 @@
     }
 
     function ChangeSysSupplier() {
-        var selectedValue = $('#Apply_SysSupplierID option:selected').val();
+        var selectedValue = $('#Apply_SysSupplierBusinessID').val();
         if ($.trim(selectedValue).length > 0) {
             $.ajax({
                 url: '@Url.Action("SysSupplier", "InvoiceNumberApply")',
@@ -1521,8 +1521,9 @@
                 async: true,
                 dataType: 'json',
                 success: function (data) {
-                    if (data.length > 0) {
-                        sysSupplierJson = jQuery.parseJSON(data);
+                    if ($.isPlainObject(data)) {
+                        sysSupplierJson = data;
+                        $('#Apply_SysSupplierID').val(sysSupplierJson.ID);
                         $('#Apply_SysSupplierBusinessID').val(sysSupplierJson.BusinessID);
                         $('#Apply_SysSupplierNo').val(sysSupplierJson.No);
                         $('#Apply_SysSupplierName').val(sysSupplierJson.Name);

@@ -39,7 +39,7 @@ namespace WebHome.Helper
                 {
                     using (WebClient client = new WebClient())
                     {
-                        client.DownloadString($"{Properties.Settings.Default.HostDomain}{VirtualPathUtility.ToAbsolute("~/Notification/ActivateUser")}?uid={profile.UID}&resetPass={true}");
+                        client.DownloadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/ActivateUser")}?uid={profile.UID}&resetPass={true}");
                     }
                 }
                 catch (Exception ex)
@@ -58,7 +58,7 @@ namespace WebHome.Helper
                 {
                     using (WebClient client = new WebClient())
                     {
-                        client.DownloadString($"{Properties.Settings.Default.HostDomain}{VirtualPathUtility.ToAbsolute("~/Notification/ActivateUser")}?uid={profile.UID}&resetPass={true}");
+                        client.DownloadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/ActivateUser")}?uid={profile.UID}&resetPass={true}");
                     }
                 }
                 catch (Exception ex)
@@ -77,7 +77,7 @@ namespace WebHome.Helper
                 {
                     using (WebClient client = new WebClient())
                     {
-                        client.DownloadString($"{Properties.Settings.Default.HostDomain}{VirtualPathUtility.ToAbsolute("~/Notification/ActivateUser")}?uid={profile.UID}");
+                        client.DownloadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/ActivateUser")}?uid={profile.UID}");
                     }
                 }
                 catch (Exception ex)
@@ -100,7 +100,7 @@ namespace WebHome.Helper
                 {
                     using (WebClient client = new WebClient())
                     {
-                        client.DownloadString($"{Properties.Settings.Default.HostDomain}{VirtualPathUtility.ToAbsolute("~/Notification/ActivateUser")}?PID={HttpUtility.UrlEncode(pid)}");
+                        client.DownloadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/ActivateUser")}?PID={HttpUtility.UrlEncode(pid)}");
                     }
                 }
                 catch (Exception ex)

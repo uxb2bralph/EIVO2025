@@ -1,0 +1,51 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    Layout = "~/Views/InvoiceProcess/DataQuery/PrepareQueryResultTemplate.cshtml";
+    ModelSource<InvoiceItem> models;
+    QueryViewModel _viewModel;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
+}
+
+@section DataColumns
+{
+    @{ 
+        var _profile = Context.GetUser();
+
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/EncItemCheckBox.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/CompanyName.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/ReceiptNo.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/InvoiceNo.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/InvoiceDate.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/BuyerName.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/BuyerNo.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/MIGStatus.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/Currency.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/SalesAmount.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/TaxType.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/TaxAmount.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/TotalAmount.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/Remark.cshtml");
+        //await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/IssuingNotice.cshtml");
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/DataQuery/InvoiceItem/QuerySummary.cshtml");
+    }
+}

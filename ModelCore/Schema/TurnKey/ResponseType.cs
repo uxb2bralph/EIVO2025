@@ -8,60 +8,7 @@ using ModelCore.Schema.TXN;
 
 namespace ModelCore.Schema.TurnKey
 {
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "A1401" /*AnonymousType = true*/)]
-    public partial class RootResponseForA1401 : RootResponse
-    {
 
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Invoice", Order = 1)]
-        public ModelCore.Schema.TurnKey.A1401.Invoice[] Invoice;
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("DataNumber", Order = 2)]
-        public String[] DataNumber;
-    }
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "A0501" /*AnonymousType = true*/)]
-    public partial class RootResponseForA0501 : RootResponse
-    {
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CancelInvoice", Order = 1)]
-        public ModelCore.Schema.TurnKey.A0501.CancelInvoice[] CancelInvoice;
-    }
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
-    [XmlInclude(typeof(ModelCore.Schema.TurnKey.RootResponseForA1401))]
-    public partial class RootA1401 : Root
-    {
-
-    }
-
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
-    [XmlInclude(typeof(ModelCore.Schema.TurnKey.RootResponseForA0501))]
-    public partial class RootA0501 : Root
-    {
-
-    }
 
 
     //[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
@@ -77,19 +24,6 @@ namespace ModelCore.Schema.TurnKey
     //    public ModelCore.Schema.TurnKey.B1401.Allowance[] Allowance;
     //}
 
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(TypeName = "B0501" /*AnonymousType = true*/)]
-    public partial class RootResponseForB0501 : RootResponse
-    {
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CancelAllowance", Order = 1)]
-        public ModelCore.Schema.TurnKey.B0501.CancelAllowance[] CancelAllowance;
-    }
-
     //[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
     //[System.SerializableAttribute()]
     //[System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -102,18 +36,6 @@ namespace ModelCore.Schema.TurnKey
 
     //}
 
-
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
-    [XmlInclude(typeof(ModelCore.Schema.TurnKey.RootResponseForB0501))]
-    public partial class RootB0501 : Root
-    {
-
-    }
         
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
     [System.SerializableAttribute()]

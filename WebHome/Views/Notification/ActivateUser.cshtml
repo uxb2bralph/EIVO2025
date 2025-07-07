@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.Linq
 @using System.IO
@@ -35,7 +35,8 @@
 @if (!String.IsNullOrEmpty(mailTo))
 {
     String Subject = $"網際優勢電子發票加值中心 {(_viewModel.ResetPass == true ? "密碼變更通知" : "會員帳號啟用通知")}";
-    String body = Html.Partial("~/Views/Notification/Module/Activation.cshtml", _model).ToString();
+    var htmlContent = await Html.PartialAsync("~/Views/Notification/Module/Activation.cshtml", _model);
+    String body = htmlContent.RenderHtmlContentToString(HtmlEncoder);
     body.SendMailMessage(mailTo, Subject);
 }
 

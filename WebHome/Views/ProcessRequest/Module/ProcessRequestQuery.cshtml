@@ -66,7 +66,7 @@
             if (confirm('確定刪除此項目?')) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@($"/{WebHome.Properties.Settings.Default.TaskCenter}/InvoiceData/DeleteProcessRequest")', { 'keyID': keyID }, function (data) {
+                $.post('@($"{WebHome.Properties.Settings.Default.TaskCenter}/InvoiceData/DeleteProcessRequest")', { 'keyID': keyID }, function (data) {
                     if (data.result) {
                         alert('資料已刪除!!')
                         $tr.remove();

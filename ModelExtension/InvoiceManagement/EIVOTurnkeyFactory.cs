@@ -25,103 +25,103 @@ namespace ModelCore.InvoiceManagement
 {
     public static partial class EIVOTurnkeyFactory
     {
-        private static QueuedProcessHandler __Handler;
+        private static QueuedProcessHandler? __Handler;
         private static List<Task> __Tasks = new List<Task>();
 
-        public static Func<XmlDocument, bool> Sign
+        public static Func<XmlDocument, bool>? Sign
         {
             get;
             set;
         }
 
-        public static String DefaultUserCarrierType
+        public static String? DefaultUserCarrierType
         {
             get;
             set;
         } = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType;
 
-        public static Func<String, SignedCms> SignCms
+        public static Func<String, SignedCms>? SignCms
         {
             get;
             set;
         }
 
-        public static EventHandler SendNotification
-        {
-            get;
-            set;
-        }
-
-
-        public static Action<NotifyToProcessID> NotifyIssuedInvoice
-        {
-            get;
-            set;
-        }
-
-        public static Action<NotifyToProcessID> NotifyWinningInvoice
-        {
-            get;
-            set;
-        }
-
-        public static Action<OrganizationViewModel> NotifyLowerInvoiceNoStock
-        {
-            get;
-            set;
-        }
-
-        public static Action<OrganizationViewModel> NotifyInvoiceNotUpload
-        {
-            get;
-            set;
-        }
-
-        public static Action<int> NotifyIssuedAllowance
+        public static EventHandler? SendNotification
         {
             get;
             set;
         }
 
 
-        public static Action<NotifyToProcessID> NotifyIssuedInvoiceCancellation
+        public static Action<NotifyToProcessID>? NotifyIssuedInvoice
         {
             get;
             set;
         }
 
-        public static Action<int> NotifyIssuedAllowanceCancellation
+        public static Action<NotifyToProcessID>? NotifyWinningInvoice
+        {
+            get;
+            set;
+        }
+
+        public static Action<OrganizationViewModel>? NotifyLowerInvoiceNoStock
+        {
+            get;
+            set;
+        }
+
+        public static Action<OrganizationViewModel>? NotifyInvoiceNotUpload
+        {
+            get;
+            set;
+        }
+
+        public static Action<int>? NotifyIssuedAllowance
         {
             get;
             set;
         }
 
 
-        public static Action<NotifyToProcessID> NotifyIssuedA0401
+        public static Action<NotifyToProcessID>? NotifyIssuedInvoiceCancellation
         {
             get;
             set;
         }
 
-        public static Action<int> NotifyToReceiveA0401
+        public static Action<int>? NotifyIssuedAllowanceCancellation
         {
             get;
             set;
         }
 
-        public static EventHandler<EventArgs<NotifyToProcessID>> NotifyCommissionedToReceive
+
+        public static Action<NotifyToProcessID>? NotifyIssuedA0401
         {
             get;
             set;
         }
 
-        public static Action<NotifyToProcessID> NotifyCommissionedToReceiveA0401
+        public static Action<int>? NotifyToReceiveA0401
         {
             get;
             set;
         }
 
-        public static EventHandler<EventArgs<NotifyToProcessID>> NotifyCommissionedToReceiveInvoiceCancellation
+        public static EventHandler<EventArgs<NotifyToProcessID>>? NotifyCommissionedToReceive
+        {
+            get;
+            set;
+        }
+
+        public static Action<NotifyToProcessID>? NotifyCommissionedToReceiveA0401
+        {
+            get;
+            set;
+        }
+
+        public static EventHandler<EventArgs<NotifyToProcessID>>? NotifyCommissionedToReceiveInvoiceCancellation
         {
             get;
             set;
@@ -133,32 +133,31 @@ namespace ModelCore.InvoiceManagement
             {
                 if (__Handler == null && ModelExtension.Properties.AppSettings.Default.EnableEIVOPlatform)
                 {
-                    //System.Diagnostics.Debugger.Launch();
-
                     __Handler = new QueuedProcessHandler(FileLogger.Logger)
                     {
                         MaxWaitingCount = 8,
                         Process = () =>
                         {
-                            F0401Handler.WriteToTurnkeyInBatches();
-                            A0101Handler.ReceiveFiles();
 
-                            //__Tasks.Add(Task.Run(() =>
-                            //{
-                            //    using (InvoiceManager models = new InvoiceManager())
-                            //    {
-                            //        C0401Handler c0401 = new C0401Handler(models);
-                            //        c0401.NotifyIssued();
-                            //    }
-                            //}));
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                Parallel.For(0, ModelExtension.Properties.AppSettings.Default.CommonParallelProcessCount, idx =>
+                                {
+                                    using (InvoiceManager models = new InvoiceManager())
+                                    {
+                                        InvoiceHandler c0401 = new InvoiceHandler(models);
+                                        c0401.WriteF0401ToTurnkey();
+                                    }
+                                });
+                            }));
 
                             __Tasks.Add(Task.Run(() =>
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    F0501Handler c0501 = new F0501Handler(models);
+                                    InvoiceHandler c0501 = new InvoiceHandler(models);
                                     //c0501.NotifyIssued();
-                                    c0501.WriteToTurnkey();
+                                    c0501.WriteF0501ToTurnkey();
                                 }
                             }));
 
@@ -166,42 +165,19 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    G0401Handler d0401 = new G0401Handler(models);
+                                    InvoiceHandler d0401 = new InvoiceHandler(models);
                                     //d0401.NotifyIssued();
-                                    d0401.WriteToTurnkey();
+                                    d0401.WriteG0401ToTurnkey();
                                 }
                             }));
+
                             __Tasks.Add(Task.Run(() =>
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    G0501Handler d0501 = new G0501Handler(models);
+                                    InvoiceHandler d0501 = new InvoiceHandler(models);
                                     //d0501.NotifyIssued();
-                                    d0501.WriteToTurnkey();
-                                }
-
-                            }));
-                            __Tasks.Add(Task.Run(() =>
-                            {
-                                using (InvoiceManager models = new InvoiceManager())
-                                {
-                                    A0401Handler a0401 = new A0401Handler(models);
-                                    //a0401.ProcessToIssue();
-                                    //a0401.NotifyToReceive();
-                                    //a0401.NotifyIssued();
-                                    a0401.WriteToTurnkey();
-                                    //a0401.MatchDocumentAttachment();
-                                }
-
-                            }));
-                            __Tasks.Add(Task.Run(() =>
-                            {
-                                using (InvoiceManager models = new InvoiceManager())
-                                {
-                                    A0201Handler a0501 = new A0201Handler(models);
-                                    //a0501.ProcessToIssue();
-                                    //a0501.NotifyIssued();
-                                    a0501.WriteToTurnkey();
+                                    d0501.WriteG0501ToTurnkey();
                                 }
 
                             }));
@@ -210,8 +186,8 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    A0101Handler a0101 = new A0101Handler(models);
-                                    a0101.WriteToTurnkey();
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteA0101ToTurnkey();
                                 }
 
                             }));
@@ -220,9 +196,62 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    B0101Handler b0401 = new B0101Handler(models);
-                                    //b0401.NotifyIssued();
-                                    b0401.WriteToTurnkey();
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteA0102ToTurnkey();
+                                }
+                            }));
+
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                using (InvoiceManager models = new InvoiceManager())
+                                {
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteA0301ToTurnkey();
+                                }
+                            }));
+
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                using (InvoiceManager models = new InvoiceManager())
+                                {
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteA0302ToTurnkey();
+                                }
+                            }));
+
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                using (InvoiceManager models = new InvoiceManager())
+                                {
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteA0201ToTurnkey();
+                                }
+                            }));
+
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                using (InvoiceManager models = new InvoiceManager())
+                                {
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteA0202ToTurnkey();
+                                }
+                            }));
+
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                using (InvoiceManager models = new InvoiceManager())
+                                {
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.CompleteReceivedA0302();
+                                }
+                            }));
+
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                using (InvoiceManager models = new InvoiceManager())
+                                {
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteB0101ToTurnkey();
                                 }
 
                             }));
@@ -231,12 +260,31 @@ namespace ModelCore.InvoiceManagement
                             {
                                 using (InvoiceManager models = new InvoiceManager())
                                 {
-                                    B0201Handler b0501 = new B0201Handler(models);
-                                    //b0501.NotifyIssued();
-                                    b0501.WriteToTurnkey();
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteB0102ToTurnkey();
+                                }
+                            }));
+
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                using (InvoiceManager models = new InvoiceManager())
+                                {
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteB0201ToTurnkey();
                                 }
 
                             }));
+
+                            __Tasks.Add(Task.Run(() =>
+                            {
+                                using (InvoiceManager models = new InvoiceManager())
+                                {
+                                    InvoiceHandler handler = new InvoiceHandler(models);
+                                    handler.WriteB0202ToTurnkey();
+                                }
+
+                            }));
+
 
 
                             var t = Task.Factory.ContinueWhenAll(__Tasks.ToArray(), ts =>
@@ -245,62 +293,15 @@ namespace ModelCore.InvoiceManagement
                                 __Tasks.Clear();
                             });
                             t.Wait();
-
-                            //__Tasks[5] = Task.Run(() =>
-                            //{
-                            //    using (InvoiceManager models = new InvoiceManager())
-                            //    {
-
-                            //    }
-
-                            //});
-                            //__Tasks[6] = Task.Run(() =>
-                            //{
-                            //    using (InvoiceManager models = new InvoiceManager())
-                            //    {
-
-                            //    }
-
-                            //});
-                            //using (InvoiceManager models = new InvoiceManager())
-                            //{
-                            //    C0401Handler c0401 = new C0401Handler(models);
-                            //    c0401.NotifyIssued();
-                            //    c0401.WriteToTurnkey();
-
-
-                            //    C0501Handler c0501 = new C0501Handler(models);
-                            //    c0501.NotifyIssued();
-                            //    c0501.WriteToTurnkey();
-
-                            //    D0401Handler d0401 = new D0401Handler(models);
-                            //    d0401.NotifyIssued();
-                            //    d0401.WriteToTurnkey();
-
-                            //    D0501Handler d0501 = new D0501Handler(models);
-                            //    d0501.NotifyIssued();
-                            //    d0501.WriteToTurnkey();
-
-                            //    A0401Handler a0401 = new A0401Handler(models);
-                            //    a0401.ProcessToIssue();
-                            //    a0401.NotifyToReceive();
-                            //    a0401.NotifyIssued();
-                            //    a0401.WriteToTurnkey();
-                            //    a0401.MatchDocumentAttachment();
-
-                            //    A0501Handler a0501 = new A0501Handler(models);
-                            //    a0501.ProcessToIssue();
-                            //    a0501.NotifyIssued();
-                            //    a0501.WriteToTurnkey();
-                            //}
+                            
                         },
-                        MilliSecondsWait = 10000,
+                        MilliSecondsWait = ModelExtension.Properties.AppSettings.Default.TaskDelayInMilliseconds,
                     };
                 }
             }
         }
 
-        public static EventHandler<EventArgs<InvoiceItem>> NotifyReceivedInvoice
+        public static EventHandler<EventArgs<InvoiceItem>>? NotifyReceivedInvoice
         {
             get;
             set;
@@ -308,13 +309,13 @@ namespace ModelCore.InvoiceManagement
 
         public static int ResetBusyCount()
         {
-            return __Handler.ResetBusyCount();
+            return __Handler?.ResetBusyCount() ?? -1;
         }
 
         public static void Notify()
         {
             if (ModelExtension.Properties.AppSettings.Default.EnableEIVOPlatform)
-                __Handler.Notify();
+                __Handler?.Notify();
         }
 
         public static dynamic CurrentStatus =>
@@ -325,32 +326,5 @@ namespace ModelCore.InvoiceManagement
                 MaxWaitingCount = __Handler?.MaxWaitingCount ?? -1,
                 ReportDate = DateTime.Now,
             };
-
-        //private static void notifyToProcess(object stateInfo)
-        //{
-        //    try
-        //    {
-        //        processEventQueue();
-        //        Logger.Info("傳送至IFS資料處理完成!!");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Logger.Error(ex);
-        //    }
-        //}
-
-        //private static void processEventQueue()
-        //{
-        //    EIVOPlatformManager mgr = new EIVOPlatformManager();
-
-        //    //傳送待傳送資料
-        //    mgr.TransmitInvoice();
-        //    //自動接收
-        //    mgr.CommissionedToReceive();
-        //    //自動開立
-        //    mgr.CommissionedToIssue();
-        //    mgr.MatchDocumentAttachment();
-        //    mgr.NotifyToProcess();
-        //}
     }
 }

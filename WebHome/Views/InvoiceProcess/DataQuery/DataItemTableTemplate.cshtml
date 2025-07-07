@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -55,11 +55,11 @@
     $(function () {
         $("#@(_listID)").find("input[name='chkAll']")
             .click(function () {
-                $("#@(_listID)").find("input[name='chkItem']")
+                $("#@(_listID)").find("input[name='chkItem'],input[name='KeyItems']")
                     .prop('checked', $(this).is(':checked'));
             });
 
-        $("#@(_listID)").find("input[name='chkItem']")
+        $("#@(_listID)").find("input[name='chkItem'],input[name='KeyItems']")
             .click(function (e) {
                 if (!$(this).is(':checked')) {
                     $("#@(_listID)").find("input[name='chkAll']").prop('checked', false);
@@ -71,7 +71,7 @@
             .empty()
             .append(data);
 
-        $("#@(_listID)").find("input[name='chkItem']")
+        $("#@(_listID)").find("input[name='chkItem'],input[name='KeyItems']")
             .click(function (e) {
                 if (!$(this).is(':checked')) {
                     $("#@(_listID)").find("input[name='chkAll']").prop('checked', false);
