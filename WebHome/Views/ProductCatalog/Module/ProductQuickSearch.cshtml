@@ -1,9 +1,6 @@
 @using System.IO
 @using System.Linq.Expressions
-
-
 @using ModelCore.Helper
-
 @using WebHome.Helper
 @using WebHome.Models
 @using WebHome.Controllers
@@ -16,23 +13,19 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
-
 @using Newtonsoft.Json
 
 @{
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     UserProfile _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
-
     //ProcessRequestQueryViewModel _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
 }
 @{
     String _dialogID = ViewBag.DialogID ?? $"product{DateTime.Now.Ticks}";
 }
-
 <div class="border_gray" id="@(_dialogID)" style="display:none;">
     <div class="row">
         <div class="col-sm-12">
@@ -44,55 +37,70 @@
             </div>
         </div>
     </div>
-    <script>
-        debugger;
-        $(function () {
-            var $input = $('#@(_dialogID) [name="ProductName"]');
-                @*if ($input.autocomplete('instance')) {
-                    alert($input.autocomplete('instance'));
-                    return;
-                }*@
-            var products;
-            $input.autocomplete({
-                source: function (request, response) {
-                    showLoading();
-                    $.post('@Html.Raw(Url.Action("QuickSearch", "ProductCatalog"))', { 'productName': request.term }, function (data) {
-                        hideLoading();
-                        if ($.isArray(data)) {
-                            products = data;
-                            var items = Enumerable.From(products).Select(
-                                function (p) {
-                                    return { 'label': p.ProductName, 'value': p.ProductID };
-                                }).ToArray();
-                            response(items);
-                        } else {
-                            response([]);
+</div>
+<script>
+    var uiProductSearch = {
+        quickSearch: function (element, doneCallback) {
+            var $inputTrigger = $(element);
+            var $dialog = $('#@_dialogID');
+            var $searchInput = $dialog.find('[name="ProductName"]');
+
+            // 清除 autocomplete 綁定
+            $searchInput.val('');                        
+            $searchInput.removeData('products');        
+            if ($searchInput.data("ui-autocomplete")) { 
+                $searchInput.autocomplete("destroy");    
+            }
+
+            // 註冊 callback
+            $global.searchDone = function (item) {      
+                if (typeof doneCallback === 'function') {  
+                    doneCallback(item, $inputTrigger);
+                }
+            };
+
+            // 顯示搜尋對話框
+            $dialog.dialog({
+                width: 240,
+                modal: true,  //要先處理對話框，不能跳開
+                open: function () {
+                    $searchInput.autocomplete({
+                        source: function (request, response) {
+                            showLoading();
+                            $.post('@Html.Raw(Url.Action("QuickSearch", "ProductCatalog"))',
+                                { productName: request.term },
+                                function (data) {
+                                    hideLoading();
+                                    if ($.isArray(data)) {
+                                        $searchInput.data('products', data);
+                                        var items = data.map(p => ({ label: p.ProductName, value: p.ProductID }));
+                                        response(items);
+                                    } else {
+                                        response([]);
+                                    }
+                                });
+                        },
+                        select: function (event, ui) {
+                            var products = $searchInput.data('products') || [];
+                            var product = products.find(p => p.ProductID === ui.item.value);
+                            if ($global.searchDone && product) {
+                                $global.searchDone(product);
+                            }
+                            event.preventDefault();
+                            $dialog.dialog('close');
+                        },
+                        open: function () {
+                            $('.ui-autocomplete').css('z-index', 9999);
                         }
                     });
-                },
-                select: function (event, ui) {
-                    var product = Enumerable.From(products).Where(
-                        function (p) {
-                            return p.ProductID == ui.item.value;
-                        }).FirstOrDefault();
-                    if ($global.searchDone && product) {
-                        $global.searchDone(product);
-                    }
-                    event.preventDefault();
-                    $('#@(_dialogID)').dialog('close');
-                },
-                close: function (event, ui) {
-                    if ($input.val() == '') {
-                    }
-                },
-                open: function (event, ui) {
-                    $('.ui-autocomplete').css('z-index', 9999);
-                },
-            });
 
-            $('#@(_dialogID) .input-group-addon').on('click', function (event) {
-                $input.autocomplete('search', '*');
+                    // ✅ 打開時自動觸發空查詢 ➜ 顯示所有品名
+                    $searchInput.autocomplete("search", "");
+                },
+                close: function () {
+                    $inputTrigger.focus();
+                }
             });
-        });
-    </script>
-</div>
+        }
+    };
+</script>

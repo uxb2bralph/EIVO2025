@@ -198,10 +198,9 @@ namespace WebHome.Controllers.Merchandise
         {
             ViewResult result = (ViewResult)InquireProduct(viewModel);
             IQueryable<ProductCatalog> items = (IQueryable<ProductCatalog>)result.Model;
-
             return Content(JsonConvert.SerializeObject(items.ToArray()), "application/json");
-
         }
+
 
 
     }

@@ -11,11 +11,9 @@
 
 @{
     Layout = "~/Views/Template/MvcMainPage.cshtml";
-
     ModelSource<InvoiceItem> models;
     ModelStateDictionary _modelState;
     InvoiceViewModel _viewModel;
-
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     _viewModel = (InvoiceViewModel)ViewBag.ViewModel;

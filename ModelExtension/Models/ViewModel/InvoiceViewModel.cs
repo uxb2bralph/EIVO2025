@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using ModelCore.Locale;
 using CommonLib.Utility;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace ModelCore.Models.ViewModel
 {
@@ -19,46 +20,48 @@ namespace ModelCore.Models.ViewModel
             TaxRate = 0.05m;
             DonateMark = "0";
         }
-        public int? SellerID { get; set; }
-        public String SellerName { get; set; }
-        public String SellerReceiptNo { get; set; }
-        public String? BuyerReceiptNo { get; set; }  //11405
-        public String No { get; set; }
+        public int SellerID { get; set; }
+        public String? SellerName { get; set; }
+        public String? SellerReceiptNo { get; set; }
+        public String? BuyerReceiptNo { get; set; }
+        public String? No { get; set; }
         public DateTime? InvoiceDate { get; set; }
-        public String Remark { get; set; }
-        public String BuyerRemark { get; set; }
+        public String? Remark { get; set; }
+        public String? BuyerRemark { get; set; }
         public byte? CustomsClearanceMark { get; set; }
         public byte? InvoiceType { get; set; }
         public byte? TaxType { get; set; }
         public decimal? TaxRate { get; set; }
         public String? RandomNo { get; set; }
-        public string DonateMark { get; set; }
-        public string CarrierType { get; set; }
-        public string CarrierId1 { get; set; }
-        public string CarrierId2 { get; set; }
-        public string NPOBAN { get; set; }
+        public string? DonateMark { get; set; }
+        public string? CarrierType { get; set; }
+        public string? CarrierId1 { get; set; }
+        public string? CarrierId2 { get; set; }
+        public string? NPOBAN { get; set; }
         public string? CustomerID { get; set; }
         public string? BuyerName { get; set; }
-        public String TrackCode { get; set; }
-        public String DataNumber { get; set; }
+        public String? TrackCode { get; set; }
+        public String? DataNumber { get; set; }
         public decimal? TotalAmount { get; set; }
         public decimal? SalesAmount { get; set; }
         public decimal? TaxAmount { get; set; }
         public decimal? DiscountAmount { get; set; }
-        public String[] Brief { get; set; }
-        public String[] ItemNo { get; set; }
-        public String[] ItemRemark { get; set; }
-        public decimal?[] UnitCost { get; set; }
-        public decimal?[] CostAmount { get; set; }
+        public String?[] Brief { get; set; }
+        public String?[] ItemNo { get; set; }
         public int?[] Piece { get; set; }
+        public decimal?[] UnitCost { get; set; }
+
+        public decimal?[] CostAmount { get; set; }
+        public String?[] ItemRemark { get; set; }        
+                
         public bool? Counterpart { get; set; }
         public string? Phone { get; set; }
         public string? Address { get; set; }
         public string? EMail { get; set; }
         public byte? BuyerMark { get; set; }
-        public string CheckNo { get; set; }
-        public string RelateNumber { get; set; }
-        public string Category { get; set; }
+        public string? CheckNo { get; set; }
+        public string? RelateNumber { get; set; }
+        public string? Category { get; set; }
         public Naming.InvoiceProcessType? InvoiceProcessType { get; set; }
         public bool? ForPreview { get; set; }
         public bool? B2BRelation { get; set; }
