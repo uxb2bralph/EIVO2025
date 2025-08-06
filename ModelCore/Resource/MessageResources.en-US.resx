@@ -352,4 +352,28 @@ CarrierID2: {2}limit. </value>
   <data name="InvalidZeroTaxAmount" xml:space="preserve">
     <value>[E0074]:Zero Tax Sales Amount (NTD) should be positive and integer, Incorrect Zero Tax Sales Amount: {0}, Incorrect TAG:&lt; ZeroTaxSalesAmount /&gt;</value>
   </data>
+  <data name="AlertZeroTaxRateReason" xml:space="preserve">
+    <value>[E0076]:Zero Tax Rate Reason should be filled for the Zero Tax e-GUI, Incorrect Zero Tax Rate Reason: {0}, Incorrect TAG:&lt;ZeroTaxRateReason /&gt;</value>
+  </data>
+  <data name="AlertBondedAreaConfirm" xml:space="preserve">
+    <value>[E0076]:Buyer’s declaration for zero tax rate (BondedAreaConfirm) should be provided for the Zero Tax e-GUI. Incorrect BondedAreaConfirm: {0}, Incorrect TAG:&lt;BondedAreaConfirm /&gt;</value>
+  </data>
+  <data name="InvalidSpecialTaxRate" xml:space="preserve">
+    <value>[E0076]: Special Tax Rate error. Acceptable values are: 0m, 0.01m, 0.02m, 0.05m, 0.15m, 0.25m. Incorrect Tax Rate: {0}, Incorrect TAG: &lt;TaxRate /&gt;</value>
+  </data>
+  <data name="AlertZeroTaxRateReasonNotAllowed" xml:space="preserve">
+    <value>[E0077]:Zero Tax Rate Reason should not be provided for non-zero tax e-GUI. Invalid Zero Tax Rate Reason: {0}, Incorrect TAG:&lt;ZeroTaxRateReason /&gt;</value>
+  </data>
+  <data name="AlertBondedAreaConfirmNotAllowed" xml:space="preserve">
+    <value>[E0078]:Zero Tax Rate Reason should not provide BondedAreaConfirm for non-zero tax invoices.: {0}, Incorrect TAG:&lt;BondedAreaConfirm /&gt;</value>
+  </data>
+  <data name="InvalidSalesAmount" xml:space="preserve">
+    <value>[E0079]: Invalid Sales Amount. Acceptable format: up to 13 digits integer and 7 digits decimal: {0}, Incorrect TAG:&lt;SalesAmount /&gt;</value>
+  </data>
+  <data name="InvalidTaxAmountSpec" xml:space="preserve">
+    <value>[E0080]:Invalid format for TaxAmount. Value must be an integer with up to 20 digits. Provided: {0}, Tag: &lt;TaxAmount/&gt;</value>
+  </data>
+  <data name="InvalidTotalAmount1" xml:space="preserve">
+    <value>[E0081]:Invalid Total Amount. Acceptable format: up to 13 digits integer and 7 digits decimal: {0}, Incorrect TAG:&lt;TotalAmount /&gt;</value>
+  </data>
 </root>

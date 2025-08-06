@@ -16,7 +16,7 @@ namespace ModelCore.Models.ViewModel
             InvoiceDate = DateTime.Now;
             TaxAmount = 1;
             No = "00000000";
-            RandomNo = String.Format("{0:0000}",(DateTime.Now.Ticks % 10000));
+            RandomNo = String.Format("{0:0000}",(DateTime.Now.Ticks % 10000)); 
             TaxRate = 0.05m;
             DonateMark = "0";
         }
@@ -29,6 +29,10 @@ namespace ModelCore.Models.ViewModel
         public String? Remark { get; set; }
         public String? BuyerRemark { get; set; }
         public byte? CustomsClearanceMark { get; set; }
+
+        public byte? ZeroTaxRateReason { get; set; } //1140730
+
+        public byte? BondedAreaConfirm { get; set; } //1140730
         public byte? InvoiceType { get; set; }
         public byte? TaxType { get; set; }
         public decimal? TaxRate { get; set; }
