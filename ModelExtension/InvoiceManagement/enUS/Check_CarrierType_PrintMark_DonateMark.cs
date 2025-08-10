@@ -95,7 +95,7 @@ namespace ModelCore.InvoiceManagement.enUS
                         //自動配發
                         carrier = new InvoiceCarrier
                         {
-                            CarrierType = String.IsNullOrEmpty(invItem.CarrierType) ? EIVOTurnkeyFactory.DefaultUserCarrierType : invItem.CarrierType,
+                            CarrierType = String.IsNullOrEmpty(invItem.CarrierType) ? ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType : invItem.CarrierType,
                             CarrierNo = String.IsNullOrEmpty(invItem.CarrierId1) ? System.Guid.NewGuid().ToString() : invItem.CarrierId1
                         };
 

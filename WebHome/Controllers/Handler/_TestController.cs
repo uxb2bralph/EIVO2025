@@ -73,6 +73,11 @@ namespace WebHome.Controllers.Handler
         {
             AppSettings.Reload();
             ModelCore.Properties.AppSettings.Reload();
+            ModelExtension.Properties.AppSettings.Reload();
+            CommonLib.Core.Properties.AppSettings.Reload();
+            CommonLib.Logger.Properties.AppSettings.Reload();
+            ExternalPdfWrapper.AppSettings.Reload();
+
             return Content(AppSettings.AllSettings.JsonStringify(), "application/json");
         }
 
@@ -80,6 +85,11 @@ namespace WebHome.Controllers.Handler
         {
             //AppSettings.SaveAll();
             AppSettings.Default.Save();
+            ModelCore.Properties.AppSettings.Default.Save();
+            ModelExtension.Properties.AppSettings.Default.Save();
+            CommonLib.Core.Properties.AppSettings.Default.Save();
+            CommonLib.Logger.Properties.AppSettings.Default.Save();
+            ExternalPdfWrapper.AppSettings.Default.Save();
             return Content(AppSettings.AllSettings?.ToString(), "application/json");
         }
 

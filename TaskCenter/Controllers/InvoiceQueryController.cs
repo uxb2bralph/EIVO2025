@@ -24,7 +24,7 @@ namespace TaskCenter.Controllers
         {
         }
 
-        public ActionResult Inquire(InvoiceDataQueryViewModel viewModel)
+        public ActionResult Inquire([FromBody] InvoiceDataQueryViewModel viewModel)
         {
             Organization item = viewModel.CheckRequest(this);
 
@@ -62,7 +62,7 @@ namespace TaskCenter.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult JsonInvoiceNoAllocation(InvoiceDataQueryViewModel viewModel, Organization agent)
+        public ActionResult JsonInvoiceNoAllocation([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
         {
             IQueryable<InvoiceTrackCodeAssignment> assignments = models!.GetTable<InvoiceTrackCodeAssignment>();
             IQueryable<InvoiceNoInterval> items = models.GetTable<InvoiceNoInterval>();
@@ -101,7 +101,7 @@ namespace TaskCenter.Controllers
         }
 
 
-        public ActionResult JsonInvoice(InvoiceDataQueryViewModel viewModel, Organization agent)
+        public ActionResult JsonInvoice([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
         {
             IQueryable<InvoiceItem> items = models!.GetInvoiceByAgent(models!.GetTable<InvoiceItem>(), agent.CompanyID);
 
@@ -125,7 +125,7 @@ namespace TaskCenter.Controllers
             }
         }
 
-        public ActionResult JsonVoidInvoice(InvoiceDataQueryViewModel viewModel, Organization agent)
+        public ActionResult JsonVoidInvoice([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
         {
             IQueryable<InvoiceItem> items = models!.GetInvoiceByAgent(models!.GetTable<InvoiceItem>(), agent.CompanyID);
 
@@ -149,7 +149,7 @@ namespace TaskCenter.Controllers
             }
         }
 
-        public ActionResult JsonAllowance(InvoiceDataQueryViewModel viewModel, Organization agent)
+        public ActionResult JsonAllowance([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
         {
             IQueryable<InvoiceAllowance> items = models!.GetAllowanceByAgent(agent.CompanyID);
             bool effective = false;
@@ -171,7 +171,7 @@ namespace TaskCenter.Controllers
             }
         }
 
-        public ActionResult JsonVoidAllowance(InvoiceDataQueryViewModel viewModel, Organization agent)
+        public ActionResult JsonVoidAllowance([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
         {
             IQueryable<InvoiceAllowance> items = models!.GetAllowanceByAgent(agent.CompanyID);
 

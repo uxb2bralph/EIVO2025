@@ -37,6 +37,15 @@ namespace EIVOConsole
                     case "001":
                         ProcessVacantInvoiceNo(args.Length > 2 ? args[1] : null, args.Length > 2 ? args[2] : null, args.Length > 3 ? args[3] : null);
                         break;
+                    case "settings":
+                        CommonLib.Core.Properties.AppSettings.Default.Save();
+                        CommonLib.Logger.Properties.AppSettings.Default.Save();
+                        ModelCore.Properties.AppSettings.Default.Save();
+                        ModelExtension.Properties.AppSettings.Default.Save();
+                        JobHelper.Properties.AppSettings.Default.Save();
+                        InvoiceClient.Properties.AppSettings.Default.Save();
+                        Console.WriteLine(InvoiceClient.Properties.AppSettings.AllSettings.JsonStringify());
+                        break; // Placeholder for future functionality
                     default:
                         Console.WriteLine(@"
 Use command:
@@ -51,6 +60,7 @@ Use command:
                 {
                     //Console.WriteLine("Hello, World!");
                     EIVOTurnkeyFactory.Notify();
+                    EIVONotificationFactory.Notify();
                     JobHelper.Tasks.CheckTurnkeyLog.Notify();
                     TurnkeyProcessTransferManager manager = new TurnkeyProcessTransferManager();
                 }));

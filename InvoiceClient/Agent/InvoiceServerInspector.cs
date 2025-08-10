@@ -64,7 +64,7 @@ namespace InvoiceClient.Agent
         }
 
 
-        public override Type UIConfigType
+        public override Type? UIConfigType
         {
             get { return typeof(InvoiceClient.MainContent.InvoiceServerConfig); }
         }

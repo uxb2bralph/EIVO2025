@@ -39,14 +39,8 @@
                 }
                 else
                 {
-                    if (_viewModel.ProcessType == Naming.InvoiceProcessType.B0401)
-                    {
-                        <button type="button" class="btn mr-2" name="paperStyle" value="A4" onclick="uiAllowanceQuery.print('A4');">A4格式列印</button>
-                    }
-                    else if (_viewModel.ProcessType == Naming.InvoiceProcessType.D0401)
-                    {
-                        <button type="button" class="btn mr-2" name="paperStyle" value="POS" onclick="uiAllowanceQuery.print('POS');">熱感紙規格列印</button>
-                    }
+                    <button type="button" class="btn mr-2" name="paperStyle" value="B2B" onclick="uiAllowanceQuery.print('B2B');">營業人交易類型</button>
+                    <button type="button" class="btn mr-2" name="paperStyle" value="POS" onclick="uiAllowanceQuery.print('POS');">證明聯類型</button>
                     <input type="button" class="btn mr-2" name="btnPrint" value="Excel下載" onclick="uiAllowanceQuery.download2021();" />
                     if (_profile.IsSystemAdmin() || _profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo == "43460094")
                     {

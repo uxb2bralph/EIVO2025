@@ -36,7 +36,7 @@
 {
     await Html.RenderPartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedA0401.cshtml", _model);
 }
-else if (_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Issuing))
+else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Issuing))
 {
 
     String pdfFile = models.PrepareToDownload(_model, false);

@@ -190,6 +190,7 @@ namespace WebHome.Controllers
                     連絡人名稱 = i.InvoiceAllowanceBuyer.ContactName,
                     連絡人地址 = i.InvoiceAllowanceBuyer.Address,
                     買受人EMail = i.InvoiceAllowanceBuyer.EMail,
+                    狀態 = i.InvoiceAllowanceCancellation !=null ? $"已作廢({i.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})" : "",
                     備註 = g.Key.Remark
                 });
 
@@ -211,6 +212,7 @@ namespace WebHome.Controllers
                 table.Columns.Add("連絡人名稱");
                 table.Columns.Add("連絡人地址");
                 table.Columns.Add("買受人EMail");
+                table.Columns.Add("狀態");
                 table.Columns.Add("備註");
 
                 DataSource.GetDataSetResult(items, table);
@@ -254,6 +256,7 @@ namespace WebHome.Controllers
                     連絡人名稱 = i.InvoiceAllowanceBuyer.ContactName,
                     連絡人地址 = i.InvoiceAllowanceBuyer.Address,
                     買受人EMail = i.InvoiceAllowanceBuyer.EMail,
+                    狀態 = i.InvoiceAllowanceCancellation != null ? $"已作廢({i.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})" : "",
                     備註 = g.Key.Remark
                 });
 
@@ -306,6 +309,7 @@ namespace WebHome.Controllers
                         table.Columns.Add("連絡人名稱");
                         table.Columns.Add("連絡人地址");
                         table.Columns.Add("買受人EMail");
+                        table.Columns.Add("狀態");
                         table.Columns.Add("備註");
 
                         using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
@@ -374,7 +378,7 @@ namespace WebHome.Controllers
                 if (mgr.EventItems_Allowance != null && mgr.EventItems_Allowance.Count > 0)
                 {
                     ViewBag.Message = "下列折讓已作廢完成!!\r\n" + String.Join("\r\n", mgr.EventItems_Allowance.Select(i => i.AllowanceNumber));
-                    //EIVOTurnkeyFactory.Notify();
+                    //EIVONotificationFactory.Notify();
                 }
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }

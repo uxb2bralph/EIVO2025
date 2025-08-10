@@ -514,7 +514,7 @@ namespace ModelCore.Helper
                 {
                     HeadBan = item.Organization.ReceiptNo,
                     BranchBan = item.Organization.ReceiptNo,
-                    InvoiceType = (Schema.TurnKey.E0402.InvoiceTypeEnum)(item.Organization.InvoiceItems.Where(i => i.InvoiceDate >= Convert.ToDateTime(String.Format("{0}/{1}/1", item.InvoiceTrackCode.Year, item.InvoiceTrackCode.PeriodNo * 2 - 1))).FirstOrDefault().InvoiceType),
+                    InvoiceType = (Schema.TurnKey.E0402.InvoiceTypeEnum)(item.Organization.InvoiceItems.Where(i => i.InvoiceDate >= Convert.ToDateTime(String.Format("{0}/{1}/1", item.InvoiceTrackCode.Year, item.InvoiceTrackCode.PeriodNo * 2 - 1))).First().InvoiceType!),
                     YearMonth = String.Format("{0:000}{1:00}", item.InvoiceTrackCode.Year - 1911, item.InvoiceTrackCode.PeriodNo * 2),
                     InvoiceTrack = item.InvoiceTrackCode.TrackCode
                 },
@@ -961,11 +961,18 @@ namespace ModelCore.Helper
                 result.Amount.CurrencySpecified = true;
                 result.Amount.Currency = (CurrencyCodeEnum)Enum.Parse(typeof(Schema.TurnKey.Invoice.CurrencyCodeEnum), item.InvoiceAmountType.CurrencyType.AbbrevName);
             }
-            if (item.InvoiceAmountType.TaxType == (byte)Naming.TaxTypeDefinition.零稅率
-                && item.Organization.OrganizationCustomSetting?.Settings?.ZeroTaxRateReason.HasValue == true)
+            if (item.InvoiceAmountType.TaxType == (byte)Naming.TaxTypeDefinition.零稅率)
             {
-                result.Main.ZeroTaxRateReason = item.Organization.OrganizationCustomSetting.Settings.ZeroTaxRateReason.Value;
-                result.Main.ZeroTaxRateReasonSpecified = true;
+                if (Enum.TryParse(item.InvoiceAmountType.ZeroTaxRateReason, out ZeroTaxRateReasonEnum zeroTaxRateReason))
+                {
+                    result.Main.ZeroTaxRateReason = zeroTaxRateReason;
+                    result.Main.ZeroTaxRateReasonSpecified = true;
+                }
+                else if (item.Organization.OrganizationCustomSetting?.Settings?.ZeroTaxRateReason.HasValue == true)
+                {
+                    result.Main.ZeroTaxRateReason = item.Organization.OrganizationCustomSetting.Settings.ZeroTaxRateReason.Value;
+                    result.Main.ZeroTaxRateReasonSpecified = true;
+                }
             }
 
             if (withExtension)
@@ -1185,9 +1192,9 @@ namespace ModelCore.Helper
             return docInv;
         }
 
-        public static ModelCore.Schema.TurnKey.F0701.VoidInvoice CreateF0701(this InvoiceItem item)
+        public static XmlDocument CreateF0701(this InvoiceItem item)
         {
-            return new ModelCore.Schema.TurnKey.F0701.VoidInvoice
+            var voidInvoice = new VoidInvoice
             {
                 VoidInvoiceNumber = item.TrackCode + item.No,
                 InvoiceDate = String.Format("{0:yyyyMMdd}", item.InvoiceDate),
@@ -1198,6 +1205,11 @@ namespace ModelCore.Helper
                 VoidReason = "註銷重開",
                 Remark = ""
             };
+
+            var docInv = voidInvoice.ConvertToXml();
+            docInv.DocumentElement!.SetAttribute("xmlns", ModelCore.Properties.AppSettings.Default.MIG.F0701);
+            docInv.LoadXml(docInv.OuterXml);
+            return docInv;
         }
 
         public static XmlDocument CreateG0401(this InvoiceAllowance item, GenericManager<EIVOEntityDataContext>? models = null, bool withExtension = false)

@@ -69,26 +69,22 @@ namespace WebHome.Controllers
             return View("~/Views/DataView/Module/Allowance.cshtml", item);
         }
 
-        public ActionResult ShowAllowance(DocumentQueryViewModel viewModel)
+        public ActionResult ShowAllowance(RenderStyleViewModel viewModel)
         {
             ViewResult result = (ViewResult)ShowAllowancePageView(viewModel);
 
-            InvoiceAllowance item = result.Model as InvoiceAllowance;
+            InvoiceAllowance? item = result.Model as InvoiceAllowance;
             if (item == null)
                 return result;
 
             String[] useThermalPOSArgs;
-            return View(getAllowanceViewPath(item, out useThermalPOSArgs), item);
+            return View(getAllowanceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item);
         }
 
-        protected String getInvoiceViewPath(InvoiceItem item, out String[] useThermalPOSArgs, String paperStyle = null, Naming.InvoiceProcessType? processType = null)
+        protected String getInvoiceViewPath(InvoiceItem item, out String[]? useThermalPOSArgs, String? paperStyle = null, Naming.InvoiceProcessType? processType = null)
         {
             useThermalPOSArgs = null;
-            if ((item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0401 
-                || processType == Naming.InvoiceProcessType.A0401
-                || item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101 
-                || processType == Naming.InvoiceProcessType.A0101)
-                    && !item.InvoiceBuyer.IsB2C())
+            if ((paperStyle == "B2B" || item.InvoiceBuyer.CustomerNumber?.Length > 4) && !item.InvoiceBuyer.IsB2C())
             {
                 return "~/Views/DataView/A0401.cshtml";
             }
@@ -103,10 +99,10 @@ namespace WebHome.Controllers
             }
         }
 
-        protected String getAllowanceViewPath(InvoiceAllowance item,out String[]? useThermalPOSArgs)
+        protected String getAllowanceViewPath(InvoiceAllowance? item,out String[]? useThermalPOSArgs, String? paperStyle = null)
         {
             useThermalPOSArgs = null;
-            if (item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0401)
+            if (paperStyle == "B2B")
             {
                 return "~/Views/DataView/B0401.cshtml";
             }
@@ -141,7 +137,7 @@ namespace WebHome.Controllers
                 }
                 else
                 {
-                    return File(pdfFile, "application/pdf",$"{DateTime.Today:yyyy-MM-dd}.pdf");
+                    return PhysicalFile(pdfFile, "application/pdf",$"{DateTime.Today:yyyy-MM-dd}.pdf");
                 }
             }
             return new EmptyResult { };
@@ -232,7 +228,7 @@ namespace WebHome.Controllers
                 else
                 {
                     String outputFile = await GetInvoicePDFAsync(item, viewModel);
-                    //return File(outputFile, "application/pdf", $"{item.TrackCode}{item.No}.pdf");
+                    //return PhysicalFile(outputFile, "application/pdf", $"{item.TrackCode}{item.No}.pdf");
                     if(System.IO.File.Exists(outputFile))
                     {
                         var buf = System.IO.File.ReadAllBytes(outputFile);
@@ -399,14 +395,14 @@ namespace WebHome.Controllers
                 if (html == true)
                 {
                     String[] useThermalPOSArgs;
-                    return View(getAllowanceViewPath(item, out useThermalPOSArgs), item);
+                    return View(getAllowanceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item);
                 }
                 else
                 {
                     //String outputFile = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogPath.GetDateStylePath(item.AllowanceDate.Value), $"{item.AllowanceNumber}.pdf");
                     //if (System.IO.File.Exists(outputFile))
                     //{
-                    //    return File(outputFile, "application/pdf");
+                    //    return PhysicalFile(outputFile, "application/pdf");
                     //}
                     //else
                     //{
@@ -415,11 +411,11 @@ namespace WebHome.Controllers
                     //    if (pdfFile != null)
                     //    {
                     //        System.IO.File.Move(pdfFile, outputFile);
-                    //        return File(outputFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
+                    //        return PhysicalFile(outputFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
                     //    }
                     //}
                     String[] useThermalPOSArgs;
-                    String pdfFile = await this.CreateContentAsPDFAsync(getAllowanceViewPath(item, out useThermalPOSArgs), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
+                    String pdfFile = await this.CreateContentAsPDFAsync(getAllowanceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
                     if (pdfFile != null)
                     {
                         Response.Clear();
@@ -519,17 +515,10 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult PrintA0401()
+        public ActionResult PrintA0401(RenderStyleViewModel viewModel)
         {
-            var profile = HttpContext.GetUser();
-
-            var items = models.GetTable<DocumentPrintQueue>()
-                .Where(i => i.UID == profile.UID)
-                .Join(models.GetTable<CDS_Document>()
-                        .Where(d => d.DocType == (int)Naming.DocumentTypeDefinition.E_Invoice), 
-                    i => i.DocID, d => d.DocID, (i, d) => i);
-
-            return View("~/Views/DataView/PrintA0401.cshtml", items);
+            viewModel.PaperStyle = viewModel.PaperStyle ?? "B2B";
+            return PrintInvoice(viewModel);
         }
 
         [Authorize]
@@ -546,15 +535,15 @@ namespace WebHome.Controllers
             return View("~/Views/DataView/PrintB0401.cshtml", items);
         }
 
-        public async Task<ActionResult> PrintA0401AsPDFAsync()
+        public async Task<ActionResult> PrintA0401AsPDFAsync(RenderStyleViewModel viewModel)
         {
-            ViewResult result = (ViewResult)PrintA0401();
+            ViewResult result = (ViewResult)PrintA0401(viewModel);
             IQueryable<DocumentPrintQueue> items = result.Model as IQueryable<DocumentPrintQueue>;
             String pdfFile = await this.CreateContentAsPDFAsync("~/Views/DataView/PrintA0401.cshtml", items, Properties.Settings.Default.SessionTimeoutInMinutes);
 
             if (pdfFile != null)
             {
-                return File(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
+                return PhysicalFile(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
             }
             else
             {
@@ -571,7 +560,7 @@ namespace WebHome.Controllers
 
             if (pdfFile != null)
             {
-                return File(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
+                return PhysicalFile(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
             }
             else
             {
@@ -581,23 +570,29 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult PrintC0401(RenderStyleViewModel viewModel)
+        public ActionResult PrintInvoice(RenderStyleViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
 
-            var items = models.GetTable<DocumentPrintQueue>()
+            var items = models!.GetTable<DocumentPrintQueue>()
                 .Where(i => i.UID == profile.UID)
                 .Join(models.GetTable<CDS_Document>()
-                    .Where(d => !d.ProcessType.HasValue
-                        || d.ProcessType == (int)Naming.InvoiceProcessType.C0401)
                     .Where(d => d.DocType == (int)Naming.DocumentTypeDefinition.E_Invoice),
                     i => i.DocID, d => d.DocID, (i, d) => i);
 
+            if(viewModel.PaperStyle == "B2B")
+                return View("~/Views/DataView/PrintA0401.cshtml", items);
             if (viewModel.PaperStyle == "A4")
                 return View("~/Views/DataView/PrintC0401A4.cshtml", items);
             else
                 return View("~/Views/DataView/PrintC0401POS.cshtml", items);
+        }
+
+        [Authorize]
+        public ActionResult PrintC0401(RenderStyleViewModel viewModel)
+        {
+            return PrintInvoice(viewModel);
         }
 
         [Authorize]
@@ -608,8 +603,6 @@ namespace WebHome.Controllers
             var items = models.GetTable<DocumentPrintQueue>()
                 .Where(i => i.UID == profile.UID)
                 .Join(models.GetTable<CDS_Document>()
-                        .Where(d => !d.ProcessType.HasValue
-                            || d.ProcessType == (int)Naming.InvoiceProcessType.D0401)
                         .Where(d => d.DocType == (int)Naming.DocumentTypeDefinition.E_Allowance),
                     i => i.DocID, d => d.DocID, (i, d) => i);
 
@@ -630,7 +623,7 @@ namespace WebHome.Controllers
 
             if (pdfFile != null)
             {
-                return File(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
+                return PhysicalFile(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
             }
             else
             {
@@ -647,7 +640,7 @@ namespace WebHome.Controllers
 
             if (pdfFile != null)
             {
-                return File(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
+                return PhysicalFile(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
             }
             else
             {
@@ -749,17 +742,17 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> PrintSingleAllowanceAsPDFAsync(DocumentQueryViewModel viewModel)
+        public async Task<ActionResult> PrintSingleAllowanceAsPDFAsync(RenderStyleViewModel viewModel)
         {
             ViewResult result = (ViewResult)ShowAllowance(viewModel);
-            InvoiceAllowance item = result.Model as InvoiceAllowance;
+            InvoiceAllowance? item = result.Model as InvoiceAllowance;
             if (item == null)
             {
                 return new EmptyResult { };
             }
 
             String[] useThermalPOSArgs;
-            String pdfFile = await this.CreateContentAsPDFAsync(getAllowanceViewPath(item, out useThermalPOSArgs), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
+            String pdfFile = await this.CreateContentAsPDFAsync(getAllowanceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
 
             if (pdfFile != null)
             {
@@ -772,7 +765,7 @@ namespace WebHome.Controllers
                 }
                 else
                 {
-                    return File(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
+                    return PhysicalFile(pdfFile, "application/pdf", $"{DateTime.Today:yyyy-MM-dd}.pdf");
                 }
             }
 

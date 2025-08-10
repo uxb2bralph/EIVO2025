@@ -12,6 +12,7 @@
 // 此原始程式碼由 xsd 版本=4.8.3928.0 自動產生。
 // 
 namespace ModelCore.Schema.TurnKey.Allowance {
+    using CommonLib.Utility;
     using System.Globalization;
     using System.Xml.Serialization;
     
@@ -46,7 +47,7 @@ namespace ModelCore.Schema.TurnKey.Allowance {
         public string ReceiveTime
         {
             get => ReceiveDateTime.ToString("HH:mm:ss");
-            set => ReceiveDateTime = ReceiveDateTime.Date.Add(TimeSpan.Parse(value));
+            set => ReceiveDateTime = ReceiveDateTime.Date.Add(TimeSpan.Parse(value.LeftUntil("+")));
         }
         /// <remarks/>
         public AllowanceTypeEnum AllowanceType;

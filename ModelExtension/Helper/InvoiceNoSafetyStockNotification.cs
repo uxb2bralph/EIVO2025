@@ -60,7 +60,7 @@ namespace ModelCore.Helper
                                         if (invoiceNoStock < item.Organization.OrganizationExtension.InvoiceNoSafetyStock)
                                         {
                                             orgModel.CompanyID = item.SellerID;
-                                            EIVOTurnkeyFactory.NotifyLowerInvoiceNoStock(orgModel);
+                                            EIVONotificationFactory.NotifyLowerInvoiceNoStock(orgModel);
                                         }
                                     }
 

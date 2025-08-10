@@ -249,7 +249,7 @@ namespace ModelCore.InvoiceManagement
                     String carrierNo = Guid.NewGuid().ToString();
                     item.Entity.InvoiceCarrier = new InvoiceCarrier
                     {
-                        CarrierType = EIVOTurnkeyFactory.DefaultUserCarrierType,
+                        CarrierType = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType,
                         CarrierNo = carrierNo,
                         CarrierNo2 = carrierNo
                     };

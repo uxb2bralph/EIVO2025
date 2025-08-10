@@ -28,7 +28,7 @@ namespace TaskCenter.Controllers
         {
         }
 
-        public ActionResult Auth(AuthTokenViewModel viewModel)
+        public ActionResult Auth([FromBody] AuthTokenViewModel viewModel)
         {
             /**
                 Seed: RANDOM[16]
@@ -67,7 +67,7 @@ namespace TaskCenter.Controllers
             });
         }
 
-        public ActionResult BuildAuth(AuthTokenViewModel viewModel)
+        public ActionResult BuildAuth([FromBody] AuthTokenViewModel viewModel)
         {
             viewModel.SellerID = viewModel.SellerID.GetEfficientString();
             var token = models!.GetTable<Organization>().Where(c => c.ReceiptNo == viewModel.SellerID)

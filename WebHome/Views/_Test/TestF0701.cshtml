@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 @using System.Web
 @using WebHome.Helper
@@ -40,7 +40,7 @@
         <textarea cols="80" rows="10">@(_item!=null ? _item.OuterXml : null)</textarea>
         <br />
         F0701:
-        <textarea cols="80" rows="10">@(_voidItem!=null ? _voidItem.ConvertToXml().OuterXml : null)</textarea>
+        <textarea cols="80" rows="10">@(_voidItem!=null ? _voidItem.OuterXml : null)</textarea>
     </form>
 </body>
 </html>
@@ -48,7 +48,7 @@
 {
 
     protected System.Xml.XmlDocument _item;
-    protected ModelCore.Schema.TurnKey.F0701.VoidInvoice _voidItem;
+    protected System.Xml.XmlDocument _voidItem;
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
     InquireInvoiceViewModel _viewModel;
@@ -92,17 +92,7 @@
                 if (item != null)
                 {
                     _item = item.CreateF0401();
-                    _voidItem = new ModelCore.Schema.TurnKey.F0701.VoidInvoice
-                    {
-                        VoidInvoiceNumber = invoiceNo,
-                        InvoiceDate = String.Format("{0:yyyyMMdd}", item.InvoiceDate),
-                        BuyerId = item.InvoiceBuyer.ReceiptNo,
-                        SellerId = item.InvoiceSeller.ReceiptNo,
-                        VoidDate = DateTime.Now.Date.ToString("yyyyMMdd"),
-                        VoidTime = DateTime.Now,
-                        VoidReason = "註銷重開",
-                        Remark = ""
-                    };
+                    _voidItem = item.CreateF0701();
                 }
             }
             else if (invoiceNo != null)
@@ -162,17 +152,7 @@
     {
         String invoiceNo = item.TrackCode + item.No;
         item.CreateF0401().Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
-        (new ModelCore.Schema.TurnKey.F0701.VoidInvoice
-        {
-            VoidInvoiceNumber = invoiceNo,
-            InvoiceDate = String.Format("{0:yyyyMMdd}", item.InvoiceDate),
-            BuyerId = item.InvoiceBuyer.ReceiptNo,
-            SellerId = item.InvoiceSeller.ReceiptNo,
-            VoidDate = DateTime.Now.Date.ToString("yyyyMMdd"),
-            VoidTime = DateTime.Now,
-            VoidReason = "註銷重開",
-            Remark = ""
-        }).ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "F0701_" + invoiceNo + ".xml"));
+        item.CreateF0701().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "F0701_" + invoiceNo + ".xml"));
     }
 
 

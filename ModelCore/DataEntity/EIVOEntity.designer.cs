@@ -529,12 +529,15 @@ namespace ModelCore.DataEntity
     partial void InsertInvoiceNoMainAssignment(InvoiceNoMainAssignment instance);
     partial void UpdateInvoiceNoMainAssignment(InvoiceNoMainAssignment instance);
     partial void DeleteInvoiceNoMainAssignment(InvoiceNoMainAssignment instance);
-    partial void InsertDataProcessQueue(DataProcessQueue instance);
-    partial void UpdateDataProcessQueue(DataProcessQueue instance);
-    partial void DeleteDataProcessQueue(DataProcessQueue instance);
+    partial void InsertDataNotice(DataNotice instance);
+    partial void UpdateDataNotice(DataNotice instance);
+    partial void DeleteDataNotice(DataNotice instance);
     partial void InsertDataProcessLog(DataProcessLog instance);
     partial void UpdateDataProcessLog(DataProcessLog instance);
     partial void DeleteDataProcessLog(DataProcessLog instance);
+    partial void InsertDataProcessQueue(DataProcessQueue instance);
+    partial void UpdateDataProcessQueue(DataProcessQueue instance);
+    partial void DeleteDataProcessQueue(DataProcessQueue instance);
     #endregion
 		
 		public EIVOEntityDataContext(string connection) : 
@@ -1897,11 +1900,11 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		public System.Data.Linq.Table<DataProcessQueue> DataProcessQueue
+		public System.Data.Linq.Table<DataNotice> DataNotice
 		{
 			get
 			{
-				return this.GetTable<DataProcessQueue>();
+				return this.GetTable<DataNotice>();
 			}
 		}
 		
@@ -1910,6 +1913,14 @@ namespace ModelCore.DataEntity
 			get
 			{
 				return this.GetTable<DataProcessLog>();
+			}
+		}
+		
+		public System.Data.Linq.Table<DataProcessQueue> DataProcessQueue
+		{
+			get
+			{
+				return this.GetTable<DataProcessQueue>();
 			}
 		}
 		
@@ -5354,9 +5365,9 @@ namespace ModelCore.DataEntity
 		
 		private EntityRef<VoidInvoiceRequest> _VoidInvoiceRequest;
 		
-		private EntitySet<DataProcessQueue> _DataProcessQueue;
-		
 		private EntitySet<DataProcessLog> _DataProcessLog;
+		
+		private EntitySet<DataProcessQueue> _DataProcessQueue;
 		
 		private EntityRef<DocumentType> _DocumentType;
 		
@@ -6635,27 +6646,8 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessQueue", Storage="_DataProcessQueue", ThisKey="DocID", OtherKey="DocID")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=53, EmitDefaultValue=false)]
-		public EntitySet<DataProcessQueue> DataProcessQueue
-		{
-			get
-			{
-				if ((this.serializing 
-							&& (this._DataProcessQueue.HasLoadedOrAssignedValues == false)))
-				{
-					return null;
-				}
-				return this._DataProcessQueue;
-			}
-			set
-			{
-				this._DataProcessQueue.Assign(value);
-			}
-		}
-		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessLog", Storage="_DataProcessLog", ThisKey="DocID", OtherKey="DocID")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=54, EmitDefaultValue=false)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=53, EmitDefaultValue=false)]
 		public EntitySet<DataProcessLog> DataProcessLog
 		{
 			get
@@ -6670,6 +6662,25 @@ namespace ModelCore.DataEntity
 			set
 			{
 				this._DataProcessLog.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessQueue", Storage="_DataProcessQueue", ThisKey="DocID", OtherKey="DocID")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=54, EmitDefaultValue=false)]
+		public EntitySet<DataProcessQueue> DataProcessQueue
+		{
+			get
+			{
+				if ((this.serializing 
+							&& (this._DataProcessQueue.HasLoadedOrAssignedValues == false)))
+				{
+					return null;
+				}
+				return this._DataProcessQueue;
+			}
+			set
+			{
+				this._DataProcessQueue.Assign(value);
 			}
 		}
 		
@@ -7133,18 +7144,6 @@ namespace ModelCore.DataEntity
 			entity.CDS_Document = null;
 		}
 		
-		private void attach_DataProcessQueue(DataProcessQueue entity)
-		{
-			this.SendPropertyChanging();
-			entity.CDS_Document = this;
-		}
-		
-		private void detach_DataProcessQueue(DataProcessQueue entity)
-		{
-			this.SendPropertyChanging();
-			entity.CDS_Document = null;
-		}
-		
 		private void attach_DataProcessLog(DataProcessLog entity)
 		{
 			this.SendPropertyChanging();
@@ -7152,6 +7151,18 @@ namespace ModelCore.DataEntity
 		}
 		
 		private void detach_DataProcessLog(DataProcessLog entity)
+		{
+			this.SendPropertyChanging();
+			entity.CDS_Document = null;
+		}
+		
+		private void attach_DataProcessQueue(DataProcessQueue entity)
+		{
+			this.SendPropertyChanging();
+			entity.CDS_Document = this;
+		}
+		
+		private void detach_DataProcessQueue(DataProcessQueue entity)
 		{
 			this.SendPropertyChanging();
 			entity.CDS_Document = null;
@@ -7205,8 +7216,8 @@ namespace ModelCore.DataEntity
 			this._CustomerDefined = default(EntityRef<CustomerDefined>);
 			this._C0401DispatchQueue = new EntitySet<C0401DispatchQueue>(new Action<C0401DispatchQueue>(this.attach_C0401DispatchQueue), new Action<C0401DispatchQueue>(this.detach_C0401DispatchQueue));
 			this._VoidInvoiceRequest = default(EntityRef<VoidInvoiceRequest>);
-			this._DataProcessQueue = new EntitySet<DataProcessQueue>(new Action<DataProcessQueue>(this.attach_DataProcessQueue), new Action<DataProcessQueue>(this.detach_DataProcessQueue));
 			this._DataProcessLog = new EntitySet<DataProcessLog>(new Action<DataProcessLog>(this.attach_DataProcessLog), new Action<DataProcessLog>(this.detach_DataProcessLog));
+			this._DataProcessQueue = new EntitySet<DataProcessQueue>(new Action<DataProcessQueue>(this.attach_DataProcessQueue), new Action<DataProcessQueue>(this.detach_DataProcessQueue));
 			this._DocumentType = default(EntityRef<DocumentType>);
 			this._LevelExpression = default(EntityRef<LevelExpression>);
 			OnCreated();
@@ -18219,6 +18230,8 @@ namespace ModelCore.DataEntity
 		
 		private System.Nullable<byte> _BondedAreaConfirm;
 		
+		private string _ZeroTaxRateReason;
+		
 		private EntityRef<CurrencyType> _CurrencyType;
 		
 		private EntityRef<InvoiceItem> _InvoiceItem;
@@ -18257,6 +18270,8 @@ namespace ModelCore.DataEntity
     partial void OnZeroTaxSalesAmountChanged();
     partial void OnBondedAreaConfirmChanging(System.Nullable<byte> value);
     partial void OnBondedAreaConfirmChanged();
+    partial void OnZeroTaxRateReasonChanging(string value);
+    partial void OnZeroTaxRateReasonChanged();
     #endregion
 		
 		public InvoiceAmountType()
@@ -18310,7 +18325,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SalesAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SalesAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=3)]
 		public System.Nullable<decimal> SalesAmount
 		{
@@ -18331,7 +18346,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TaxAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TaxAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=4)]
 		public System.Nullable<decimal> TaxAmount
 		{
@@ -18373,7 +18388,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TotalAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_TotalAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=6)]
 		public System.Nullable<decimal> TotalAmount
 		{
@@ -18415,7 +18430,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DiscountAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DiscountAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=8)]
 		public System.Nullable<decimal> DiscountAmount
 		{
@@ -18436,7 +18451,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Adjustment", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Adjustment", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=9)]
 		public System.Nullable<decimal> Adjustment
 		{
@@ -18457,7 +18472,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OriginalCurrencyAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OriginalCurrencyAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=10)]
 		public System.Nullable<decimal> OriginalCurrencyAmount
 		{
@@ -18524,7 +18539,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_FreeTaxSalesAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_FreeTaxSalesAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=13)]
 		public System.Nullable<decimal> FreeTaxSalesAmount
 		{
@@ -18545,7 +18560,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ZeroTaxSalesAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ZeroTaxSalesAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=14)]
 		public System.Nullable<decimal> ZeroTaxSalesAmount
 		{
@@ -18583,6 +18598,27 @@ namespace ModelCore.DataEntity
 					this._BondedAreaConfirm = value;
 					this.SendPropertyChanged("BondedAreaConfirm");
 					this.OnBondedAreaConfirmChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ZeroTaxRateReason", DbType="NVarChar(4)")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=16)]
+		public string ZeroTaxRateReason
+		{
+			get
+			{
+				return this._ZeroTaxRateReason;
+			}
+			set
+			{
+				if ((this._ZeroTaxRateReason != value))
+				{
+					this.OnZeroTaxRateReasonChanging(value);
+					this.SendPropertyChanging();
+					this._ZeroTaxRateReason = value;
+					this.SendPropertyChanged("ZeroTaxRateReason");
+					this.OnZeroTaxRateReasonChanged();
 				}
 			}
 		}
@@ -27722,7 +27758,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Piece", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Piece", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=5)]
 		public System.Nullable<decimal> Piece
 		{
@@ -27743,7 +27779,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Piece2", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Piece2", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=6)]
 		public System.Nullable<decimal> Piece2
 		{
@@ -27806,7 +27842,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Weight", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Weight", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=9)]
 		public System.Nullable<decimal> Weight
 		{
@@ -27848,7 +27884,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_UnitFreight", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_UnitFreight", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=11)]
 		public System.Nullable<decimal> UnitFreight
 		{
@@ -27869,7 +27905,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_UnitCost", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_UnitCost", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=12)]
 		public System.Nullable<decimal> UnitCost
 		{
@@ -27890,7 +27926,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_UnitCost2", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_UnitCost2", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=13)]
 		public System.Nullable<decimal> UnitCost2
 		{
@@ -27911,7 +27947,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_FreightAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_FreightAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=14)]
 		public System.Nullable<decimal> FreightAmount
 		{
@@ -27932,7 +27968,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CostAmount", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CostAmount", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=15)]
 		public System.Nullable<decimal> CostAmount
 		{
@@ -27953,7 +27989,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CostAmount2", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CostAmount2", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=16)]
 		public System.Nullable<decimal> CostAmount2
 		{
@@ -27974,7 +28010,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OriginalPrice", DbType="Decimal(18,5)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OriginalPrice", DbType="Decimal(18,7)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=17)]
 		public System.Nullable<decimal> OriginalPrice
 		{
@@ -49561,186 +49597,115 @@ namespace ModelCore.DataEntity
 		}
 	}
 	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="[proc].DataProcessQueue")]
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="[proc].DataNotice")]
 	[global::System.Runtime.Serialization.DataContractAttribute()]
-	public partial class DataProcessQueue : INotifyPropertyChanging, INotifyPropertyChanged
+	public partial class DataNotice : INotifyPropertyChanging, INotifyPropertyChanged
 	{
 		
 		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
-		private int _DocID;
+		private int _NoticeID;
 		
-		private int _StepID;
+		private string _RenderStyle;
 		
-		private int _ProcessType;
+		private EntitySet<DataProcessLog> _DataProcessLog;
 		
-		private System.DateTime _DispatchDate;
+		private EntitySet<DataProcessQueue> _DataProcessQueue;
 		
-		private System.Nullable<System.DateTime> _BookingTime;
-		
-		private EntityRef<CDS_Document> _CDS_Document;
+		private bool serializing;
 		
     #region 擴充性方法定義
     partial void OnLoaded();
     partial void OnValidate(System.Data.Linq.ChangeAction action);
     partial void OnCreated();
-    partial void OnDocIDChanging(int value);
-    partial void OnDocIDChanged();
-    partial void OnStepIDChanging(int value);
-    partial void OnStepIDChanged();
-    partial void OnProcessTypeChanging(int value);
-    partial void OnProcessTypeChanged();
-    partial void OnDispatchDateChanging(System.DateTime value);
-    partial void OnDispatchDateChanged();
-    partial void OnBookingTimeChanging(System.Nullable<System.DateTime> value);
-    partial void OnBookingTimeChanged();
+    partial void OnNoticeIDChanging(int value);
+    partial void OnNoticeIDChanged();
+    partial void OnRenderStyleChanging(string value);
+    partial void OnRenderStyleChanged();
     #endregion
 		
-		public DataProcessQueue()
+		public DataNotice()
 		{
 			this.Initialize();
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DocID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NoticeID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=1)]
-		public int DocID
+		public int NoticeID
 		{
 			get
 			{
-				return this._DocID;
+				return this._NoticeID;
 			}
 			set
 			{
-				if ((this._DocID != value))
+				if ((this._NoticeID != value))
 				{
-					if (this._CDS_Document.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnDocIDChanging(value);
+					this.OnNoticeIDChanging(value);
 					this.SendPropertyChanging();
-					this._DocID = value;
-					this.SendPropertyChanged("DocID");
-					this.OnDocIDChanged();
+					this._NoticeID = value;
+					this.SendPropertyChanged("NoticeID");
+					this.OnNoticeIDChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_StepID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RenderStyle", DbType="NVarChar(MAX)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=2)]
-		public int StepID
+		public string RenderStyle
 		{
 			get
 			{
-				return this._StepID;
+				return this._RenderStyle;
 			}
 			set
 			{
-				if ((this._StepID != value))
+				if ((this._RenderStyle != value))
 				{
-					this.OnStepIDChanging(value);
+					this.OnRenderStyleChanging(value);
 					this.SendPropertyChanging();
-					this._StepID = value;
-					this.SendPropertyChanged("StepID");
-					this.OnStepIDChanged();
+					this._RenderStyle = value;
+					this.SendPropertyChanged("RenderStyle");
+					this.OnRenderStyleChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProcessType", DbType="Int NOT NULL", IsPrimaryKey=true)]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=3)]
-		public int ProcessType
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="DataNotice_DataProcessLog", Storage="_DataProcessLog", ThisKey="NoticeID", OtherKey="NoticeID")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=3, EmitDefaultValue=false)]
+		public EntitySet<DataProcessLog> DataProcessLog
 		{
 			get
 			{
-				return this._ProcessType;
+				if ((this.serializing 
+							&& (this._DataProcessLog.HasLoadedOrAssignedValues == false)))
+				{
+					return null;
+				}
+				return this._DataProcessLog;
 			}
 			set
 			{
-				if ((this._ProcessType != value))
-				{
-					this.OnProcessTypeChanging(value);
-					this.SendPropertyChanging();
-					this._ProcessType = value;
-					this.SendPropertyChanged("ProcessType");
-					this.OnProcessTypeChanged();
-				}
+				this._DataProcessLog.Assign(value);
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DispatchDate", DbType="DateTime NOT NULL")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=4)]
-		public System.DateTime DispatchDate
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="DataNotice_DataProcessQueue", Storage="_DataProcessQueue", ThisKey="NoticeID", OtherKey="NoticeID")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=4, EmitDefaultValue=false)]
+		public EntitySet<DataProcessQueue> DataProcessQueue
 		{
 			get
 			{
-				return this._DispatchDate;
+				if ((this.serializing 
+							&& (this._DataProcessQueue.HasLoadedOrAssignedValues == false)))
+				{
+					return null;
+				}
+				return this._DataProcessQueue;
 			}
 			set
 			{
-				if ((this._DispatchDate != value))
-				{
-					this.OnDispatchDateChanging(value);
-					this.SendPropertyChanging();
-					this._DispatchDate = value;
-					this.SendPropertyChanged("DispatchDate");
-					this.OnDispatchDateChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_BookingTime", DbType="DateTime")]
-		[global::System.Runtime.Serialization.DataMemberAttribute(Order=5)]
-		public System.Nullable<System.DateTime> BookingTime
-		{
-			get
-			{
-				return this._BookingTime;
-			}
-			set
-			{
-				if ((this._BookingTime != value))
-				{
-					this.OnBookingTimeChanging(value);
-					this.SendPropertyChanging();
-					this._BookingTime = value;
-					this.SendPropertyChanged("BookingTime");
-					this.OnBookingTimeChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessQueue", Storage="_CDS_Document", ThisKey="DocID", OtherKey="DocID", IsForeignKey=true, DeleteOnNull=true, DeleteRule="CASCADE")]
-		public CDS_Document CDS_Document
-		{
-			get
-			{
-				return this._CDS_Document.Entity;
-			}
-			set
-			{
-				CDS_Document previousValue = this._CDS_Document.Entity;
-				if (((previousValue != value) 
-							|| (this._CDS_Document.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._CDS_Document.Entity = null;
-						previousValue.DataProcessQueue.Remove(this);
-					}
-					this._CDS_Document.Entity = value;
-					if ((value != null))
-					{
-						value.DataProcessQueue.Add(this);
-						this._DocID = value.DocID;
-					}
-					else
-					{
-						this._DocID = default(int);
-					}
-					this.SendPropertyChanged("CDS_Document");
-				}
+				this._DataProcessQueue.Assign(value);
 			}
 		}
 		
@@ -49764,9 +49729,34 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
+		private void attach_DataProcessLog(DataProcessLog entity)
+		{
+			this.SendPropertyChanging();
+			entity.DataNotice = this;
+		}
+		
+		private void detach_DataProcessLog(DataProcessLog entity)
+		{
+			this.SendPropertyChanging();
+			entity.DataNotice = null;
+		}
+		
+		private void attach_DataProcessQueue(DataProcessQueue entity)
+		{
+			this.SendPropertyChanging();
+			entity.DataNotice = this;
+		}
+		
+		private void detach_DataProcessQueue(DataProcessQueue entity)
+		{
+			this.SendPropertyChanging();
+			entity.DataNotice = null;
+		}
+		
 		private void Initialize()
 		{
-			this._CDS_Document = default(EntityRef<CDS_Document>);
+			this._DataProcessLog = new EntitySet<DataProcessLog>(new Action<DataProcessLog>(this.attach_DataProcessLog), new Action<DataProcessLog>(this.detach_DataProcessLog));
+			this._DataProcessQueue = new EntitySet<DataProcessQueue>(new Action<DataProcessQueue>(this.attach_DataProcessQueue), new Action<DataProcessQueue>(this.detach_DataProcessQueue));
 			OnCreated();
 		}
 		
@@ -49775,6 +49765,20 @@ namespace ModelCore.DataEntity
 		public void OnDeserializing(StreamingContext context)
 		{
 			this.Initialize();
+		}
+		
+		[global::System.Runtime.Serialization.OnSerializingAttribute()]
+		[global::System.ComponentModel.EditorBrowsableAttribute(EditorBrowsableState.Never)]
+		public void OnSerializing(StreamingContext context)
+		{
+			this.serializing = true;
+		}
+		
+		[global::System.Runtime.Serialization.OnSerializedAttribute()]
+		[global::System.ComponentModel.EditorBrowsableAttribute(EditorBrowsableState.Never)]
+		public void OnSerialized(StreamingContext context)
+		{
+			this.serializing = false;
 		}
 	}
 	
@@ -49799,7 +49803,11 @@ namespace ModelCore.DataEntity
 		
 		private System.Nullable<int> _ProcessType;
 		
+		private System.Nullable<int> _NoticeID;
+		
 		private EntityRef<CDS_Document> _CDS_Document;
+		
+		private EntityRef<DataNotice> _DataNotice;
 		
     #region 擴充性方法定義
     partial void OnLoaded();
@@ -49819,6 +49827,8 @@ namespace ModelCore.DataEntity
     partial void OnContentChanged();
     partial void OnProcessTypeChanging(System.Nullable<int> value);
     partial void OnProcessTypeChanged();
+    partial void OnNoticeIDChanging(System.Nullable<int> value);
+    partial void OnNoticeIDChanged();
     #endregion
 		
 		public DataProcessLog()
@@ -49977,6 +49987,31 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NoticeID", DbType="Int")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=8)]
+		public System.Nullable<int> NoticeID
+		{
+			get
+			{
+				return this._NoticeID;
+			}
+			set
+			{
+				if ((this._NoticeID != value))
+				{
+					if (this._DataNotice.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnNoticeIDChanging(value);
+					this.SendPropertyChanging();
+					this._NoticeID = value;
+					this.SendPropertyChanged("NoticeID");
+					this.OnNoticeIDChanged();
+				}
+			}
+		}
+		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessLog", Storage="_CDS_Document", ThisKey="DocID", OtherKey="DocID", IsForeignKey=true, DeleteOnNull=true, DeleteRule="CASCADE")]
 		public CDS_Document CDS_Document
 		{
@@ -50011,6 +50046,40 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="DataNotice_DataProcessLog", Storage="_DataNotice", ThisKey="NoticeID", OtherKey="NoticeID", IsForeignKey=true)]
+		public DataNotice DataNotice
+		{
+			get
+			{
+				return this._DataNotice.Entity;
+			}
+			set
+			{
+				DataNotice previousValue = this._DataNotice.Entity;
+				if (((previousValue != value) 
+							|| (this._DataNotice.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._DataNotice.Entity = null;
+						previousValue.DataProcessLog.Remove(this);
+					}
+					this._DataNotice.Entity = value;
+					if ((value != null))
+					{
+						value.DataProcessLog.Add(this);
+						this._NoticeID = value.NoticeID;
+					}
+					else
+					{
+						this._NoticeID = default(Nullable<int>);
+					}
+					this.SendPropertyChanged("DataNotice");
+				}
+			}
+		}
+		
 		public event PropertyChangingEventHandler PropertyChanging;
 		
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -50034,6 +50103,290 @@ namespace ModelCore.DataEntity
 		private void Initialize()
 		{
 			this._CDS_Document = default(EntityRef<CDS_Document>);
+			this._DataNotice = default(EntityRef<DataNotice>);
+			OnCreated();
+		}
+		
+		[global::System.Runtime.Serialization.OnDeserializingAttribute()]
+		[global::System.ComponentModel.EditorBrowsableAttribute(EditorBrowsableState.Never)]
+		public void OnDeserializing(StreamingContext context)
+		{
+			this.Initialize();
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="[proc].DataProcessQueue")]
+	[global::System.Runtime.Serialization.DataContractAttribute()]
+	public partial class DataProcessQueue : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _DocID;
+		
+		private int _StepID;
+		
+		private int _ProcessType;
+		
+		private System.DateTime _DispatchDate;
+		
+		private System.Nullable<System.DateTime> _BookingTime;
+		
+		private System.Nullable<int> _NoticeID;
+		
+		private EntityRef<CDS_Document> _CDS_Document;
+		
+		private EntityRef<DataNotice> _DataNotice;
+		
+    #region 擴充性方法定義
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnDocIDChanging(int value);
+    partial void OnDocIDChanged();
+    partial void OnStepIDChanging(int value);
+    partial void OnStepIDChanged();
+    partial void OnProcessTypeChanging(int value);
+    partial void OnProcessTypeChanged();
+    partial void OnDispatchDateChanging(System.DateTime value);
+    partial void OnDispatchDateChanged();
+    partial void OnBookingTimeChanging(System.Nullable<System.DateTime> value);
+    partial void OnBookingTimeChanged();
+    partial void OnNoticeIDChanging(System.Nullable<int> value);
+    partial void OnNoticeIDChanged();
+    #endregion
+		
+		public DataProcessQueue()
+		{
+			this.Initialize();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DocID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=1)]
+		public int DocID
+		{
+			get
+			{
+				return this._DocID;
+			}
+			set
+			{
+				if ((this._DocID != value))
+				{
+					if (this._CDS_Document.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnDocIDChanging(value);
+					this.SendPropertyChanging();
+					this._DocID = value;
+					this.SendPropertyChanged("DocID");
+					this.OnDocIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_StepID", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=2)]
+		public int StepID
+		{
+			get
+			{
+				return this._StepID;
+			}
+			set
+			{
+				if ((this._StepID != value))
+				{
+					this.OnStepIDChanging(value);
+					this.SendPropertyChanging();
+					this._StepID = value;
+					this.SendPropertyChanged("StepID");
+					this.OnStepIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProcessType", DbType="Int NOT NULL", IsPrimaryKey=true)]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=3)]
+		public int ProcessType
+		{
+			get
+			{
+				return this._ProcessType;
+			}
+			set
+			{
+				if ((this._ProcessType != value))
+				{
+					this.OnProcessTypeChanging(value);
+					this.SendPropertyChanging();
+					this._ProcessType = value;
+					this.SendPropertyChanged("ProcessType");
+					this.OnProcessTypeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DispatchDate", DbType="DateTime NOT NULL")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=4)]
+		public System.DateTime DispatchDate
+		{
+			get
+			{
+				return this._DispatchDate;
+			}
+			set
+			{
+				if ((this._DispatchDate != value))
+				{
+					this.OnDispatchDateChanging(value);
+					this.SendPropertyChanging();
+					this._DispatchDate = value;
+					this.SendPropertyChanged("DispatchDate");
+					this.OnDispatchDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_BookingTime", DbType="DateTime")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=5)]
+		public System.Nullable<System.DateTime> BookingTime
+		{
+			get
+			{
+				return this._BookingTime;
+			}
+			set
+			{
+				if ((this._BookingTime != value))
+				{
+					this.OnBookingTimeChanging(value);
+					this.SendPropertyChanging();
+					this._BookingTime = value;
+					this.SendPropertyChanged("BookingTime");
+					this.OnBookingTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NoticeID", DbType="Int")]
+		[global::System.Runtime.Serialization.DataMemberAttribute(Order=6)]
+		public System.Nullable<int> NoticeID
+		{
+			get
+			{
+				return this._NoticeID;
+			}
+			set
+			{
+				if ((this._NoticeID != value))
+				{
+					if (this._DataNotice.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnNoticeIDChanging(value);
+					this.SendPropertyChanging();
+					this._NoticeID = value;
+					this.SendPropertyChanged("NoticeID");
+					this.OnNoticeIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="CDS_Document_DataProcessQueue", Storage="_CDS_Document", ThisKey="DocID", OtherKey="DocID", IsForeignKey=true, DeleteOnNull=true, DeleteRule="CASCADE")]
+		public CDS_Document CDS_Document
+		{
+			get
+			{
+				return this._CDS_Document.Entity;
+			}
+			set
+			{
+				CDS_Document previousValue = this._CDS_Document.Entity;
+				if (((previousValue != value) 
+							|| (this._CDS_Document.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._CDS_Document.Entity = null;
+						previousValue.DataProcessQueue.Remove(this);
+					}
+					this._CDS_Document.Entity = value;
+					if ((value != null))
+					{
+						value.DataProcessQueue.Add(this);
+						this._DocID = value.DocID;
+					}
+					else
+					{
+						this._DocID = default(int);
+					}
+					this.SendPropertyChanged("CDS_Document");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="DataNotice_DataProcessQueue", Storage="_DataNotice", ThisKey="NoticeID", OtherKey="NoticeID", IsForeignKey=true)]
+		public DataNotice DataNotice
+		{
+			get
+			{
+				return this._DataNotice.Entity;
+			}
+			set
+			{
+				DataNotice previousValue = this._DataNotice.Entity;
+				if (((previousValue != value) 
+							|| (this._DataNotice.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._DataNotice.Entity = null;
+						previousValue.DataProcessQueue.Remove(this);
+					}
+					this._DataNotice.Entity = value;
+					if ((value != null))
+					{
+						value.DataProcessQueue.Add(this);
+						this._NoticeID = value.NoticeID;
+					}
+					else
+					{
+						this._NoticeID = default(Nullable<int>);
+					}
+					this.SendPropertyChanged("DataNotice");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void Initialize()
+		{
+			this._CDS_Document = default(EntityRef<CDS_Document>);
+			this._DataNotice = default(EntityRef<DataNotice>);
 			OnCreated();
 		}
 		

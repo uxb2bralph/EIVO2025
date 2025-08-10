@@ -115,6 +115,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 TotalAmountInChinese = ValidityAgent.MoneyShow(_invItem.TotalAmount),
                 CurrencyID = _currency?.CurrencyID,
                 BondedAreaConfirm = _invItem.BondedAreaConfirm,
+                ZeroTaxRateReason = _invItem.ZeroTaxRateReason,
             };
             _container.InvoiceCarrier = _carrier;
             _container.InvoiceDonation = _donation;

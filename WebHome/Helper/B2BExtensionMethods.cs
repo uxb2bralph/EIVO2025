@@ -31,15 +31,15 @@ namespace WebHome.Helper
                 Directory.CreateDirectory(TempForReceivePDF);
         }
 
-        public static void ReceiveInvoiceItem(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, InvoiceItem item)
-        {
-            userProfile.MoveToNextStep(item.CDS_Document, mgr);
-            ThreadPool.QueueUserWorkItem(t =>
-            {
-                EIVOTurnkeyFactory.NotifyReceivedInvoice(userProfile, new EventArgs<InvoiceItem> { Argument = item });
-            });
+        //public static void ReceiveInvoiceItem(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, InvoiceItem item)
+        //{
+        //    userProfile.MoveToNextStep(item.CDS_Document, mgr);
+        //    ThreadPool.QueueUserWorkItem(t =>
+        //    {
+        //        EIVONotificationFactory.NotifyReceivedInvoice(userProfile, new EventArgs<InvoiceItem> { Argument = item });
+        //    });
             
-        }
+        //}
 
         public static void IssueInvoiceItem(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, InvoiceItem item)
         {
@@ -204,21 +204,25 @@ namespace WebHome.Helper
         //    }
         //}
 
-        public static String CreatePdfFile(this InvoiceItem item,bool alwaysCreateNew = false)
+        public static String? CreatePdfFile(this InvoiceItem item,bool alwaysCreateNew = false)
         {
 
-            String fileName = TempForReceivePDF.GetDateStylePath(item.InvoiceDate.Value) + "\\" + item.TrackCode + item.No + ".pdf";
+            String fileName = Path.Combine(TempForReceivePDF.GetDateStylePath(item.InvoiceDate!.Value),$"{item.TrackCode}{item.No}.pdf");
 
             if (alwaysCreateNew || !File.Exists(fileName))
             {
                 RenderStyleViewModel viewModel = new RenderStyleViewModel
                 {
                     DocID = item.InvoiceID,
-                    ProcessType = Naming.InvoiceProcessType.A0401,
-                    PaperStyle = "A4",
+                    ProcessType = Naming.InvoiceProcessType.F0401,
+                    PaperStyle = "B2B",
                 };
 
-                String tempPDF = PdfDocumentGenerator.CreateInvoicePdf(viewModel);
+                String? tempPDF = PdfDocumentGenerator.CreateInvoicePdf(viewModel);
+                if(tempPDF == null)
+                {
+                    return null;
+                }
 
                 if (File.Exists(fileName))
                 {
@@ -234,33 +238,6 @@ namespace WebHome.Helper
                 {
                     Logger.Error(ex);
                 }
-
-                //using (WebClient client = new WebClient())
-                //{
-                //    client.Encoding = Encoding.UTF8;
-                //    String tempPDF = client.DownloadString(String.Format("{0}{1}?id={2}&nameOnly=true&processType=A0401",
-                //                            ModelExtension.Properties.AppSettings.Default.HostUrl,
-                //                            VirtualPathUtility.ToAbsolute("~/DataView/PrintSingleInvoiceAsPDF"),
-                //                            item.InvoiceID));
-
-                //    if (File.Exists(fileName))
-                //    {
-                //        File.Delete(fileName);
-                //    }
-
-                //    //Logger.Debug($"move file: {tempPDF} -> {fileName}");
-
-                //    //File.Move(tempPDF, fileName);
-                //    File.Copy(tempPDF, fileName, true);
-                //    try
-                //    {
-                //        File.Delete(tempPDF);
-                //    }
-                //    catch(Exception ex)
-                //    {
-                //        Logger.Error(ex);
-                //    }
-                //}
             }
 
             return fileName;
@@ -289,38 +266,49 @@ namespace WebHome.Helper
 
         }
 
-        public static String CreatePdfFile(this InvoiceAllowance item, bool alwaysCreateNew = true)
+        public static String? CreatePdfFile(this InvoiceAllowance item, bool alwaysCreateNew = true)
         {
-
-            String fileName = $"{TempForReceivePDF.GetDateStylePath(item.AllowanceDate.Value)}\\{item.AllowanceNumber}.pdf";
+            String fileName = Path.Combine(TempForReceivePDF.GetDateStylePath(item.AllowanceDate!.Value), $"{item.AllowanceNumber.EscapeFileNameCharacter('_')}.pdf");
 
             if (alwaysCreateNew || !File.Exists(fileName))
             {
-
-                using (WebClient client = new WebClient())
+                RenderStyleViewModel viewModel = new RenderStyleViewModel
                 {
-                    String tempPDF = client.DownloadString(String.Format("{0}{1}?id={2}&nameOnly=true",
-                                            ModelExtension.Properties.AppSettings.Default.HostUrl,
-                                            VirtualPathUtility.ToAbsolute("~/DataView/PrintSingleAllowanceAsPDF"),
-                                            item.AllowanceID));
+                    DocID = item.AllowanceID,
+                    ProcessType = Naming.InvoiceProcessType.G0401,
+                    PaperStyle = "B2B",
+                };
 
-                    if (File.Exists(fileName))
-                    {
-                        File.Delete(fileName);
-                    }
+                String? tempPDF = PdfDocumentGenerator.CreateAllowancePdf(viewModel);
+                if (tempPDF == null)
+                {
+                    return null;
+                }
 
-                    File.Move(tempPDF, fileName);
+                if (File.Exists(fileName))
+                {
+                    File.Delete(fileName);
+                }
+
+                File.Copy(tempPDF, fileName, true);
+                try
+                {
+                    File.Delete(tempPDF);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
                 }
             }
 
             return fileName;
         }
 
-        public static String PrepareToDownload(this GenericManager<EIVOEntityDataContext> mgr, InvoiceAllowance item)
+        public static String? PrepareToDownload(this GenericManager<EIVOEntityDataContext> mgr, InvoiceAllowance item)
         {
-            String fileName = item.CreatePdfFile();
+            String? fileName = item.CreatePdfFile();
 
-            if (File.Exists(fileName))
+            if (fileName != null && File.Exists(fileName))
             {
 
                 var docQ = mgr.GetTable<DocumentSubscriptionQueue>();

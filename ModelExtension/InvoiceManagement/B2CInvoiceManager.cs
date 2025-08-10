@@ -139,6 +139,7 @@ namespace ModelCore.InvoiceManagement
                                 TotalAmount = invItem.TotalAmount,
                                 TotalAmountInChinese = ValidityAgent.MoneyShow(invItem.TotalAmount),
                                 BondedAreaConfirm = invItem.BondedAreaConfirm,
+                                ZeroTaxRateReason = invItem.ZeroTaxRateReason,
                             },
                             DonationID = donatory != null ? donatory.CompanyID : (int?)null
                         };

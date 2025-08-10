@@ -413,6 +413,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 TotalAmountInChinese = ValidityAgent.MoneyShow(_invItem.TotalAmount),
                 CurrencyID = _currency?.CurrencyID,
                 BondedAreaConfirm = _invItem.BondedAreaConfirm,
+                ZeroTaxRateReason = _invItem.ZeroTaxRateReason,
             };
             _container.InvoiceCarrier = _carrier;
             _container.InvoiceDonation = _donation;
@@ -893,7 +894,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 {
                     _carrier = new InvoiceCarrier
                     {
-                        CarrierType = EIVOTurnkeyFactory.DefaultUserCarrierType,
+                        CarrierType = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType,
                         CarrierNo = Guid.NewGuid().ToString()
                     };
                 }

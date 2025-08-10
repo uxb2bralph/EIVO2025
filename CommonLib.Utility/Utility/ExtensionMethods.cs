@@ -61,6 +61,12 @@ namespace CommonLib.Utility
             return startIndex >= 0 ? src.Substring(startIndex, length) : src;
         }
 
+        public static String LeftUntil(this String src, String occurs)
+        {
+            int index = src.IndexOf(occurs);
+            return index >= 0 ? src[..index] : src;
+        }
+
         public static String GetXml<T>(this T entData)
         {
             XmlSerializer serializer = new XmlSerializer(entData.GetType());

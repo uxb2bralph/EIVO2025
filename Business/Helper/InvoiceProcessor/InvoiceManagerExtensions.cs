@@ -37,7 +37,7 @@ namespace Business.Helper.InvoiceProcessor
             {
                 UploadInvoiceAutoTrackNoCore(models, result, token, invoice);
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
                 
             }
             catch (Exception ex)
@@ -75,7 +75,7 @@ namespace Business.Helper.InvoiceProcessor
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
                 
             }
             catch (Exception ex)
@@ -516,7 +516,7 @@ namespace Business.Helper.InvoiceProcessor
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -604,7 +604,7 @@ namespace Business.Helper.InvoiceProcessor
                     result.Result.message = "營業人憑證資料驗證不符!!";
                 }
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
 
             }
             catch (Exception ex)

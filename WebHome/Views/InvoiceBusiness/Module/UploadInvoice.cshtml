@@ -44,7 +44,7 @@
                             $file.on('change', function (event) {
                                 clearErrors();
                                 var $formData = $('form').find('input,select,textArea').serializeObject();
-                                uploadFile($file, $formData, '@Html.Raw($"{WebHome.Properties.Settings.Default.TaskCenter}/InvoiceData/UploadInvoiceRequestXlsx?sender={_profile.UID}&processType={(int?)_model.ProcessType}")',
+                                uploadFile($file, $formData, '@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.TaskCenterUrl}/InvoiceData/UploadInvoiceRequestXlsx?sender={_profile.UID}&processType={(int?)_model.ProcessType}")',
                                     function (data) {
                                         $btn.before($file);
                                         if ($.isPlainObject(data)) {

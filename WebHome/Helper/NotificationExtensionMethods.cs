@@ -21,48 +21,33 @@ using ModelCore.InvoiceManagement;
 using ModelCore.Locale;
 
 using CommonLib.Utility;
+using ModelCore.Models.ViewModel;
 
 
 namespace WebHome.Helper
 {
     public static class NotificationExtensionMethods
     {
-        public static void NotifyToReceiveA0401(this CDS_Document item)
-        {
-            ThreadPool.QueueUserWorkItem(t =>
-            {
-                EIVOTurnkeyFactory.NotifyToReceiveA0401(item.DocID);
-            });
+        //public static void NotifyToReceiveA0401(this CDS_Document item)
+        //{
+        //    ThreadPool.QueueUserWorkItem(t =>
+        //    {
+        //        EIVONotificationFactory.NotifyToReceiveA0401(item.DocID);
+        //    });
 
-        }
+        //}
 
-        public static void NotifyIssuedA0401(this IEnumerable<int> docID, String? mailTo = null)
+        public static void NotifyIssuedA0401(this IEnumerable<int> docID, String? mailTo = null, bool forceTodo = true)
         {
             ThreadPool.QueueUserWorkItem(t =>
             {
                 foreach (var id in docID)
                 {
-                    EIVOTurnkeyFactory.NotifyIssuedA0401(new NotifyToProcessID
+                    EIVONotificationFactory.NotifyIssuedA0401(new RenderStyleViewModel
                     {
                         DocID = id,
                         MailTo = mailTo,
-                    });
-                }
-            });
-        }
-
-        public static void NotifyIssuedInvoice(this IEnumerable<int> docID,bool? appendAttachment,String? mailTo = null)
-        {
-            ThreadPool.QueueUserWorkItem(state =>
-            {
-                foreach (var invoiceID in docID)
-                {
-                    EIVOTurnkeyFactory.NotifyIssuedInvoice(new NotifyToProcessID
-                    {
-                        DocID = invoiceID,
-                        AppendAttachment = appendAttachment,
-                        MailTo = mailTo,
-                        ForceTodo = true,
+                        ForceTodo = forceTodo
                     });
                 }
             });
@@ -74,7 +59,7 @@ namespace WebHome.Helper
             {
                 foreach (var invoiceID in docID)
                 {
-                    EIVOTurnkeyFactory.NotifyWinningInvoice(new NotifyToProcessID
+                    EIVONotificationFactory.NotifyWinningInvoice(new RenderStyleViewModel
                     {
                         DocID = invoiceID,
                         AppendAttachment = appendAttachment,
@@ -90,7 +75,7 @@ namespace WebHome.Helper
             {
                 foreach (var id in docID)
                 {
-                    EIVOTurnkeyFactory.NotifyIssuedInvoiceCancellation(new NotifyToProcessID
+                    EIVONotificationFactory.NotifyIssuedInvoiceCancellation(new RenderStyleViewModel
                     {
                         DocID = id,
                         MailTo = mailTo,
@@ -106,7 +91,7 @@ namespace WebHome.Helper
             {
                 foreach (var id in docID)
                 {
-                    EIVOTurnkeyFactory.NotifyIssuedAllowance(id);
+                    EIVONotificationFactory.NotifyIssuedAllowance(id);
                 }
             });
         }
@@ -117,7 +102,7 @@ namespace WebHome.Helper
             {
                 foreach (var id in docID)
                 {
-                    EIVOTurnkeyFactory.NotifyIssuedAllowanceCancellation(id);
+                    EIVONotificationFactory.NotifyIssuedAllowanceCancellation(new RenderStyleViewModel { DocID = id });
                 }
             });
         }

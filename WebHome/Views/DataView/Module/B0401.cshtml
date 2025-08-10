@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -140,8 +140,8 @@
                     <td align="center">@(prodItem.InvoiceDate.Value.Year)</td>
                     <td align="center">@(prodItem.InvoiceDate.Value.Month)</td>
                     <td align="center">@(prodItem.InvoiceDate.Value.Day)</td>
-                    <td align="center">@(prodItem.InvoiceNo.Substring(0,2))</td>
-                    <td align="center">@(prodItem.InvoiceNo.Substring(2))</td>
+                    <td align="center">@(prodItem.InvoiceNo?.Substring(0,2))</td>
+                    <td align="center">@(prodItem.InvoiceNo?.Substring(2))</td>
                     <td align="center">@(prodItem.OriginalDescription)</td>
                     <td align="center">@(String.Format("{0:##,###,###,##0.##}", prodItem.Piece))</td>
                     <td align="center">@(String.Format("{0:##,###,###,##0.##}", prodItem.UnitCost))</td>

@@ -370,93 +370,93 @@ namespace ModelCore.InvoiceManagement
         //    return result;
         //}
 
-        protected InvoiceItem createInvoiceItem(OrganizationToken owner, InvoiceRootInvoice invItem, Organization seller, InvoicePurchaseOrder order, bool Final_printed, bool all_printed, InvoiceCarrier carrier, InvoiceDonation donation, IEnumerable<InvoiceProductItem> productItems)
-        {
-            InvoiceItem newItem = new InvoiceItem
-            {
-                CDS_Document = new CDS_Document
-                {
-                    DocDate = DateTime.Now,
-                    DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
-                    ProcessType = (int)Naming.InvoiceProcessType.C0401,
-                },
-                DonateMark = donation == null ? "0" : "1",
-                InvoiceType = byte.Parse(invItem.InvoiceType),
-                //No = invNo,
-                //TrackCode = trackCode,
-                SellerID = seller.CompanyID,
-                CustomsClearanceMark = invItem.CustomsClearanceMark,
-                InvoiceSeller = new InvoiceSeller
-                {
-                    Name = seller.CompanyName,
-                    ReceiptNo = seller.ReceiptNo,
-                    Address = seller.Addr,
-                    ContactName = seller.ContactName,
-                    //CustomerID = String.IsNullOrEmpty(invItem.GoogleId) ? "" : invItem.GoogleId,
-                    CustomerName = seller.CompanyName,
-                    EMail = seller.ContactEmail,
-                    Fax = seller.Fax,
-                    Phone = seller.Phone,
-                    PersonInCharge = seller.UndertakerName,
-                    SellerID = seller.CompanyID,
-                },
-                InvoiceBuyer = new InvoiceBuyer
-                {
-                    BuyerMark = invItem.BuyerMark,
-                    Name = invItem.BuyerId == "0000000000" ? invItem.BuyerName.CheckB2CMIGName() : invItem.BuyerName,
-                    ReceiptNo = invItem.BuyerId,
-                    CustomerID = String.IsNullOrEmpty(invItem.GoogleId) ? "" : invItem.GoogleId,
-                    ContactName = invItem.Contact != null ? (String.IsNullOrEmpty(invItem.Contact.Name) ? "" : invItem.Contact.Name) : "",
-                    Address = invItem.Contact != null ? (String.IsNullOrEmpty(invItem.Contact.Address) ? "" : invItem.Contact.Address) : "",
-                    Phone = invItem.Contact != null ? (String.IsNullOrEmpty(invItem.Contact.TEL) ? "" : invItem.Contact.TEL) : "",
-                    EMail = invItem.Contact != null ? (String.IsNullOrEmpty(invItem.Contact.Email) ? "" : invItem.Contact.Email.Replace(',', ';').Replace(' ', ';').Replace('、', ';')) : "",
-                    CustomerName = invItem.BuyerName,
-                },
-                //InvoiceByHousehold = carrier != null ? new InvoiceByHousehold { InvoiceUserCarrier = carrier } : null,
-                //InvoicePrintAssertion = bPrinted ? new InvoicePrintAssertion { PrintDate = DateTime.Now } : null,
-                RandomNo = String.IsNullOrEmpty(invItem.RandomNumber) ? ValidityAgent.GenerateRandomCode(4) : invItem.RandomNumber,
-                InvoiceAmountType = new InvoiceAmountType
-                {
-                    DiscountAmount = invItem.DiscountAmount,
-                    SalesAmount = invItem.SalesAmount,
-                    FreeTaxSalesAmount = invItem.FreeTaxSalesAmount,
-                    ZeroTaxSalesAmount = invItem.ZeroTaxSalesAmount,
-                    TaxAmount = invItem.TaxAmount,
-                    TaxRate = invItem.TaxRate,
-                    TaxType = invItem.TaxType,
-                    TotalAmount = invItem.TotalAmount,
-                    TotalAmountInChinese = ValidityAgent.MoneyShow(invItem.TotalAmount),
-                    BondedAreaConfirm = invItem.BondedAreaConfirm,
-                },
-                //DonationID = donatory != null ? donatory.CompanyID : (int?)null,
-                InvoiceCarrier = carrier,
-                InvoiceDonation = donation,
-                PrintMark = (invItem.BuyerId != "0000000000") == true ? "Y" : ((all_printed && !Final_printed) == true ? "N" : (Final_printed == true ? "Y" : "N")),
-            };
+        //protected InvoiceItem createInvoiceItem(OrganizationToken owner, InvoiceRootInvoice invItem, Organization seller, InvoicePurchaseOrder order, bool Final_printed, bool all_printed, InvoiceCarrier carrier, InvoiceDonation donation, IEnumerable<InvoiceProductItem> productItems)
+        //{
+        //    InvoiceItem newItem = new InvoiceItem
+        //    {
+        //        CDS_Document = new CDS_Document
+        //        {
+        //            DocDate = DateTime.Now,
+        //            DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
+        //            ProcessType = (int)Naming.InvoiceProcessType.C0401,
+        //        },
+        //        DonateMark = donation == null ? "0" : "1",
+        //        InvoiceType = byte.Parse(invItem.InvoiceType),
+        //        //No = invNo,
+        //        //TrackCode = trackCode,
+        //        SellerID = seller.CompanyID,
+        //        CustomsClearanceMark = invItem.CustomsClearanceMark,
+        //        InvoiceSeller = new InvoiceSeller
+        //        {
+        //            Name = seller.CompanyName,
+        //            ReceiptNo = seller.ReceiptNo,
+        //            Address = seller.Addr,
+        //            ContactName = seller.ContactName,
+        //            //CustomerID = String.IsNullOrEmpty(invItem.GoogleId) ? "" : invItem.GoogleId,
+        //            CustomerName = seller.CompanyName,
+        //            EMail = seller.ContactEmail,
+        //            Fax = seller.Fax,
+        //            Phone = seller.Phone,
+        //            PersonInCharge = seller.UndertakerName,
+        //            SellerID = seller.CompanyID,
+        //        },
+        //        InvoiceBuyer = new InvoiceBuyer
+        //        {
+        //            BuyerMark = invItem.BuyerMark,
+        //            Name = invItem.BuyerId == "0000000000" ? invItem.BuyerName.CheckB2CMIGName() : invItem.BuyerName,
+        //            ReceiptNo = invItem.BuyerId,
+        //            CustomerID = String.IsNullOrEmpty(invItem.GoogleId) ? "" : invItem.GoogleId,
+        //            ContactName = invItem.Contact != null ? (String.IsNullOrEmpty(invItem.Contact.Name) ? "" : invItem.Contact.Name) : "",
+        //            Address = invItem.Contact != null ? (String.IsNullOrEmpty(invItem.Contact.Address) ? "" : invItem.Contact.Address) : "",
+        //            Phone = invItem.Contact != null ? (String.IsNullOrEmpty(invItem.Contact.TEL) ? "" : invItem.Contact.TEL) : "",
+        //            EMail = invItem.Contact != null ? (String.IsNullOrEmpty(invItem.Contact.Email) ? "" : invItem.Contact.Email.Replace(',', ';').Replace(' ', ';').Replace('、', ';')) : "",
+        //            CustomerName = invItem.BuyerName,
+        //        },
+        //        //InvoiceByHousehold = carrier != null ? new InvoiceByHousehold { InvoiceUserCarrier = carrier } : null,
+        //        //InvoicePrintAssertion = bPrinted ? new InvoicePrintAssertion { PrintDate = DateTime.Now } : null,
+        //        RandomNo = String.IsNullOrEmpty(invItem.RandomNumber) ? ValidityAgent.GenerateRandomCode(4) : invItem.RandomNumber,
+        //        InvoiceAmountType = new InvoiceAmountType
+        //        {
+        //            DiscountAmount = invItem.DiscountAmount,
+        //            SalesAmount = invItem.SalesAmount,
+        //            FreeTaxSalesAmount = invItem.FreeTaxSalesAmount,
+        //            ZeroTaxSalesAmount = invItem.ZeroTaxSalesAmount,
+        //            TaxAmount = invItem.TaxAmount,
+        //            TaxRate = invItem.TaxRate,
+        //            TaxType = invItem.TaxType,
+        //            TotalAmount = invItem.TotalAmount,
+        //            TotalAmountInChinese = ValidityAgent.MoneyShow(invItem.TotalAmount),
+        //            BondedAreaConfirm = invItem.BondedAreaConfirm,
+        //        },
+        //        //DonationID = donatory != null ? donatory.CompanyID : (int?)null,
+        //        InvoiceCarrier = carrier,
+        //        InvoiceDonation = donation,
+        //        PrintMark = (invItem.BuyerId != "0000000000") == true ? "Y" : ((all_printed && !Final_printed) == true ? "N" : (Final_printed == true ? "Y" : "N")),
+        //    };
 
-            if (order != null)
-            {
-                newItem.InvoicePurchaseOrder = order;
-            }
+        //    if (order != null)
+        //    {
+        //        newItem.InvoicePurchaseOrder = order;
+        //    }
 
-            newItem.InvoiceDetails.AddRange(productItems.Select(p => new InvoiceDetail
-            {
-                InvoiceProduct = p.InvoiceProduct,
-            }));
+        //    newItem.InvoiceDetails.AddRange(productItems.Select(p => new InvoiceDetail
+        //    {
+        //        InvoiceProduct = p.InvoiceProduct,
+        //    }));
 
-            if (owner != null)
-            {
-                newItem.CDS_Document.DocumentOwner = new DocumentOwner
-                {
-                    OwnerID = owner.CompanyID,
-                };
-            }
+        //    if (owner != null)
+        //    {
+        //        newItem.CDS_Document.DocumentOwner = new DocumentOwner
+        //        {
+        //            OwnerID = owner.CompanyID,
+        //        };
+        //    }
 
-            newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
-            newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+        //    newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+        //    newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
 
-            return newItem;
-        }
+        //    return newItem;
+        //}
 
 
         //public Dictionary<int, Exception> SaveUploadInvoice_C0401(ModelCore.Schema.TurnKey.C0401.Invoice invoice, OrganizationToken owner)

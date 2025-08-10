@@ -23,6 +23,7 @@ using CommonLib.Core.Utility;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Data.Linq;
+using ModelCore.InvoiceManagement;
 
 namespace WebHome.Controllers
 {
@@ -78,7 +79,7 @@ namespace WebHome.Controllers
 
                         String result = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xslx");
                         xlwb.SaveAs(result);
-                        return File(result, "application/octet-stream", "修改買受人資料(回應).xlsx");
+                        return PhysicalFile(result, "application/octet-stream", "修改買受人資料(回應).xlsx");
                     }
                 }
                 ViewBag.AlertMessage = "檔案錯誤!!";
@@ -129,7 +130,7 @@ namespace WebHome.Controllers
 
                         String result = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xslx");
                         xlwb.SaveAs(result);
-                        return File(result, "application/octet-stream", "修改發票字軌(回應).xlsx");
+                        return PhysicalFile(result, "application/octet-stream", "修改發票字軌(回應).xlsx");
                     }
                 }
                 ViewBag.AlertMessage = "檔案錯誤!!";
@@ -149,7 +150,7 @@ namespace WebHome.Controllers
                 String filePath = path.DecryptData();
                 if (System.IO.File.Exists(filePath))
                 {
-                    return File(filePath, "application/octet-stream", Path.GetFileName(filePath));
+                    return PhysicalFile(filePath, "application/octet-stream", Path.GetFileName(filePath));
                 }
             }
             return new EmptyResult { };

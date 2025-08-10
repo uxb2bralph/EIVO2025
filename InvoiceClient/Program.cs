@@ -53,7 +53,13 @@ namespace InvoiceClient
                 }
             }
 
-            if(Environment.UserInteractive)
+            int idx = Array.IndexOf(args, "-k");
+            if (idx > -1 && args.Length > idx + 1)
+            {
+                AppSigner.ResetCertificate(args[idx + 1]);
+            }
+
+            if (Environment.UserInteractive)
             {
                 if (AppSigner.SignerCertificate == null)
                 {

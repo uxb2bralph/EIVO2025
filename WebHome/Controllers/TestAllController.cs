@@ -56,7 +56,7 @@ namespace WebHome.Controllers
             {
                 EIVOTurnkeyFactory.ResetBusyCount();
             }
-            //EIVOTurnkeyFactory.Notify();
+            //EIVONotificationFactory.Notify();
             return Json(EIVOTurnkeyFactory.CurrentStatus);
         }
 

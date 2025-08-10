@@ -1,4 +1,15 @@
-﻿using System;
+﻿using CommonLib.Core.Utility;
+using CommonLib.DataAccess;
+using CommonLib.Utility;
+using ModelCore.DataEntity;
+using ModelCore.Helper;
+using ModelCore.InvoiceManagement.enUS;
+using ModelCore.InvoiceManagement.ErrorHandle;
+using ModelCore.InvoiceManagement.Validator;
+using ModelCore.Locale;
+using ModelCore.Properties;
+using ModelCore.Schema.EIVO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,18 +17,6 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-
-
-
-using ModelCore.DataEntity;
-using ModelCore.Helper;
-using ModelCore.InvoiceManagement.enUS;
-using ModelCore.Locale;
-using ModelCore.Properties;
-using ModelCore.Schema.EIVO;
-using CommonLib.Utility;
-using CommonLib.DataAccess;
-using CommonLib.Core.Utility;
 
 namespace ModelCore.InvoiceManagement
 {
@@ -52,96 +51,69 @@ namespace ModelCore.InvoiceManagement
         public override Dictionary<int, Exception> SaveUploadInvoiceAutoTrackNo(InvoiceRoot item, OrganizationToken owner)
         {
             Dictionary<int, Exception> result = new Dictionary<int, Exception>();
-            TrackNoManager trackNoMgr = new TrackNoManager(this, owner.CompanyID);
 
             if (item != null && item.Invoice != null && item.Invoice.Length > 0)
             {
                 //Organization donatory = owner.Organization.InvoiceWelfareAgencies.Select(w => w.WelfareAgency.Organization).FirstOrDefault();
-
                 EventItems = null;
                 List<InvoiceItem> eventItems = new List<InvoiceItem>();
+                bool forTerms = ChannelID.HasValue && ChannelID == (int)Naming.ChannelIDType.ForGoogleTerms;
 
-                for (int idx = 0; idx < item.Invoice.Length; idx++)
+                bool countInfo = item.Invoice.Length > 1000;
+                if (countInfo)
                 {
+                    Console.WriteLine($"Large file process:{item.Invoice.Length}");
+                }
+
+                int count = 0, dbCheckCount = 180;
+                InvoiceManager workingMgr = new InvoiceManager();
+                GoogleInvoiceRootInvoiceValidator validator = new GoogleInvoiceRootInvoiceValidator(workingMgr, owner.Organization)
+                {
+                    UseDefaultCrossBorderMerchantCarrier = true,
+                };
+                validator.StartAutoTrackNo(ApplyInvoiceDate);
+                for (int idx = 0; idx < item.Invoice.Length; idx++, count++)
+                {
+                    if (count == dbCheckCount)
+                    {
+                        count = 0;
+                        validator.EndAutoTrackNo();
+                        workingMgr.Dispose();
+                        workingMgr = new InvoiceManager();
+                        validator = new GoogleInvoiceRootInvoiceValidator(workingMgr, owner.Organization)
+                        {
+                            UseDefaultCrossBorderMerchantCarrier = true,
+                        };
+                        validator.StartAutoTrackNo(ApplyInvoiceDate);
+                    }
+
                     try
                     {
                         var invItem = item.Invoice[idx];
 
-                        Exception ex;
-                        Organization seller;
-                        InvoicePurchaseOrder order;
-
-
-
-                        if ((ex = invItem.CheckBusiness(this, owner, out seller)) != null)
+                        InvoiceItem newItem = validator.SaveRootInvoice(invItem, forTerms, InvoiceClientID, ChannelID, out Exception ex);
+                        if (countInfo)
                         {
-                            result.Add(idx, ex);
-                            continue;
+                            Console.Write("+");
                         }
 
-                        if ((ex = invItem.CheckDataNumber(seller,this, out order)) != null)
+                        if (ex != null)
                         {
-                            result.Add(idx, ex);
-                            continue;
+                            if (IgnoreDuplicateDataNumberException && (ex is DuplicateDataNumberException))
+                            {
+                                newItem = ((DuplicateDataNumberException)ex).CurrentPO.InvoiceItem;
+                                if (newItem == null)
+                                {
+                                    result.Add(idx, ex);
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                result.Add(idx, ex);
+                                continue;
+                            }
                         }
-
-                        if ((ex = invItem.CheckAmount()) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        #region 列印、捐贈、載具
-
-                        bool all_printed = seller.OrganizationStatus.PrintAll == true;
-                        bool print_mark = invItem.PrintMark == "y" || invItem.PrintMark == "Y";
-
-                        InvoiceDonation donation;
-                        if ((ex = invItem.CheckInvoiceDonation(seller, all_printed, print_mark, out donation)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        InvoiceCarrier carrier;
-
-                        if ((ex = invItem.CheckInvoiceCarrier(seller, donation, all_printed, print_mark, out carrier)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        if ((ex = invItem.CheckMandatoryFields(seller, all_printed, print_mark)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        #endregion
-
-                        IEnumerable<InvoiceProductItem> productItems;
-                        if ((ex = invItem.CheckInvoiceProductItems(out productItems)) != null)
-                        {
-                            result.Add(idx, ex);
-                            continue;
-                        }
-
-                        InvoiceItem newItem = createInvoiceItem(owner, invItem, seller, order, print_mark, all_printed, carrier, donation, productItems);
-
-                        if (!trackNoMgr.CheckInvoiceNo(newItem))
-                        {
-                            result.Add(idx, new Exception("Not Set invoice word has run track or invoice number"));
-                            continue;
-                        }
-                        else
-                        {
-                            newItem.InvoiceDate = DateTime.Now;
-                        }
-
-                        this.EntityList.InsertOnSubmit(newItem);
-                        checkAttachmentFromPool(order);
-
-                        this.SubmitChanges();
 
                         eventItems.Add(newItem);
                     }
@@ -151,16 +123,20 @@ namespace ModelCore.InvoiceManagement
                         result.Add(idx, ex);
                     }
                 }
+                validator.EndAutoTrackNo();
+                workingMgr.Dispose();
 
                 if (eventItems.Count > 0)
                 {
                     HasItem = true;
+                    if (forTerms)
+                    {
+                        GoogleInvoiceExtensionMethods.MatchGoogleInvoiceAttachment();
+                    }
                 }
-
                 EventItems = eventItems;
             }
 
-            trackNoMgr.Dispose();
             return result;
         }
 

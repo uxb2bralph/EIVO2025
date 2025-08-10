@@ -20,6 +20,8 @@ using System.Data.Linq;
 using System.Threading.Tasks;
 using CommonLib.DataAccess;
 using CommonLib.Core.Utility;
+using ModelCore.Models.ViewModel;
+using Newtonsoft.Json;
 
 namespace ModelCore.InvoiceManagement.InvoiceProcess
 {
@@ -76,6 +78,40 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             return null;
         }
 
+        private RenderStyleViewModel? GetNoticeItem()
+        {
+            lock (typeof(InvoiceHandler))
+            {
+
+                var files = Directory.EnumerateFiles(AppSettings.Default.MailQueuePath, "*.json");
+
+                if (files.Any())
+                {
+                    foreach(var file in files)
+                    {
+                        try
+                        {
+                            var readyFile = Path.Combine(AppSettings.Default.MailReadyPath, Path.GetFileName(file));
+                            File.Move(file, readyFile);
+                            var content = File.ReadAllText(readyFile);
+                            var viewModel = JsonConvert.DeserializeObject<RenderStyleViewModel>(content);
+                            if (viewModel != null)
+                            {
+                                viewModel.JsonPath = readyFile;
+                                return viewModel;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+
         public void WriteA0101ToTurnkey()
         {
             DataProcessQueue? item;
@@ -91,6 +127,50 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             while ((item = GetReadyItem(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401)) != null)
             {
                 WriteF0401ToTurnkey(item);
+            }
+        }
+
+        public void SendMailNotification()
+        {
+            RenderStyleViewModel? viewModel;
+            while ((viewModel = GetNoticeItem()) != null)
+            {
+                try
+                {
+                    if (EIVONotificationFactory.SendNotification(viewModel))
+                    {
+                        var docItem = models.GetTable<CDS_Document>()
+                            .Where(d => d.DocID == viewModel.DocID).FirstOrDefault();
+
+                        if (docItem != null)
+                        {
+                            docItem.PushLogOnSubmit(models, viewModel.StepID, Naming.DataProcessStatus.Done, processType: viewModel.ProcessType);
+                            models.SubmitChanges();
+                        }
+
+                        PopupNoticeItem(viewModel);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
+            }
+        }
+
+        private void PopupNoticeItem(RenderStyleViewModel viewModel)
+        {
+            if (viewModel?.JsonPath != null && File.Exists(viewModel.JsonPath))
+            {
+                try
+                {
+                    File.Delete(viewModel.JsonPath);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
             }
         }
 

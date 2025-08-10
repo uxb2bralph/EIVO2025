@@ -29,7 +29,7 @@ namespace TaskCenter.Controllers
         {
         }
 
-        public ActionResult UploadInvoiceAutoTrackNo(InvoiceRequestViewModel viewModel)
+        public ActionResult UploadInvoiceAutoTrackNo([FromBody] InvoiceRequestViewModel viewModel)
         {
             InvoiceRoot? invoice = FromJsonBody<InvoiceRequestViewModel>()?.InvoiceRoot;
             Root result = createMessageToken();
@@ -45,7 +45,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
-        public ActionResult UploadInvoice(InvoiceRequestViewModel viewModel)
+        public ActionResult UploadInvoice([FromBody] InvoiceRequestViewModel viewModel)
         {
             Root result = createMessageToken();
             InvoiceRoot? invoice = FromJsonBody<InvoiceRequestViewModel>()?.InvoiceRoot;
@@ -62,7 +62,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
-        public ActionResult UploadInvoiceCancellation(InvoiceRequestViewModel viewModel)
+        public ActionResult UploadInvoiceCancellation([FromBody] InvoiceRequestViewModel viewModel)
         {
             Root result = createMessageToken();
             CancelInvoiceRoot item = FromJsonBody<InvoiceRequestViewModel>().CancelInvoiceRoot;
@@ -74,7 +74,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
-        public ActionResult UploadAllowance(InvoiceRequestViewModel viewModel)
+        public ActionResult UploadAllowance([FromBody] InvoiceRequestViewModel viewModel)
         {
             Root result = createMessageToken();
             AllowanceRoot allowance = FromJsonBody<InvoiceRequestViewModel>().AllowanceRoot;
@@ -86,7 +86,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
-        public ActionResult UploadAllowanceCancellation(InvoiceRequestViewModel viewModel)
+        public ActionResult UploadAllowanceCancellation([FromBody] InvoiceRequestViewModel viewModel)
         {
             Root result = createMessageToken();
             CancelAllowanceRoot? item = FromJsonBody<InvoiceRequestViewModel>()?.CancelAllowanceRoot;
@@ -101,7 +101,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
-        public ActionResult GetStorageToken(InvoiceRequestViewModel viewModel)
+        public ActionResult GetStorageToken([FromBody] InvoiceRequestViewModel viewModel)
         {
             String? storageToken = null;
             viewModel.StoragePath = viewModel?.StoragePath.GetEfficientString();

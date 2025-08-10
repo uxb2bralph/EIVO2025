@@ -792,33 +792,14 @@ namespace ModelCore.Helper
                     case "A0401":
                     case "C0401":
                     case "F0401":
-                        if (no?.Length == 10)
-                        {
-                            var invoice = models.GetTable<InvoiceItem>()
-                                    .Where(i => i.TrackCode == no.Substring(0, 2))
-                                    .Where(i => i.No == no.Substring(2))
-                                    .OrderByDescending(i => i.InvoiceID)
-                                    .FirstOrDefault();
+                        return PushInvoiceTurnkeyLog(models, code, no, Naming.InvoiceProcessType.F0401);
 
-                            if (invoice != null)
-                            {
-                                if (code == "C")
-                                {
-                                    invoice.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done);
-                                    models.SubmitChanges();
-                                    //Console.WriteLine($"Invoice:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => C");
-                                    return invoice.InvoiceID;
-                                }
-                                else if (code == "E")
-                                {
-                                    invoice.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done);
-                                    models.SubmitChanges();
-                                    //Console.WriteLine($"Invoice:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => E");
-                                    return invoice.InvoiceID;
-                                }
-                            }
-                        }
-                        break;
+                    case "A0101":
+                    case "A0102":
+                    case "A0301":
+                    case "A0302":
+                        return PushInvoiceTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
+
 
                     case "C0701":
                     case "F0701":
@@ -851,105 +832,168 @@ namespace ModelCore.Helper
                     case "A0501":
                     case "C0501":
                     case "F0501":
-                        var cancelItem = models.GetTable<InvoiceCancellation>()
-                                .Where(i => i.CancellationNo == no)
-                                .OrderByDescending(i => i.InvoiceID)
-                                .FirstOrDefault();
+                        return PushInvoiceCancellationTurnkeyLog(models, code, no, Naming.InvoiceProcessType.F0501);
 
-                        var doc = cancelItem?.InvoiceItem.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
-                        if (doc != null)
-                        {
-                            if (code == "C")
-                            {
-                                doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done);
-                                models.SubmitChanges();
-                                //Console.WriteLine($"InvoiceCancellation:({cancelItem.InvoiceID},{cancelItem.CancellationNo}) => C");
-                                return doc.DocID;
-                            }
-                            else if (code == "E")
-                            {
-                                doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done);
-                                models.SubmitChanges();
-                                //Console.WriteLine($"InvoiceCancellation:({cancelItem.InvoiceID},{cancelItem.CancellationNo}) => E");
-                                return doc.DocID;
-                            }
-                        }
-                        break;
+                    case "A0201":
+                    case "A0202":
+                        return PushInvoiceCancellationTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
 
                     case "B0401":
                     case "D0401":
                     case "G0401":
-                        var allowance = models.GetTable<InvoiceAllowance>()
-                                .Where(i => i.AllowanceNumber == no)
-                                .OrderByDescending(i => i.AllowanceID)
-                                .FirstOrDefault();
+                        return PushAllowanceTurnkeyLog(models, code, no, Naming.InvoiceProcessType.G0401);
 
-                        if(allowance == null)
-                        {
-                            if (no?.Length >= 10)
-                            {
-                                var allowanceItem = models.GetTable<InvoiceAllowanceItem>()
-                                    .Where(i => i.InvoiceNo == no.Substring(0, 10))
-                                    .FirstOrDefault();
-                                if (allowanceItem != null && no == $"{allowanceItem.InvoiceNo}{allowanceItem.InvoiceAllowanceDetail.First().AllowanceID % 1000000:000000}")
-                                {
-                                    allowance = allowanceItem.InvoiceAllowanceDetail.First().InvoiceAllowance;
-                                }
-                            }
-                        }
+                    case "B0101":
+                    case "B0102":
+                        return PushAllowanceTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
 
-                        if (allowance != null)
-                        {
-                            if (code == "C")
-                            {
-                                allowance.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done);
-                                models.SubmitChanges();
-                                //Console.WriteLine($"Allowance:({allowance.AllowanceID},{allowance.AllowanceNumber}) => C");
-                                return allowance.AllowanceID;
-                            }
-                            else if (code == "E")
-                            {
-                                allowance.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done);
-                                models.SubmitChanges();
-                                //Console.WriteLine($"Allowance:({allowance.AllowanceID},{allowance.AllowanceNumber}) => E");
-                                return allowance.AllowanceID;
-                            }
-                        }
-                        break;
                     case "B0501":
                     case "D0501":
                     case "G0501":
-                        var cancelAllowance = models.GetTable<InvoiceAllowance>()
-                                .Where(i => i.AllowanceNumber == no)
-                                .OrderByDescending(i => i.AllowanceID)
-                                .Select(a => a.InvoiceAllowanceCancellation)
-                                .FirstOrDefault();
+                        return PushAllowanceCancellationTurnkeyLog(models, code, no, Naming.InvoiceProcessType.G0501);
 
-                        doc = cancelAllowance?.InvoiceAllowance.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
-                        if (doc != null)
-                        {
-                            if (code == "C")
-                            {
-                                doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done);
-                                models.SubmitChanges();
-                                //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.InvoiceAllowance.AllowanceNumber}) => C");
-                                return doc.DocID;
-                            }
-                            else if (code == "E")
-                            {
-                                doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done);
-                                models.SubmitChanges();
-                                //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.InvoiceAllowance.AllowanceNumber}) => E");
-                                return doc.DocID;
-                            }
-                        }
-                        break;
+                    case "B0201":
+                    case "B0202":
+                        return PushAllowanceCancellationTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
                 }
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
             }
+            return null;
+        }
+
+        private static int? PushAllowanceCancellationTurnkeyLog(GenericManager<EIVOEntityDataContext> models, string code, string no,Naming.InvoiceProcessType processType)
+        {
+            var cancelAllowance = models.GetTable<InvoiceAllowance>()
+                                            .Where(i => i.AllowanceNumber == no)
+                                            .OrderByDescending(i => i.AllowanceID)
+                                            .Select(a => a.InvoiceAllowanceCancellation)
+                                            .FirstOrDefault();
+
+            CDS_Document? doc = cancelAllowance?.InvoiceAllowance.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
+            if (doc != null)
+            {
+                if (code == "C")
+                {
+                    doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done,processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.InvoiceAllowance.AllowanceNumber}) => C");
+                    return doc.DocID;
+                }
+                else if (code == "E")
+                {
+                    doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.InvoiceAllowance.AllowanceNumber}) => E");
+                    return doc.DocID;
+                }
+            }
+
+            return null;
+        }
+
+        private static int? PushAllowanceTurnkeyLog(GenericManager<EIVOEntityDataContext> models, string code, string no, Naming.InvoiceProcessType processType)
+        {
+            var allowance = models.GetTable<InvoiceAllowance>()
+                    .Where(i => i.AllowanceNumber == no)
+                    .OrderByDescending(i => i.AllowanceID)
+                    .FirstOrDefault();
+
+            if (allowance == null)
+            {
+                if (no?.Length >= 10)
+                {
+                    var allowanceItem = models.GetTable<InvoiceAllowanceItem>()
+                        .Where(i => i.InvoiceNo == no.Substring(0, 10))
+                        .FirstOrDefault();
+                    if (allowanceItem != null && no == $"{allowanceItem.InvoiceNo}{allowanceItem.InvoiceAllowanceDetail.First().AllowanceID % 1000000:000000}")
+                    {
+                        allowance = allowanceItem.InvoiceAllowanceDetail.First().InvoiceAllowance;
+                    }
+                }
+            }
+
+            if (allowance != null)
+            {
+                if (code == "C")
+                {
+                    allowance.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"Allowance:({allowance.AllowanceID},{allowance.AllowanceNumber}) => C");
+                    return allowance.AllowanceID;
+                }
+                else if (code == "E")
+                {
+                    allowance.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"Allowance:({allowance.AllowanceID},{allowance.AllowanceNumber}) => E");
+                    return allowance.AllowanceID;
+                }
+            }
+
+            return null;
+        }
+
+        private static int? PushInvoiceCancellationTurnkeyLog(GenericManager<EIVOEntityDataContext> models, string code, string no, Naming.InvoiceProcessType processType)
+        {
+            var cancelItem = models.GetTable<InvoiceCancellation>()
+                                            .Where(i => i.CancellationNo == no)
+                                            .OrderByDescending(i => i.InvoiceID)
+                                            .FirstOrDefault();
+
+            CDS_Document? doc = cancelItem?.InvoiceItem.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
+            if (doc != null)
+            {
+                if (code == "C")
+                {
+                    doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"InvoiceCancellation:({cancelItem.InvoiceID},{cancelItem.CancellationNo}) => C");
+                    return doc.DocID;
+                }
+                else if (code == "E")
+                {
+                    doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"InvoiceCancellation:({cancelItem.InvoiceID},{cancelItem.CancellationNo}) => E");
+                    return doc.DocID;
+                }
+            }
+
+            return null;
+        }
+
+        private static int? PushInvoiceTurnkeyLog(GenericManager<EIVOEntityDataContext> models, string code, string no, Naming.InvoiceProcessType processType)
+        {
+            if (no?.Length == 10)
+            {
+                var invoice = models.GetTable<InvoiceItem>()
+                        .Where(i => i.TrackCode == no.Substring(0, 2))
+                        .Where(i => i.No == no.Substring(2))
+                        .OrderByDescending(i => i.InvoiceID)
+                        .FirstOrDefault();
+
+                if (invoice != null)
+                {
+                    if (code == "C")
+                    {
+                        invoice.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done, processType: processType);
+                        models.SubmitChanges();
+                        //Console.WriteLine($"Invoice:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => C");
+                        return  invoice.InvoiceID;
+                    }
+                    else if (code == "E")
+                    {
+                        invoice.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
+                        models.SubmitChanges();
+                        //Console.WriteLine($"Invoice:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => E");
+                        return  invoice.InvoiceID;
+                    }
+                }
+            }
+
             return null;
         }
 

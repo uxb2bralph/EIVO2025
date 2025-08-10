@@ -225,6 +225,11 @@ namespace ModelCore.Models.ViewModel
         public String? QueryAction { get; set; }
         public String? Title { get; set; }
         public String? FieldName { get; set; }
+        public String? MailTo 
+        {
+            get;
+            set;
+        }
     }
 
     public partial class UserAccountQueryViewModel : UserProfileViewModel
@@ -408,9 +413,11 @@ namespace ModelCore.Models.ViewModel
         public String? Reason { get; set; }
         public bool? NameOnly { get; set; }
         public bool? AppendAttachment { get; set; }
-        public String? MailTo { get; set; }
         [JsonIgnore]
         public int? LogID { get => DocID; set => DocID = value; }
+        [JsonIgnore]
+        public String? JsonPath { get; set; }
+
     }
 
     public class ExceptionLogQueryViewModel : QueryViewModel
@@ -424,6 +431,7 @@ namespace ModelCore.Models.ViewModel
         public bool? PrintBack { get; set; }
         public bool? PrintCuttingLine { get; set; }
         public String? PaperStyle { get; set; }
+        public String? MailUrl { get; set; }
         public bool? PrintBuyerAddr { get; set; }
         public bool? UseCustomView { get; set; }
         public bool? CreateNew { get; set; }
@@ -433,9 +441,11 @@ namespace ModelCore.Models.ViewModel
         public decimal? Zoom { get; set; }
         public bool? IsPDF { get; set; }
         public String? HeaderView { get; set; }
+        [JsonIgnore]
+        public Naming.InvoiceStepDefinition StepID { get; set; } = Naming.InvoiceStepDefinition.開立通知;
     }
 
-    public class ProcessRequestViewModel : AuthQueryViewModel
+    public class ProcessRequestViewModel : CommonQueryViewModel
     {
         public int? Sender { get; set; }
         public int? TaskID { get; set; }

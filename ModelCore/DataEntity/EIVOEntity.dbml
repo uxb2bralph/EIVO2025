@@ -170,8 +170,8 @@
       <Association Name="CDS_Document_CustomerDefined" Member="CustomerDefined" ThisKey="DocID" OtherKey="DocID" Type="CustomerDefined" Cardinality="One" />
       <Association Name="CDS_Document_C0401DispatchQueue" Member="C0401DispatchQueue" ThisKey="DocID" OtherKey="DocID" Type="C0401DispatchQueue" />
       <Association Name="CDS_Document_VoidInvoiceRequest" Member="VoidInvoiceRequest" ThisKey="DocID" OtherKey="DocID" Type="VoidInvoiceRequest" Cardinality="One" />
-      <Association Name="CDS_Document_DataProcessQueue" Member="DataProcessQueue" ThisKey="DocID" OtherKey="DocID" Type="DataProcessQueue" />
       <Association Name="CDS_Document_DataProcessLog" Member="DataProcessLog" ThisKey="DocID" OtherKey="DocID" Type="DataProcessLog" />
+      <Association Name="CDS_Document_DataProcessQueue" Member="DataProcessQueue" ThisKey="DocID" OtherKey="DocID" Type="DataProcessQueue" />
       <Association Name="DocumentType_CDS_Document" Member="DocumentType" ThisKey="DocType" OtherKey="TypeID" Type="DocumentType" IsForeignKey="true" />
       <Association Name="LevelExpression_CDS_Document" Member="LevelExpression" ThisKey="CurrentStep" OtherKey="LevelID" Type="LevelExpression" IsForeignKey="true" />
     </Type>
@@ -626,20 +626,21 @@
     <Type Name="InvoiceAmountType">
       <Column Name="InvoiceID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
       <Column Name="TaxType" Type="System.Byte" DbType="TinyInt" CanBeNull="true" />
-      <Column Name="SalesAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="TaxAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="SalesAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="TaxAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
       <Column Name="TaxRate" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="TotalAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="TotalAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
       <Column Name="TotalAmountInChinese" Type="System.String" DbType="NVarChar(32)" CanBeNull="true" />
-      <Column Name="DiscountAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="Adjustment" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="OriginalCurrencyAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="DiscountAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="Adjustment" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="OriginalCurrencyAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
       <Column Name="ExchangeRate" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
       <Column Name="CurrencyID" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="FreeTaxSalesAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="ZeroTaxSalesAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="FreeTaxSalesAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="ZeroTaxSalesAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
       <Column Name="BondedAreaConfirm" Type="System.Byte" DbType="TinyInt" CanBeNull="true" />
-      <Association Name="CurrencyType_InvoiceAmountType" Member="CurrencyType" ThisKey="CurrencyID" OtherKey="CurrencyID" Type="CurrencyType" IsForeignKey="true" />
+		<Column Name="ZeroTaxRateReason" Type="System.String" DbType="NVarChar(4)" CanBeNull="true" />
+		<Association Name="CurrencyType_InvoiceAmountType" Member="CurrencyType" ThisKey="CurrencyID" OtherKey="CurrencyID" Type="CurrencyType" IsForeignKey="true" />
       <Association Name="InvoiceItem_InvoiceAmountType" Member="InvoiceItem" ThisKey="InvoiceID" OtherKey="InvoiceID" Type="InvoiceItem" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
@@ -995,19 +996,19 @@
       <Column Name="ProductID" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Column Name="No" Type="System.Int16" DbType="SmallInt" CanBeNull="true" />
       <Column Name="Spec" Type="System.String" DbType="NVarChar(128)" CanBeNull="true" />
-      <Column Name="Piece" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="Piece2" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="Piece" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="Piece2" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
       <Column Name="PieceUnit" Type="System.String" DbType="NVarChar(16)" CanBeNull="true" />
       <Column Name="PieceUnit2" Type="System.String" DbType="NVarChar(16)" CanBeNull="true" />
-      <Column Name="Weight" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="Weight" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
       <Column Name="WeightUnit" Type="System.String" DbType="NVarChar(16)" CanBeNull="true" />
-      <Column Name="UnitFreight" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="UnitCost" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="UnitCost2" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="FreightAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="CostAmount" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="CostAmount2" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
-      <Column Name="OriginalPrice" Type="System.Decimal" DbType="Decimal(18,5)" CanBeNull="true" />
+      <Column Name="UnitFreight" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="UnitCost" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="UnitCost2" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="FreightAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="CostAmount" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="CostAmount2" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
+      <Column Name="OriginalPrice" Type="System.Decimal" DbType="Decimal(18,7)" CanBeNull="true" />
       <Column Name="Remark" Type="System.String" DbType="NVarChar(2048)" CanBeNull="true" />
       <Column Name="RelateNumber" Type="System.String" DbType="NVarChar(64)" CanBeNull="true" />
       <Column Name="TaxType" Type="System.Byte" DbType="TinyInt" CanBeNull="true" />
@@ -1956,14 +1957,12 @@
       <Association Name="InvoiceTrackCodeAssignment_InvoiceNoMainAssignment" Member="InvoiceTrackCodeAssignment" ThisKey="TrackID,MasterID" OtherKey="TrackID,SellerID" Type="InvoiceTrackCodeAssignment" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
-  <Table Name="[proc].DataProcessQueue" Member="DataProcessQueue">
-    <Type Name="DataProcessQueue">
-      <Column Name="DocID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="StepID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="ProcessType" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="DispatchDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
-      <Column Name="BookingTime" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
-      <Association Name="CDS_Document_DataProcessQueue" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+  <Table Name="[proc].DataNotice" Member="DataNotice">
+    <Type Name="DataNotice">
+      <Column Name="NoticeID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+		<Column Name="RenderStyle" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+		<Association Name="DataNotice_DataProcessLog" Member="DataProcessLog" ThisKey="NoticeID" OtherKey="NoticeID" Type="DataProcessLog" />
+      <Association Name="DataNotice_DataProcessQueue" Member="DataProcessQueue" ThisKey="NoticeID" OtherKey="NoticeID" Type="DataProcessQueue" />
     </Type>
   </Table>
   <Table Name="[proc].DataProcessLog" Member="DataProcessLog">
@@ -1975,7 +1974,21 @@
       <Column Name="StepID" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Column Name="Content" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
       <Column Name="ProcessType" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="NoticeID" Type="System.Int32" DbType="Int" CanBeNull="true" />
       <Association Name="CDS_Document_DataProcessLog" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="DataNotice_DataProcessLog" Member="DataNotice" ThisKey="NoticeID" OtherKey="NoticeID" Type="DataNotice" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="[proc].DataProcessQueue" Member="DataProcessQueue">
+    <Type Name="DataProcessQueue">
+      <Column Name="DocID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="StepID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ProcessType" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="DispatchDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="BookingTime" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="NoticeID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="CDS_Document_DataProcessQueue" Member="CDS_Document" ThisKey="DocID" OtherKey="DocID" Type="CDS_Document" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="DataNotice_DataProcessQueue" Member="DataNotice" ThisKey="NoticeID" OtherKey="NoticeID" Type="DataNotice" IsForeignKey="true" />
     </Type>
   </Table>
   <Function Name="dbo.MatchDocumentAttachment" Method="MatchDocumentAttachment">

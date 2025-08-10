@@ -231,7 +231,7 @@ namespace WebHome.Controllers
                 }
                 models.SubmitChanges();
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
 
                 viewModel.TrackCode = newItem.TrackCode;
                 viewModel.No = newItem.No;
@@ -279,7 +279,7 @@ namespace WebHome.Controllers
             A0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
             models.SubmitChanges();
 
-            //EIVOTurnkeyFactory.Notify();
+            //EIVONotificationFactory.Notify();
 
             viewModel.TrackCode = newItem.TrackCode;
             viewModel.No = newItem.No;
@@ -318,7 +318,7 @@ namespace WebHome.Controllers
             newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0101);
             models.SubmitChanges();
 
-            //EIVOTurnkeyFactory.Notify();
+            //EIVONotificationFactory.Notify();
 
             viewModel.TrackCode = newItem.TrackCode;
             viewModel.No = newItem.No;

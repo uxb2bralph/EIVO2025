@@ -201,6 +201,9 @@ namespace ModelCore.Schema.EIVO {
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
         public System.Nullable<byte> BondedAreaConfirm;
+        
+        /// <remarks/>
+        public string ZeroTaxRateReason;
     }
     
     /// <remarks/>

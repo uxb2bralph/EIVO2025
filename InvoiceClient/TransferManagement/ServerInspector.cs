@@ -26,7 +26,7 @@ namespace InvoiceClient.TransferManagement
     {
         protected bool _isRunning;
         public abstract void StartUp();
-        public abstract Type UIConfigType { get; }
+        public abstract Type? UIConfigType { get; }
         public ServerInspector? ChainedInspector
         { get; set; }
         public virtual void ExecutiveService(List<String> pathInfo)

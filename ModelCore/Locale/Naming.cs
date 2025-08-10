@@ -336,6 +336,8 @@ namespace ModelCore.Locale
             MIG_C = 1321,
             MIG_E = 1322,
             MIG_P = 1323,
+            開立通知 = 1401,
+            中獎通知 = 1402,
         }
 
         public enum NotificationIndication

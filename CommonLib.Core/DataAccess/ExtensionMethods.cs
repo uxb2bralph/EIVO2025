@@ -16,25 +16,29 @@ namespace CommonLib.DataAccess
         public static DataTable ToDataTable<T>(this IEnumerable<T> query)
         {
             DataTable tbl = new DataTable();
-            PropertyInfo[] props = BuildDataColumns(query, tbl);
+            PropertyInfo[]? props = BuildDataColumns(query, tbl);
 
-            foreach (T item in query)
+            if (props != null)
             {
-
-                DataRow row = tbl.NewRow();
-                foreach (PropertyInfo pi in props)
+                foreach (T item in query)
                 {
-                    row[pi.Name] = pi.GetValue(item, null) ?? DBNull.Value;
+
+                    DataRow row = tbl.NewRow();
+                    foreach (PropertyInfo pi in props)
+                    {
+                        row[pi.Name] = pi.GetValue(item, null) ?? DBNull.Value;
+                    }
+                    tbl.Rows.Add(row);
                 }
-                tbl.Rows.Add(row);
             }
+
             return tbl;
         }
 
         public static DataTable ToDataTable<T>(this IEnumerable<T> query, DataTable tbl)
         {
             Type t = typeof(T);
-            PropertyInfo[] props = null;
+            PropertyInfo[]? props = null;
             props = t.GetProperties();
 
             foreach (T item in query)
@@ -52,9 +56,9 @@ namespace CommonLib.DataAccess
             return tbl;
         }
 
-        public static PropertyInfo[] BuildDataColumns<T>(this IEnumerable<T> query, DataTable table)
+        public static PropertyInfo[]? BuildDataColumns<T>(this IEnumerable<T> query, DataTable table)
         {
-            PropertyInfo[] props = null;
+            PropertyInfo[]? props = null;
             if (props == null) //尚未初始化
             {
                 var item = query.FirstOrDefault();
@@ -78,7 +82,7 @@ namespace CommonLib.DataAccess
 
         public static PropertyInfo[] BuildDataColumns<T>(this IQueryable<T> query, DataTable table)
         {
-            PropertyInfo[] props = null;
+            PropertyInfo[]? props = null;
             if (props == null) //尚未初始化
             {
                 Type t = typeof(T);
@@ -126,7 +130,7 @@ namespace CommonLib.DataAccess
             return excel;
         }
 
-        public static void PrepareExcelDownload<T>(this IEnumerable<T> items, string resultFile, Action<DataTable> revise = null)
+        public static void PrepareExcelDownload<T>(this IEnumerable<T> items, string resultFile, Action<DataTable>? revise = null)
         {
             Task.Run(() =>
             {

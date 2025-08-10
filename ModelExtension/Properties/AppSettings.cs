@@ -1,4 +1,6 @@
-﻿using CommonLib.Utility.Properties;
+﻿using CommonLib.Core.Utility;
+using CommonLib.Utility;
+using CommonLib.Utility.Properties;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +47,7 @@ namespace ModelExtension.Properties
         public string ServiceMailBox { get; set; } = "e-invoicevasc@uxb2b.com";
         public bool ShowAuthorizationNoInMail { get; set; } = true;
         public string SystemAdmin { get; set; } = "ifsadmin";
-        public string TaskCenter { get; set; } = "TaskCenter";
+        public string TaskCenterUrl { get; set; } = "https://egui.uxifs.com/TaskCenter";
         public string ThermalPOS { get; set; } = "0 0 162 792";
         public string WebMaster { get; set; } = "系統管理員 <invoice_test@uxb2b.com>";
         public int UserTimeoutInMinutes = 20160;
@@ -85,5 +87,17 @@ namespace ModelExtension.Properties
         public String HostUrl { get; set; } = "http://localhost:5000";
         public decimal DefaultTaxRate { get; set; } = 0.05M;
         public String NotifyIssuedInvoiceUrl { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/IssueC0401";
+        public String NotifyWinningInvoiceUrl { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/IssueWinningInvoice";
+        public String NotifyLowerInvoiceNoStockUrl { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/NotifyLowerInvoiceNoStock";
+        public String NotifyIssuedAllowanceUrl { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/IssueAllowance";
+        public String NotifyIssuedInvoiceCancellationUrl { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/IssueC0501";
+        public String NotifyIssuedAllowanceCancellationUrl { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/IssueAllowanceCancellation";
+        public String NotifyIssuedA0401Url { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/IssueA0401";
+        public String NotifyToReceiveA0401Url { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/NotifyToReceiveA0401";
+        public String NotifyCommissionedToReceiveA0401Url { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/CommissionedToReceiveA0401";
+        public String ShowInvoiceUrl { get; set; } = "https://egui.uxifs.com/eivo2025/DataView/ShowInvoice";
+        public String ShowAllowanceUrl { get; set; } = "https://egui.uxifs.com/eivo2025/DataView/ShowAllowance";
+        public String MailQueuePath { get; set; } = Path.Combine(Logger.LogPath, "MailQueue").CheckStoredPath();
+        public String MailReadyPath { get; set; } = Path.Combine(Logger.LogPath, "MailReady").CheckStoredPath();
     }
 }

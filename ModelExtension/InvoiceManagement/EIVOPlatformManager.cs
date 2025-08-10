@@ -41,73 +41,6 @@ namespace ModelCore.InvoiceManagement
             public int? b = (int?)null;
         };
 
-        public void NotifyToProcess()
-        {
-            using (InvoiceManager mgr = new InvoiceManager())
-            {
-                var notify = mgr.GetTable<ReplicationNotification>();
-                var items = notify.ToList();
-
-                if (items.Count() > 0)
-                {
-                    var org = mgr.GetTable<Organization>();
-
-                    var toIssue = notify.Select(r => r.DocumentReplication.CDS_Document).Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待開立);
-
-                    if (toIssue.Count() > 0)
-                    {
-                        var notifyToIssue = toIssue.Select(t => new NotifyToProcessID { MailToID = t.InvoiceItem.InvoiceSeller.SellerID, Seller = t.InvoiceItem.InvoiceSeller.Organization })
-                            .Concat(toIssue.Select(t => new NotifyToProcessID { MailToID = t.DerivedDocument.ParentDocument.InvoiceItem.InvoiceSeller.SellerID, Seller = t.DerivedDocument.ParentDocument.InvoiceItem.InvoiceSeller.Organization }))
-                            .Concat(toIssue.Select(t => new NotifyToProcessID { MailToID = t.InvoiceAllowance.InvoiceAllowanceBuyer.BuyerID, Seller = t.InvoiceAllowance.InvoiceAllowanceSeller.Organization }))
-                            .Concat(toIssue.Select(t => new NotifyToProcessID { MailToID = t.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceBuyer.BuyerID, Seller = t.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization }))
-                            .Concat(toIssue.Select(t => new NotifyToProcessID { MailToID = (int?)t.ReceiptItem.SellerID, Seller = t.ReceiptItem.Seller }))
-                            .Concat(toIssue.Select(t => new NotifyToProcessID { MailToID = (int?)t.DerivedDocument.ParentDocument.ReceiptItem.SellerID, Seller = t.DerivedDocument.ParentDocument.ReceiptItem.Seller }))
-                            .Distinct();
-
-                        foreach (var businessID in notifyToIssue)
-                        {
-                            var item = org.Where(o => o.CompanyID == businessID.MailToID).FirstOrDefault();
-                            if (item != null && (item.OrganizationStatus == null || item.OrganizationStatus.Entrusting != true))
-                            {
-                                //EIVOPlatformFactory.NotifyIssuedA0401(this, new EventArgs<NotifyToProcessID> { Argument = businessID });
-                            }
-                        }
-                    }
-
-                    var toReceive = notify.Select(r => r.DocumentReplication.CDS_Document).Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待接收);
-                    if (toReceive.Count() > 0)
-                    {
-
-                        var notifyToReceive = toReceive.Select(t => new NotifyToProcessID { MailToID = t.InvoiceItem.InvoiceBuyer.BuyerID, Seller = t.InvoiceItem.InvoiceSeller.Organization, itemNO = t.InvoiceItem.TrackCode + t.InvoiceItem.No })
-                            .Concat(toReceive.Select(t => new NotifyToProcessID { MailToID = t.DerivedDocument.ParentDocument.InvoiceItem.InvoiceBuyer.BuyerID, Seller = t.DerivedDocument.ParentDocument.InvoiceItem.InvoiceSeller.Organization, itemNO = t.DerivedDocument.ParentDocument.InvoiceItem.TrackCode + t.DerivedDocument.ParentDocument.InvoiceItem.No }))
-                            .Concat(toReceive.Select(t => new NotifyToProcessID { MailToID = t.InvoiceAllowance.InvoiceAllowanceSeller.SellerID, Seller = t.InvoiceAllowance.InvoiceAllowanceSeller.Organization, itemNO = t.InvoiceAllowance.InvoiceItem.TrackCode + t.InvoiceAllowance.InvoiceItem.No }))
-                            .Concat(toReceive.Select(t => new NotifyToProcessID { MailToID = t.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.SellerID, Seller = t.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization, itemNO = t.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceItem.TrackCode + t.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceItem.No }))
-                            .Concat(toReceive.Select(t => new NotifyToProcessID { MailToID = (int?)t.ReceiptItem.BuyerID, Seller = t.ReceiptItem.Seller, itemNO = t.ReceiptItem.No }))
-                            .Concat(toReceive.Select(t => new NotifyToProcessID { MailToID = (int?)t.DerivedDocument.ParentDocument.ReceiptItem.BuyerID, Seller = t.DerivedDocument.ParentDocument.ReceiptItem.Seller, itemNO = t.DerivedDocument.ParentDocument.ReceiptItem.No }))
-                            .Distinct();
-
-                        foreach (var businessID in notifyToReceive)
-                        {
-                            var item = org.Where(o => o.CompanyID == businessID.MailToID).FirstOrDefault();
-                            //var InvoiceInfo = new NotifyToProcessID { InvoiceItem = item.InvoiceItem, isMail = false };
-                            if (item != null && (item.OrganizationStatus == null || item.OrganizationStatus.Entrusting != true))
-                            {
-                                //EIVOPlatformFactory.NotifyToReceiveItem(this, new EventArgs<NotifyToProcessID> { Argument = businessID });
-                            }
-                        }
-                    }
-
-                    foreach (var i in items)
-                    {
-                        mgr.DeleteAny<DocumentDispatch>(d => d.DocID == i.DocID && d.TypeID == i.TypeID);
-                        mgr.DeleteAny<DocumentReplication>(d => d.DocID == i.DocID && d.TypeID == i.TypeID);
-                    }
-                }
-
-            }
-
-        }
-
         //public void NotifyCounterpartBusiness()
         //{
         //    using (InvoiceManager mgr = new InvoiceManager())
@@ -273,201 +206,201 @@ namespace ModelCore.InvoiceManagement
         //    }
         //}
 
-        public void CommissionedToReceive()
-        {
-            using (InvoiceManager mgr = new InvoiceManager())
-            {
-                var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待接收);
+        //public void CommissionedToReceive()
+        //{
+        //    using (InvoiceManager mgr = new InvoiceManager())
+        //    {
+        //        var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待接收);
 
-                if (items.Count() > 0)
-                {
-                    StringBuilder sb = new StringBuilder();
-                    foreach (var item in items)
-                    {
+        //        if (items.Count() > 0)
+        //        {
+        //            StringBuilder sb = new StringBuilder();
+        //            foreach (var item in items)
+        //            {
 
-                        try
-                        {
-                            bool bSigned = false;
-                            switch ((Naming.B2BInvoiceDocumentTypeDefinition)item.DocType.Value)
-                            {
-                                case Naming.B2BInvoiceDocumentTypeDefinition.電子發票:
+        //                try
+        //                {
+        //                    bool bSigned = false;
+        //                    switch ((Naming.B2BInvoiceDocumentTypeDefinition)item.DocType.Value)
+        //                    {
+        //                        case Naming.B2BInvoiceDocumentTypeDefinition.電子發票:
 
-                                    if (item.InvoiceItem.InvoiceBuyer.Organization.OrganizationStatus.Entrusting == true)
-                                    {
-                                        sb.Clear();
-                                        if (item.InvoiceItem.InvoiceBuyer.Organization.IsEnterpriseGroupMember())
-                                        {
-                                            var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.InvoiceItem.InvoiceBuyer.Organization);
-                                            if (cert != null)
-                                            {
-                                                bSigned = item.InvoiceItem.SignAndCheckToReceiveInvoiceItem(cert, sb);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            bSigned = item.InvoiceItem.SignAndCheckToReceiveInvoiceItem(null, sb);
-                                        }
-                                        if (bSigned)
-                                        {
-                                            EIVOTurnkeyFactory.NotifyCommissionedToReceiveA0401(new NotifyToProcessID { DocID = item.DocID });
-                                        }
-                                    }
-                                    break;
-                                case Naming.B2BInvoiceDocumentTypeDefinition.發票折讓:
-                                    if (item.InvoiceAllowance.InvoiceAllowanceSeller.Organization.OrganizationStatus.Entrusting == true)
-                                    {
-                                        sb.Clear();
-                                        if (item.InvoiceAllowance.InvoiceAllowanceSeller.Organization.IsEnterpriseGroupMember())
-                                        {
-                                            var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.InvoiceAllowance.InvoiceAllowanceSeller.Organization);
-                                            if (cert != null)
-                                            {
-                                                bSigned = item.InvoiceAllowance.SignAndCheckToReceiveInvoiceAllowance(cert, sb);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            bSigned = item.InvoiceAllowance.SignAndCheckToReceiveInvoiceAllowance(null, sb);
-                                        }
-                                        if (bSigned)
-                                        {
-                                            var businessID = new NotifyToProcessID
-                                            {
-                                                MailToID = item.InvoiceAllowance.InvoiceAllowanceBuyer.BuyerID,
-                                                Seller = item.InvoiceAllowance.InvoiceAllowanceSeller.Organization,
-                                                DocID = item.DocID
-                                            };
-                                            EIVOTurnkeyFactory.NotifyCommissionedToReceive(this, new EventArgs<NotifyToProcessID> { Argument = businessID });
-                                        }
-                                    }
-                                    break;
-                                case Naming.B2BInvoiceDocumentTypeDefinition.作廢發票:
-                                    if (item.DerivedDocument.ParentDocument.InvoiceItem.InvoiceBuyer.Organization.OrganizationStatus.Entrusting == true)
-                                    {
-                                        sb.Clear();
-                                        if (item.DerivedDocument.ParentDocument.InvoiceItem.InvoiceBuyer.Organization.IsEnterpriseGroupMember())
-                                        {
-                                            var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.InvoiceItem.InvoiceBuyer.Organization);
-                                            if (cert != null)
-                                            {
-                                                bSigned = item.DerivedDocument.ParentDocument.InvoiceItem.SignAndCheckToReceiveInvoiceCancellation(cert, sb, item.DocID);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            bSigned = item.DerivedDocument.ParentDocument.InvoiceItem.SignAndCheckToReceiveInvoiceCancellation(null, sb, item.DocID);
-                                        }
-                                        if (bSigned)
-                                        {
-                                            var businessID = new NotifyToProcessID
-                                            {
-                                                DocID = item.DocID
-                                            };
-                                            EIVOTurnkeyFactory.NotifyCommissionedToReceiveInvoiceCancellation(this, new EventArgs<NotifyToProcessID> { Argument = businessID });
-                                        }
-                                    }
-                                    break;
-                                case Naming.B2BInvoiceDocumentTypeDefinition.作廢折讓:
-                                    if (item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization.OrganizationStatus.Entrusting == true)
-                                    {
-                                        sb.Clear();
-                                        if (item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization.IsEnterpriseGroupMember())
-                                        {
-                                            var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization);
-                                            if (cert != null)
-                                            {
-                                                bSigned = item.DerivedDocument.ParentDocument.InvoiceAllowance.SignAndCheckToReceiveAllowanceCancellation(cert, sb, item.DocID);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            bSigned = item.DerivedDocument.ParentDocument.InvoiceAllowance.SignAndCheckToReceiveAllowanceCancellation(null, sb, item.DocID);
-                                        }
-                                        if (bSigned)
-                                        {
-                                            var businessID = new NotifyToProcessID
-                                            {
-                                                MailToID = item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceBuyer.BuyerID,
-                                                Seller = item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization,
-                                                DocID = item.DocID
-                                            };
-                                            EIVOTurnkeyFactory.NotifyCommissionedToReceive(this, new EventArgs<NotifyToProcessID> { Argument = businessID });
-                                        }
-                                    }
-                                    break;
-                                case Naming.B2BInvoiceDocumentTypeDefinition.收據:
-                                    if (item.ReceiptItem != null && item.ReceiptItem.Buyer.OrganizationStatus.Entrusting == true)
-                                    {
-                                        sb.Clear();
-                                        if (item.ReceiptItem.Buyer.IsEnterpriseGroupMember())
-                                        {
-                                            var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.ReceiptItem.Buyer);
-                                            if (cert != null)
-                                            {
-                                                bSigned = item.ReceiptItem.SignAndCheckToReceiveReceipt(cert, sb);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            bSigned = item.ReceiptItem.SignAndCheckToReceiveReceipt(null, sb);
-                                        }
-                                        if (bSigned)
-                                        {
-                                            var businessID = new NotifyToProcessID
-                                            {
-                                                MailToID = item.ReceiptItem.BuyerID,
-                                                Seller = item.ReceiptItem.Seller,
-                                                DocID = item.DocID
-                                            };
-                                            EIVOTurnkeyFactory.NotifyCommissionedToReceive(this, new EventArgs<NotifyToProcessID> { Argument = businessID });
-                                        }
-                                    }
-                                    break;
-                                case Naming.B2BInvoiceDocumentTypeDefinition.作廢收據:
-                                    if (item.DerivedDocument.ParentDocument.ReceiptItem.Buyer.OrganizationStatus.Entrusting == true)
-                                    {
-                                        sb.Clear();
-                                        if (item.DerivedDocument.ParentDocument.ReceiptItem.Buyer.IsEnterpriseGroupMember())
-                                        {
-                                            var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.ReceiptItem.Buyer);
-                                            if (cert != null)
-                                            {
-                                                bSigned = item.DerivedDocument.ParentDocument.ReceiptItem.SignAndCheckToReceiveReceiptCancellation(cert, sb, item.DocID);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            bSigned = item.DerivedDocument.ParentDocument.ReceiptItem.SignAndCheckToReceiveReceiptCancellation(null, sb, item.DocID);
-                                        }
-                                        if (bSigned)
-                                        {
-                                            var businessID = new NotifyToProcessID
-                                            {
-                                                MailToID = item.DerivedDocument.ParentDocument.ReceiptItem.BuyerID,
-                                                Seller = item.DerivedDocument.ParentDocument.ReceiptItem.Seller,
-                                                DocID = item.DocID
-                                            };
-                                            EIVOTurnkeyFactory.NotifyCommissionedToReceive(this, new EventArgs<NotifyToProcessID> { Argument = businessID });
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
+        //                            if (item.InvoiceItem.InvoiceBuyer.Organization.OrganizationStatus.Entrusting == true)
+        //                            {
+        //                                sb.Clear();
+        //                                if (item.InvoiceItem.InvoiceBuyer.Organization.IsEnterpriseGroupMember())
+        //                                {
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.InvoiceItem.InvoiceBuyer.Organization);
+        //                                    if (cert != null)
+        //                                    {
+        //                                        bSigned = item.InvoiceItem.SignAndCheckToReceiveInvoiceItem(cert, sb);
+        //                                    }
+        //                                }
+        //                                else
+        //                                {
+        //                                    bSigned = item.InvoiceItem.SignAndCheckToReceiveInvoiceItem(null, sb);
+        //                                }
+        //                                if (bSigned)
+        //                                {
+        //                                    EIVONotificationFactory.NotifyCommissionedToReceiveA0401(new DocumentQueryViewModel { DocID = item.DocID });
+        //                                }
+        //                            }
+        //                            break;
+        //                        case Naming.B2BInvoiceDocumentTypeDefinition.發票折讓:
+        //                            if (item.InvoiceAllowance.InvoiceAllowanceSeller.Organization.OrganizationStatus.Entrusting == true)
+        //                            {
+        //                                sb.Clear();
+        //                                if (item.InvoiceAllowance.InvoiceAllowanceSeller.Organization.IsEnterpriseGroupMember())
+        //                                {
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.InvoiceAllowance.InvoiceAllowanceSeller.Organization);
+        //                                    if (cert != null)
+        //                                    {
+        //                                        bSigned = item.InvoiceAllowance.SignAndCheckToReceiveInvoiceAllowance(cert, sb);
+        //                                    }
+        //                                }
+        //                                else
+        //                                {
+        //                                    bSigned = item.InvoiceAllowance.SignAndCheckToReceiveInvoiceAllowance(null, sb);
+        //                                }
+        //                                if (bSigned)
+        //                                {
+        //                                    var businessID = new DocumentQueryViewModel
+        //                                    {
+        //                                        MailToID = item.InvoiceAllowance.InvoiceAllowanceBuyer.BuyerID,
+        //                                        Seller = item.InvoiceAllowance.InvoiceAllowanceSeller.Organization,
+        //                                        DocID = item.DocID
+        //                                    };
+        //                                    EIVONotificationFactory.NotifyCommissionedToReceive(this, new EventArgs<DocumentQueryViewModel> { Argument = businessID });
+        //                                }
+        //                            }
+        //                            break;
+        //                        case Naming.B2BInvoiceDocumentTypeDefinition.作廢發票:
+        //                            if (item.DerivedDocument.ParentDocument.InvoiceItem.InvoiceBuyer.Organization.OrganizationStatus.Entrusting == true)
+        //                            {
+        //                                sb.Clear();
+        //                                if (item.DerivedDocument.ParentDocument.InvoiceItem.InvoiceBuyer.Organization.IsEnterpriseGroupMember())
+        //                                {
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.InvoiceItem.InvoiceBuyer.Organization);
+        //                                    if (cert != null)
+        //                                    {
+        //                                        bSigned = item.DerivedDocument.ParentDocument.InvoiceItem.SignAndCheckToReceiveInvoiceCancellation(cert, sb, item.DocID);
+        //                                    }
+        //                                }
+        //                                else
+        //                                {
+        //                                    bSigned = item.DerivedDocument.ParentDocument.InvoiceItem.SignAndCheckToReceiveInvoiceCancellation(null, sb, item.DocID);
+        //                                }
+        //                                if (bSigned)
+        //                                {
+        //                                    var businessID = new DocumentQueryViewModel
+        //                                    {
+        //                                        DocID = item.DocID
+        //                                    };
+        //                                    EIVONotificationFactory.NotifyCommissionedToReceiveInvoiceCancellation(this, new EventArgs<DocumentQueryViewModel> { Argument = businessID });
+        //                                }
+        //                            }
+        //                            break;
+        //                        case Naming.B2BInvoiceDocumentTypeDefinition.作廢折讓:
+        //                            if (item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization.OrganizationStatus.Entrusting == true)
+        //                            {
+        //                                sb.Clear();
+        //                                if (item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization.IsEnterpriseGroupMember())
+        //                                {
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization);
+        //                                    if (cert != null)
+        //                                    {
+        //                                        bSigned = item.DerivedDocument.ParentDocument.InvoiceAllowance.SignAndCheckToReceiveAllowanceCancellation(cert, sb, item.DocID);
+        //                                    }
+        //                                }
+        //                                else
+        //                                {
+        //                                    bSigned = item.DerivedDocument.ParentDocument.InvoiceAllowance.SignAndCheckToReceiveAllowanceCancellation(null, sb, item.DocID);
+        //                                }
+        //                                if (bSigned)
+        //                                {
+        //                                    var businessID = new DocumentQueryViewModel
+        //                                    {
+        //                                        MailToID = item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceBuyer.BuyerID,
+        //                                        Seller = item.DerivedDocument.ParentDocument.InvoiceAllowance.InvoiceAllowanceSeller.Organization,
+        //                                        DocID = item.DocID
+        //                                    };
+        //                                    EIVONotificationFactory.NotifyCommissionedToReceive(this, new EventArgs<DocumentQueryViewModel> { Argument = businessID });
+        //                                }
+        //                            }
+        //                            break;
+        //                        case Naming.B2BInvoiceDocumentTypeDefinition.收據:
+        //                            if (item.ReceiptItem != null && item.ReceiptItem.Buyer.OrganizationStatus.Entrusting == true)
+        //                            {
+        //                                sb.Clear();
+        //                                if (item.ReceiptItem.Buyer.IsEnterpriseGroupMember())
+        //                                {
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.ReceiptItem.Buyer);
+        //                                    if (cert != null)
+        //                                    {
+        //                                        bSigned = item.ReceiptItem.SignAndCheckToReceiveReceipt(cert, sb);
+        //                                    }
+        //                                }
+        //                                else
+        //                                {
+        //                                    bSigned = item.ReceiptItem.SignAndCheckToReceiveReceipt(null, sb);
+        //                                }
+        //                                if (bSigned)
+        //                                {
+        //                                    var businessID = new DocumentQueryViewModel
+        //                                    {
+        //                                        MailToID = item.ReceiptItem.BuyerID,
+        //                                        Seller = item.ReceiptItem.Seller,
+        //                                        DocID = item.DocID
+        //                                    };
+        //                                    EIVONotificationFactory.NotifyCommissionedToReceive(this, new EventArgs<DocumentQueryViewModel> { Argument = businessID });
+        //                                }
+        //                            }
+        //                            break;
+        //                        case Naming.B2BInvoiceDocumentTypeDefinition.作廢收據:
+        //                            if (item.DerivedDocument.ParentDocument.ReceiptItem.Buyer.OrganizationStatus.Entrusting == true)
+        //                            {
+        //                                sb.Clear();
+        //                                if (item.DerivedDocument.ParentDocument.ReceiptItem.Buyer.IsEnterpriseGroupMember())
+        //                                {
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.ReceiptItem.Buyer);
+        //                                    if (cert != null)
+        //                                    {
+        //                                        bSigned = item.DerivedDocument.ParentDocument.ReceiptItem.SignAndCheckToReceiveReceiptCancellation(cert, sb, item.DocID);
+        //                                    }
+        //                                }
+        //                                else
+        //                                {
+        //                                    bSigned = item.DerivedDocument.ParentDocument.ReceiptItem.SignAndCheckToReceiveReceiptCancellation(null, sb, item.DocID);
+        //                                }
+        //                                if (bSigned)
+        //                                {
+        //                                    var businessID = new DocumentQueryViewModel
+        //                                    {
+        //                                        MailToID = item.DerivedDocument.ParentDocument.ReceiptItem.BuyerID,
+        //                                        Seller = item.DerivedDocument.ParentDocument.ReceiptItem.Seller,
+        //                                        DocID = item.DocID
+        //                                    };
+        //                                    EIVONotificationFactory.NotifyCommissionedToReceive(this, new EventArgs<DocumentQueryViewModel> { Argument = businessID });
+        //                                }
+        //                            }
+        //                            break;
+        //                        default:
+        //                            break;
+        //                    }
 
-                            if (bSigned)
-                            {
-                                transmit(mgr, item);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error(ex);
-                        }
-                    }
-                }
-            }
-        }
+        //                    if (bSigned)
+        //                    {
+        //                        transmit(mgr, item);
+        //                    }
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    Logger.Error(ex);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         public void CommissionedToIssue()
         {

@@ -956,7 +956,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 {
                     _carrier = new InvoiceCarrier
                     {
-                        CarrierType = EIVOTurnkeyFactory.DefaultUserCarrierType,
+                        CarrierType = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType,
                         CarrierNo = Guid.NewGuid().ToString()
                     };
                 }

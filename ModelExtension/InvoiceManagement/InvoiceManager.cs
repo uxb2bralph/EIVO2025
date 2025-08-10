@@ -162,7 +162,7 @@ namespace ModelCore.InvoiceManagement
                     String carrierNo = Guid.NewGuid().ToString();
                     item.InvoiceCarrier = new InvoiceCarrier
                     {
-                        CarrierType = EIVOTurnkeyFactory.DefaultUserCarrierType,
+                        CarrierType = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType,
                         CarrierNo = carrierNo,
                         CarrierNo2 = carrierNo
                     };
@@ -629,8 +629,10 @@ namespace ModelCore.InvoiceManagement
                                 TotalAmount = invItem.TotalAmount,
                                 TotalAmountInChinese = ValidityAgent.MoneyShow(invItem.TotalAmount),
                                 BondedAreaConfirm = invItem.BondedAreaConfirm,
+                                ZeroTaxRateReason = invItem.ZeroTaxRateReason,
                             },
-                            DonationID = donatory != null ? donatory.CompanyID : (int?)null
+                            DonationID = donatory?.CompanyID,
+                            CustomsClearanceMark = invItem.CustomsClearanceMark,
                         };
 
                         checkPrintMarkAndCarrier(newItem, invItem, seller);

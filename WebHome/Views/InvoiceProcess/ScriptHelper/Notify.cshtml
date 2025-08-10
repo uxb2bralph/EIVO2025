@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -25,9 +25,9 @@
             }
 
             var $formData = $('input[name="chkItem"]:checked').serializeObject();
-            $formData.cancellation = $('#queryArea select[name="Cancelled"]').val();
-            $formData.processType = $('#queryArea select[name="ProcessType"]').val();
-            $formData.mailTo = $('input[name="MailTo"]').val();
+            $formData.Cancelled = $('#queryArea select[name="Cancelled"]').val();
+            $formData.ProcessType = $('#queryArea select[name="ProcessType"]').val();
+            $formData.MailTo = $('input[name="MailTo"]').val();
 
 
             showLoading();

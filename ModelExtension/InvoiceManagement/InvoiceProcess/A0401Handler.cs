@@ -99,148 +99,148 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
         }
 
-        public void NotifyToReceive()
-        {
+        //public void NotifyToReceive()
+        //{
 
-            A0401DispatchQueue item;
-            int docID = 0;
-            IQueryable<A0401DispatchQueue> queryItems =
-                _table
-                    .Where(q => q.DocID > docID && q.StepID == (int)Naming.InvoiceStepDefinition.未接收資料待通知);
+        //    A0401DispatchQueue item;
+        //    int docID = 0;
+        //    IQueryable<A0401DispatchQueue> queryItems =
+        //        _table
+        //            .Where(q => q.DocID > docID && q.StepID == (int)Naming.InvoiceStepDefinition.未接收資料待通知);
 
-            while ((item = queryItems.FirstOrDefault()) != null)
-            {
-                docID = item.DocID;
+        //    while ((item = queryItems.FirstOrDefault()) != null)
+        //    {
+        //        docID = item.DocID;
 
-                try
-                {
+        //        try
+        //        {
 
-                    EIVOTurnkeyFactory.NotifyToReceiveA0401(item.DocID);
-                    prepareStep(item, Naming.InvoiceStepDefinition.待接收);
-                    models.SubmitChanges();
+        //            EIVONotificationFactory.NotifyToReceiveA0401(item.DocID);
+        //            prepareStep(item, Naming.InvoiceStepDefinition.待接收);
+        //            models.SubmitChanges();
 
-                    models.ExecuteCommand("delete [proc].A0401DispatchQueue where DocID={0} and StepID={1}",
-                        item.DocID, item.StepID);
+        //            models.ExecuteCommand("delete [proc].A0401DispatchQueue where DocID={0} and StepID={1}",
+        //                item.DocID, item.StepID);
 
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
-            }
-        }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Logger.Error(ex);
+        //        }
+        //    }
+        //}
 
-        public void NotifyIssued()
-        {
+        //public void NotifyIssued()
+        //{
 
 
-            A0401DispatchQueue item;
-            int docID = 0;
-            IQueryable<A0401DispatchQueue> queryItems =
-                _table
-                    .Where(q => q.DocID > docID && q.StepID == (int)Naming.InvoiceStepDefinition.已接收資料待通知);
+        //    A0401DispatchQueue item;
+        //    int docID = 0;
+        //    IQueryable<A0401DispatchQueue> queryItems =
+        //        _table
+        //            .Where(q => q.DocID > docID && q.StepID == (int)Naming.InvoiceStepDefinition.已接收資料待通知);
 
-            while ((item = queryItems.FirstOrDefault()) != null)
-            {
-                docID = item.DocID;
+        //    while ((item = queryItems.FirstOrDefault()) != null)
+        //    {
+        //        docID = item.DocID;
 
-                try
-                {
+        //        try
+        //        {
 
-                    EIVOTurnkeyFactory.NotifyIssuedA0401(new NotifyToProcessID
-                    {
-                        DocID = item.DocID,
-                    });
+        //            EIVONotificationFactory.NotifyIssuedA0401(new DocumentQueryViewModel
+        //            {
+        //                DocID = item.DocID,
+        //            });
 
-                    models.ExecuteCommand("delete [proc].A0401DispatchQueue where DocID={0} and StepID={1}",
-                        item.DocID, item.StepID);
+        //            models.ExecuteCommand("delete [proc].A0401DispatchQueue where DocID={0} and StepID={1}",
+        //                item.DocID, item.StepID);
 
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
-            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Logger.Error(ex);
+        //        }
+        //    }
 
-        }
+        //}
 
-        public void ProcessToIssue()
-        {
-            StringBuilder sb = new StringBuilder();
-            bool bSigned = false;
+        //public void ProcessToIssue()
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    bool bSigned = false;
 
-            A0401DispatchQueue item;
-            int docID = 0;
-            IQueryable<A0401DispatchQueue> queryItems =
-                _table
-                    .Where(q => q.DocID > docID && q.StepID == (int)Naming.InvoiceStepDefinition.待開立);
+        //    A0401DispatchQueue item;
+        //    int docID = 0;
+        //    IQueryable<A0401DispatchQueue> queryItems =
+        //        _table
+        //            .Where(q => q.DocID > docID && q.StepID == (int)Naming.InvoiceStepDefinition.待開立);
 
-            while ((item = queryItems.FirstOrDefault()) != null)
-            {
-                docID = item.DocID;
+        //    while ((item = queryItems.FirstOrDefault()) != null)
+        //    {
+        //        docID = item.DocID;
 
-                try
-                {
-                    //models.ExecuteCommand("Update [proc].A0401DispatchQueue set StepID = {2} where DocID={0} and StepID={1}",
-                    //    item.DocID, item.StepID, (int)Naming.B2BInvoiceStepDefinition.待開立處理中);
+        //        try
+        //        {
+        //            //models.ExecuteCommand("Update [proc].A0401DispatchQueue set StepID = {2} where DocID={0} and StepID={1}",
+        //            //    item.DocID, item.StepID, (int)Naming.B2BInvoiceStepDefinition.待開立處理中);
 
-                    if (item.CDS_Document.InvoiceItem.InvoiceSeller.Organization.OrganizationStatus.Entrusting == true)
-                    {
-                        sb.Clear();
-                        bSigned = false;
-                        if (item.CDS_Document.InvoiceItem.InvoiceSeller.Organization.IsEnterpriseGroupMember())
-                        {
-                            var cert = item.CDS_Document.InvoiceItem.InvoiceSeller.Organization.PrepareSignerCertificate();
-                            if (cert != null)
-                            {
-                                bSigned = item.CDS_Document.InvoiceItem.SignAndCheckToIssueInvoiceItem(cert, sb);
-                            }
-                        }
-                        else
-                        {
-                            bSigned = item.CDS_Document.InvoiceItem.SignAndCheckToIssueInvoiceItem(null, sb);
-                        }
+        //            if (item.CDS_Document.InvoiceItem.InvoiceSeller.Organization.OrganizationStatus.Entrusting == true)
+        //            {
+        //                sb.Clear();
+        //                bSigned = false;
+        //                if (item.CDS_Document.InvoiceItem.InvoiceSeller.Organization.IsEnterpriseGroupMember())
+        //                {
+        //                    var cert = item.CDS_Document.InvoiceItem.InvoiceSeller.Organization.PrepareSignerCertificate();
+        //                    if (cert != null)
+        //                    {
+        //                        bSigned = item.CDS_Document.InvoiceItem.SignAndCheckToIssueInvoiceItem(cert, sb);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    bSigned = item.CDS_Document.InvoiceItem.SignAndCheckToIssueInvoiceItem(null, sb);
+        //                }
 
-                        if (bSigned)
-                        {
-                            _table.InsertOnSubmit(new A0401DispatchQueue
-                            {
-                                DocID = item.DocID,
-                                StepID = (int)Naming.InvoiceStepDefinition.已接收資料待通知,
-                                DispatchDate = DateTime.Now
-                            });
+        //                if (bSigned)
+        //                {
+        //                    _table.InsertOnSubmit(new A0401DispatchQueue
+        //                    {
+        //                        DocID = item.DocID,
+        //                        StepID = (int)Naming.InvoiceStepDefinition.已接收資料待通知,
+        //                        DispatchDate = DateTime.Now
+        //                    });
 
-                            prepareStep(item, Naming.InvoiceStepDefinition.已開立);
-                            models.SubmitChanges();
-                        }
-                    }
-                    else
-                    {
-                        prepareStep(item, Naming.InvoiceStepDefinition.未接收資料待通知);
-                        models.SubmitChanges();
-                    }
+        //                    prepareStep(item, Naming.InvoiceStepDefinition.已開立);
+        //                    models.SubmitChanges();
+        //                }
+        //            }
+        //            else
+        //            {
+        //                prepareStep(item, Naming.InvoiceStepDefinition.未接收資料待通知);
+        //                models.SubmitChanges();
+        //            }
 
-                    models.ExecuteCommand("delete [proc].A0401DispatchQueue where DocID={0} and StepID={1}",
-                        item.DocID, item.StepID);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
+        //            models.ExecuteCommand("delete [proc].A0401DispatchQueue where DocID={0} and StepID={1}",
+        //                item.DocID, item.StepID);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Logger.Error(ex);
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
-        private void prepareStep(A0401DispatchQueue item, Naming.InvoiceStepDefinition targetStep)
-        {
-            item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done);
-            PushStepQueueOnSubmit(models, item.CDS_Document, targetStep);
-        }
+        //private void prepareStep(A0401DispatchQueue item, Naming.InvoiceStepDefinition targetStep)
+        //{
+        //    item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done);
+        //    PushStepQueueOnSubmit(models, item.CDS_Document, targetStep);
+        //}
 
-        public void MatchDocumentAttachment()
-        {
-            ((EIVOEntityDataContext)_table.Context).MatchDocumentAttachment();
-        }
+        //public void MatchDocumentAttachment()
+        //{
+        //    ((EIVOEntityDataContext)_table.Context).MatchDocumentAttachment();
+        //}
 
         public static void PushStepQueueOnSubmit(GenericManager<EIVOEntityDataContext> models, CDS_Document docItem, Naming.InvoiceStepDefinition stepID)
         {

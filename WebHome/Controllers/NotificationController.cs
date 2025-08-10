@@ -31,6 +31,7 @@ using ModelCore.Locale;
 using CommonLib.Utility;
 using ModelCore.Helper;
 using ModelCore.Security;
+using CommonLib.Core.Utility;
 
 namespace WebHome.Controllers
 {
@@ -41,7 +42,7 @@ namespace WebHome.Controllers
         }
 
         // GET: Notification
-        public ActionResult IssueAllowance(DocumentQueryViewModel viewModel)
+        public ActionResult IssueAllowance([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
 
@@ -50,17 +51,17 @@ namespace WebHome.Controllers
                 viewModel.id = viewModel.DecryptKeyValue();
             }
 
-            var item = models.GetTable<InvoiceAllowance>().Where(a => a.AllowanceID == viewModel.id).FirstOrDefault();
+            var item = models!.GetTable<InvoiceAllowance>().Where(a => a.AllowanceID == viewModel.id).FirstOrDefault();
             if (item == null)
             {
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "資料錯誤!!");
             }
 
 
-            return View(item);
+            return View("~/Views/Notification/IssueAllowance.cshtml", item);
         }
 
-        public ActionResult DataUploadExceptionList(ExceptionLogQueryViewModel viewModel)
+        public ActionResult DataUploadExceptionList([FromBody] ExceptionLogQueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
 
@@ -74,8 +75,9 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/DataUploadExceptionList.cshtml", items);
         }
 
-        public ActionResult IssueA0401(DocumentQueryViewModel viewModel)
+        public ActionResult IssueA0401([FromBody] DocumentQueryViewModel viewModel)
         {
+            //Request.SaveAsAsync(Path.Combine(Logger.LogDailyPath,$"{DateTime.Now.Ticks}.txt"), includeHeader: true).Wait();
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -92,7 +94,7 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueA0401.cshtml", item);
         }
 
-        public ActionResult CommissionedToReceiveA0401(DocumentQueryViewModel viewModel)
+        public ActionResult CommissionedToReceiveA0401([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
@@ -104,7 +106,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult NotifyToReceiveA0401(DocumentQueryViewModel viewModel)
+        public ActionResult NotifyToReceiveA0401([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
@@ -165,7 +167,7 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueC0401.cshtml", item);
         }
 
-        public ActionResult IssueC0701(DocumentQueryViewModel viewModel)
+        public ActionResult IssueC0701([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
@@ -177,7 +179,7 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult IssueWinningInvoice(DocumentQueryViewModel viewModel)
+        public ActionResult IssueWinningInvoice([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
@@ -188,7 +190,7 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueWinningInvoice.cshtml", item);
         }
 
-        public ActionResult IssueC0501(DocumentQueryViewModel viewModel)
+        public ActionResult IssueC0501([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
 
@@ -208,7 +210,7 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueC0501.cshtml", item);
         }
 
-        public ActionResult IssueAllowanceCancellation(DocumentQueryViewModel viewModel)
+        public ActionResult IssueAllowanceCancellation([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
 
@@ -217,7 +219,7 @@ namespace WebHome.Controllers
                 viewModel.id = viewModel.DecryptKeyValue();
             }
 
-            var item = models.GetTable<DerivedDocument>().Where(d => d.DocID == viewModel.id || d.SourceID == viewModel.id)
+            var item = models!.GetTable<DerivedDocument>().Where(d => d.DocID == viewModel.id || d.SourceID == viewModel.id)
                 .Select(d => d.ParentDocument.InvoiceAllowance).FirstOrDefault();
 
             if (item == null)
@@ -228,7 +230,7 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueAllowanceCancellation.cshtml", item);
         }
 
-        public ActionResult IssueCustomMessage(DocumentQueryViewModel viewModel)
+        public ActionResult IssueCustomMessage([FromBody] DocumentQueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             return View("IssueCustomMessage");
@@ -253,7 +255,7 @@ namespace WebHome.Controllers
             return Content("Data not found!!");
         }
 
-        public ActionResult SendDailyReport(InquireInvoiceViewModel viewModel)
+        public ActionResult SendDailyReport([FromBody] InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
 
@@ -291,7 +293,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult SendMessage(MailMessageViewModel viewModel)
+        public ActionResult SendMessage([FromBody] MailMessageViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             return View("~/Views/Notification/SendMessage.cshtml");
@@ -330,7 +332,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult NotifyTwoFactorSettings(UserProfileViewModel viewModel)
+        public ActionResult NotifyTwoFactorSettings([FromBody] UserProfileViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel.KeyID != null)
@@ -360,7 +362,7 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/NotifySystemAnnouncement.cshtml", mailTo);
         }
 
-        public ActionResult NotifyLowerInvoiceNoStock(OrganizationViewModel viewModel)
+        public ActionResult NotifyLowerInvoiceNoStock([FromBody] OrganizationViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
 

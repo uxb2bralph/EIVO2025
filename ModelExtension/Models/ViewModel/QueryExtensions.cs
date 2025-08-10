@@ -202,27 +202,27 @@ namespace ModelCore.Models.ViewModel
         {
             viewModel ??= new InquireInvoiceViewModel { };
 
-            if (viewModel.ProcessType.HasValue)
-            {
-                if (viewModel.ProcessType == Naming.InvoiceProcessType.C0401)
-                {
-                    items = items
-                        .Join(models.GetTable<CDS_Document>()
-                            .Where(d => !d.ProcessType.HasValue
-                                || (d.ProcessType != (int)Naming.InvoiceProcessType.A0401
-                                    && d.ProcessType != (int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)),
-                            i => i.InvoiceID, d => d.DocID, (i, d) => i);
-                    effective = true;
-                }
-                else if (viewModel.ProcessType == Naming.InvoiceProcessType.A0401)
-                {
-                    items = items
-                        .Join(models.GetTable<InvoiceBuyer>()
-                            .Where(d => d.ReceiptNo != "0000000000"),
-                            i => i.InvoiceID, d => d.InvoiceID, (i, d) => i);
-                    effective = true;
-                }
-            }
+            //if (viewModel.ProcessType.HasValue)
+            //{
+            //    if (viewModel.ProcessType == Naming.InvoiceProcessType.C0401)
+            //    {
+            //        items = items
+            //            .Join(models.GetTable<CDS_Document>()
+            //                .Where(d => !d.ProcessType.HasValue
+            //                    || (d.ProcessType != (int)Naming.InvoiceProcessType.A0401
+            //                        && d.ProcessType != (int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)),
+            //                i => i.InvoiceID, d => d.DocID, (i, d) => i);
+            //        effective = true;
+            //    }
+            //    else if (viewModel.ProcessType == Naming.InvoiceProcessType.A0401)
+            //    {
+            //        items = items
+            //            .Join(models.GetTable<InvoiceBuyer>()
+            //                .Where(d => d.ReceiptNo != "0000000000"),
+            //                i => i.InvoiceID, d => d.InvoiceID, (i, d) => i);
+            //        effective = true;
+            //    }
+            //}
             return items;
         }
 
@@ -481,41 +481,61 @@ namespace ModelCore.Models.ViewModel
         }
 
 
-        public static IQueryable<InvoiceAllowance> QueryByDataNo(this IQueryable<InvoiceAllowance> items, InquireInvoiceViewModel? viewModel, GenericManager<EIVOEntityDataContext> models, ref bool effective)
+        public static IQueryable<InvoiceAllowance> QueryByDataNo(this IQueryable<InvoiceAllowance> items, InquireInvoiceViewModel viewModel, GenericManager<EIVOEntityDataContext> models, ref bool effective)
         {
-            viewModel ??= new InquireInvoiceViewModel { };
             viewModel.DataNo = viewModel.DataNo.GetEfficientString();
-            if (viewModel.DataNo != null)
+            viewModel.EndNo = viewModel.EndNo.GetEfficientString();
+
+            if (viewModel.DataNo != null && viewModel.EndNo != null)
             {
-                items = items.Where(i => i.AllowanceNumber == viewModel.DataNo
-                                            || i.InvoiceAllowanceDetails.Any(d => d.InvoiceAllowanceItem.InvoiceNo == viewModel.DataNo));
+                if (String.Compare(viewModel.DataNo, viewModel.EndNo) > 0)
+                {
+                    String tmp = viewModel.DataNo;
+                    viewModel.DataNo = viewModel.EndNo;
+                    viewModel.EndNo = tmp;
+                }
+
+                items = items.Where(i => (i.AllowanceNumber.CompareTo(viewModel.DataNo) >= 0 && i.AllowanceNumber.CompareTo(viewModel.EndNo) <= 0)
+                    || i.InvoiceAllowanceDetails.Any(d => d.InvoiceAllowanceItem.InvoiceNo.CompareTo(viewModel.DataNo) >= 0 && d.InvoiceAllowanceItem.InvoiceNo.CompareTo(viewModel.EndNo) <= 0));
                 effective = true;
             }
+            else
+            {
+                var dataNo = viewModel.DataNo ?? viewModel.EndNo;
+                if (dataNo != null)
+                {
+                    items = items.Where(i => i.AllowanceNumber == dataNo
+                                || i.InvoiceAllowanceDetails.Any(d => d.InvoiceAllowanceItem.InvoiceNo == dataNo));
+                    effective = true;
+                }
+            }
+
             return items;
         }
+
 
         public static IQueryable<InvoiceAllowance> QueryByProcessType(this IQueryable<InvoiceAllowance> items, InquireInvoiceViewModel? viewModel, GenericManager<EIVOEntityDataContext> models, ref bool effective)
         {
             viewModel ??= new InquireInvoiceViewModel { };
-            if (viewModel.ProcessType.HasValue)
-            {
-                if (viewModel.ProcessType == Naming.InvoiceProcessType.D0401)
-                {
-                    items = items
-                        .Join(models.GetTable<CDS_Document>()
-                            .Where(d => !d.ProcessType.HasValue || d.ProcessType == (int)viewModel.ProcessType),
-                            i => i.AllowanceID, d => d.DocID, (i, d) => i);
-                    effective = true;
-                }
-                else
-                {
-                    items = items
-                        .Join(models.GetTable<CDS_Document>()
-                            .Where(d => d.ProcessType == (int)viewModel.ProcessType),
-                            i => i.AllowanceID, d => d.DocID, (i, d) => i);
-                    effective = true;
-                }
-            }
+            //if (viewModel.ProcessType.HasValue)
+            //{
+            //    if (viewModel.ProcessType == Naming.InvoiceProcessType.D0401)
+            //    {
+            //        items = items
+            //            .Join(models.GetTable<CDS_Document>()
+            //                .Where(d => !d.ProcessType.HasValue || d.ProcessType == (int)viewModel.ProcessType),
+            //                i => i.AllowanceID, d => d.DocID, (i, d) => i);
+            //        effective = true;
+            //    }
+            //    else
+            //    {
+            //        items = items
+            //            .Join(models.GetTable<CDS_Document>()
+            //                .Where(d => d.ProcessType == (int)viewModel.ProcessType),
+            //                i => i.AllowanceID, d => d.DocID, (i, d) => i);
+            //        effective = true;
+            //    }
+            //}
             return items;
         }
 

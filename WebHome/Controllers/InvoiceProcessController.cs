@@ -976,23 +976,24 @@ namespace WebHome.Controllers
             return View("~/Views/InvoiceProcess/Module/PrintResult.cshtml");
         }
 
-        public ActionResult IssueInvoiceNotice(int[] chkItem, bool? cancellation,Naming.InvoiceProcessType? processType,String mailTo)
+        public ActionResult IssueInvoiceNotice(InquireInvoiceViewModel viewModel)
         {
+            var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
-                if (cancellation == true)
+                if (viewModel.Cancelled == true)
                 {
                     chkItem.NotifyIssuedInvoiceCancellation();
                 }
                 else
                 {
-                    if (processType == Naming.InvoiceProcessType.A0401)
+                    if (viewModel.ProcessType == Naming.InvoiceProcessType.A0401)
                     {
-                        chkItem.NotifyIssuedA0401(mailTo);
+                        chkItem.NotifyIssuedA0401(viewModel.MailTo);
                     }
                     else
                     {
-                        chkItem.NotifyIssuedInvoice(true, mailTo);
+                        chkItem.NotifyIssuedInvoice(true, viewModel.MailTo);
                     }
                 }
 
@@ -1050,7 +1051,7 @@ namespace WebHome.Controllers
                 if (mgr.EventItems != null && mgr.EventItems.Count > 0)
                 {
                     ViewBag.Message = "下列發票已作廢完成!!\r\n" + String.Join("\r\n", mgr.EventItems.Select(i => i.TrackCode + i.No));
-                    //EIVOTurnkeyFactory.Notify();
+                    //EIVONotificationFactory.Notify();
                 }
                 return View("~/Views/Shared/AlertMessage.cshtml");
             }
@@ -1331,7 +1332,7 @@ namespace WebHome.Controllers
                     models!.ProcessVoidInvoiceRequest(mode, viewModel, item);
                 }
 
-                item.CreateF0701().ConvertToXml().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "INV0701_" + item.TrackCode + item.No + ".xml"));
+                item.CreateF0701().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "INV0701_" + item.TrackCode + item.No + ".xml"));
             }
         }
 
@@ -1370,7 +1371,7 @@ namespace WebHome.Controllers
             if (chkItem != null && chkItem.Count() > 0)
             {
                 var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
-                return zipItems(items, i => i.CreateF0701().ConvertToXml(), "INV0701");
+                return zipItems(items, i => i.CreateF0701(), "INV0701");
             }
             else
             {

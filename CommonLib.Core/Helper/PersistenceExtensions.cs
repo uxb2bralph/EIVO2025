@@ -10,7 +10,7 @@ namespace CommonLib.Core.Helper
 {
     public static class PersistenceExtensions
     {
-        public static void Push(this Object data, String objectName = null, String storedPath = null)
+        public static void Push(this object data, string? objectName = null, string? storedPath = null)
         {
             if (data == null)
             {
@@ -18,7 +18,7 @@ namespace CommonLib.Core.Helper
             }
 
             storedPath = Path.Combine(storedPath ?? FileLogger.Logger.LogPath, data.GetType().Name).CheckStoredPath();
-            String fileName = Path.Combine(storedPath, objectName ?? Guid.NewGuid().ToString());
+            string fileName = Path.Combine(storedPath, objectName ?? Guid.NewGuid().ToString());
             if (File.Exists(fileName))
             {
                 return;
@@ -28,16 +28,16 @@ namespace CommonLib.Core.Helper
 
         }
 
-        public static T Popup<T>(this String intentName, String storedPath = null, bool popupIfAny = true)
+        public static T? Popup<T>(this string intentName, string? storedPath = null, bool popupIfAny = true)
         {
-            String stored = Path.Combine(storedPath ?? FileLogger.Logger.LogPath, typeof(T).Name).CheckStoredPath();
-            String objectContent = null;
+            string stored = Path.Combine(storedPath ?? FileLogger.Logger.LogPath, typeof(T).Name).CheckStoredPath();
+            string? objectContent = null;
 
-            String popupContent(String objectPath)
+            string? popupContent(string objectPath)
             {
                 lock (typeof(PersistenceExtensions))
                 {
-                    String content = null;
+                    string? content = null;
                     if (File.Exists(objectPath))
                     {
                         content = File.ReadAllText(objectPath);

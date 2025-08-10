@@ -153,7 +153,7 @@ namespace ModelCore.InvoiceManagement
                             {
                                 carrier = new InvoiceCarrier
                                 {
-                                    CarrierType = EIVOTurnkeyFactory.DefaultUserCarrierType
+                                    CarrierType = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType
                                 };
                                 carrier.CarrierNo = carrier.CarrierNo2 = Guid.NewGuid().ToString();
                             }

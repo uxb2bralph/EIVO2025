@@ -38,7 +38,6 @@ namespace WebHome.Properties
         public int EIVO_Service { get; set; } = 1;
         public string DefaultUILanguage { get; set; } = "zh-TW";
         public string ThermalPOS { get; set; } = "0 0 162 792";
-        public String TaskCenter { get; set; } = "http://localhost:5050";
 
         public MonthlyBilling Billing { get; set; } = new MonthlyBilling { };
         public String InvoiceCarrierProviderID { get; set; } = "70762419";

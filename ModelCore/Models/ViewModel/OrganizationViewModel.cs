@@ -104,7 +104,6 @@ namespace ModelCore.Models.ViewModel
         public int?[]? Fee { get; set; }
         public DateTime?[]? BillingDate { get; set; }
         public ExtraBillingItem.BillingTypeEnum?[]? BillingType { get; set; }
-        public int? SellerID { get; set; }
         public int? BillingCycle { get; set; }
         public String? TaxNo { get; set; }
         public DateTime? AuthorizationNotBefore { get; set; }

@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -40,6 +40,7 @@
             @(await Component.InvokeAsync<InquireInvoiceBuyerByNameViewComponent>());
             @(await Component.InvokeAsync<InquireCustomerIDViewComponent>());
             @(await Component.InvokeAsync<InquireInvoiceDateViewComponent>());
+            await Html.RenderPartialAsync("~/Views/InquireInvoice/ByInvoiceNo.cshtml");
             @(await Component.InvokeAsync<InquireInvoiceAgentViewComponent>());
         }
 

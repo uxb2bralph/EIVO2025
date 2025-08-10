@@ -11,17 +11,11 @@
 // 
 // 此原始程式碼由 xsd 版本=4.8.3928.0 自動產生。
 // 
-namespace ModelCore.Schema.TurnKey.F0701 {
+namespace ModelCore.Schema.TurnKey.Invoice {
     using System.Xml.Serialization;
     
     
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.8.3928.0")]
     [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true, Namespace="urn:GEINV:eInvoiceMessage:F0701:4.1")]
-    [System.Xml.Serialization.XmlRootAttribute(Namespace="urn:GEINV:eInvoiceMessage:F0701:4.1", IsNullable=false)]
     public partial class VoidInvoice {
         
         /// <remarks/>

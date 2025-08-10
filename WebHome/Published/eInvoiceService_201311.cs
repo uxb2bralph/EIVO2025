@@ -35,7 +35,7 @@ namespace WebHome.Published
 
         static partial void AddOn()
         {
-            EIVOTurnkeyFactory.DefaultUserCarrierType = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType;
+            ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType;
             InvoiceEnterpriseManager.CreateMatchedDefaultUser = (item) =>
             {
                 ThreadPool.QueueUserWorkItem(stateInfo =>

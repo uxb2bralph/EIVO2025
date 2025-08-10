@@ -1,25 +1,23 @@
-﻿using System;
+﻿using CommonLib.Core.Utility;
+using CommonLib.Helper;
+using CommonLib.Utility;
+using ModelCore.DataEntity;
+using ModelCore.Helper;
+using ModelCore.InvoiceManagement.InvoiceProcess;
+using ModelCore.Locale;
+using ModelCore.Models.ViewModel;
+using ModelCore.Properties;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography.Pkcs;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
-using System.Xml;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-
-using ModelCore.DataEntity;
-using ModelCore.Properties;
-using CommonLib.Utility;
-
-using ModelCore.Helper;
-using ModelCore.Locale;
-
-using ModelCore.InvoiceManagement.InvoiceProcess;
-using ModelCore.Models.ViewModel;
-using CommonLib.Helper;
-using CommonLib.Core.Utility;
+using System.Xml;
 
 namespace ModelCore.InvoiceManagement
 {
@@ -27,105 +25,6 @@ namespace ModelCore.InvoiceManagement
     {
         private static QueuedProcessHandler? __Handler;
         private static List<Task> __Tasks = new List<Task>();
-
-        public static Func<XmlDocument, bool>? Sign
-        {
-            get;
-            set;
-        }
-
-        public static String? DefaultUserCarrierType
-        {
-            get;
-            set;
-        } = ModelExtension.Properties.AppSettings.Default.DefaultUserCarrierType;
-
-        public static Func<String, SignedCms>? SignCms
-        {
-            get;
-            set;
-        }
-
-        public static EventHandler? SendNotification
-        {
-            get;
-            set;
-        }
-
-
-        public static Action<NotifyToProcessID>? NotifyIssuedInvoice
-        {
-            get;
-            set;
-        }
-
-        public static Action<NotifyToProcessID>? NotifyWinningInvoice
-        {
-            get;
-            set;
-        }
-
-        public static Action<OrganizationViewModel>? NotifyLowerInvoiceNoStock
-        {
-            get;
-            set;
-        }
-
-        public static Action<OrganizationViewModel>? NotifyInvoiceNotUpload
-        {
-            get;
-            set;
-        }
-
-        public static Action<int>? NotifyIssuedAllowance
-        {
-            get;
-            set;
-        }
-
-
-        public static Action<NotifyToProcessID>? NotifyIssuedInvoiceCancellation
-        {
-            get;
-            set;
-        }
-
-        public static Action<int>? NotifyIssuedAllowanceCancellation
-        {
-            get;
-            set;
-        }
-
-
-        public static Action<NotifyToProcessID>? NotifyIssuedA0401
-        {
-            get;
-            set;
-        }
-
-        public static Action<int>? NotifyToReceiveA0401
-        {
-            get;
-            set;
-        }
-
-        public static EventHandler<EventArgs<NotifyToProcessID>>? NotifyCommissionedToReceive
-        {
-            get;
-            set;
-        }
-
-        public static Action<NotifyToProcessID>? NotifyCommissionedToReceiveA0401
-        {
-            get;
-            set;
-        }
-
-        public static EventHandler<EventArgs<NotifyToProcessID>>? NotifyCommissionedToReceiveInvoiceCancellation
-        {
-            get;
-            set;
-        }
 
         static EIVOTurnkeyFactory()
         {
@@ -301,11 +200,11 @@ namespace ModelCore.InvoiceManagement
             }
         }
 
-        public static EventHandler<EventArgs<InvoiceItem>>? NotifyReceivedInvoice
-        {
-            get;
-            set;
-        }
+        //public static EventHandler<EventArgs<InvoiceItem>>? NotifyReceivedInvoice
+        //{
+        //    get;
+        //    set;
+        //}
 
         public static int ResetBusyCount()
         {

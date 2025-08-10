@@ -75,205 +75,81 @@ namespace WebHome.Published
             //        }
             //    };
 
-            EIVOTurnkeyFactory.NotifyIssuedInvoice =
-                p =>
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        try
-                        {
-                            client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                            client.UploadString($"{ModelExtension.Properties.AppSettings.Default.NotifyIssuedInvoiceUrl}", p.JsonStringify());
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn(String.Format("電子發票開立郵件通知傳送失敗,ID:{0}", p.DocID));
-                            Logger.Error(ex);
-                        }
+            //EIVONotificationFactory.NotifyCommissionedToReceive =
+            //(o, e) =>
+            //{
+            //    try
+            //    {
+            //        using (InvoiceManager mgr = new InvoiceManager())
+            //        {
+            //            var seller = mgr.GetTable<Organization>().Where(c => c.CompanyID == e.Argument.Seller.CompanyID)
+            //                .First().EnterpriseGroupMember.FirstOrDefault().EnterpriseGroup;
 
-                    }
-                };
+            //            var mailto = String.Join(",",
+            //                mgr.GetUserListByCompanyID(e.Argument.MailToID, Naming.CategoryID.COMP_ENTERPRISE_GROUP)
+            //            .Select(u => u.EMail)
+            //            .Where(m => m != null));
 
-            EIVOTurnkeyFactory.NotifyWinningInvoice =
-                p =>
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        try
-                        {
-                            client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                            client.UploadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/IssueWinningInvoice")}", p.JsonStringify());
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn(String.Format("電子發票中獎通知傳送失敗,ID:{0}", p.DocID));
-                            Logger.Error(ex);
-                        }
-                    }
-                };
+            //            if (!String.IsNullOrEmpty(mailto))
+            //            {
+            //                string subject = String.Format("{0}{1}", e.Argument.Subject != null ? e.Argument.Subject : seller != null ? seller.EnterpriseName : "電子發票加值中心", " 自動接收通知");
 
-            EIVOTurnkeyFactory.NotifyLowerInvoiceNoStock =
-                p =>
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        try
-                        {
-                            client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                            client.UploadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/NotifyLowerInvoiceNoStock")}", p.JsonStringify());
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn(String.Format("電子發票可用號碼存量不足通知傳送失敗,ID:{0}", p.CompanyID));
-                            Logger.Error(ex);
-                        }
-                    }
-                };
+            //                ((seller != null ? seller.EnterpriseName : "")
+            //                    + "已開出您本期發票/收據/折讓,系統已自動幫您接受發票/收據/折讓資料," + System.Environment.NewLine
+            //                    + "煩請上電子發票服務平台進行後續作業 https://eivo.uxifs.com")
+            //                     .SendMailMessage(mailto, subject);
 
+            //            }
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Logger.Error(ex);
+            //    }
+            //};
 
-            EIVOTurnkeyFactory.NotifyIssuedInvoiceCancellation =
-                e =>
-                {
-                    try
-                    {
-                        using (WebClient client = new WebClient())
-                        {
-                            client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                            client.UploadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/IssueC0501")}", e.JsonStringify());
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Warn(String.Format("作廢電子發票郵件通知客戶傳送失敗,ID:{0}", e));
-                        Logger.Error(ex);
-                    }
+            //EIVONotificationFactory.NotifyReceivedInvoice =
+            //            (o, e) =>
+            //            {
+            //                try
+            //                {
+            //                    using (InvoiceManager mgr = new InvoiceManager())
+            //                    {
+            //                        var invItem = mgr.EntityList.Where(i => i.InvoiceID == e.Argument.InvoiceID).First();
 
-                };
+            //                        String pdfFile = mgr.PrepareToDownload(invItem, false);
 
+            //                        System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(pdfFile, MediaTypeNames.Application.Octet);
+            //                        ///修改附件檔名為發票號碼
+            //                        ///
+            //                        attachment.Name = String.Format("{0}{1}.pdf", e.Argument.TrackCode, e.Argument.No);
 
-            EIVOTurnkeyFactory.NotifyIssuedA0401 =
-                e =>
-                {
-                    try
-                    {
-                        using (WebClient client = new WebClient())
-                        {
-                            client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                            client.UploadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/IssueA0401")}", e.JsonStringify());
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                    }
-                };
+            //                        var mailTo = String.Join(",",
+            //                            mgr.GetUserListByCompanyID(invItem.InvoiceBuyer.BuyerID, Naming.CategoryID.COMP_ENTERPRISE_GROUP)
+            //                        .Select(u => u.EMail)
+            //                        .Where(m => m != null));
 
-            EIVOTurnkeyFactory.NotifyToReceiveA0401 = e =>
-            {
-                try
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        client.DownloadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/NotifyToReceiveA0401")}?id={e}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
-            };
+            //                        if (!String.IsNullOrEmpty(mailTo))
+            //                        {
+            //                            var enterprise = invItem.InvoiceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
 
-            EIVOTurnkeyFactory.NotifyCommissionedToReceive =
-            (o, e) =>
-            {
-                try
-                {
-                    using (InvoiceManager mgr = new InvoiceManager())
-                    {
-                        var seller = mgr.GetTable<Organization>().Where(c => c.CompanyID == e.Argument.Seller.CompanyID)
-                            .First().EnterpriseGroupMember.FirstOrDefault().EnterpriseGroup;
+            //                            String Subject = String.Format("{0} 發票已接收通知(發票號碼:{1}{2})"
+            //                                , enterprise != null ? enterprise.EnterpriseGroup.EnterpriseName : null, e.Argument.TrackCode, e.Argument.No);
+            //                            String Body = " 您已接收本期由" + invItem.InvoiceSeller.CustomerName + "開出之發票資料,請參考附件發票證明聯,"
+            //                                + System.Environment.NewLine
+            //                                + "亦可登入電子發票平台查詢電子發票相關資訊," + System.Environment.NewLine
+            //                                + "關於電子發票服務請至 https://eivo.uxifs.com";
 
-                        var mailto = String.Join(",",
-                            mgr.GetUserListByCompanyID(e.Argument.MailToID, Naming.CategoryID.COMP_ENTERPRISE_GROUP)
-                        .Select(u => u.EMail)
-                        .Where(m => m != null));
+            //                            Body.SendMailMessage(mailTo, Subject, new System.Net.Mail.Attachment[] { attachment });
+            //                        }
+            //                    }
 
-                        if (!String.IsNullOrEmpty(mailto))
-                        {
-                            string subject = String.Format("{0}{1}", e.Argument.Subject != null ? e.Argument.Subject : seller != null ? seller.EnterpriseName : "電子發票加值中心", " 自動接收通知");
-
-                            ((seller != null ? seller.EnterpriseName : "")
-                                + "已開出您本期發票/收據/折讓,系統已自動幫您接受發票/收據/折讓資料," + System.Environment.NewLine
-                                + "煩請上電子發票服務平台進行後續作業 https://eivo.uxifs.com")
-                                 .SendMailMessage(mailto, subject);
-
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
-            };
-
-            EIVOTurnkeyFactory.NotifyCommissionedToReceiveA0401 = e =>
-                        {
-                            try
-                            {
-                                using (WebClient client = new WebClient())
-                                {
-                                    client.DownloadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/CommissionedToReceiveA0401")}/{e.DocID}");
-                                }
-
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Error(ex);
-                            }
-                        };
-
-            EIVOTurnkeyFactory.NotifyReceivedInvoice =
-                        (o, e) =>
-                        {
-                            try
-                            {
-                                using (InvoiceManager mgr = new InvoiceManager())
-                                {
-                                    var invItem = mgr.EntityList.Where(i => i.InvoiceID == e.Argument.InvoiceID).First();
-
-                                    String pdfFile = mgr.PrepareToDownload(invItem, false);
-
-                                    System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(pdfFile, MediaTypeNames.Application.Octet);
-                                    ///修改附件檔名為發票號碼
-                                    ///
-                                    attachment.Name = String.Format("{0}{1}.pdf", e.Argument.TrackCode, e.Argument.No);
-
-                                    var mailTo = String.Join(",",
-                                        mgr.GetUserListByCompanyID(invItem.InvoiceBuyer.BuyerID, Naming.CategoryID.COMP_ENTERPRISE_GROUP)
-                                    .Select(u => u.EMail)
-                                    .Where(m => m != null));
-
-                                    if (!String.IsNullOrEmpty(mailTo))
-                                    {
-                                        var enterprise = invItem.InvoiceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
-
-                                        String Subject = String.Format("{0} 發票已接收通知(發票號碼:{1}{2})"
-                                            , enterprise != null ? enterprise.EnterpriseGroup.EnterpriseName : null, e.Argument.TrackCode, e.Argument.No);
-                                        String Body = " 您已接收本期由" + invItem.InvoiceSeller.CustomerName + "開出之發票資料,請參考附件發票證明聯,"
-                                            + System.Environment.NewLine
-                                            + "亦可登入電子發票平台查詢電子發票相關資訊," + System.Environment.NewLine
-                                            + "關於電子發票服務請至 https://eivo.uxifs.com";
-
-                                        Body.SendMailMessage(mailTo, Subject, new System.Net.Mail.Attachment[] { attachment });
-                                    }
-                                }
-
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Error(ex);
-                            }
-                        };
+            //                }
+            //                catch (Exception ex)
+            //                {
+            //                    Logger.Error(ex);
+            //                }
+            //            };
 
             ExceptionNotification.SendExceptionNotification =
                 (o, e) =>
@@ -378,71 +254,10 @@ namespace WebHome.Published
                     }
                 };
 
-            EIVOTurnkeyFactory.NotifyIssuedAllowance =
-                e =>
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        try
-                        {
-                            client.DownloadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/IssueAllowance")}?id={e}");
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn(String.Format("電子發票折讓證明開立郵件通知傳送失敗,ID:{0}", e));
-                            Logger.Error(ex);
-                        }
 
-                    }
-                };
-
-            EIVOTurnkeyFactory.NotifyIssuedAllowanceCancellation =
-                e =>
-                {
-                    using (WebClient client = new WebClient())
-                    {
-                        try
-                        {
-                            client.DownloadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/Notification/IssueAllowanceCancellation")}?id={e}");
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Warn(String.Format("電子發票折讓證明作廢郵件通知傳送失敗,ID:{0}", e));
-                            Logger.Error(ex);
-                        }
-
-                    }
-                };
 
             PortalNotification.NotifyToActivate = PortalExtensionMethods.NotifyToActivate;
             PortalNotification.NotifyToResetPassword = PortalExtensionMethods.NotifyToResetPassword;
-
-            PdfDocumentGenerator.CreateInvoicePdf = (viewModel) =>
-            {
-                try
-                {
-                    String contentUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/DataView/ShowInvoice")}?{viewModel.ToQueryString()}";
-                    String pdf = Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.pdf");
-                    contentUrl.ConvertHtmlToPDF(pdf, ModelExtension.Properties.AppSettings.Default.SessionTimeout);
-                    return pdf;
-                    //using (WebClient client = new WebClient())
-                    //{
-                    //    client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                    //    client.Encoding = Encoding.UTF8;
-
-                    //    viewModel.NameOnly = true;
-                    //    String result = client.UploadString($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/DataView/PrintSingleInvoiceAsPDF")}",
-                    //        viewModel.JsonStringify());
-                    //    return result;
-                    //}
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
-
-                return null;
-            };
 
             PdfDocumentGenerator.MergePDF = (pdfOut, pdfSource) => pdfOut.MergePDF(pdfSource);
 
@@ -535,7 +350,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
 
             }
             catch (Exception ex)
@@ -699,7 +514,7 @@ namespace WebHome.Published
                 {
                     result.Result.message = "發票資料簽章不符!!";
                 }
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -859,7 +674,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
 
             }
             catch (Exception ex)
@@ -1656,7 +1471,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -1697,7 +1512,7 @@ namespace WebHome.Published
                 {
                     result.Result.message = "發票資料簽章不符!!";
                 }
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -1784,7 +1599,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
 
             }
             catch (Exception ex)
@@ -1827,7 +1642,7 @@ namespace WebHome.Published
                     result.Result.message = "發票資料簽章不符!!";
                 }
 
-                //EIVOTurnkeyFactory.Notify();
+                //EIVONotificationFactory.Notify();
             }
             catch (Exception ex)
             {
@@ -2926,7 +2741,7 @@ namespace WebHome.Published
                 {
                     //EIVOPlatformManager mgr = new EIVOPlatformManager();
                     //mgr.NotifyToProcess();
-                    //EIVOTurnkeyFactory.Notify();
+                    //EIVONotificationFactory.Notify();
                 }
             }
             catch (Exception ex)
@@ -3310,7 +3125,7 @@ namespace WebHome.Published
                             ServiceInfo info = new ServiceInfo
                             {
                                 AgentToken = token.CompanyID.EncryptKey(),
-                                TaskCenterUrl = $"{Settings.Default.TaskCenter}",
+                                TaskCenterUrl = $"{ModelExtension.Properties.AppSettings.Default.TaskCenterUrl}",
                                 ServiceHost = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~")}",
                                 AgentUID = user?.UID,
                                 DefaultProcessType = (Naming.InvoiceProcessType?)token.Organization.OrganizationStatus.InvoiceClientDefaultProcessType,

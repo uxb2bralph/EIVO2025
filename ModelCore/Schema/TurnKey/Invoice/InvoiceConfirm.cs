@@ -13,6 +13,7 @@
 // 
 namespace ModelCore.Schema.TurnKey.Invoice
 {
+    using CommonLib.Utility;
     using System.Globalization;
     using System.Xml.Serialization;
     
@@ -46,7 +47,7 @@ namespace ModelCore.Schema.TurnKey.Invoice
         public string ReceiveTime
         {
             get => ReceiveDateTime.ToString("HH:mm:ss");
-            set => ReceiveDateTime = ReceiveDateTime.Date.Add(TimeSpan.Parse(value));
+            set => ReceiveDateTime = ReceiveDateTime.Date.Add(TimeSpan.Parse(value.LeftUntil("+")));
         }
 
         /// <remarks/>

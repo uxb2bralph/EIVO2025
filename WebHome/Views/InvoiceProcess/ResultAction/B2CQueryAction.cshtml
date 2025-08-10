@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -30,7 +30,7 @@
         <td>
             @if (_profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo != "0000000000")
             {
-                <button type="button" class="btn" name="paperStyle" value="A4" onclick="uiInvoiceQuery.print('A4');">A4格式列印</button>
+                <button type="button" class="btn" name="paperStyle" value="B2B" onclick="uiInvoiceQuery.print('B2B');">B2B格式列印</button>
                 @*(列印兌獎訊息：<input name="printBack" type="radio" value="true" />是
                     <input name="printBack" type="radio" value="false" />否)*@
             }

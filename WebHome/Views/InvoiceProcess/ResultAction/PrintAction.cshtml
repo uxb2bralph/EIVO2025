@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -27,13 +27,13 @@
             <input name="printBuyerAddr" type="radio" value="false" />否，縮放比例：<input type="text" name="Zoom" size="1" value="@(WebHome.Properties.AppSettings.Default.Zoom)" />%)
             @if (_viewModel.BuyerReceiptNo == "!0000000000")
             {
-                <button type="button" class="btn" name="paperStyle" value="A4" onclick="uiInvoiceQuery.print('A4',@((int)Naming.InvoiceProcessType.A0401));">B2B格式列印</button>
+                <button type="button" class="btn" name="paperStyle" value="B2B" onclick="uiInvoiceQuery.print('B2B',@((int)Naming.InvoiceProcessType.A0401));">B2B格式列印</button>
             }
         </div>
     }
     else if (_viewModel.ProcessType == Naming.InvoiceProcessType.A0401)
     {
-        <button type="button" class="btn" name="paperStyle" value="A4" onclick="uiInvoiceQuery.print('A4',@((int)Naming.InvoiceProcessType.A0401));">A4格式列印</button>
+        <button type="button" class="btn" name="paperStyle" value="B2B" onclick="uiInvoiceQuery.print('B2B',@((int)Naming.InvoiceProcessType.A0401));">B2B格式列印</button>
     }
 }
 

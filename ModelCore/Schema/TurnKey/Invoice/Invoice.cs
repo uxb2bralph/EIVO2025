@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonLib.Utility;
+using System;
 using System.Globalization;
 using System.Xml.Serialization;
 
@@ -32,7 +33,7 @@ namespace ModelCore.Schema.TurnKey.Invoice
         public string InvoiceTime
         {
             get => InvoiceDateTime.ToString("HH:mm:ss");
-            set => InvoiceDateTime.Date.Add(TimeSpan.Parse(value));
+            set => InvoiceDateTime.Date.Add(TimeSpan.Parse(value.LeftUntil("+")));
         }
         
         public RoleDescription? Seller { get; set; }

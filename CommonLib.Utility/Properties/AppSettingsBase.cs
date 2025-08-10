@@ -20,9 +20,11 @@ namespace CommonLib.Utility.Properties
 
         static JObject _Settings;
 
+        static List<AppSettingsBase> _Instances = [];
+
         public AppSettingsBase()
         {
-
+            _Instances.Add(this);
         }
 
         protected static String CheckStoredPath(String fullPath)
@@ -94,6 +96,13 @@ namespace CommonLib.Utility.Properties
 
         public static void SaveAll()
         {
+            if (_Instances.Any())
+            {
+                foreach (var instance in _Instances)
+                {
+                    instance.Save();
+                }
+            }
             String fileName = "App.settings.json";
             String filePath = Path.Combine(CheckStoredPath(Path.Combine(AppRoot, "App_Data")), fileName);
             File.WriteAllText(filePath, _Settings.ToString());

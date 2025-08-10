@@ -50,6 +50,7 @@ namespace ModelCore.Properties
         public String B0202 { get; set; } = "urn:GEINV:eInvoiceMessage:B0202:4.1";
         public String F0401 { get; set; } = "urn:GEINV:eInvoiceMessage:F0401:4.1";
         public String F0501 { get; set; } = "urn:GEINV:eInvoiceMessage:F0501:4.1";
+        public String F0701 { get; set; } = "urn:GEINV:eInvoiceMessage:F0701:4.1";
         public String G0401 { get; set; } = "urn:GEINV:eInvoiceMessage:G0401:4.1";
         public String G0501 { get; set; } = "urn:GEINV:eInvoiceMessage:G0501:4.1";
     }

@@ -150,7 +150,7 @@ namespace ModelCore.Helper
             }
             else
             {
-                signedCms = EIVOTurnkeyFactory.SignCms(sb.ToString());
+                signedCms = EIVONotificationFactory.SignCms(sb.ToString());
                 if (signedCms == null)
                     return false;
             }
@@ -390,32 +390,33 @@ namespace ModelCore.Helper
                 });
         }
 
-        public static void PushStepLogOnSubmit(this DataProcessQueue stepItem, GenericManager<EIVOEntityDataContext> models, Naming.DataProcessStatus status, String? content = null)
+        public static DataProcessLog PushStepLogOnSubmit(this DataProcessQueue stepItem, GenericManager<EIVOEntityDataContext> models, Naming.DataProcessStatus status, String? content = null)
         {
-            models.GetTable<DataProcessLog>().InsertOnSubmit(
-                new DataProcessLog
-                {
-                    CDS_Document = stepItem.CDS_Document,
-                    LogDate = DateTime.Now,
-                    StepID = stepItem.StepID,
-                    Status = (int)status,
-                    Content = content,
-                    ProcessType = stepItem.ProcessType,
-                });
+            DataProcessLog item = new DataProcessLog
+            {
+                CDS_Document = stepItem.CDS_Document,
+                LogDate = DateTime.Now,
+                StepID = stepItem.StepID,
+                Status = (int)status,
+                Content = content,
+                ProcessType = stepItem.ProcessType,
+            };
+            models.GetTable<DataProcessLog>().InsertOnSubmit(item);
+            return item;
         }
 
-        public static void PushStepQueueOnSubmit(this CDS_Document docItem, GenericManager<EIVOEntityDataContext> models, Naming.InvoiceStepDefinition stepID, Naming.InvoiceProcessType processType)
+        public static DataProcessQueue PushStepQueueOnSubmit(this CDS_Document docItem, GenericManager<EIVOEntityDataContext> models, Naming.InvoiceStepDefinition stepID, Naming.InvoiceProcessType processType)
         {
-            models.GetTable<DataProcessQueue>().InsertOnSubmit(
-                new DataProcessQueue
-                {
-                    CDS_Document = docItem,
-                    StepID = (int)stepID,
-                    ProcessType = (int)processType,
-                    DispatchDate = DateTime.Now,
-                });
-
+            var queue = new DataProcessQueue
+            {
+                CDS_Document = docItem,
+                StepID = (int)stepID,
+                ProcessType = (int)processType,
+                DispatchDate = DateTime.Now,
+            };
+            models.GetTable<DataProcessQueue>().InsertOnSubmit(queue);
             docItem.PushLogOnSubmit(models, stepID, Naming.DataProcessStatus.Ready);
+            return queue;
         }
 
         public static String CheckB2CMIGName(this String name)

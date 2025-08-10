@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -23,16 +23,12 @@
 }
 <tr>
     <th>
-        發票類別
+        列印類型
     </th>
     <td class="tdleft">
         <select name="ProcessType" class="form-control">
-            @if (ViewBag.QueryAll == true)
-            {
-                <option value="">查詢全部</option>
-            }
-            <option value="@((int)Naming.InvoiceProcessType.D0401)">查詢QR Code證明聯類型</option>
-            <option value="@((int)Naming.InvoiceProcessType.B0401)">查詢營業人交易類型</option>
+            <option value="@((int)Naming.InvoiceProcessType.D0401)">QR Code證明聯類型</option>
+            <option value="@((int)Naming.InvoiceProcessType.B0401)">營業人交易類型</option>
         </select>
         @if (_viewModel!=null && _viewModel.ProcessType.HasValue)
         {

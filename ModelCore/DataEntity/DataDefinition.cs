@@ -44,15 +44,6 @@ namespace ModelCore.DataEntity
         public int? PackageID { get; set; }
     }
 
-
-    public class NotifyToProcessID : DocumentQueryViewModel
-    {
-        public int? MailToID { get; set; }
-        public Organization? Seller { get; set; }
-        public String? itemNO { get; set; }
-        public String? Subject { get; set; }
-    }
-
     public class NotifyMailInfo
     {
         public bool? isMail { get; set; }

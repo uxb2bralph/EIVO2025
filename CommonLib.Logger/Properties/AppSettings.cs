@@ -31,6 +31,11 @@ namespace CommonLib.Logger.Properties
             }
         }
 
+        public static void Reload()
+        {
+            Reload<AppSettings>(ref _default, typeof(AppSettings).Namespace);
+        }
+
         public String LogPath { get; set; }
     }
 

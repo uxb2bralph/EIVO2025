@@ -194,7 +194,7 @@ namespace WebHome.Controllers
                 String fileName = viewModel.KeyID.DecryptData();
                 if (System.IO.File.Exists(fileName))
                 {
-                    return File(fileName, "application/octet-stream");
+                    return PhysicalFile(fileName, "application/octet-stream");
                 }
             }
 

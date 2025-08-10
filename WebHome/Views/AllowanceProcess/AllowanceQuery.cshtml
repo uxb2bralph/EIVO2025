@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -35,13 +35,12 @@
 
         <tr>
             <th>
-                發票類別
+                列印類型
             </th>
             <td class="tdleft">
                 <select name="ProcessType">
-                    <option value="">查詢全部</option>
-                    <option value="@((int)Naming.InvoiceProcessType.D0401)">查詢QR Code證明聯類型</option>
-                    <option value="@((int)Naming.InvoiceProcessType.B0401)">查詢營業人交易類型</option>
+                    <option value="@((int)Naming.InvoiceProcessType.D0401)">QR Code證明聯類型</option>
+                    <option value="@((int)Naming.InvoiceProcessType.B0401)">營業人交易類型</option>
                 </select>
                 @if (_viewModel?.ProcessType.HasValue == true)
                 {
@@ -53,15 +52,17 @@
                 }
             </td>
         </tr>
-        @{ 
+        @{
             @(await Component.InvokeAsync<WebHome.Components.InquireInvoiceSellerViewComponent>(new { fieldName = "CompanyID" }));
         }
         <tr>
             <th>
                 發票／折讓單號碼
             </th>
-            <td class="tdleft">
-                <input class="form-control" name="DataNo" type="text" />
+            <td class="tdleft" style="white-space: nowrap">
+                <input class="form-control" name="DataNo" type="text" size="16" maxlength="24" style="display: inline-block; max-width:240px;" />
+                <label class="label">～</label>
+                <input name="EndNo" type="text" class="form-control" value="@(_viewModel?.EndNo)" size="16" maxlength="24" style="display: inline-block; max-width:240px;" />
             </td>
         </tr>
         <tr>

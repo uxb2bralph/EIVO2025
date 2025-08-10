@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -54,7 +54,7 @@
                                    CreateNew = true,
                                    PaperStyle = "A4",
                                    PrintCuttingLine = false,
-                                   ProcessType = Naming.InvoiceProcessType.C0401,
+                                   ProcessType = Naming.InvoiceProcessType.F0401,
                                    UseCustomView = true,
                                })', { 'keyID':'@Html.Raw(_model.InvoiceID.EncryptKey())'});">下載發票PDF</button>
                         @if (_model.CDS_Document.Attachment.Count > 0)

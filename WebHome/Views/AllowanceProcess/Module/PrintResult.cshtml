@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -23,13 +23,13 @@
     _viewModel = (RenderStyleViewModel)ViewBag.ViewModel;
 }
 <div>
-    <a href="@(Url.Action(_viewModel.ProcessType == Naming.InvoiceProcessType.B0401
-            ? "PrintB0401AsPDF"
-            : "PrintD0401AsPDF","DataView"))" target="_blank">列印資料下載</a>
+    <a href="@(Url.Action("PrintB0401AsPDF","DataView"))" target="_blank">列印資料下載(B2B)</a>
     <br />
-    <a href="@(Url.Action(_viewModel.ProcessType == Naming.InvoiceProcessType.B0401
-            ? "PrintB0401"
-            : "PrintD0401","DataView"))" target="_blank">網頁列印</a>
+    <a href="@(Url.Action("PrintD0401AsPDF","DataView"))" target="_blank">列印資料下載(POS)</a>
+    <br />
+    <a href="@(Url.Action("PrintB0401","DataView"))" target="_blank">網頁列印(B2B)</a>
+    <br />
+    <a href="@(Url.Action("PrintD0401","DataView"))" target="_blank">網頁列印(POS)</a>
 </div>
 
 

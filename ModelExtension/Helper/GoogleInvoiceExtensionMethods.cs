@@ -13,6 +13,7 @@ using ModelCore.Locale;
 using ModelCore.Schema.EIVO;
 using CommonLib.Utility;
 using CommonLib.Core.Utility;
+using ModelCore.Models.ViewModel;
 
 namespace ModelCore.Helper
 {
@@ -43,7 +44,7 @@ namespace ModelCore.Helper
                                     try
                                     {
                                         if (models.CheckAttachmentFromPool(item))
-                                            EIVOTurnkeyFactory.NotifyIssuedInvoice(new NotifyToProcessID 
+                                            EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel
                                             {
                                                 DocID = item.InvoiceID,
                                                 AppendAttachment = true,
@@ -177,7 +178,7 @@ namespace ModelCore.Helper
                         attachment.StoredPath = storedPath;
                         models.SubmitChanges();
 
-                        EIVOTurnkeyFactory.NotifyIssuedInvoice(new NotifyToProcessID
+                        EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel
                             {
                                 DocID = item.InvoiceID,
                                 AppendAttachment = true

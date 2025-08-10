@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using TaskCenter.Controllers.Filters;
 
 namespace TaskCenter
@@ -58,6 +59,10 @@ namespace TaskCenter
                 .AddProvider(new FileLoggerProvider())
                 .AddDebug();
 
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.PropertyNamingPolicy = null; // JsonNamingPolicy.CamelCase;
+            });
 
             var app = builder.Build();
 

@@ -310,14 +310,33 @@ namespace TestConsole
             //test45();
             //ShowMethodName();
             //test46();
+            //test47();
+            int docID = 0;
+            if(args.Length>0 && int.TryParse(args[0], out docID))
+            {
+                using (ModelSource models = new ModelSource())
+                {
+                    var items = models.GetTable<InvoiceItem>()
+                        .Where(i => i.InvoiceID > docID)
+                        .Where(i => i.InvoiceBuyer.EMail != null)
+                        .Where(i=>i.CDS_Document.IssuingNotice == null)
+                        .Select(d => d.InvoiceID).ToArray();
+                    items.NotifyIssuedInvoice(false, forceTodo: false);
+                }
+            }
+            Console.ReadKey();
+        }
+
+        private static void test47()
+        {
             XmlDocument doc = new XmlDocument();
             doc.Load("G:\\temp\\invoice.xml");
             doc.DocumentElement.SetAttribute("xmlns", "");
             doc.LoadXml(doc.OuterXml);
             Invoice invoice = doc.TrimAll().DebugConvertTo<Invoice>();
             Console.WriteLine(doc.OuterXml);
-            Console.ReadKey();
         }
+
         private static void test46()
         {
             AppDomain.CurrentDomain.AssemblyResolve += (sender, eventArgs) =>
@@ -418,8 +437,8 @@ namespace TestConsole
         static void storedMIG(InvoiceItem item, String storedPath)
         {
             String invoiceNo = item.TrackCode + item.No;
-            item.CreateF0401().ConvertToXml().Save(Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
-            item.CreateF0701().ConvertToXml().Save(Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "F0701_" + item.TrackCode + item.No + ".xml"));
+            item.CreateF0401().Save(Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
+            item.CreateF0701().Save(Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "F0701_" + item.TrackCode + item.No + ".xml"));
 
         }
 
@@ -1612,18 +1631,8 @@ namespace TestConsole
             void storedMIG(InvoiceItem item, String storedPath)
             {
                 String invoiceNo = item.TrackCode + item.No;
-                item.CreateF0401().ConvertToXml().Save(Path.Combine(storedPath, "INV0401_" + invoiceNo + ".xml"));
-                (new ModelCore.Schema.TurnKey.F0701.VoidInvoice
-                {
-                    VoidInvoiceNumber = invoiceNo,
-                    InvoiceDate = String.Format("{0:yyyyMMdd}", item.InvoiceDate),
-                    BuyerId = item.InvoiceBuyer.ReceiptNo,
-                    SellerId = item.InvoiceSeller.ReceiptNo,
-                    VoidDate = DateTime.Now.Date.ToString("yyyyMMdd"),
-                    VoidTime = DateTime.Now,
-                    VoidReason = "註銷重開",
-                    Remark = ""
-                }).ConvertToXml().Save(Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "C0701_" + item.TrackCode + item.No + ".xml"));
+                item.CreateF0401().Save(Path.Combine(storedPath, "INV0401_" + invoiceNo + ".xml"));
+                item.CreateF0701().Save(Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "C0701_" + item.TrackCode + item.No + ".xml"));
 
             }
         }
