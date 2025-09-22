@@ -172,9 +172,10 @@ namespace WebHome
                 //    pattern: "Official/{*actionName}",
                 //    defaults: new { controller = "MainActivity", action = "HandleUnknownAction" });
 
+                //114-Amy
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                     pattern: "{controller=Account}/{action=Login}/{id?}");
 
                 endpoints.MapControllerRoute(
                     name: "actionName",

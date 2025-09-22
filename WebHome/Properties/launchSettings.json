@@ -14,7 +14,8 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_WEBROOT": "C:\\Users\\amylee\\Desktop\\Project\\IFS-EIVO03\\eIVOGo" // 11405 網頁排版第2順序路徑
       }
     },
     "IIS Express": {

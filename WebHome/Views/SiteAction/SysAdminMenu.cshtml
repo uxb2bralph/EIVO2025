@@ -298,5 +298,28 @@
                 </div>
             </div>
         </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading_06">
+                <button class="system_06 py-2 fs-1-5 fw-bold accordion-button eivo__menu-title rounded-0 collapsed"
+                    data-bs-toggle="collapse" data-bs-target="#system_06" aria-expanded="false"
+                    aria-controls="system_06">
+                    折讓作業
+                </button>
+            </h2>
+            <div id="system_06" class="accordion-collapse collapse" aria-labelledby="heading_06"
+                data-bs-parent="#accordionSideMenu">
+                <div class="accordion-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="#"
+                            onclick="urlHandler('@(Url.Action("Index", "AllowanceProcess", new { group = "system_06" }))')"
+                            id="AllowanceProcess"
+                            class="ps-4 border-0 list-group-item list-group-item-action eivo__menu-btn">
+                            <i class="fas fa-angle-right me-1"></i>
+                            折讓證明查詢
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </nav>

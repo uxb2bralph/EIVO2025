@@ -1,0 +1,53 @@
+﻿using System.Linq;
+using ModelCore.DataEntity;
+using WebHome.Helper;
+using ModelCore.Models.ViewModel;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using CommonLib.Utility;
+
+namespace WebHome.Components
+{
+    public class SellerSelectorViewComponent : ViewComponent
+    {
+        protected ModelSource<InvoiceItem> models;
+        protected ModelStateDictionary _modelState;
+
+        public IViewComponentResult Invoke(SellerSelectorViewModel viewModel)
+        {
+            models = (ModelSource<InvoiceItem>)HttpContext.Items["Models"];
+            _modelState = ViewContext.ModelState;
+
+            // 如果未提供 viewModel，建立預設 ViewModel
+            if (viewModel == null)
+            {
+                viewModel = new SellerSelectorViewModel
+                {
+                    FieldName = "SellerID",
+                    SelectAll = false
+                };
+            }
+
+            return SellerSelector(viewModel);
+        }
+
+        public IViewComponentResult SellerSelector(SellerSelectorViewModel viewModel)
+        {
+            // 清理 FieldName
+            viewModel.FieldName = viewModel.FieldName.GetEfficientString() ?? "SellerID";
+
+            // 若選擇全部，且未指定提示語，則顯示「全部」
+            if (viewModel.SelectAll == true)
+            {
+                viewModel.SelectorIndication = viewModel.SelectorIndication.GetEfficientString() ?? "全部";
+            }
+
+            // 取得目前登入者可見的公司資料
+            var userProfile = HttpContext.GetUser();
+            IQueryable<Organization> orgItems = userProfile.InitializeOrganizationQuery(models);
+
+            // 將 (組織清單, ViewModel) 包成 Tuple 傳給 View
+            return View("~/Views/DataFlow/SellerSelector.cshtml", (orgItems, viewModel));
+        }
+    }
+}

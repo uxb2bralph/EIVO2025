@@ -212,7 +212,55 @@ namespace ModelCore.Resource {
                 return ResourceManager.GetString("AlertClearanceMarkZeroTax", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        /// 1140730
+        ///   Looks up a localized string similar to 若為零稅率發票，零稅率原因(ZeroTaxRateReason)為必選欄位，上傳資料：{0},TAG:&lt; ZeroTaxRateReason /&gt;.
+        /// </summary>
+        public static string AlertZeroTaxRateReason
+        {
+            get
+            {
+                return ResourceManager.GetString("AlertZeroTaxRateReason", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        /// 1140731
+        ///   Looks up a localized string similar to 若不為零稅率發票，不可填入零稅率原因(ZeroTaxRateReason){0},TAG:&lt; ZeroTaxRateReason /&gt;.
+        /// </summary>
+        public static string AlertZeroTaxRateReasonNotAllowed
+        {
+            get
+            {
+                return ResourceManager.GetString("AlertZeroTaxRateReasonNotAllowed", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        /// 1140730
+        ///   Looks up a localized string similar to 若為零稅率發票，買受人簽署適用零稅率註記(BondedAreaConfirm)為必選欄位，上傳資料：{0},TAG:&lt; BondedAreaConfirm /&gt;.
+        /// </summary>
+        public static string AlertBondedAreaConfirm
+        {
+            get
+            {
+                return ResourceManager.GetString("AlertBondedAreaConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        /// 1140731
+        ///   Looks up a localized string similar to 若為零稅率發票，買受人簽署適用零稅率註記(BondedAreaConfirm)為必選欄位，上傳資料：{0},TAG:&lt; BondedAreaConfirm /&gt;.
+        /// </summary>
+        public static string AlertBondedAreaConfirmNotAllowed
+        {
+            get
+            {
+                return ResourceManager.GetString("AlertBondedAreaConfirmNotAllowed", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to 公司帳號設定為全列印，請填寫聯絡人資訊；TAG:&lt; Contact /&gt;.
         /// </summary>
@@ -684,7 +732,43 @@ namespace ModelCore.Resource {
                 return ResourceManager.GetString("InvalidSellingPrice", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        /// 1140806
+        /// 應稅銷售額資(SalesAmount)資料格式範圍為整數13碼小數7碼，上傳資料：{0},TAG:&lt; SalesAmount /&gt;.
+        /// </summary>
+        public static string InvalidSalesAmount
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidSalesAmount", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        /// 1140806
+        /// 營業稅額(TaxAmount)資料格式範圍為整數20碼，上傳資料：{0},TAG:&lt; SalesAmount /&gt;.
+        /// </summary>
+        public static string InvalidTaxAmountSpec
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidTaxAmountSpec", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        /// 1140806
+        /// 總計(TotalAmount)資料格式範圍為整數13碼小數7碼，上傳資料：{0},TAG:&lt; SalesAmount /&gt;.
+        /// </summary>
+        public static string InvalidTotalAmount1
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidTotalAmount1", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to 營業稅額不可為負數且為整數，上傳資料：{0},TAG:&lt; TaxAmount /&gt;.
         /// </summary>
@@ -702,7 +786,19 @@ namespace ModelCore.Resource {
                 return ResourceManager.GetString("InvalidTaxRate", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        /// 1140730
+        ///   Looks up a localized string similar to 特種稅率格式錯誤，可接受格式為:0m, 0.01m, 0.02m, 0.05m, 0.15m, 0.25m，上傳資料：{0},TAG:&lt; TaxRate /&gt;.
+        /// </summary>
+        public static string InvalidSpecialTaxRate
+        {
+            get
+            {
+                return ResourceManager.GetString("InvalidSpecialTaxRate", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to 課稅別格式錯誤，上傳資料：{0},TAG:&lt; TaxType /&gt;.
         /// </summary>

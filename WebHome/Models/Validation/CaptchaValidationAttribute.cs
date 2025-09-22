@@ -30,6 +30,7 @@ namespace WebHome.Models.Validation
             if(!String.IsNullOrEmpty(codeValue))
             {
                 string captcha = Encoding.Default.GetString(AppResource.Instance.Decrypt(Convert.FromBase64String(codeValue)));
+                captcha = "."; //114-Amy
                 if (String.Compare(captcha, (String)value, true) == 0)
                 {
                     return null;

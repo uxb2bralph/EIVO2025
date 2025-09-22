@@ -15,28 +15,23 @@
 
 @using ModelCore.Helper
 @{
-
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
     IQueryable<Organization> _model;
     SellerSelectorViewModel _viewModel = ViewBag.ViewModel as SellerSelectorViewModel;
-
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (IQueryable<Organization>)this.Model;
     if (_viewModel == null)
     {
         ViewBag.ViewModel = _viewModel = new SellerSelectorViewModel { };
         _viewModel.FieldName = ViewBag.FieldName ?? "SellerID";
     }
 
-    String _fieldName;
-    String _contentID = "id" + DateTime.Now.Ticks;
-    String _valueID = "value" + DateTime.Now.Ticks;
-    UserProfile _profile;
-
-    _modelState = (ModelStateDictionary)ViewBag.ModelState;
-    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    _model = (IQueryable<Organization>)this.Model;
-    _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "SellerID";
-    _profile = Context.GetUser();
+    var _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "SellerID";// 最終欄位名稱：優先取 ViewModel > ViewBag > 預設值
+    var _profile = Context.GetUser();
+    var _contentID = "id" + Guid.NewGuid().ToString("N");
+    var _valueID = "value" + Guid.NewGuid().ToString("N");
 }
 
 @if (_profile.IsSystemAdmin())
@@ -56,7 +51,3 @@ else
         }
     </select>
 }
-
-
-
-

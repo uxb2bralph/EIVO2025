@@ -1,9 +1,6 @@
 @using System.IO
 @using System.Linq.Expressions
-
-
 @using ModelCore.Helper
-
 @using WebHome.Helper
 @using WebHome.Models
 @using WebHome.Controllers
@@ -22,27 +19,40 @@
 @{
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     UserProfile _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
-
     IQueryable<ProductCatalog> items = models.FilterProductCatalogByRole(_profile, models.GetTable<ProductCatalog>());
-
 }
-
 <tr>
-    <td><input class="form-control" name="ItemNo" type="text" /></td>
+    <td><input class="form-control ItemNo" type="text" name="itemNo" /></td>
+    <td><input class="form-control brief" type="text" name="brief" placeholder="請輸入品名!!" /></td>
+    <td><input class="form-control piece" type="number" name="piece" min="1" step="1" value="1" oninput="uiInvoice.sum()" placeholder="請輸入件數!!" /></td>
+    <td><input class="form-control UnitCost" type="number" name="unitcost" min="1" step="1" value="1" oninput="uiInvoice.sum()" placeholder="請輸入單價!!" /></td>
+    <td><input class="form-control CostAmount" type="number" name="costamount" readonly /></td>
+    <td><input class="form-control ItemRemark" type="text" name="itemremark" /></td>
     <td>
-        <input class="form-control" name="Brief" onclick="@(items.Count()>0 ? "uiInvoice.quickSearch(this);" : null)" required type="text" placeholder="請輸入品名!!" />
-    </td>
-    <td><input class="form-control" name="Piece" type="number" required min="1" step="1" value="1" placeholder="請輸入件數!!" /></td>
-    <td><input class="form-control" name="UnitCost" type="number" required min="1" step="1" value="1" placeholder="請輸入單價!!" /></td>
-    <td><input class="form-control" name="CostAmount" type="number" /></td>
-    <td><input class="form-control" name="ItemRemark" type="text" /></td>
-    <td>
-        <button type="button" class="btn" onclick="uiInvoice.addRow();">新增</button>
+        <button type="button" class="btn btn-success btn-add-row">新增</button>
+
     </td>
 </tr>
 
+<script>
+    $(function () {
+        $(document).off('click', '.btn-add-row').on('click', '.btn-add-row', function () {
+            uiInvoice.addRow();
+        });
 
+        $(document).off('click', '.brief').on('click', '.brief', function () {
+            if (typeof uiProductSearch !== 'undefined') {
+                uiProductSearch.quickSearch(this, function (item, $input) {
+                    $input.val(item.ProductName);
+                    var $tr = $input.closest('tr');
+                    $tr.find('[name="UnitCost"]').val(item.SalePrice);
+                    $tr.find('[name="ItemRemark"]').val(item.Remark);
+                });
+            }
+        });
+
+    });
+</script>

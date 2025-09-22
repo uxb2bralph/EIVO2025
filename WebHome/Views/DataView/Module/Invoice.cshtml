@@ -84,7 +84,8 @@
                 含稅金額
             </th>
             <td class="tdleft">
-                @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))
+                @* @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount)) *@ @* 1140805 MIG 3.2 *@
+                @(String.Format("{0:#,###,###,###,##0.#######}", _model.InvoiceAmountType.TotalAmount)) @* 1140805 MIG 4.1 *@
             </td>
         </tr>
         <tr>
@@ -92,13 +93,16 @@
                 未稅金額
             </th>
             <td class="tdleft">
-                @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.SalesAmount))
+                @*  @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.SalesAmount)) *@   @* 1140805 MIG 3.2 *@
+                @(String.Format("{0:#,###,###,###,##0.#######}", _model.InvoiceAmountType.SalesAmount)) @* 1140805 MIG 4.1 *@
             </td>
             <th style="white-space:nowrap;">
                 稅 額
             </th>
             <td class="tdleft">
-                @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxAmount))
+                @* @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxAmount)) *@  @* 1140805 MIG 3.2 *@
+                @(String.Format("{0:##,###,###,###,###,###,##0}", _model.InvoiceAmountType.TaxAmount)) @* 1140805 MIG 4.1 *@
+
             </td>
         </tr>
         @if (!_model.InvoiceBuyer.IsB2C())
@@ -198,7 +202,10 @@
                         @(String.Format("{0:##,###,###,##0.##}", d.UnitCost))
                     </td>
                     <td align="right" valign="top">
-                        @(String.Format("{0:##,###,###,##0.##}", d.CostAmount))
+                        @* @(String.Format("{0:##,###,###,##0.##}", d.CostAmount)) *@  @* 1140805 MIG 3.2 *@
+                        @(String.Format("{0:#,###,###,###,##0.#######}", d.CostAmount)) @* 1140805 MIG 4.1 *@
+
+
                     </td>
                     <td>
                         @(d.Remark)

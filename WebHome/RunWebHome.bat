@@ -1,4 +1,5 @@
 set ASPNETCORE_WEBROOT=C:\Project\Github\IFS-EIVO03\eIVOGo
+@REM set ASPNETCORE_WEBROOT=C:\Users\amylee\Desktop\Project\IFS-EIVO03\eIVOGo  rem 11405 網頁排版第1順序路徑
 SET ASPNETCORE_ENVIRONMENT=Development
 SET ASPNETCORE_HOSTINGSTARTUPASSEMBLIES=Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
 SET LAUNCHER_PATH=bin\Debug\net9.0\WebHome.exe

@@ -13,16 +13,15 @@ using ModelCore.Schema.EIVO;
 using CommonLib.Utility;
 using ModelCore.InvoiceManagement;
 
-
 namespace ModelCore.Models.ViewModel
 {
-    public partial class InvoiceViewModelValidator<TEntity>
+    public partial class InvoiceViewModelValidatorA0401<TEntity>
         where TEntity : class, new()
     {
         public static string __DECIMAL_AMOUNT_PATTERN = "^-?\\d{1,12}(.[0-9]{0,4})?$";
-        public static string __CELLPHONE_BARCODE = "3J0002";      // 手機條碼載具
-        public static String __自然人憑證 = "CQ0001";             // 自然人憑證載具
-        public static String __CROSS_BORDER_MURCHANT = "5G0001";  // 跨境電商載具
+        public static string __CELLPHONE_BARCODE = "3J0002";
+        public static String __自然人憑證 = "CQ0001";
+        public static String __CROSS_BORDER_MURCHANT = "5G0001";
 
         protected ModelSource<TEntity> _mgr;
         protected Organization _owner;
@@ -38,7 +37,7 @@ namespace ModelCore.Models.ViewModel
         protected IEnumerable<InvoiceProductItem> _productItems;
       
 
-        public InvoiceViewModelValidator(ModelSource<TEntity> mgr, Organization owner)
+        public InvoiceViewModelValidatorA0401(ModelSource<TEntity> mgr, Organization owner)
         {
             _mgr = mgr;
             _owner = owner;
@@ -72,15 +71,12 @@ namespace ModelCore.Models.ViewModel
                 return ex;
             }
 
-            if ((ex = checkTax()) != null)  //11407
-            {
-                return ex;
-            }
-
             if ((ex = checkAmount()) != null)
             {
                 return ex;
             }
+
+
             if ((ex = checkMandatoryFields()) != null)
             {
                 return ex;
@@ -118,8 +114,7 @@ namespace ModelCore.Models.ViewModel
                     {
                         OwnerID = _owner.CompanyID
                     },
-                    //ProcessType = (int)Naming.InvoiceProcessType.C0401, // MIG 3.2 , 1140805 註解
-                    ProcessType = (int)Naming.InvoiceProcessType.F0401, // 1140805-MIG 4.1
+                    ProcessType = (int)Naming.InvoiceProcessType.C0401,
                 },
                 DonateMark = _donation == null ? "0" : "1",
                 InvoiceType = _invItem.InvoiceType,
@@ -263,8 +258,7 @@ namespace ModelCore.Models.ViewModel
 
             if (String.IsNullOrEmpty(_invItem.RandomNo))
             {
-                //_invItem.RandomNo = String.Format("{0:ffff}", DateTime.Now); //ValueValidity.GenerateRandomCode(4)
-                _invItem.RandomNo = ValidityAgent.GenerateRandomCode(4); //1140714
+                _invItem.RandomNo = String.Format("{0:ffff}", DateTime.Now); //ValueValidity.GenerateRandomCode(4)
             }
             else if (!Regex.IsMatch(_invItem.RandomNo, "^[0-9]{4}$"))
             {
@@ -281,7 +275,7 @@ namespace ModelCore.Models.ViewModel
 
         protected virtual Exception checkPublicCarrier()
         {
-            if (_invItem.CarrierType == __CELLPHONE_BARCODE)  // 手機條碼載具
+            if (_invItem.CarrierType == __CELLPHONE_BARCODE)
             {
                 if (checkPublicCarrierId(_invItem.CarrierId1))
                 {
@@ -306,7 +300,7 @@ namespace ModelCore.Models.ViewModel
                     return null;
                 }
             }
-            else if (_invItem.CarrierType == __自然人憑證)  // 自然人憑證載具
+            else if (_invItem.CarrierType == __自然人憑證)
             {
                 if (_invItem.CarrierId1 != null && Regex.IsMatch(_invItem.CarrierId1, "^[A-Z]{2}[0-9]{14}$"))
                 {
@@ -330,8 +324,8 @@ namespace ModelCore.Models.ViewModel
 
                     return null;
                 }
-            } 
-            else if (_invItem.CarrierType == __CROSS_BORDER_MURCHANT) // 跨境電商載具
+            }
+            else if (_invItem.CarrierType == __CROSS_BORDER_MURCHANT)
             {
                 if (_invItem.CarrierId1 != null)
                 {
@@ -436,127 +430,55 @@ namespace ModelCore.Models.ViewModel
         protected virtual Exception checkAmount()
         {
             //應稅銷售額
-
-            // 1140806 MIG 3.2
-            //if (!_invItem.SalesAmount.HasValue || _invItem.SalesAmount < 0 || decimal.Floor(_invItem.SalesAmount.Value) != _invItem.SalesAmount.Value)
-            //{
-            //    return new Exception(String.Format(MessageResources.InvalidSellingPrice, _invItem.SalesAmount));
-            //}
-
-            //1140806 MIG 4.1
-            if (!_invItem.SalesAmount.HasValue || _invItem.SalesAmount < 0  || DecimalPrecisionExceeds(_invItem.SalesAmount.Value, 20, 7))
+            if (!_invItem.SalesAmount.HasValue || _invItem.SalesAmount < 0 || decimal.Floor(_invItem.SalesAmount.Value) != _invItem.SalesAmount.Value)
             {
-                return new Exception(String.Format(MessageResources.InvalidSalesAmount, _invItem.SalesAmount));
+                return new Exception(String.Format(MessageResources.InvalidSellingPrice, _invItem.SalesAmount));
             }
 
-            //營業稅額
 
-            // 1140806 MIG 3.2
-            //if (!_invItem.TaxAmount.HasValue || _invItem.TaxAmount < 0 || decimal.Floor(_invItem.TaxAmount.Value) != _invItem.TaxAmount.Value)
-            //{
-            //    return new Exception(String.Format(MessageResources.InvalidTaxAmount, _invItem.TaxAmount));
-            //}
-
-            //1140806 MIG 4.1
-            if (!_invItem.TaxAmount.HasValue || _invItem.TaxAmount < 0 || DecimalPrecisionExceeds(_invItem.TaxAmount.Value, 20, 0))
+            if (!_invItem.TaxAmount.HasValue || _invItem.TaxAmount < 0 || decimal.Floor(_invItem.TaxAmount.Value) != _invItem.TaxAmount.Value)
             {
                 return new Exception(String.Format(MessageResources.InvalidTaxAmount, _invItem.TaxAmount));
             }
 
-            //總計
-
-            // 1140806 MIG 3.2
-            //if (!_invItem.TotalAmount.HasValue || _invItem.TotalAmount < 0 || decimal.Floor(_invItem.TotalAmount.Value) != _invItem.TotalAmount.Value)
-            //{
-            //    return new Exception(String.Format(MessageResources.InvalidTotalAmount, _invItem.TotalAmount));
-            //}
-
-            //1140806 MIG 4.1
-            if (!_invItem.TotalAmount.HasValue || _invItem.TotalAmount < 0 || DecimalPrecisionExceeds(_invItem.TotalAmount.Value, 20, 7))
+            if (!_invItem.TotalAmount.HasValue || _invItem.TotalAmount < 0 || decimal.Floor(_invItem.TotalAmount.Value) != _invItem.TotalAmount.Value)
             {
-                return new Exception(String.Format(MessageResources.InvalidTotalAmount1, _invItem.TotalAmount));
+                return new Exception(String.Format(MessageResources.InvalidTotalAmount, _invItem.TotalAmount));
             }
 
-
-
-            if (_invItem.TaxRate < 0m) //稅率不能是負數
-            {
-                return new Exception(String.Format(MessageResources.InvalidTaxRate, _invItem.TaxRate));
-            }
-            return null;
-        }
-
-        private bool DecimalPrecisionExceeds(decimal value, int totalDigits, int fractionDigits) //1140806-處理金額格式
-        {
-            string[] parts = value.ToString(System.Globalization.CultureInfo.InvariantCulture).Split('.');
-
-            int integerLength = parts[0].TrimStart('-').Length; // 去除負號
-            int decimalLength = (parts.Length > 1) ? parts[1].Length : 0;
-
-            int totalLength = integerLength + decimalLength;
-
-            return totalLength > totalDigits || decimalLength > fractionDigits;
-        }
-
-
-        protected virtual Exception checkTax()  //11407
-        {
             //課稅別
             if (!_invItem.TaxType.HasValue || !Enum.IsDefined(typeof(Naming.TaxTypeDefinition), (int)_invItem.TaxType))
             {
                 return new Exception(String.Format(MessageResources.InvalidTaxType, _invItem.TaxType));
             }
 
+            if (_invItem.TaxRate < 0m)
+            {
+                return new Exception(String.Format(MessageResources.InvalidTaxRate, _invItem.TaxRate));
+            }
+
             if (_invItem.TaxType == (byte)Naming.TaxTypeDefinition.零稅率)
             {
-
-                if (_invItem.BondedAreaConfirm == null) //零稅率 必選 買受人簽署適用零稅率註記
-                {
-                    return new Exception(String.Format(MessageResources.AlertBondedAreaConfirm, _invItem.BondedAreaConfirm));
-                }
-
-                else if (_invItem.ZeroTaxRateReason == null) //零稅率 必選 零稅率原因
-                {
-                    return new Exception(String.Format(MessageResources.AlertZeroTaxRateReason, _invItem.ZeroTaxRateReason));
-                }
-
-                if (_invItem.CustomsClearanceMark != 2) //零稅率 必選 通關方式(2.經海關出口)
+                if (!_invItem.CustomsClearanceMark.HasValue)
                 {
                     return new Exception(String.Format(MessageResources.AlertClearanceMarkZeroTax, _invItem.CustomsClearanceMark));
                 }
+                else if (_invItem.CustomsClearanceMark != 1 && _invItem.CustomsClearanceMark != 2)
+                {
+                    return new Exception(String.Format(MessageResources.AlertClearanceMarkExport, _invItem.CustomsClearanceMark));
+                }
             }
-            else //非零稅率 
+            else if (_invItem.CustomsClearanceMark.HasValue)
             {
-                if (_invItem.TaxType == (byte)Naming.TaxTypeDefinition.特種稅率) //特種稅率 需手動輸入符合財政部的稅率
+                if (_invItem.CustomsClearanceMark != 1 && _invItem.CustomsClearanceMark != 2)
                 {
-                    decimal[] tabRate = new decimal[] { 0m, 0.01m, 0.02m, 0.05m, 0.15m, 0.25m };
-                    decimal taxRate = _invItem.TaxRate ?? 0m;
-                    if (!tabRate.Contains(taxRate))
-                    {
-                        return new Exception(String.Format(MessageResources.InvalidSpecialTaxRate, _invItem.TaxRate));
-                    }
-                }
-
-                if (_invItem.CustomsClearanceMark == null) //通關方式 為必選條件
-                {
-                    if (_invItem.CustomsClearanceMark != 1 && _invItem.CustomsClearanceMark != 2)
-                    {
-                        return new Exception(String.Format(MessageResources.AlertClearanceMarkExport, _invItem.CustomsClearanceMark));
-                    }
-                }
-
-                if (_invItem.BondedAreaConfirm != null) //不得選 買受人簽署適用零稅率註記
-                {
-                    return new Exception(String.Format(MessageResources.AlertBondedAreaConfirmNotAllowed, _invItem.BondedAreaConfirm));
-                }
-
-                if (_invItem.ZeroTaxRateReason != null) //不得選 零稅率原因
-                {
-                    return new Exception(String.Format(MessageResources.AlertZeroTaxRateReasonNotAllowed, _invItem.ZeroTaxRateReason));
+                    return new Exception(String.Format(MessageResources.AlertClearanceMarkExport, _invItem.CustomsClearanceMark));
                 }
             }
-                return null;
+
+            return null;
         }
+
 
         protected virtual Exception checkInvoiceProductItems()
         {
@@ -581,13 +503,13 @@ namespace ModelCore.Models.ViewModel
 
             foreach (var product in _productItems)
             {
-                if (String.IsNullOrEmpty(product.InvoiceProduct.Brief) || product.InvoiceProduct.Brief.Length > 500) //11407 原長度 256 改500
+                if (String.IsNullOrEmpty(product.InvoiceProduct.Brief) || product.InvoiceProduct.Brief.Length > 256)
                 {
                     return new Exception(String.Format(MessageResources.InvalidProductDescription, product.InvoiceProduct.Brief));
                 }
 
 
-                if (!String.IsNullOrEmpty(product.PieceUnit) && product.PieceUnit.Length > 6) 
+                if (!String.IsNullOrEmpty(product.PieceUnit) && product.PieceUnit.Length > 6)
                 {
                     return new Exception(String.Format(MessageResources.InvalidPieceUnit, product.PieceUnit));
                 }
@@ -649,7 +571,7 @@ namespace ModelCore.Models.ViewModel
             }
             else
             {
-                if (_invItem.CarrierType.Length > 6 || (_invItem.CarrierId1 != null && _invItem.CarrierId1.Length > 400) || (_invItem.CarrierId2 != null && _invItem.CarrierId2.Length > 400))
+                if (_invItem.CarrierType.Length > 6 || (_invItem.CarrierId1 != null && _invItem.CarrierId1.Length > 64) || (_invItem.CarrierId2 != null && _invItem.CarrierId2.Length > 64))
                     return new Exception(String.Format(MessageResources.AlertInvoiceCarrierLength, _invItem.CarrierType, _invItem.CarrierId1, _invItem.CarrierId2));
 
                 _carrier = new InvoiceCarrier
@@ -659,7 +581,7 @@ namespace ModelCore.Models.ViewModel
 
                 if (!String.IsNullOrEmpty(_invItem.CarrierId1))
                 {
-                    if (_invItem.CarrierId1.Length > 400)
+                    if (_invItem.CarrierId1.Length > 64)
                         return new Exception(String.Format(MessageResources.AlertInvoiceCarrierLength, _invItem.CarrierType, _invItem.CarrierId1, _invItem.CarrierId2));
 
                     _carrier.CarrierNo = _invItem.CarrierId1;
@@ -667,7 +589,7 @@ namespace ModelCore.Models.ViewModel
 
                 if (!String.IsNullOrEmpty(_invItem.CarrierId2))
                 {
-                    if (_invItem.CarrierId2.Length > 400)
+                    if (_invItem.CarrierId2.Length > 64)
                         return new Exception(String.Format(MessageResources.AlertInvoiceCarrierLength, _invItem.CarrierType, _invItem.CarrierId1, _invItem.CarrierId2));
 
                     _carrier.CarrierNo2 = _invItem.CarrierId2;

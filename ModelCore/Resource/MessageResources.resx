@@ -166,7 +166,7 @@
     <value>通關方式註記格式錯誤，限填非經海關出口："1"或經海關出口："2"，上傳資料：{0},TAG:&lt; CustomsClearanceMark /&gt;</value>
   </data>
   <data name="AlertClearanceMarkZeroTax" xml:space="preserve">
-    <value>若為零稅率發票，通關方式註記(CustomsClearanceMark)為必填欄位，上傳資料：{0},TAG:&lt; CustomsClearanceMark /&gt;</value>
+    <value>若為零稅率發票，通關方式(CustomsClearanceMark)為必填欄位，上傳資料：{0},TAG:&lt; CustomsClearanceMark /&gt;</value>
   </data>
   <data name="AlertContactToPrintAll" xml:space="preserve">
     <value>公司帳號設定為全列印，請填寫聯絡人資訊；TAG:&lt; Contact /&gt;</value>
@@ -348,5 +348,31 @@
   </data>
   <data name="InvalidZeroTaxAmount" xml:space="preserve">
     <value>零稅率銷售額合計(新台幣)不可為負數且為整數，上傳資料：{0},TAG:&lt; ZeroTaxSalesAmount /&gt;</value>
+  </data>
+  <data name="AlertZeroTaxRateReason" xml:space="preserve">
+    <value>若為零稅率發票，零稅率原因(ZeroTaxRateReason)為必選欄位，上傳資料：{0},TAG:&lt;ZeroTaxRateReason/&gt;</value>
+  </data>
+  <data name="AlertBondedAreaConfirm" xml:space="preserve">
+    <value>若為零稅率發票，買受人簽署適用零稅率註記(BondedAreaConfirm)為必選欄位，上傳資料：{0},TAG:&lt;BondedAreaConfirm/&gt;</value>
+    <comment>[E0076]:Buyer’s declaration for zero tax rate (BondedAreaConfirm) should be provided for the Zero Tax e-GUI. Incorrect BondedAreaConfirm: {0}, Incorrect TAG:&lt;BondedAreaConfirm /&gt;</comment>
+  </data>
+  <data name="InvalidSpecialTaxRate" xml:space="preserve">
+    <value>特種稅率格式錯誤，可接受格式為:0m, 0.01m, 0.02m, 0.05m, 0.15m, 0.25m，上傳資料：{0},TAG:&lt;TaxRate/&gt;</value>
+    <comment>[E0076]: Special Tax Rate error. Acceptable values are: 0m, 0.01m, 0.02m, 0.05m, 0.15m, 0.25m. Incorrect Tax Rate: {0}, Incorrect TAG: &lt;TaxRate /&gt;</comment>
+  </data>
+  <data name="AlertZeroTaxRateReasonNotAllowed" xml:space="preserve">
+    <value>若不為零稅率發票，不可填入零稅率原因(ZeroTaxRateReason){0},TAG:&lt;ZeroTaxRateReason/&gt;</value>
+  </data>
+  <data name="AlertBondedAreaConfirmNotAllowed" xml:space="preserve">
+    <value>若不為零稅率發票，不可填入買受人簽署適用零稅率註記(BondedAreaConfirm){0},TAG:&lt;BondedAreaConfirm/&gt;</value>
+  </data>
+  <data name="InvalidSalesAmount" xml:space="preserve">
+    <value>應稅銷售額資SalesAmount)資料格式範圍為整數13碼小數7碼，上傳資料：{0},TAG:&lt;SalesAmount/&gt;</value>
+  </data>
+  <data name="InvalidTaxAmountSpec" xml:space="preserve">
+    <value>營業稅額(TaxAmount)資料格式範圍為整數20碼，上傳資料：{0},TAG:&lt;TaxAmount/&gt;</value>
+  </data>
+  <data name="InvalidTotalAmount1" xml:space="preserve">
+    <value>總計(TotalAmount)資料格式範圍為整數13碼小數7碼，上傳資料：{0},TAG:&lt;TotalAmount/&gt;</value>
   </data>
 </root>

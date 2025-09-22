@@ -267,3 +267,6 @@ Thumbs.db
 /beyond-fitness/demo/
 /beyond-fitness/demo3/
 /WebHome/RunWebHome.bat
+/WebHome/Views/ProductCatalog/Module/ProductQuickSearch(原始檔).cshtml
+/WebHome/Views/InvoiceBusiness/InvoiceProduct/AddItem(原始檔).cshtml
+/WebHome/Views/Forms/SimpleInvoice.1140626.cshtml
