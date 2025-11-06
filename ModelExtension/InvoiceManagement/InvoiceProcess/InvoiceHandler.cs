@@ -78,7 +78,31 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             return null;
         }
 
-        private RenderStyleViewModel? GetNoticeItem()
+        public static DataProcessQueue? GetReadyItem(InvoiceHandler handler, Naming.InvoiceStepDefinition stepID, Naming.DocumentTypeDefinition docType)
+        {
+            lock (typeof(InvoiceHandler))
+            {
+                DateTime available = DateTime.Now.AddMinutes(-5);
+                DataProcessQueue? item = handler._table!
+                    .Where(q => q.StepID == (int)stepID)
+                    .Where(q => q.CDS_Document.DocType == (int)docType)
+                    .Where(q => q.DispatchDate < DateTime.Now)
+                    .Where(q => !q.BookingTime.HasValue || q.BookingTime < available)
+                    .FirstOrDefault();
+
+                if (item != null)
+                {
+                    if (handler.models.ExecuteCommand("update [proc].DataProcessQueue set BookingTime = GetDate() where DocID={0} and StepID={1} and ProcessType = {2}",
+                        item.DocID, item.StepID, item.ProcessType) > 0)
+                    {
+                        return item;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private RenderStyleViewModel? PrepareNoticeItem()
         {
             lock (typeof(InvoiceHandler))
             {
@@ -92,6 +116,10 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                         try
                         {
                             var readyFile = Path.Combine(AppSettings.Default.MailReadyPath, Path.GetFileName(file));
+                            if(File.Exists(readyFile))
+                            {
+                                File.Delete(readyFile);
+                            }
                             File.Move(file, readyFile);
                             var content = File.ReadAllText(readyFile);
                             var viewModel = JsonConvert.DeserializeObject<RenderStyleViewModel>(content);
@@ -130,27 +158,36 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             }
         }
 
+        public void NotifyIssuedInvoice()
+        {
+            DataProcessQueue? item;
+            while ((item = GetReadyItem(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.DocumentTypeDefinition.E_Invoice)) != null)
+            {
+                NotifyIssuedInvoice(item);
+            }
+        }
+
+
         public void SendMailNotification()
         {
             RenderStyleViewModel? viewModel;
-            while ((viewModel = GetNoticeItem()) != null)
+            while ((viewModel = PrepareNoticeItem()) != null)
             {
                 try
                 {
-                    if (EIVONotificationFactory.SendNotification(viewModel))
-                    {
-                        var docItem = models.GetTable<CDS_Document>()
+                    var docItem = models.GetTable<CDS_Document>()
                             .Where(d => d.DocID == viewModel.DocID).FirstOrDefault();
 
-                        if (docItem != null)
+                    if (docItem != null)
+                    {
+                        if (EIVONotificationFactory.SendNotification(viewModel))
                         {
                             docItem.PushLogOnSubmit(models, viewModel.StepID, Naming.DataProcessStatus.Done, processType: viewModel.ProcessType);
                             models.SubmitChanges();
+
+                            PopupNoticeItem(viewModel);
                         }
-
-                        PopupNoticeItem(viewModel);
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -183,12 +220,30 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             }
         }
 
+        public void NotifyIssuedAllowance()
+        {
+            DataProcessQueue? item;
+            while ((item = GetReadyItem(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.DocumentTypeDefinition.E_Allowance)) != null)
+            {
+                NotifyIssuedAllowance(item);
+            }
+        }
+
         public void WriteG0501ToTurnkey()
         {
             DataProcessQueue? item;
             while ((item = GetReadyItem(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.G0501)) != null)
             {
                 WriteG0501ToTurnkey(item);
+            }
+        }
+
+        public void NotifyIssuedAllowanceCancellation()
+        {
+            DataProcessQueue? item;
+            while ((item = GetReadyItem(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.DocumentTypeDefinition.E_AllowanceCancellation)) != null)
+            {
+                NotifyIssuedAllowanceCancellation(item);
             }
         }
 
@@ -200,6 +255,16 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                 WriteF0501ToTurnkey(item);
             }
         }
+
+        public void NotifyIssuedInvoiceCancellation()
+        {
+            DataProcessQueue? item;
+            while ((item = GetReadyItem(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.DocumentTypeDefinition.E_InvoiceCancellation)) != null)
+            {
+                NotifyIssuedInvoiceCancellation(item);
+            }
+        }
+
 
         public void WriteB0101ToTurnkey()
         {
@@ -370,11 +435,44 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                 models.SubmitChanges();
                 xmlMIG.Save(fileName);
 
+                if (invoiceItem.Organization.OrganizationStatus.DownloadDataNumber == true)
+                {
+                    models.ExecuteCommand(@"INSERT INTO DocumentMappingQueue
+                                            (DocID)
+                                        SELECT  {0}
+                                        WHERE   (NOT EXISTS
+                                                (SELECT NULL
+                                                    FROM DocumentMappingQueue
+                                                    WHERE (DocID = {0})))", invoiceItem.InvoiceID);
+                }
+
                 if (invoiceItem.Organization.OrganizationStatus.DownloadDispatch == true)
                 {
                     item.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.回傳MIG, Naming.InvoiceProcessType.F0401);
                     models.SubmitChanges();
                 }
+
+                EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel { DocID = item.DocID }, false);
+
+                PopupQueueItem(item);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+            return docID;
+        }
+
+        private int NotifyIssuedInvoice(DataProcessQueue item)
+        {
+            int docID = item.DocID;
+            var invoiceItem = item.CDS_Document.InvoiceItem;
+            try
+            {
+                EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel { DocID = item.DocID }, false);
+
+                item.PushStepLogOnSubmit(models, Naming.DataProcessStatus.Done);
+                models.SubmitChanges();
 
                 PopupQueueItem(item);
             }
@@ -403,6 +501,30 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                     item.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.回傳MIG, Naming.InvoiceProcessType.G0401);
                     models.SubmitChanges();
                 }
+
+                EIVONotificationFactory.NotifyIssuedAllowance(item.DocID, false);
+
+                PopupQueueItem(item);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return docID;
+        }
+
+        private int NotifyIssuedAllowance(DataProcessQueue item)
+        {
+            int docID = item.DocID;
+            var allowance = item.CDS_Document.InvoiceAllowance;
+            try
+            {
+                EIVONotificationFactory.NotifyIssuedAllowance(item.DocID, false);
+
+                item.CDS_Document.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done);
+                models.SubmitChanges();
 
                 PopupQueueItem(item);
 
@@ -443,9 +565,37 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                     item.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.回傳MIG, Naming.InvoiceProcessType.G0501);
                     models.SubmitChanges();
                 }
-                
+
+                EIVONotificationFactory.NotifyIssuedAllowanceCancellation(item.DocID);
+
                 PopupQueueItem(item);
 
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return docID;
+        }
+
+        private int NotifyIssuedAllowanceCancellation(DataProcessQueue item)
+        {
+            int docID = item.DocID;
+            var allowance = item.CDS_Document.DerivedDocument?.ParentDocument.InvoiceAllowance;
+            if (allowance == null)
+            {
+                allowance = item.CDS_Document.InvoiceAllowance;
+            }
+
+            try
+            {
+                EIVONotificationFactory.NotifyIssuedAllowanceCancellation(item.DocID);
+
+                item.PushStepLogOnSubmit(models, Naming.DataProcessStatus.Done);
+                models.SubmitChanges();
+
+                PopupQueueItem(item);
             }
             catch (Exception ex)
             {
@@ -483,6 +633,35 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
                     item.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.回傳MIG, Naming.InvoiceProcessType.F0501);
                     models.SubmitChanges();
                 }
+
+                EIVONotificationFactory.NotifyIssuedInvoiceCancellation(item.DocID);
+
+                PopupQueueItem(item);
+
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            return docID;
+        }
+
+        private int NotifyIssuedInvoiceCancellation(DataProcessQueue item)
+        {
+            int docID = item.DocID;
+            var invoice = item.CDS_Document.DerivedDocument?.ParentDocument.InvoiceItem;
+            if (invoice == null)
+            {
+                invoice = item.CDS_Document.InvoiceItem;
+            }
+
+            try
+            {
+                EIVONotificationFactory.NotifyIssuedInvoiceCancellation(item.DocID);
+
+                item.PushStepLogOnSubmit(models, Naming.DataProcessStatus.Done);
+                models.SubmitChanges();
 
                 PopupQueueItem(item);
 
@@ -856,13 +1035,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
         private void PopupQueueItem(DataProcessQueue item)
         {
-            models.ExecuteCommand("delete [proc].DataProcessQueue where DocID={0} and StepID={1} and ProcessType = {2}",
-                item.DocID, item.StepID, item.ProcessType);
-        }
-
-        public static void PushA0101StepQueueOnSubmit(GenericManager<EIVOEntityDataContext> models, CDS_Document docItem, Naming.InvoiceStepDefinition stepID)
-        {
-            docItem.PushStepQueueOnSubmit(models, stepID, Naming.InvoiceProcessType.A0101);
+            item.PopupQueueItem(models);
         }
 
         public static DataProcessQueue? GetReadyItem(GenericManager<EIVOEntityDataContext> models, CDS_Document docItem, Naming.InvoiceStepDefinition stepID, Naming.InvoiceProcessType processType)

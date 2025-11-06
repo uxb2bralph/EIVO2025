@@ -44,86 +44,86 @@ namespace InvoiceClient.TransferManagement
 
         public void EnableAll(String fullPath)
         {
-            _SellerInvoiceWatcher = new InvoiceWatcherV2(POSReady._Settings.SellerInvoice)
+            _SellerInvoiceWatcher = new InvoiceWatcherV2(POSReady.Settings.SellerInvoice)
             {
                 PreferredProcessType = Naming.InvoiceProcessType.C0401,
-                ContentName = $"({Path.GetFileName(POSReady._Settings.SellerInvoice)})",
+                ContentName = $"({Path.GetFileName(POSReady.Settings.SellerInvoice)})",
                 TransferManager = this,
             };
             _SellerInvoiceWatcher.StartUp();
 
-            _B2BSellerInvoiceWatcher = new InvoiceWatcherV2(POSReady._Settings.B2BSellerInvoice)
+            _B2BSellerInvoiceWatcher = new InvoiceWatcherV2(POSReady.Settings.B2BSellerInvoice)
             {
                 PreferredProcessType = Naming.InvoiceProcessType.A0401,
-                ContentName = $"({Path.GetFileName(POSReady._Settings.B2BSellerInvoice)})",
+                ContentName = $"({Path.GetFileName(POSReady.Settings.B2BSellerInvoice)})",
                 TransferManager = this,
             };
             _B2BSellerInvoiceWatcher.StartUp();
 
-            _PreparedInvoiceWatcher = new PreparedInvoiceWatcher(POSReady._Settings.PreparedInvoice)
+            _PreparedInvoiceWatcher = new PreparedInvoiceWatcher(POSReady.Settings.PreparedInvoice)
             {
-                ContentName = $"({Path.GetFileName(POSReady._Settings.PreparedInvoice)})",
+                ContentName = $"({Path.GetFileName(POSReady.Settings.PreparedInvoice)})",
                 TransferManager = this,
             };
             _PreparedInvoiceWatcher.StartUp();
 
-            _ReprintWatcher = new ReprintReceiptWatcher(POSReady._Settings.ReprintReceipt)
+            _ReprintWatcher = new ReprintReceiptWatcher(POSReady.Settings.ReprintReceipt)
             {
-                ContentName = $"({Path.GetFileName(POSReady._Settings.ReprintReceipt)})",
+                ContentName = $"({Path.GetFileName(POSReady.Settings.ReprintReceipt)})",
                 TransferManager = this,
             };
             _ReprintWatcher.StartUp();
 
-            _ReprintInvoiceWatcher = new ReprintInvoiceWatcher(POSReady._Settings.ReprintInvoice)
+            _ReprintInvoiceWatcher = new ReprintInvoiceWatcher(POSReady.Settings.ReprintInvoice)
             {
-                ContentName = $"({Path.GetFileName(POSReady._Settings.ReprintInvoice)})",
+                ContentName = $"({Path.GetFileName(POSReady.Settings.ReprintInvoice)})",
                 TransferManager = this,
             };
             _ReprintInvoiceWatcher.StartUp();
 
-            _ReprintAllowanceWatcher = new ReprintAllowanceWatcher(POSReady._Settings.ReprintAllowance)
+            _ReprintAllowanceWatcher = new ReprintAllowanceWatcher(POSReady.Settings.ReprintAllowance)
             {
-                ContentName = $"({Path.GetFileName(POSReady._Settings.ReprintAllowance)})",
+                ContentName = $"({Path.GetFileName(POSReady.Settings.ReprintAllowance)})",
                 TransferManager = this,
             };
             _ReprintAllowanceWatcher.StartUp();
 
 
-            _BlindReturnWatcher = new PreparedInvoiceWatcher(POSReady._Settings.BlindReturn)
+            _BlindReturnWatcher = new PreparedInvoiceWatcher(POSReady.Settings.BlindReturn)
             {
-                ConvertPrintFormUrl = POSReady._Settings.PrintBlindReturn,
-                ContentName = $"({Path.GetFileName(POSReady._Settings.PrintBlindReturn)})",
+                ConvertPrintFormUrl = POSReady.Settings.PrintBlindReturn,
+                ContentName = $"({Path.GetFileName(POSReady.Settings.PrintBlindReturn)})",
                 TransferManager = this,
             };
             _BlindReturnWatcher.StartUp();
 
-            _ReplacementWatcher = new PreparedInvoiceWatcher(POSReady._Settings.Replacement)
+            _ReplacementWatcher = new PreparedInvoiceWatcher(POSReady.Settings.Replacement)
             {
-                ConvertPrintFormUrl = POSReady._Settings.PrintReplacement,
-                ContentName = $"({Path.GetFileName(POSReady._Settings.Replacement)})",
+                ConvertPrintFormUrl = POSReady.Settings.PrintReplacement,
+                ContentName = $"({Path.GetFileName(POSReady.Settings.Replacement)})",
                 TransferManager = this,
             };
             _ReplacementWatcher.StartUp();
 
-            _ZeroAmountWatcher = new PreparedInvoiceWatcher(POSReady._Settings.ZeroAmount)
+            _ZeroAmountWatcher = new PreparedInvoiceWatcher(POSReady.Settings.ZeroAmount)
             {
-                ConvertPrintFormUrl = POSReady._Settings.PrintZeroAmount,
-                ContentName = $"({Path.GetFileName(POSReady._Settings.ZeroAmount)})",
+                ConvertPrintFormUrl = POSReady.Settings.PrintZeroAmount,
+                ContentName = $"({Path.GetFileName(POSReady.Settings.ZeroAmount)})",
                 TransferManager = this,
             };
             _ZeroAmountWatcher.StartUp();
 
-            _PreparedAllowanceWatcher = new PreparedAllowanceWatcher(POSReady._Settings.PreparedAllowance)
+            _PreparedAllowanceWatcher = new PreparedAllowanceWatcher(POSReady.Settings.PreparedAllowance)
             {
-                ConvertPrintFormUrl = POSReady._Settings.PrintD0401,
-                ContentName = $"({Path.GetFileName(POSReady._Settings.PreparedAllowance)})",
+                ConvertPrintFormUrl = POSReady.Settings.PrintD0401,
+                ContentName = $"({Path.GetFileName(POSReady.Settings.PreparedAllowance)})",
                 TransferManager = this,
             };
             _PreparedAllowanceWatcher.StartUp();
 
-            if (POSReady._Settings.UserPOSPrinter)
+            if (POSReady.Settings.UserPOSPrinter)
             {
-                _PrintInvoiceWatcher = new POSPrintWatcher(POSReady._Settings.PrintInvoice)
+                _PrintInvoiceWatcher = new POSPrintWatcher(POSReady.Settings.PrintInvoice)
                 {
                     TransferManager = this,
                 };
@@ -158,36 +158,36 @@ namespace InvoiceClient.TransferManagement
             };
             _AllowanceCancellationWatcher.StartUp();
 
-            _C0401Watcher = new CsvC0401RequestWatcher(Path.Combine(fullPath, POSReady._Settings.C0401))
+            _C0401Watcher = new CsvC0401RequestWatcher(Path.Combine(fullPath, POSReady.Settings.C0401))
             {
-                ResponsePath = POSReady._Settings.SellerInvoice,
-                PreparedPrintPath = POSReady.Settings.UserPOSPrinter ? POSReady._Settings.PreparedInvoice : null,
-                ContentName = $"({POSReady._Settings.C0401})",
+                ResponsePath = POSReady.Settings.SellerInvoice,
+                PreparedPrintPath = POSReady.Settings.UserPOSPrinter ? POSReady.Settings.PreparedInvoice : null,
+                ContentName = $"({POSReady.Settings.C0401})",
                 TransferManager = this,
             };
             _C0401Watcher.StartUp();
 
-            _A0401Watcher = new CsvInvoiceRequestWatcher(Path.Combine(fullPath, POSReady._Settings.A0401))
+            _A0401Watcher = new CsvInvoiceRequestWatcher(Path.Combine(fullPath, POSReady.Settings.A0401))
             {
-                ResponsePath = POSReady._Settings.B2BSellerInvoice,
-                //PreparedPrintPath = POSReady.Settings.UserPOSPrinter ? POSReady._Settings.PreparedInvoice : null,
-                ContentName = $"({POSReady._Settings.A0401})",
+                ResponsePath = POSReady.Settings.B2BSellerInvoice,
+                //PreparedPrintPath = POSReady.Settings.UserPOSPrinter ? POSReady.Settings.PreparedInvoice : null,
+                ContentName = $"({POSReady.Settings.A0401})",
                 TransferManager = this,
             };
             _A0401Watcher.StartUp();
 
-            _C0501Watcher = new CsvInvoiceCancellationRequestWatcher(Path.Combine(fullPath, POSReady._Settings.C0501))
+            _C0501Watcher = new CsvInvoiceCancellationRequestWatcher(Path.Combine(fullPath, POSReady.Settings.C0501))
             {
                 ResponsePath = Path.Combine(fullPath, Settings.Default.UploadInvoiceCancellationFolder),
-                ContentName = $"({POSReady._Settings.C0501})",
+                ContentName = $"({POSReady.Settings.C0501})",
                 TransferManager = this,
             };
             _C0501Watcher.StartUp();
 
-            _A0501Watcher = new CsvInvoiceCancellationRequestWatcher(Path.Combine(fullPath, POSReady._Settings.A0501))
+            _A0501Watcher = new CsvInvoiceCancellationRequestWatcher(Path.Combine(fullPath, POSReady.Settings.A0501))
             {
                 ResponsePath = Path.Combine(fullPath, Settings.Default.UploadInvoiceCancellationFolder),
-                ContentName = $"({POSReady._Settings.A0501})",
+                ContentName = $"({POSReady.Settings.A0501})",
                 TransferManager = this,
             };
             _A0501Watcher.StartUp();
@@ -200,7 +200,7 @@ namespace InvoiceClient.TransferManagement
 
             if (!POSReady.Settings.Initialized)
             {
-                if (!String.IsNullOrEmpty(POSReady._Settings.InitBatch))
+                if (!String.IsNullOrEmpty(POSReady.Settings.InitBatch))
                 {
                     POSReady.Settings.InitBatch.RunBatch(Settings.Default.InvoiceTxnPath[0]);
                     POSReady.Settings.Initialized = true;

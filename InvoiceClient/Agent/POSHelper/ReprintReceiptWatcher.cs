@@ -41,12 +41,12 @@ namespace InvoiceClient.Agent.POSHelper
 
             if (docInv?.DocumentElement.Name == "InvoiceRoot")
             {
-                docInv.Save(Path.Combine(POSReady._Settings.ReprintInvoice, $"{Guid.NewGuid()}.xml"));
+                docInv.Save(Path.Combine(POSReady.Settings.ReprintInvoice, $"{Guid.NewGuid()}.xml"));
                 result.Result.value = 1;
             }
             else if (docInv?.DocumentElement.Name == "AllowanceRoot")
             {
-                docInv.Save(Path.Combine(POSReady._Settings.ReprintAllowance, $"{Guid.NewGuid()}.xml"));
+                docInv.Save(Path.Combine(POSReady.Settings.ReprintAllowance, $"{Guid.NewGuid()}.xml"));
                 result.Result.value = 1;
             }
             else

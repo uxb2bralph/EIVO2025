@@ -26,40 +26,42 @@
             <input type="button" name="@($"btnInvoiceSample{(int?)_model.ProcessType}")" value="下載範本" />&nbsp;&nbsp;
             <input type="button" name="@($"btnImportInvoice{(int?)_model.ProcessType}")" value="立即傳送" />
             <script>
-                        $(function () {
+                $(function () {
 
-                            $('input[name="@($"btnInvoiceSample{(int?)_model.ProcessType}")"]').on('click', function (event) {
-                                $('').launchDownload('@Html.Raw(Url.Action("GetInvoiceRequestSample","InvoiceBusiness",new { _model.ProcessType }))', {});
+                    $('input[name="@($"btnInvoiceSample{(int?)_model.ProcessType}")"]').on('click', function (event) {
+                        $('').launchDownload('@Html.Raw(Url.Action("GetInvoiceRequestSample","InvoiceBusiness",new { _model.ProcessType }))', {});
+                    });
+
+                    var $btn = $('input[name="@($"btnImportInvoice{(int?)_model.ProcessType}")"]');
+                    var $file = $('<input name="theFile" type="file" style="display: none;" />');
+                    $btn.before($file);
+
+                    $btn.click(function () {
+                        $file.val('');
+                        $file.click();
+                    });
+
+                    $file.on('change', function (event) {
+                        clearErrors();
+                        var $formData = $('form').find('input,select,textArea').serializeObject();
+                        $formData.Sender = @(_profile.UID);
+                        $formData.ProcessType = @(((int?)_model.ProcessType) ?? -1);
+                        uploadFile($file, $formData, '@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.TaskCenterUrl}/InvoiceData/UploadInvoiceRequestXlsx")',
+                            function (data) {
+                                $btn.before($file);
+                                if ($.isPlainObject(data)) {
+                                    if (data.result) {
+                                        alertModal('開立資料傳送完成，請至工作提示區檢視處理狀態。');
+                                    } else {
+                                        reportError(data);
+                                    }
+                                }
+                            },
+                            function () {
+                                $btn.before($file);
                             });
-
-                            var $btn = $('input[name="@($"btnImportInvoice{(int?)_model.ProcessType}")"]');
-                            var $file = $('<input name="theFile" type="file" style="display: none;" />');
-                            $btn.before($file);
-
-                            $btn.click(function () {
-                                $file.val('');
-                                $file.click();
-                            });
-
-                            $file.on('change', function (event) {
-                                clearErrors();
-                                var $formData = $('form').find('input,select,textArea').serializeObject();
-                                uploadFile($file, $formData, '@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.TaskCenterUrl}/InvoiceData/UploadInvoiceRequestXlsx?sender={_profile.UID}&processType={(int?)_model.ProcessType}")',
-                                    function (data) {
-                                        $btn.before($file);
-                                        if ($.isPlainObject(data)) {
-                                            if (data.result) {
-                                                alert('開立資料傳送完成，請至工作提示區檢視處理狀態。');
-                                            } else {
-                                                reportError(data);
-                                            }
-                                        }
-                                    },
-                                    function () {
-                                        $btn.before($file);
-                                    });
-                            });
-                        });
+                    });
+                });
             </script>
         </td>
     </tr>

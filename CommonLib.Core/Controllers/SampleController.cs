@@ -2,15 +2,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
-using System;
-using Microsoft.Extensions.DependencyInjection;
-using System.IO;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
+using System;
+using System.Globalization;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace CommonLib.Core.Controllers
 {
@@ -65,19 +66,50 @@ namespace CommonLib.Core.Controllers
         public async Task<T> PrepareViewModelAsync<T>()
             where T : class
         {
-            T? viewModel;
-            if (Request.ContentType?.Contains("application/json", StringComparison.InvariantCultureIgnoreCase) == true)
+            T? viewModel = null;
+
+            if (Request.Method == HttpMethods.Post)
             {
-                viewModel = JsonConvert.DeserializeObject<T>(RequestBody)!;
+                if (Request.ContentType?.Contains("application/json", StringComparison.InvariantCultureIgnoreCase) == true)
+                {
+                    // 嘗試 JSON body
+                    //try
+                    //{
+                    //    viewModel = await Request.ReadFromJsonAsync<T>();
+                    //}
+                    //catch (Exception ex)
+                    //{
+                    //    FileLogger.Logger.Error(ex);
+                    //    // 若不是 JSON，嘗試 form
+                    //}
+                    viewModel = JsonConvert.DeserializeObject<T>(RequestBody)!;
+                }
+
+                if (viewModel == null)
+                {
+                    viewModel = Activator.CreateInstance<T>();
+                    await TryUpdateModelAsync(viewModel, prefix: "", valueProvider: new FormValueProvider(BindingSource.Form, Request.Form, CultureInfo.CurrentCulture));
+                }
             }
-            else
+            else if (Request.Method == HttpMethods.Get)
             {
+                // GET 用 query string
                 viewModel = Activator.CreateInstance<T>();
-                await this.TryUpdateModelAsync<T>(viewModel);
+                await TryUpdateModelAsync(viewModel, prefix: "", valueProvider: new QueryStringValueProvider(BindingSource.Query, Request.Query, CultureInfo.CurrentCulture));
             }
 
+            //if (Request.ContentType?.Contains("application/json", StringComparison.InvariantCultureIgnoreCase) == true)
+            //{
+            //    viewModel = JsonConvert.DeserializeObject<T>(RequestBody)!;
+            //}
+            //else
+            //{
+            //    viewModel = Activator.CreateInstance<T>();
+            //    await this.TryUpdateModelAsync<T>(viewModel);
+            //}
+
             ViewBag.ViewModel = viewModel;
-            return viewModel;
+            return viewModel!;
         }
 
         public T? FromJsonBody<T>()

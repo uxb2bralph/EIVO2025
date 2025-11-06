@@ -48,9 +48,9 @@
                 查詢項目
             </th>
             <td class="tdleft">
-                <input type="radio" name="DocType" value="@((int)Naming.DocumentTypeDefinition.E_Invoice)" @(_viewModel.DocType==Naming.DocumentTypeDefinition.E_Invoice ? "checked" : null) onchange="window.location.href='@Html.Raw(Url.Action("QueryIndex","InvoiceAudit"))';" />發票
+                <input type="radio" name="DocType" value="@((int)Naming.DocumentTypeDefinition.E_Invoice)" @(_viewModel.DocType == Naming.DocumentTypeDefinition.E_Invoice ? "checked" : null) onchange="window.location.href='@Html.Raw(Url.Action("QueryIndex","InvoiceAudit"))';" />發票
                 &nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="radio" name="DocType" value="@((int)Naming.DocumentTypeDefinition.E_Invoice)" @(_viewModel.DocType==Naming.DocumentTypeDefinition.E_Allowance ? "checked" : null) onchange="window.location.href='@Html.Raw(Url.Action("AllowanceIndex","InvoiceAudit"))';" />折讓單
+                <input type="radio" name="DocType" value="@((int)Naming.DocumentTypeDefinition.E_Invoice)" @(_viewModel.DocType == Naming.DocumentTypeDefinition.E_Allowance ? "checked" : null) onchange="window.location.href='@Html.Raw(Url.Action("AllowanceIndex","InvoiceAudit"))';" />折讓單
             </td>
         </tr>
         @{
@@ -72,6 +72,9 @@
             </td>
         </tr>
     </table>
+    @{
+        await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Common.cshtml");
+    }
 </div>
 
 @if (_viewModel.StartQuery == true)

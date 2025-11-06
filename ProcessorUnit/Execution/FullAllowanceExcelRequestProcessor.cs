@@ -12,7 +12,7 @@ namespace ProcessorUnit.Execution
     {
         public FullAllowanceExcelRequestProcessor()
         {
-            appliedProcessType = Naming.InvoiceProcessType.D0401_Full_Xlsx;
+            appliedProcessType = Naming.InvoiceProcessType.G0401_Full_Xlsx;
             processDataSet = (ds, requestItem) =>
             {
                 using (FullAllowanceDataSetManager manager = new FullAllowanceDataSetManager(models))

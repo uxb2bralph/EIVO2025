@@ -39,8 +39,15 @@ namespace WebHome.Controllers
         }
 
         // GET: POSDevice
-        public async Task<ActionResult> AllocateInvoiceNoAsync(POSDeviceViewModel viewModel)
+        public async Task<ActionResult> AllocateInvoiceNoAsync()
         {
+            POSDeviceViewModel? viewModel = await PrepareViewModelAsync<POSDeviceViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
             //if (String.IsNullOrEmpty(Request.ContentType) && String.IsNullOrEmpty(Request.Params["Query_String"]))
             //{
             //    using (StreamReader reader = new StreamReader(Request.InputStream, Request.ContentEncoding))
@@ -70,7 +77,7 @@ namespace WebHome.Controllers
             viewModel.Seed = Request.Headers["Seed"].FirstOrDefault().GetEfficientString();
             viewModel.Authorization = Request.Headers["Authorization"].FirstOrDefault().GetEfficientString();
 
-            List<InvoiceNoAllocation> items = models.AllocateInvoiceNo(viewModel);
+            List<InvoiceNoAllocation> items = models!.AllocateInvoiceNo(viewModel);
             var item = items.FirstOrDefault();
 
             return Json(new
@@ -87,20 +94,18 @@ namespace WebHome.Controllers
             });
         }
 
-        public ActionResult CommitInvoice(InvoiceViewModel viewModel)
+        public async Task<ActionResult> CommitInvoiceAsync()
         {
-            if (String.IsNullOrEmpty(Request.ContentType) && String.IsNullOrEmpty(Request.QueryString.Value))
+            InvoiceViewModel? viewModel = await PrepareViewModelAsync<InvoiceViewModel>();
+
+            if (viewModel == null)
             {
-                Request.Body.Position = 0;
-                using (StreamReader reader = new StreamReader(Request.Body))
-                {
-                    viewModel = JsonConvert.DeserializeObject<InvoiceViewModel>(reader.ReadToEnd());
-                }
+                return BadRequest("Invalid request data.");
             }
 
             int no;
             int.TryParse(viewModel.No, out no);
-            var item = models.GetTable<InvoiceNoAllocation>().Where(i => i.InvoiceNo == no && i.InvoiceNoInterval.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode == viewModel.TrackCode).FirstOrDefault();
+            var item = models!.GetTable<InvoiceNoAllocation>().Where(i => i.InvoiceNo == no && i.InvoiceNoInterval.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode == viewModel.TrackCode).FirstOrDefault();
 
             if (item == null)
                 return Json(new { result = false, message = "發票號碼錯誤!!" });
@@ -129,21 +134,19 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult GetIncompleteInvoiceNo(POSDeviceViewModel viewModel)
+        public async Task<ActionResult> GetIncompleteInvoiceNoAsync()
         {
-            if (String.IsNullOrEmpty(Request.ContentType) && String.IsNullOrEmpty(Request.QueryString.Value))
+            POSDeviceViewModel? viewModel = await PrepareViewModelAsync<POSDeviceViewModel>();
+
+            if (viewModel == null)
             {
-                Request.Body.Position = 0;
-                using (StreamReader reader = new StreamReader(Request.Body))
-                {
-                    viewModel = JsonConvert.DeserializeObject<POSDeviceViewModel>(reader.ReadToEnd());
-                }
+                return BadRequest("Invalid request data.");
             }
 
             List<InvoiceNoAllocation> items = new List<InvoiceNoAllocation>();
 
             //receiptNo = receiptNo.GetEfficientString();
-            var seller = models.GetTable<Organization>().Where(c => c.ReceiptNo == viewModel.company_id).FirstOrDefault();
+            var seller = models!.GetTable<Organization>().Where(c => c.ReceiptNo == viewModel.company_id).FirstOrDefault();
             if (seller != null)
             {
                 items = models.GetTable<InvoiceNoAllocation>().Where(d => d.Status == (int)Naming.UploadStatusDefinition.等待匯入)
@@ -190,9 +193,9 @@ namespace WebHome.Controllers
                 viewModel.Authorization = Request.Headers["Authorization"].ToString().GetEfficientString();
             }
 
-            InvoiceItem item = null;
+            InvoiceItem? item = null;
             var receiptNo = viewModel.company_id.GetEfficientString();
-            var orgItems = models.GetTable<Organization>().Where(c => c.ReceiptNo == receiptNo);
+            var orgItems = models!.GetTable<Organization>().Where(c => c.ReceiptNo == receiptNo);
             var seller = orgItems.FirstOrDefault();
             if (seller != null)
             {
@@ -219,8 +222,15 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult InspectAllowance(POSDeviceViewModel viewModel)
+        public async Task<ActionResult> InspectAllowanceAsync()
         {
+            POSDeviceViewModel? viewModel = await PrepareViewModelAsync<POSDeviceViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
             ViewBag.ViewModel = viewModel;
             if (viewModel.Seed == null)
             {
@@ -231,9 +241,9 @@ namespace WebHome.Controllers
                 viewModel.Authorization = Request.Headers["Authorization"].ToString().GetEfficientString();
             }
 
-            InvoiceAllowance item = null;
+            InvoiceAllowance? item = null;
             var receiptNo = viewModel.company_id.GetEfficientString();
-            var orgItems = models.GetTable<Organization>().Where(c => c.ReceiptNo == receiptNo);
+            var orgItems = models!.GetTable<Organization>().Where(c => c.ReceiptNo == receiptNo);
             var seller = orgItems.FirstOrDefault();
             if (seller != null)
             {
@@ -244,10 +254,10 @@ namespace WebHome.Controllers
 
                     var issuers = models.GetTable<InvoiceIssuerAgent>().Where(c => c.AgentID == seller.CompanyID);
                     item = models.GetTable<InvoiceAllowance>()
-                    .Where(i => i.AllowanceNumber == viewModel.AllowanceNo)
-                            .Where(i => i.InvoiceAllowanceSeller.SellerID == seller.CompanyID || issuers.Any(a => a.IssuerID == i.InvoiceAllowanceSeller.SellerID))
-                            .OrderByDescending(a => a.AllowanceID)
-                            .FirstOrDefault();
+                        .Where(i => i.AllowanceNumber == viewModel.AllowanceNo)
+                        .Where(i => i.InvoiceAllowanceSeller.SellerID == seller.CompanyID || issuers.Any(a => a.IssuerID == i.InvoiceAllowanceSeller.SellerID))
+                        .OrderByDescending(a => a.AllowanceID)
+                        .FirstOrDefault();
                 }
             }
 

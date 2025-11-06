@@ -15,6 +15,10 @@ using ModelCore.InvoiceManagement;
 using Microsoft.AspNetCore.Mvc;
 using CommonLib.Core.Utility;
 using CommonLib.Utility;
+using System.Globalization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
+using System.Threading.Tasks;
 
 namespace TaskCenter.Controllers
 {
@@ -53,8 +57,15 @@ namespace TaskCenter.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult UploadAttachment([FromBody] InvoiceRequestViewModel viewModel)
+        public async Task<ActionResult> UploadAttachmentAsync()
         {
+            InvoiceRequestViewModel? viewModel = await PrepareViewModelAsync<InvoiceRequestViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
             viewModel.SaveAttachment(this);
             if (!ModelState.IsValid)
             {
@@ -66,11 +77,14 @@ namespace TaskCenter.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult UploadInvoiceRequestXlsx(InvoiceRequestViewModel viewModel)
+        public async Task<ActionResult> UploadInvoiceRequestXlsxAsync(InvoiceRequestViewModel viewModel)
         {
+            //await Request.SaveAsAsync(Path.Combine(CommonLib.Core.Utility.Logger.LogDailyPath, $"{DateTime.Now.Ticks}.txt"), true);
+            await Request.SaveAsAsync(null, true);
+
             if (!viewModel.ProcessType.HasValue)
             {
-                viewModel.ProcessType = Naming.InvoiceProcessType.C0401_Xlsx;
+                viewModel.ProcessType = Naming.InvoiceProcessType.F0401_Xlsx;
             }
 
             return UploadProcessRequest(viewModel);
@@ -79,25 +93,25 @@ namespace TaskCenter.Controllers
 
         public ActionResult UploadVoidInvoiceRequestXlsx(InvoiceRequestViewModel viewModel)
         {
-            viewModel.ProcessType = Naming.InvoiceProcessType.C0501_Xlsx;
+            viewModel.ProcessType = Naming.InvoiceProcessType.F0501_Xlsx;
             return UploadProcessRequest(viewModel);
         }
 
         public ActionResult UploadAllowanceRequestXlsx(InvoiceRequestViewModel viewModel)
         {
-            viewModel.ProcessType = Naming.InvoiceProcessType.D0401_Xlsx;
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0401_Xlsx;
             return UploadProcessRequest(viewModel);
         }
 
         public ActionResult UploadFullAllowanceRequestXlsx(InvoiceRequestViewModel viewModel)
         {
-            viewModel.ProcessType = Naming.InvoiceProcessType.D0401_Full_Xlsx;
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0401_Full_Xlsx;
             return UploadProcessRequest(viewModel);
         }
 
         public ActionResult UploadVoidAllowanceRequestXlsx(InvoiceRequestViewModel viewModel)
         {
-            viewModel.ProcessType = Naming.InvoiceProcessType.D0501_Xlsx;
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0501_Xlsx;
             return UploadProcessRequest(viewModel);
         }
 
@@ -114,15 +128,24 @@ namespace TaskCenter.Controllers
             return new EmptyResult { };
         }
 
-        public ActionResult NotifyRequestCompletion([FromBody] InvoiceRequestViewModel viewModel)
+        //[HttpGet]
+        //[HttpPost]
+        public async Task<ActionResult> NotifyRequestCompletion()
         {
+            InvoiceRequestViewModel? viewModel = await PrepareViewModelAsync<InvoiceRequestViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
             var result = CheckAuth(viewModel);
             if (result != null)
             {
                 return result;
             }
 
-            var items = models.GetTable<ProcessRequest>().Where(q => q.AgentID == viewModel.AgentID)
+            var items = models!.GetTable<ProcessRequest>().Where(q => q.AgentID == viewModel.AgentID)
                                 .Where(q => q.ProcessCompletionNotification != null);
 
             if(viewModel.Sender.HasValue)
@@ -146,8 +169,15 @@ namespace TaskCenter.Controllers
 
         }
 
-        public ActionResult CommitProcessResponse([FromBody] InvoiceRequestViewModel viewModel)
+        public async Task<ActionResult> CommitProcessResponseAsync()
         {
+            InvoiceRequestViewModel? viewModel = await PrepareViewModelAsync<InvoiceRequestViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
             var authResult = CheckAuth(viewModel);
             if (authResult != null)
             {
@@ -184,9 +214,18 @@ namespace TaskCenter.Controllers
         {
         }
 
-        public async Task<ActionResult> RetrieveMIGResponseAsync([FromBody] MIGResponseViewModel viewModel)
+        public async Task<ActionResult> RetrieveMIGResponseAsync()
         {
-            await Request.SaveAsAsync(Path.Combine(CommonLib.Core.Utility.Logger.LogDailyPath, $"{DateTime.Now.Ticks}.txt"), true);
+            //await Request.SaveAsAsync(Path.Combine(CommonLib.Core.Utility.Logger.LogDailyPath, $"{DateTime.Now.Ticks}.txt"), true);
+            await Request.SaveAsAsync(null, true);
+
+            MIGResponseViewModel? viewModel = await PrepareViewModelAsync<MIGResponseViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
             var authResult = CheckAuth(viewModel);
             if (authResult != null)
             {
@@ -334,8 +373,15 @@ namespace TaskCenter.Controllers
             return null;
         }
 
-        public ActionResult UploadMIG([FromBody] InvoiceRequestViewModel viewModel)
+        public async Task<ActionResult> UploadMIGAsync()
         {
+            InvoiceRequestViewModel? viewModel = await PrepareViewModelAsync<InvoiceRequestViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
             viewModel.StoreMIG(this);
 
             if (!ModelState.IsValid)
@@ -346,8 +392,15 @@ namespace TaskCenter.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult CheckMIG([FromBody] InvoiceRequestViewModel viewModel)
+        public async Task<ActionResult> CheckMIGAsync()
         {
+            InvoiceRequestViewModel? viewModel = await PrepareViewModelAsync<InvoiceRequestViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
             viewModel.StoreMIG(this);
 
             if (!ModelState.IsValid)

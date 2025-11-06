@@ -1,23 +1,8 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
-
-
-@using ModelCore.Helper
-
-@using WebHome.Helper
-@using WebHome.Models
-@using WebHome.Controllers
-@using ModelCore.DataEntity
-@using ModelCore.Helper
-@using ModelCore.Locale
-@using ModelCore.Security.MembershipManagement
-@using ModelCore.Models.ViewModel
-@using CommonLib.Core.Utility
-@using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
-
-@using Newtonsoft.Json
+@using Microsoft.AspNetCore.Mvc
 
 <script type="text/javascript" src="~/Scripts/jquery-3.7.1.js"></script>
 <script type="text/javascript" src="../Scripts/jquery-ui-1.13.2.js"></script>
@@ -208,7 +193,7 @@
             printContent: function ($element, printDone) {
                 if ($printContainer == undefined) {
                     showLoading();
-                    $.post('<%= Html.Raw(Url.Action("PrintPage", "Helper")) %>', {}, function (data) {
+                    $.post('@Html.Raw(Url.Action("PrintPage", "Helper"))', {}, function (data) {
                         hideLoading();
                         if ($.isPlainObject(data)) {
                             alertModal("無法取得列印文件!!");
@@ -331,13 +316,13 @@
             // 背景圖層
             overlayCSS:  {
                 backgroundColor: '#3276B1',
-                opacity:         0.6,
-                cursor:          'wait'
+                opacity: 0.6,
+                cursor: 'wait'
             },
             onBlock: onBlock
         });
 
-        if(autoHide)
+        if (autoHide)
             setTimeout($.unblockUI, 5000);
     }
 
@@ -345,18 +330,18 @@
         $.unblockUI();
     }
 
-    function initSort (sort,offset) {
+    function initSort(sort, offset) {
 
         $('.itemList th').each(function (idx, elmt) {
             var $this = $(this);
-            if(sort.indexOf(idx+offset)>=0) {
+            if (sort.indexOf(idx + offset) >= 0) {
                 $this.attr('aria-sort', 'ascending');
                 $this.append('<i class="fa fa-sort-asc" aria-hidden="true"></i>')
-                    .append($('<input type="hidden" name="sort"/>').val(idx+offset));
-            } else if(sort.indexOf(-idx-offset)>=0) {
+                    .append($('<input type="hidden" name="sort"/>').val(idx + offset));
+            } else if (sort.indexOf(-idx - offset) >= 0) {
                 $this.attr('aria-sort', 'desending');
                 $this.append('<i class="fa fa-sort-desc" aria-hidden="true"></i>')
-                    .append($('<input type="hidden" name="sort"/>').val(-idx-offset));
+                    .append($('<input type="hidden" name="sort"/>').val(-idx - offset));
             }
         });
     }
@@ -504,6 +489,11 @@
             }).submit();
     }
 
+    function clearErrors() {
+        $('input.error,select.error,textarea.error').removeClass('error');
+        $('label.error').remove();
+    }
+
     function alertModal(alertMessage) {
         $('<div>' + alertMessage + '</div>')
             .dialog({ "title": "<div class='modal-title'><h4><i class='fa fa-clock-o'></i>訊息</h4></div>" });
@@ -582,5 +572,11 @@
         return result;
     }
 
+    function checkTableAll(itemName) {
+        itemName = itemName || 'chkItem';
+        var event = event || window.event;  // || arguments.callee.caller.arguments[0];
+        var $this = $(event.target);
+        $this.closest('table').find('input[name=\'' + itemName + '\']').prop('checked', $this.is(':checked'));
+    }
 
 </script>

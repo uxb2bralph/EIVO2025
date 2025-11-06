@@ -355,7 +355,7 @@ namespace WebHome.Controllers
                     }
                 }
     
-                var result = new VirtualFileResult(outFile, "application/octet-stream");
+                var result = new PhysicalFileResult(outFile, "application/octet-stream");
                 result.FileDownloadName = "發票列印下載.zip";
                 return result;
             }
@@ -415,13 +415,13 @@ namespace WebHome.Controllers
                     //    }
                     //}
                     String[] useThermalPOSArgs;
-                    String pdfFile = await this.CreateContentAsPDFAsync(getAllowanceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
+                    String? pdfFile = await this.CreateContentAsPDFAsync(getAllowanceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
                     if (pdfFile != null)
                     {
                         Response.Clear();
-                        Response.Headers.Add("Cache-control", "max-age=1");
+                        Response.Headers.Append("Cache-control", "max-age=1");
                         Response.ContentType = "application/octet-stream";
-                        Response.Headers.Add("Content-Disposition", $"attachment;filename={DateTime.Today:yyyy-MM-dd}.pdf");
+                        Response.Headers.Append("Content-Disposition", $"attachment;filename={DateTime.Today:yyyy-MM-dd}.pdf");
 
                         using (FileStream fs = System.IO.File.OpenRead(pdfFile))
                         {
@@ -832,19 +832,19 @@ namespace WebHome.Controllers
                         FileDownloadName = "發票列印下載.zip",
                     });
 
-//            String outFile = processItem.ResponsePath;
-//            if (viewModel.ForMailingPackage == true)
-//            {
-//                ProcessInvoiceMailingPackageAsync(viewModel, items, outFile);
-//            }
-//            else
-//            {
-//                ProcessInvoicePdfPackageAsync(viewModel, items, outFile);
-//            }
-//
-//            var result = new VirtualFileResult(outFile, "application/octet-stream");
-//            result.FileDownloadName = "發票列印下載.zip";
-//            return result;
+            //            String outFile = processItem.ResponsePath;
+            //            if (viewModel.ForMailingPackage == true)
+            //            {
+            //                ProcessInvoiceMailingPackageAsync(viewModel, items, outFile);
+            //            }
+            //            else
+            //            {
+            //                ProcessInvoicePdfPackageAsync(viewModel, items, outFile);
+            //            }
+            //
+            //            var result = new PhysicalFileResult (outFile, "application/octet-stream");
+            //            result.FileDownloadName = "發票列印下載.zip";
+            //            return result;
         }
 
         private async Task ProcessInvoicePdfPackageAsync(RenderStyleViewModel viewModel, MailTrackingCsvViewModel[] items, string outFile)

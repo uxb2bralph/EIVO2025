@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -46,11 +46,11 @@
             <td>
                 <select class="form-control" name="DefaultProcessType">
                     @*<option value="">請選擇...</option>*@
-                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx)">Excel通用格式</option>
-                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC)">Excel格式加值中心配號</option>
-                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer)">Excel格式開立人配號</option>
-                    <option value="@((int)Naming.InvoiceProcessType.C0401_Xlsx_CBE)">Excel格式境外電商專用</option>
-                    <option value="@((int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)">Excel格式A0401開立人配號</option>
+                    <option value="@((int)Naming.InvoiceProcessType.F0401_Xlsx)">Excel通用格式</option>
+                    <option value="@((int)Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC)">Excel格式加值中心配號</option>
+                    <option value="@((int)Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByIssuer)">Excel格式開立人配號</option>
+                    <option value="@((int)Naming.InvoiceProcessType.F0401_Xlsx_CBE)">Excel格式境外電商專用</option>
+                    <option value="@((int)Naming.InvoiceProcessType.A0101_Xlsx_Allocation_ByIssuer)">Excel格式A0401開立人配號</option>
                 </select>
                     <script>
                         $(function () {

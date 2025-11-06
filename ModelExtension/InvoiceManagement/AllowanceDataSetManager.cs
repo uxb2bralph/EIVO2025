@@ -78,7 +78,7 @@ namespace ModelCore.InvoiceManagement
                         dataID = allowanceItem.GetString(validator.AllowanceField.Allowance_No);
                         IEnumerable<DataRow> invoiceDetails = details.Where(d => d.GetString(validator.DetailsField.Allowance_No) == dataID);
 
-                        Exception ex;
+                        Exception? ex;
                         if ((ex = validator.Validate(allowanceItem,invoiceDetails)) != null)
                         {
                             ReportError(result, allowanceItem, ex, validator);
@@ -91,7 +91,7 @@ namespace ModelCore.InvoiceManagement
                         if (newItem!.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.G0401)
                         {
                             newItem.CDS_Document.PushStepQueueOnSubmit(this, validator.Seller!.StepReadyToAllowanceMIG(), Naming.InvoiceProcessType.G0401);
-                            newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
+                            //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
                         }
                         else
                         {
@@ -128,12 +128,15 @@ namespace ModelCore.InvoiceManagement
         }
 
 
-        protected virtual void ReportError(DataTable result, DataRow source, Exception ex, AllowanceDataSetValidator validator)
+        protected virtual void ReportError(DataTable result, DataRow? source, Exception? ex, AllowanceDataSetValidator? validator)
         {
             DataRow row = result.NewRow();
-            row[(int)ResultField.Description] = ex.Message;
+            if (ex != null)
+            {
+                row[(int)ResultField.Description] = ex.Message;
+            }
             row[(int)ResultField.StatusCode] = 0;
-            if (source != null)
+            if (source != null && validator != null)
             {
                 row[(int)ResultField.AllowanceNo] = source[validator.AllowanceField.Allowance_No];
             }

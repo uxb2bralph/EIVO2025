@@ -33,6 +33,7 @@ namespace ModelCore.Helper
                 .Append(new InquireInvoiceDate { QueryViewModel = viewModel })
                 .Append(new InquireInvoiceAttachment { QueryViewModel = viewModel })
                 .Append(new InquireInvoiceNo { QueryViewModel = viewModel })
+                .Append(new InquireDataNo { QueryViewModel = viewModel })
                 .Append(new InquireInvoiceAgent { QueryViewModel = viewModel })
                 .Append(new InquireWinningInvoice { QueryViewModel = viewModel });
         }

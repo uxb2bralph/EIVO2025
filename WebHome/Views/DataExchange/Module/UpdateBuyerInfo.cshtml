@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -20,11 +20,11 @@
     Layout = "~/Views/Shared/Module/MessageDialog.cshtml";
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    VirtualFileResult _model;
+    PhysicalFileResult _model;
 
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    _model = (VirtualFileResult)this.Model;
+    _model = (PhysicalFileResult)this.Model;
 
 }
 

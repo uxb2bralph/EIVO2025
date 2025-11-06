@@ -82,7 +82,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 }
                 else
                 {
-                    newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                    //newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                 }
                 _models.SubmitChanges();
             }

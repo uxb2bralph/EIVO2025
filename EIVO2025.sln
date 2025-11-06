@@ -3,14 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.Core", "CommonLib.Core\CommonLib.Core.csproj", "{43033880-2F92-4046-9D73-422A8E0AEA2B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.Logger", "CommonLib.Logger\CommonLib.Logger.csproj", "{D56EDF70-1822-4B19-909C-9EC07B394485}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.PlugInAdapter", "CommonLib.PlugInAdapter\CommonLib.PlugInAdapter.csproj", "{29186E46-F086-4745-AF00-F15B471E3178}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLib.Utility", "CommonLib.Utility\CommonLib.Utility.csproj", "{D8B175D4-A4CD-4539-A7D4-D865194A917E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelCore", "ModelCore\ModelCore.csproj", "{53154DB0-78A1-4FAF-A670-FEF799E81A89}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelExtension", "ModelExtension\ModelExtension.csproj", "{61F12354-ED7E-6628-7E63-E5E491EEB162}"

@@ -38,7 +38,7 @@ namespace WebHome.Controllers
         {
         }
 
-        public ActionResult BySeller(SellerSelectorViewModel viewModel)
+        public ActionResult BySeller(InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             var userProfile = HttpContext.GetUser();

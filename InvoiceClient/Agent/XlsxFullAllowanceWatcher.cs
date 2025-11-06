@@ -31,7 +31,12 @@ namespace InvoiceClient.Agent
 
         protected override JsonResult processUpload(String requestFile)
         {
-            return UploadTo(requestFile, $"{ServerInspector.ServiceInfo.TaskCenterUrl}/InvoiceData/UploadFullAllowanceRequestXlsx?keyID={HttpUtility.UrlEncode(ServerInspector.ServiceInfo.AgentToken)}&sender={ServerInspector.ServiceInfo.AgentUID}");
+            List<KeyValuePair<String, String>> queryParams = new List<KeyValuePair<string, string>>();
+            queryParams.Add(new KeyValuePair<string, String>("KeyID", ServerInspector.ServiceInfo.AgentToken));
+            queryParams.Add(new KeyValuePair<string, String>("Sender", $"{ServerInspector.ServiceInfo.AgentUID}"));
+            //queryParams.Add(new KeyValuePair<string, String>("ProcessType", $"{(int?)XlsxInvoiceTransferManager.Default?.Settings.DefaultProcessType ?? (int?)ServerInspector.ServiceInfo.DefaultProcessType}"));
+            queryParams.Add(new KeyValuePair<string, String>("StoragePath", TxnPath));
+            return UploadTo(requestFile, $"{ServerInspector.ServiceInfo.TaskCenterUrl}/InvoiceData/UploadFullAllowanceRequestXlsx", queryParams);
         }
 
     }

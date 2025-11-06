@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommonLib.Utility;
 using ModelCore.Schema.TurnKey;
 using ModelCore.Schema.TurnKey.Allowance;
 using ModelCore.Schema.TurnKey.Invoice;
@@ -45,7 +46,7 @@ namespace ModelCore.Schema.EIVO
                 InvoiceNumber = migItem.Main?.InvoiceNumber,
                 InvoiceType = $"{(int?)migItem.Main?.InvoiceType}",
                 MainRemark = migItem.Main?.MainRemark,
-                PrintMark = migItem.Main?.PrintMark,
+                PrintMark = migItem.Main?.PrintMark.GetEfficientString() ?? "Y",
                 Phone = migItem.Main?.Buyer?.TelephoneNumber,
                 NPOBAN = migItem.Main?.NPOBAN,
                 SellerId = migItem.Main?.Seller?.Identifier,

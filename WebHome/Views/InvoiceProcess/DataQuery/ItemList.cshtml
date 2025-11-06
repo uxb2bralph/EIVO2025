@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -37,7 +37,7 @@
 
     _dataItemView = ViewBag.DataItemView ?? "~/Views/InvoiceProcess/Module/DataItem.cshtml";
 
-    IQueryable<InvoiceItem> items;
+    IEnumerable<InvoiceItem> items;
     int pageIndex = _viewModel.PageIndex ?? 0;
     int pageSize = _viewModel.PageSize ?? 10;
 
@@ -49,22 +49,18 @@
         }
         else
         {
-            items = _model
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+            items = models.ExecutePagingQuery(_model.OrderBy(i => i.InvoiceID), pageIndex * pageSize, pageSize);
         }
     }
     else
     {
         if (_viewModel.Paging == false)
         {
-            items = ((IQueryable<InvoiceItem>)TempData["SortedItems"]);
+            items = ((IQueryable<InvoiceItem>)TempData["SortedItems"]!);
         }
         else
         {
-            items = ((IQueryable<InvoiceItem>)TempData["SortedItems"])
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
+            items = models.ExecutePagingQuery((IOrderedQueryable<InvoiceItem>)TempData["SortedItems"]!, pageIndex * pageSize, pageSize);
         }
     }
 

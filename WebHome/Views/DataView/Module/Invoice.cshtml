@@ -1,4 +1,4 @@
-
+﻿
 @using System.Linq
 @using System.IO
 @using System.Linq.Expressions
@@ -89,7 +89,7 @@
         </tr>
         <tr>
             <th style="white-space:nowrap;">
-                未稅金額
+                應稅金額
             </th>
             <td class="tdleft">
                 @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.SalesAmount))
@@ -101,6 +101,21 @@
                 @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxAmount))
             </td>
         </tr>
+        <tr>
+            <th style="white-space:nowrap;">
+                零稅率金額
+            </th>
+            <td class="tdleft">
+                @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.ZeroTaxSalesAmount))
+            </td>
+            <th style="white-space:nowrap;">
+                免稅金額
+            </th>
+            <td class="tdleft">
+                @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.FreeTaxSalesAmount))
+            </td>
+        </tr>
+
         @if (!_model.InvoiceBuyer.IsB2C())
         {
             <tr>

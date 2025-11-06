@@ -426,10 +426,10 @@ namespace ModelCore.Models.ViewModel
         public static IQueryable<InvoiceAllowance> QueryBySeller(this IQueryable<InvoiceAllowance> items, InquireInvoiceViewModel? viewModel, GenericManager<EIVOEntityDataContext> models, ref bool effective)
         {
             viewModel ??= new InquireInvoiceViewModel { };
-            if (viewModel != null && viewModel.CompanyID.HasValue)
+            if (viewModel != null && viewModel.SellerID.HasValue)
             {
                 effective = true;
-                var sellerItems = models.GetTable<InvoiceAllowanceSeller>().Where(a => a.SellerID == viewModel.CompanyID);
+                var sellerItems = models.GetTable<InvoiceAllowanceSeller>().Where(a => a.SellerID == viewModel.SellerID);
                 items = items.Where(d => sellerItems.Any(s => s.AllowanceID == d.AllowanceID));
             }
 

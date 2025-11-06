@@ -19,7 +19,7 @@ namespace WebHome.Controllers
         }
 
         // GET: DataFlow
-        public ActionResult SellerSelector(SellerSelectorViewModel viewModel)
+        public ActionResult SellerSelector(InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if ((viewModel.FieldName = viewModel.FieldName.GetEfficientString()) == null)

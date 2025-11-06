@@ -24,9 +24,6 @@
     <Folder Include="Views\InvoiceProcess\Buyer\" />
     <Folder Include="Views\Module\" />
     <Folder Include="Views\TestAll\" />
-    <Folder Include="Views\WinningInvoice\Module\" />
-    <Folder Include="Views\WinningNumber\Module\" />
-    <Folder Include="Views\WinningNumber\ResultAction\" />
     <Folder Include="Views\WinningNumber\ScriptHelper\" />
   </ItemGroup>
 

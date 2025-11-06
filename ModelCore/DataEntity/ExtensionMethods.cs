@@ -354,12 +354,22 @@ namespace ModelCore.DataEntity
         }
 
 
-        public static IQueryable<InvoiceItem> GetInvoiceByAgent(this GenericManager<EIVOEntityDataContext> mgr, IQueryable<InvoiceItem> items, int agentID,bool excludeAgentID=false)
+        public static IQueryable<InvoiceItem> GetInvoiceByAgent(this GenericManager<EIVOEntityDataContext> mgr, IQueryable<InvoiceItem> items, int agentID,bool excludeAgentID=false, Naming.InvoiceCenterBusinessType? businessType = null)
         {
             //return items.Join(mgr.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == agentID),
             //        i => i.SellerID, a => a.IssuerID, (i, a) => i);
+            if (businessType == Naming.InvoiceCenterBusinessType.進項)
+            {
+                var buyerItems = mgr.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == agentID)
+                    .Join(mgr.GetTable<Organization>(), a => a.IssuerID, c => c.CompanyID, (a, c) => c);
+                return items.Join(mgr.GetTable<InvoiceBuyer>()
+                                    .Join(buyerItems, b => b.ReceiptNo, c => c.ReceiptNo, (b, c) => b),
+                    i => i.InvoiceID, b => b.InvoiceID, (i, b) => i);
+            }
+
             var issuers = mgr.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == agentID)
                 .Select(a => a.IssuerID);
+
             return excludeAgentID
                 ? items.Where(i => issuers.Any(a => a == i.SellerID))
                 : items.Where(i => i.SellerID == agentID || issuers.Any(a => a == i.SellerID));

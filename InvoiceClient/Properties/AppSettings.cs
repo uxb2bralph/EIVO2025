@@ -35,13 +35,13 @@ namespace InvoiceClient.Properties
             Reload<AppSettings>(ref _default, typeof(AppSettings).Namespace);
         }
 
-        public bool WatchSubDirectories { get; set; } = false;
+        public bool WatchSubDirectories { get; set; } = true;
         public ServiceInfo? @ServiceInfo { get; set; }
         public bool InstalledService { get; set; } = false;
         public bool UseMainForm { get; set; } = true;
         public String InvoiceViewUrlPattern { get; set; } = "http://localhost:5000/DataView/ShowInvoice?PrintCuttingLine=True&PaperStyle=A4&UseCustomView=True&ProcessType=C0401&DocID={0}";
         public String[] InvoiceTxnPath { get; set; } = ["C:\\UXB2B_EIVO"];
-        public string ActivationKey { get; set; }
+        public string? ActivationKey { get; set; }
         public string AppCulture { get; set; } = "en-US";
         public string AppTitle { get; set; } = "Electronic Invoice Transmission Service-Store Client";
         public int AutoInvServiceInterval { get; set; } = 30;
@@ -56,7 +56,7 @@ namespace InvoiceClient.Properties
         public string B2BUploadReceiptCancellationFolder { get; set; } = "CancelReceipt";
         public string B2BUploadReceiptFolder { get; set; } = "Receipt";
         public bool ClearTxnPath { get; set; } = false;
-        public string ClientID { get; set; }
+        public string? ClientID { get; set; }
         public string ConvertDataToAllowance { get; set; } = "http://localhost:5000/DataView/ConvertDataToAllowance";
         public string CsvEncoding { get; set; } = "Big5";
         public string DisplayName { get; set; } = "電子發票用戶端傳輸服務(EIVO03)";
@@ -92,7 +92,7 @@ namespace InvoiceClient.Properties
         public bool RetryCancellationWhenInvoiceNotFound { get; set; } = false;
         public bool RetryOnConnectException { get; set; } = false;
         public string RootCA { get; set; } = "UXB2B Certificate Center.cer";
-        public string SellerReceiptNo { get; set; }
+        public string? SellerReceiptNo { get; set; }
         public string[]? ServerInspector { get; set; } = 
             [
                 "InvoiceClient.Agent.VacantInvoiceNoInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
@@ -105,8 +105,8 @@ namespace InvoiceClient.Properties
                 "InvoiceClient.Agent.InvoiceServerInspector, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
             ];
         public string ServiceName { get; set; } = "EIVO03ClientService(Product)";
-        public string SignerCspName { get; set; }
-        public string SignerKeyPassword { get; set; }
+        public string? SignerCspName { get; set; }
+        public string? SignerKeyPassword { get; set; }
         public string SignerSubjectName { get; set; } = "UXSigner";
         public string TrackCodeFolder { get; set; } = "InvoiceTrackCode";
         public string[]? TransferManager { get; set; } =

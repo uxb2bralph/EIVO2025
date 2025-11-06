@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Web;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using ModelCore.DataEntity;
 using ModelCore.Helper;
@@ -11,6 +6,12 @@ using ModelCore.Locale;
 using ModelCore.Properties;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Web;
 
 namespace ModelCore.Models.ViewModel
 {
@@ -85,6 +86,7 @@ namespace ModelCore.Models.ViewModel
         public bool? MIG { get; set; }
         public string? Period { get; set; }
         public string? Donation { get; set; }
+        public Naming.InvoiceCenterBusinessType? BusinessType { get; set; }
     }
 
     public enum DataQueryType
@@ -110,7 +112,7 @@ namespace ModelCore.Models.ViewModel
         public String? IssuerNo { get; set; }
     }
 
-    public partial class InquireNoIntervalViewModel
+    public partial class InquireNoIntervalViewModel : QueryViewModel
     {
         public int? Year { get; set; }
         public int? PeriodNo { get; set; }
@@ -230,6 +232,14 @@ namespace ModelCore.Models.ViewModel
             get;
             set;
         }
+        public IFormFile? CsvFile { get; set; }
+        public bool? SelectAll { get; set; }
+        public String? SelectorIndication { get; set; }
+        public String? SelectorIndicationValue { get; set; }
+        public String? JS_OnSelect { get; set; }
+        [JsonIgnore]
+        public Organization? DefaultItem { get; set; }
+
     }
 
     public partial class UserAccountQueryViewModel : UserProfileViewModel

@@ -407,16 +407,31 @@ namespace ModelCore.Helper
 
         public static DataProcessQueue PushStepQueueOnSubmit(this CDS_Document docItem, GenericManager<EIVOEntityDataContext> models, Naming.InvoiceStepDefinition stepID, Naming.InvoiceProcessType processType)
         {
-            var queue = new DataProcessQueue
+            var queue = models.GetTable<DataProcessQueue>()
+                            .Where(q => q.DocID == docItem.DocID 
+                                && q.StepID == (int)stepID 
+                                && q.ProcessType == (int)processType).FirstOrDefault();
+
+            if (queue == null)
             {
-                CDS_Document = docItem,
-                StepID = (int)stepID,
-                ProcessType = (int)processType,
-                DispatchDate = DateTime.Now,
-            };
-            models.GetTable<DataProcessQueue>().InsertOnSubmit(queue);
-            docItem.PushLogOnSubmit(models, stepID, Naming.DataProcessStatus.Ready);
+                queue = new DataProcessQueue
+                {
+                    CDS_Document = docItem,
+                    StepID = (int)stepID,
+                    ProcessType = (int)processType,
+                    DispatchDate = DateTime.Now,
+                };
+                models.GetTable<DataProcessQueue>().InsertOnSubmit(queue);
+                docItem.PushLogOnSubmit(models, stepID, Naming.DataProcessStatus.Ready);
+            }
+
             return queue;
+        }
+
+        public static void PopupQueueItem(this DataProcessQueue item, GenericManager<EIVOEntityDataContext> models)
+        {
+            models.ExecuteCommand("delete [proc].DataProcessQueue where DocID={0} and StepID={1} and ProcessType = {2}",
+                item.DocID, item.StepID, item.ProcessType);
         }
 
         public static String CheckB2CMIGName(this String name)

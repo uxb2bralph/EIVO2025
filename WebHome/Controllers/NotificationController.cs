@@ -199,7 +199,7 @@ namespace WebHome.Controllers
                 viewModel.id = viewModel.DecryptKeyValue();
             }
 
-            var item = models.GetTable<DerivedDocument>().Where(d => d.DocID == viewModel.id || d.SourceID == viewModel.id)
+            var item = models!.GetTable<DerivedDocument>().Where(d => d.DocID == viewModel.id || d.SourceID == viewModel.id)
                 .Select(d => d.ParentDocument.InvoiceItem).FirstOrDefault();
 
             if (item == null)

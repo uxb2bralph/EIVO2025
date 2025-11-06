@@ -1,5 +1,7 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
 
 @using WebHome.Models
 @using ModelCore.DataEntity
@@ -7,19 +9,23 @@
 @using ModelCore.Locale
 @using CommonLib.Core.Utility
 @using CommonLib.Utility
-@using Microsoft.AspNetCore.Mvc.ModelBinding
-@using Microsoft.AspNetCore.Mvc.Razor
 
 @using WebHome.Helper
+
 @{
-    Layout = "~/Views/Template/MvcMainPage.cshtml";
+    Layout = "~/Views/Template/QueryIndex.cshtml";
+    ModelSource<InvoiceItem> models;
+    ModelStateDictionary _modelState;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
     ViewBag.ActionName = "首頁 > 統計報表";
 }
 
-@section headContent {
-
-}
-@{ 
-    await Html.RenderPartialAsync("~/Views/WinningInvoice/Module/InquireWinning.cshtml");
+@section QueryForm
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/WinningInvoice/Module/InquireWinning.cshtml");
     }
+}
 

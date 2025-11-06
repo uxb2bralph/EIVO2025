@@ -29,6 +29,7 @@ using CommonLib.Utility;
 using Microsoft.Net.Http.Headers;
 using WebHome.Helper.Security.Authorization;
 using ModelCore.Models;
+using ModelCore.Helper;
 
 namespace WebHome.Controllers
 {
@@ -50,24 +51,53 @@ namespace WebHome.Controllers
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS })]
-        public ActionResult ReportIndex()
+        public ActionResult ReportIndex(InquireInvoiceViewModel viewModel)
         {
+            ViewBag.ViewModel = viewModel;
             //ViewBag.HasQuery = false;
             //ViewBag.RequiredError = false;
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
 
             return View(DataSource.Inquiry);
         }
 
         public ActionResult InquireReport(InquireInvoiceViewModel viewModel)
         {
+            IQueryable<WinningInvoiceReportItem> items = InquireWinningInvoice(viewModel);
+
+            viewModel.ResultView = "~/Views/WinningInvoice/DataQuery/WinningInvoiceReportList.cshtml";
+            viewModel.ResultAction = "~/Views/BusinessRelationship/DataAction/QueryResultAction.cshtml";
+            return PageResult(viewModel, items);
+
+
+            //return View("~/Views/WinningInvoice/ReportResult.cshtml", items);
+        }
+
+        private IQueryable<WinningInvoiceReportItem> InquireWinningInvoice(InquireInvoiceViewModel viewModel)
+        {
             ViewBag.ViewModel = viewModel;
             //ViewBag.HasQuery = true;
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
             DataSource.Items = DataSource.Items.Where(i => i.InvoiceWinningNumber != null);
 
-            return View("ReportResult",DataSource.Inquiry);
+            var items = DataSource.Items
+                .GroupBy(i => i.SellerID)
+                .OrderBy(g => g.Key)
+                .Join(models!.GetTable<Organization>(),
+                    g => g.Key, o => o.CompanyID, (g, o) =>
+                        new WinningInvoiceReportItem
+                        {
+                            Addr = o.Addr,
+                            SellerName = o.CompanyName,
+                            SellerReceiptNo = o.ReceiptNo,
+                            WinningCount = g.Count(),
+                            DonationCount = g.Where(i => i.InvoiceDonation != null).Count()
+                        }
+                );
+            return items;
         }
 
         //public ActionResult GridPage(int index,int size)
@@ -92,7 +122,8 @@ namespace WebHome.Controllers
         {
             //ViewBag.HasQuery = true;
             ViewBag.ViewModel = viewModel;
-            DataSource.Inquiry = createModelInquiry();
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
             DataSource.Items = DataSource.Items.Where(i => i.InvoiceWinningNumber != null);
 
@@ -105,7 +136,7 @@ namespace WebHome.Controllers
                 .GroupBy(i => i.SellerID)
                 .OrderBy(g => g.Key)
                 .Skip(index * size).Take(size)
-                .Join(models.GetTable<Organization>(),
+                .Join(models!.GetTable<Organization>(),
                     g => g.Key, o => o.CompanyID, (g, o) =>
                         new WinningInvoiceReportItem
                         {
@@ -119,38 +150,21 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult DownloadCSV()
+        public ActionResult CreateXlsx(InquireInvoiceViewModel viewModel)
         {
-            DataSource.Inquiry = createModelInquiry();
-            DataSource.BuildQuery();
-            DataSource.Items = DataSource.Items.Where(i => i.InvoiceWinningNumber != null);
+            _dbInstance = false;
+            IQueryable<WinningInvoiceReportItem> items = InquireWinningInvoice(viewModel);
+            viewModel.RecordCount = items.Count();
 
-            var mediaType = new MediaTypeHeaderValue("application/octet-stream")
-            {
-                Encoding = Encoding.GetEncoding(950)
-            };
-            Response.ContentType = mediaType.ToString();
-
-            return View(DataSource.Items
-                .GroupBy(i => i.SellerID)
-                .OrderBy(g => g.Key)
-                .Join(models.GetTable<Organization>(),
-                    g => g.Key, o => o.CompanyID, (g, o) =>
-                        new WinningInvoiceReportItem
-                        {
-                            Addr = o.Addr,
-                            SellerName = o.CompanyName,
-                            SellerReceiptNo = o.ReceiptNo,
-                            WinningCount = g.Count(),
-                            DonationCount = g.Where(i => i.InvoiceDonation != null).Count()
-                        }
-                ).ToArray());
+            return View("~/Views/WinningInvoice/Module/CreateXlsx.cshtml", items);
         }
 
-        public ActionResult PrintResult()
+        public ActionResult PrintResult(InquireInvoiceViewModel viewModel)
         {
-
-            DataSource.Inquiry = createModelInquiry();
+            ViewBag.ViewModel = viewModel;
+            //ViewBag.HasQuery = true;
+            var profile = HttpContext.GetUser();
+            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.ResultModel = Naming.DataResultMode.Print;
             DataSource.BuildQuery();
             DataSource.Items = DataSource.Items.Where(i => i.InvoiceWinningNumber != null);

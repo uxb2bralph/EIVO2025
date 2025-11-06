@@ -1,4 +1,4 @@
-@using System.Linq
+﻿@using System.Linq
 @using System.IO
 @using System.Linq.Expressions
 
@@ -27,7 +27,7 @@
 <div id="@(_viewID)" class="border_gray">
     <button type="button" class="btn btnRevoke">解除主機構</button><br />
     <button type="button" class="btn btnOrgBranch">查詢分支機構</button><br />
-                                                                  <script>
+    <script>
         $(function () {
             $('#@(_viewID) button.btnRevoke').click(function (event) {
                 var viewModel = { 'SellerID' : @(_model.CompanyID) };
@@ -51,5 +51,5 @@
                 $('#@(_viewID)').closest('div.currentDialog').dialog('close');
             });
         });
-                                                                  </script>
+    </script>
 </div>

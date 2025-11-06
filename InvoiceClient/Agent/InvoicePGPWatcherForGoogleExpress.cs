@@ -131,7 +131,7 @@ namespace InvoiceClient.Agent
                         AgentID = token.CompanyID,
                         SubmitDate = DateTime.Now,
                         RequestPath = invoiceRequest,
-                        ProcessType = (int)Naming.InvoiceProcessType.C0401_Xml_CBE,
+                        ProcessType = (int)Naming.InvoiceProcessType.F0401_Xml_CBE,
                     };
                     models.GetTable<ProcessRequest>().InsertOnSubmit(requestItem);
                     models.SubmitChanges();

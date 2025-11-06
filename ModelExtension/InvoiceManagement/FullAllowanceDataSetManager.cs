@@ -58,7 +58,7 @@ namespace ModelCore.InvoiceManagement
                         if (newItem!.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.G0401)
                         {
                             newItem.CDS_Document.PushStepQueueOnSubmit(this, validator.Seller!.StepReadyToAllowanceMIG(), Naming.InvoiceProcessType.G0401);
-                            newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
+                            //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
                         }
                         else
                         {

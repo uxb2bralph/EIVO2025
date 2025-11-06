@@ -29,7 +29,7 @@ namespace InvoiceClient.Agent.POSHelper
             invoiceFile.ReviseXmlContent();
             var docInv = base.prepareInvoiceDocument(invoiceFile);
 
-            String url = $"{POSReady._Settings.ServiceHost}{POSReady._Settings.VerifyAllowance}";
+            String url = $"{POSReady.Settings.ServiceHost}{POSReady.Settings.VerifyAllowance}";
             using (WebClientEx client = new WebClientEx())
             {
                 client.Timeout = 43200000;
@@ -56,7 +56,7 @@ namespace InvoiceClient.Agent.POSHelper
             if (result.Result.value == 1)
             {
                 docInv.TrimAll().ConvertTo<AllowanceRoot>()
-                    .ConvertToXml().SaveDocumentWithEncoding(Path.Combine(POSReady._Settings.PreparedAllowance, $"{Guid.NewGuid()}.xml"));
+                    .ConvertToXml().SaveDocumentWithEncoding(Path.Combine(POSReady.Settings.PreparedAllowance, $"{Guid.NewGuid()}.xml"));
             }
             return result;
         }
@@ -82,7 +82,7 @@ namespace InvoiceClient.Agent.POSHelper
                     {
                         Allowance = invoice.Allowance.Except(failedItems).ToArray()
                     };
-                    stored.ConvertToXml().SaveDocumentWithEncoding(Path.Combine(POSReady._Settings.PreparedAllowance, $"{Guid.NewGuid()}.xml"));
+                    stored.ConvertToXml().SaveDocumentWithEncoding(Path.Combine(POSReady.Settings.PreparedAllowance, $"{Guid.NewGuid()}.xml"));
                 }
             }
 

@@ -1,12 +1,20 @@
-﻿using System;
+﻿using CommonLib.Core.Helper;
+using CommonLib.PlugInAdapter;
+using CommonLib.Utility;
+using DocumentFormat.OpenXml.Bibliography;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.OleDb;
 using System.Data;
+using System.Data.OleDb;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -14,19 +22,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
+using System.Web;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Serialization;
 using System.Xml.XPath;
-using System.Web;
-
-using CommonLib.Core.Helper;
-using CommonLib.PlugInAdapter;
-using CommonLib.Utility;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
-using Newtonsoft.Json;
-using System.Net.Mail;
 
 namespace CommonLib.Core.Utility
 {
@@ -46,7 +46,7 @@ namespace CommonLib.Core.Utility
             formFile.CopyTo(stream);
         }
 
-        public static async Task SaveAsAsync(this HttpRequest Request, String path,bool includeHeader = true)
+        public static async Task SaveAsAsync(this HttpRequest Request, String? path = null,bool includeHeader = true)
         {
             //Request.EnableBuffering();
             //Request.Body.Position = 0;
@@ -54,22 +54,41 @@ namespace CommonLib.Core.Utility
             //string bodyContent = await streamReader.ReadToEndAsync();
 
             Request.Body.Position = 0;
-            using (FileStream fs = System.IO.File.Create(path))
+            if(path != null)
             {
+                using (FileStream fs = System.IO.File.Create(path))
+                {
+                    if (includeHeader)
+                    {
+                        using (StreamWriter writer = new StreamWriter(fs, leaveOpen: true))
+                        {
+                            foreach (var h in Request.Headers)
+                            {
+                                writer.WriteLine($"{h.Key}: {h.Value}");
+                            }
+                            writer.WriteLine();
+                        }
+                    }
+                    await Request.Body.CopyToAsync(fs);
+                }
+            }
+            else
+            {
+                StringBuilder sb = new StringBuilder();
                 if (includeHeader)
                 {
-                    using (StreamWriter writer = new StreamWriter(fs, leaveOpen: true))
+                    foreach (var h in Request.Headers)
                     {
-                        foreach (var h in Request.Headers)
-                        {
-                            writer.WriteLine($"{h.Key}: {h.Value}");
-                        }
-                        writer.WriteLine();
+                        sb.AppendLine($"{h.Key}: {h.Value}");
                     }
+                    sb.AppendLine();
                 }
-                await Request.Body.CopyToAsync(fs);
+
+                sb.AppendLine(await Request.GetRequestBodyAsync());
+                FileLogger.Logger.Debug(sb.ToString());
             }
-            Request.Body.Position = 0;
+
+                Request.Body.Position = 0;
         }
 
         public static async Task<byte[]> GetRequestBytesAsync(this HttpRequest Request)
@@ -97,13 +116,12 @@ namespace CommonLib.Core.Utility
         public static async Task<String> GetRequestBodyAsync(this HttpRequest Request)
         {
             Request.Body.Position = 0;
-            using (StreamReader reader = new StreamReader(Request.Body))
-            {
-                var data = await reader.ReadToEndAsync();
-                Request.Body.Position = 0;
-                return data;
-            }
+            StreamReader reader = new StreamReader(Request.Body);
+            var data = await reader.ReadToEndAsync();
+            Request.Body.Position = 0;
+            return data;
         }
+
         public static async Task WriteFileAsDownloadAsync(this HttpResponse Response, string fileName)
         {
             await Response.WriteFileAsDownloadAsync(fileName, null, false);

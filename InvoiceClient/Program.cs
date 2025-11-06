@@ -1,21 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using System.Collections;
-using System.Configuration.Install;
-using System.ServiceProcess;
-using System.IO;
-using InvoiceClient.Properties;
-using System.Threading;
-using InvoiceClient.Agent;
-using ModelCore.Resource;
-using InvoiceClient.Helper;
-using InvoiceClient.Agent.POSHelper;
-using InvoiceClient.TransferManagement;
-using System.Net;
-using CommonLib.Core.Utility;
+﻿using CommonLib.Core.Utility;
 using CommonLib.Utility;
+using InvoiceClient.Agent;
+using InvoiceClient.Agent.POSHelper;
+using InvoiceClient.Helper;
+using InvoiceClient.Properties;
+using InvoiceClient.TransferManagement;
+using ModelCore.Resource;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Configuration.Install;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.ServiceProcess;
+using System.Threading;
+using System.Windows.Forms;
+using static System.Windows.Forms.AxHost;
 
 namespace InvoiceClient
 {
@@ -161,44 +163,33 @@ namespace InvoiceClient
             return false;
         }
 
-
         internal static void Install(bool undo, string[] args)
         {
             try
             {
-                using (Installer inst = new Installer())
+                if (undo)
                 {
-                    IDictionary state = new Hashtable();
-                    try
-                    {
-                        if (undo)
-                        {
-                            inst.Uninstall(state);
-                            AppSettings.Default.InstalledService = false;
-                            AppSettings.Default.Save();
-                            MessageBox.Show("服務已移除!!", "服務設定", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        else
-                        {
-                            inst.Install(state);
-                            inst.Commit(state);
-                            AppSettings.Default.InstalledService = false;
-                            AppSettings.Default.Save();
-                            MessageBox.Show("服務安裝成功!!", "服務設定", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            inst.Rollback(state);
-                        }
-                        catch
-                        {
-                        }
-                        throw;
-                    }
+                    String batFile = Path.Combine(Logger.LogPath, "removeService.bat");
+                    var cmd = $"sc delete \"{AppSettings.Default.ServiceName}\"";
+                    File.WriteAllText(batFile, cmd);
+                    String arguments = $"-Command \"Start-Process cmd -ArgumentList '/c {batFile}' -Verb runAs\"";
+                    System.Diagnostics.Process.Start("Powershell.exe", arguments)?.WaitForExit(3000);
+                    AppSettings.Default.InstalledService = false;
+                    AppSettings.Default.Save();
+                    MessageBox.Show("服務已移除!!", "服務設定", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                else
+                {
+                    String batFile = Path.Combine(Logger.LogPath, "installService.bat");
+                    var cmd = $"sc create \"{Settings.Default.ServiceName}\" binPath=\"{Process.GetCurrentProcess()?.MainModule?.FileName}\" start=auto";
+                    File.WriteAllText(batFile, cmd);
+                    String arguments = $"-Command \"Start-Process cmd -ArgumentList '/c {batFile}' -Verb runAs\"";
+                    System.Diagnostics.Process.Start("Powershell.exe", arguments)?.WaitForExit(3000);
+                    AppSettings.Default.InstalledService = true;
+                    AppSettings.Default.Save();
+                    MessageBox.Show("服務安裝成功!!", "服務設定", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
             }
             catch (Exception ex)
             {
@@ -206,6 +197,51 @@ namespace InvoiceClient
                 MessageBox.Show("服務安裝失敗:\r\n" + ex.Message, "服務設定", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        //internal static void Install(bool undo, string[] args)
+        //{
+        //    try
+        //    {
+        //        using (Installer inst = new Installer())
+        //        {
+        //            IDictionary state = new Hashtable();
+        //            try
+        //            {
+        //                if (undo)
+        //                {
+        //                    inst.Uninstall(state);
+        //                    AppSettings.Default.InstalledService = false;
+        //                    AppSettings.Default.Save();
+        //                    MessageBox.Show("服務已移除!!", "服務設定", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //                }
+        //                else
+        //                {
+        //                    inst.Install(state);
+        //                    inst.Commit(state);
+        //                    AppSettings.Default.InstalledService = false;
+        //                    AppSettings.Default.Save();
+        //                    MessageBox.Show("服務安裝成功!!", "服務設定", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //                }
+        //            }
+        //            catch
+        //            {
+        //                try
+        //                {
+        //                    inst.Rollback(state);
+        //                }
+        //                catch
+        //                {
+        //                }
+        //                throw;
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Logger.Error(ex);
+        //        MessageBox.Show("服務安裝失敗:\r\n" + ex.Message, "服務設定", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //}
 
         static void ClearDirectory(String path)
         {

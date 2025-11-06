@@ -22,7 +22,7 @@ namespace ProcessorUnit.Execution
     {
         public InvoiceExcelRequestProcessor()
         {
-            appliedProcessType = Naming.InvoiceProcessType.C0401_Xlsx;
+            appliedProcessType = Naming.InvoiceProcessType.F0401_Xlsx;
             processDataSet = (ds, requestItem) =>
             {
                 using (InvoiceDataSetManager manager = new InvoiceDataSetManager(models))

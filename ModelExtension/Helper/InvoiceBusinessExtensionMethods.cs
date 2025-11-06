@@ -34,8 +34,10 @@ namespace ModelCore.Helper
         }
 
 
-        public static IQueryable<InvoiceItem> FilterInvoiceByRole(this GenericManager<EIVOEntityDataContext> models, UserProfile? profile, IQueryable<InvoiceItem> items)
+        public static IQueryable<InvoiceItem> FilterInvoiceByRole(this GenericManager<EIVOEntityDataContext> models, UserProfile? profile, IQueryable<InvoiceItem> items, Naming.InvoiceCenterBusinessType? businessType = null)
         {
+            String? receiptNo;
+            IQueryable<InvoiceBuyer> buyerItems;
             switch ((Naming.CategoryID?)profile?.CurrentUserRole?.OrganizationCategory.CategoryID)
             {
                 case Naming.CategoryID.COMP_SYS:
@@ -43,18 +45,38 @@ namespace ModelCore.Helper
                     return items;
 
                 case Naming.CategoryID.COMP_INVOICE_AGENT:
-                    return models.GetInvoiceByAgent(items, profile.CurrentUserRole.OrganizationCategory.CompanyID);
+                    return models.GetInvoiceByAgent(items, profile.CurrentUserRole.OrganizationCategory.CompanyID, businessType: businessType);
 
                 case Naming.CategoryID.COMP_E_INVOICE_GOOGLE_TW:
                 case Naming.CategoryID.COMP_E_INVOICE_B2C_SELLER:
-                    return items.Where(i => i.SellerID == profile.CurrentUserRole.OrganizationCategory.CompanyID);
+                    if (businessType == Naming.InvoiceCenterBusinessType.進項)
+                    {
+                        receiptNo = profile.CurrentCompany(models)?.ReceiptNo;
+                        buyerItems = models.GetTable<InvoiceBuyer>().Where(b => b.ReceiptNo == receiptNo);
+                        return items.Where(i => buyerItems.Any(b => b.InvoiceID == i.InvoiceID));
+                    }
+                    else
+                    {
+                        return items.Where(i => i.SellerID == profile.CurrentUserRole.OrganizationCategory.CompanyID);
+                    }
 
                 case Naming.CategoryID.COMP_E_INVOICE_B2C_BUYER:
-                    return items.Where(i => i.InvoiceBuyer.BuyerID == profile.CurrentUserRole.OrganizationCategory.CompanyID);
+                    receiptNo = profile.CurrentCompany(models)?.ReceiptNo;
+                    buyerItems = models.GetTable<InvoiceBuyer>().Where(b => b.ReceiptNo == receiptNo);
+                    return items.Where(i => buyerItems.Any(b => b.InvoiceID == i.InvoiceID));
 
                 default:
-                    return items.Where(i => i.SellerID == profile.CurrentUserRole.OrganizationCategory.CompanyID
-                        || i.InvoiceBuyer.BuyerID == profile.CurrentUserRole.OrganizationCategory.CompanyID);
+                    if (businessType == Naming.InvoiceCenterBusinessType.進項)
+                    {
+                        receiptNo = profile?.CurrentCompany(models)?.ReceiptNo;
+                        buyerItems = models.GetTable<InvoiceBuyer>().Where(b => b.ReceiptNo == receiptNo);
+                        return items.Where(i => buyerItems.Any(b => b.InvoiceID == i.InvoiceID));
+                    }
+                    else
+                    {
+                        var companyID = profile?.CurrentUserRole?.OrganizationCategory.CompanyID;
+                        return items.Where(i => i.SellerID == companyID);
+                    }
 
             }
 

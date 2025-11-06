@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -18,11 +18,11 @@
 
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    SellerSelectorViewModel? _viewModel = this.Model as SellerSelectorViewModel ?? ViewBag.ViewModel as SellerSelectorViewModel;
+    InquireInvoiceViewModel? _viewModel = this.Model as InquireInvoiceViewModel ?? ViewBag.ViewModel as InquireInvoiceViewModel;
 
     if (_viewModel == null)
     {
-        _viewModel = new SellerSelectorViewModel { };
+        _viewModel = new InquireInvoiceViewModel { };
     }
 
     String _fieldName;
@@ -38,7 +38,7 @@
     var _urlAction = _viewModel.UrlAction ?? Url.Action("SearchCompany", "Home", new { _viewModel.Encrypt });
 }
 
-<input type="text" class="form-control" size="40" id="@(_contentID)" value="@(_item!=null ? $"{_item.ReceiptNo} {_item.CompanyName}" : null)" placeholder="請輸入檢索關鍵字" />
+<input type="text" class="form-control" size="40" id="@(_contentID)" value="" placeholder="請輸入檢索關鍵字" />
 <input type="hidden" id="@(_valueID)" name="@(_fieldName)" value="@(_viewModel.Encrypt==true && _viewModel.SellerID.HasValue ? _viewModel.SellerID.Value.EncryptKey() : _viewModel.SellerID.ToString())" />
 <script>
         $(function () {

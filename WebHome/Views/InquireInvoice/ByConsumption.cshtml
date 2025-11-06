@@ -8,7 +8,6 @@
 @using WebHome.Controllers
 @using WebHome.Models.ViewModel
 @using ModelCore.DataEntity
-@using ModelCore.Helper
 @using ModelCore.Locale
 @using ModelCore.Security.MembershipManagement
 @using ModelCore.Models.ViewModel
@@ -38,5 +37,14 @@
             });
             </script>
         }
+    </td>
+</tr>
+<tr>
+    <th>交易類型</th>
+    <td>
+        <select name="BusinessType">
+            <option value="@((int)Naming.InvoiceCenterBusinessType.銷項)">@(Naming.InvoiceCenterBusinessType.銷項)</option>
+            <option value="@((int)Naming.InvoiceCenterBusinessType.進項)">@(Naming.InvoiceCenterBusinessType.進項)</option>
+        </select>
     </td>
 </tr>

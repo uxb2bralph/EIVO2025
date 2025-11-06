@@ -275,6 +275,13 @@ namespace ModelCore.InvoiceManagement.Validator
                     return new Exception(MessageResources.InvalidAllowance_InvoiceHasBeenCanceled);
                 }
 
+                if (!processType.HasValue)
+                {
+                    if(originalInvoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101)
+                    {
+                        processType = Naming.InvoiceProcessType.B0101;
+                    }
+                }
 
                 i.OriginalInvoiceDate = i.OriginalInvoiceDate.GetEfficientString();
                 if (i.OriginalInvoiceDate != null)

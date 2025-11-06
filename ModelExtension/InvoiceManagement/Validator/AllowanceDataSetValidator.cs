@@ -66,7 +66,7 @@ namespace ModelCore.InvoiceManagement.Validator
             public int Item_Tax_Type { get; set; } = 10;
         }
 
-        public virtual Exception Validate(DataRow dataItem, IEnumerable<DataRow> details)
+        public virtual Exception? Validate(DataRow dataItem, IEnumerable<DataRow> details)
         {
             _allowanceItem = dataItem;
             _details = details;
@@ -94,7 +94,7 @@ namespace ModelCore.InvoiceManagement.Validator
             return null;
         }
 
-        protected override Exception CheckBusiness()
+        protected override Exception? CheckBusiness()
         {
             _seller = models.GetTable<Organization>().Where(o => o.ReceiptNo == _allowanceItem.GetString(AllowanceField.Seller_ID)).FirstOrDefault();
 
@@ -105,7 +105,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
             ExpectedSeller = _seller;
 
-            if (_seller.CompanyID != _owner.CompanyID && !models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
+            if (_seller.CompanyID != _owner!.CompanyID && !models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
             {
                 return new Exception(String.Format(MessageResources.AlertSellerSignature, _allowanceItem.GetString(AllowanceField.Seller_ID)));
             }
@@ -161,7 +161,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
         protected override Exception CheckAllowanceItem()
         {
-            InvoiceAllowanceBuyer allowanceBuyer = null;
+            InvoiceAllowanceBuyer? allowanceBuyer = null;
 
             if (_details == null || _details.Count() == 0)
             {
@@ -176,9 +176,9 @@ namespace ModelCore.InvoiceManagement.Validator
             byte allowanceType = (byte)Naming.AllowanceTypeDefinition.賣方開立;
 
             _productItems = new List<InvoiceAllowanceItem>();
-            var invTable = models.GetTable<InvoiceItem>().Where(i => i.SellerID == _seller.CompanyID);
+            var invTable = models.GetTable<InvoiceItem>().Where(i => i.SellerID == _seller!.CompanyID);
 
-            InvoiceItem originalInvoice = null;
+            InvoiceItem? originalInvoice = null;
             foreach (var i in _details)
             {
                 originalInvoice = null;
@@ -190,7 +190,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     trackCode = i.GetString(DetailsField.Original_Invoice_No).Substring(0, 2);
                     invNo = i.GetString(DetailsField.Original_Invoice_No).Substring(2);
                     originalInvoice = invTable
-                        .Where(n => n.SellerID == _seller.CompanyID)
+                        .Where(n => n.SellerID == _seller!.CompanyID)
                         .Where(n => n.TrackCode == trackCode)
                         .Where(n => n.No == invNo)
                         .FirstOrDefault();
@@ -220,7 +220,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     return new Exception(String.Format(MessageResources.AlertAllowance_InvoiceDate, originalInvoice.InvoiceDate, originalInvoiceDate));
                 }
 
-                if (originalInvoice.InvoiceSeller.ReceiptNo != _seller.ReceiptNo)
+                if (originalInvoice.InvoiceSeller.ReceiptNo != _seller!.ReceiptNo)
                 {
                     return new Exception(String.Format(MessageResources.AlertAllowance_InvoiceSellerIsDifferent, i.GetString(DetailsField.Original_Invoice_No)));
                 }

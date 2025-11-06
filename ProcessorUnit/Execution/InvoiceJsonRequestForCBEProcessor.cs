@@ -33,7 +33,7 @@ namespace ProcessorUnit.Execution
 
         public InvoiceJsonRequestForCBEProcessor()
         {
-            appliedProcessType = Naming.InvoiceProcessType.C0401_Json_CBE;
+            appliedProcessType = Naming.InvoiceProcessType.F0401_Json_CBE;
             processRequest = (jsonData, requestItem) =>
             {
                 Root result = this.CreateMessageToken();

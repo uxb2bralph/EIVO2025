@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -19,11 +19,11 @@
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
     IQueryable<Organization> _model;
-    SellerSelectorViewModel _viewModel = ViewBag.ViewModel as SellerSelectorViewModel;
+    InquireInvoiceViewModel _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
 
     if (_viewModel == null)
     {
-        ViewBag.ViewModel = _viewModel = new SellerSelectorViewModel { };
+        ViewBag.ViewModel = _viewModel = new InquireInvoiceViewModel { };
         _viewModel.FieldName = ViewBag.FieldName ?? "SellerID";
     }
 

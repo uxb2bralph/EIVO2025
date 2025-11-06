@@ -251,6 +251,7 @@ namespace WebHome.Controllers
         public ActionResult InquireReceivedA0101(InquireInvoiceViewModel viewModel)
         {
             bool hasPaging = viewModel.PageIndex.HasValue;
+            viewModel.BusinessType = Naming.InvoiceCenterBusinessType.進項;
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> items = (result.Model as IQueryable<InvoiceItem>)!;
             items = items.Where(i => i.CDS_Document.DataProcessQueue
@@ -272,6 +273,7 @@ namespace WebHome.Controllers
         public ActionResult InquireReceivedA0201(InquireInvoiceViewModel viewModel)
         {
             viewModel.Cancelled = true;
+            viewModel.BusinessType = Naming.InvoiceCenterBusinessType.進項;
             bool hasPaging = viewModel.PageIndex.HasValue;
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> items = (result.Model as IQueryable<InvoiceItem>)!;
@@ -317,6 +319,7 @@ namespace WebHome.Controllers
         public ActionResult InquireReceivedA0302(InquireInvoiceViewModel viewModel)
         {
             bool hasPaging = viewModel.PageIndex.HasValue;
+            viewModel.BusinessType = Naming.InvoiceCenterBusinessType.進項;
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> items = (result.Model as IQueryable<InvoiceItem>)!;
             items = items.Where(i => i.CDS_Document.DataProcessQueue
@@ -1423,7 +1426,7 @@ namespace WebHome.Controllers
                 }
             }
 
-            var result = new VirtualFileResult(outFile, "message/rfc822");
+            var result = new PhysicalFileResult(outFile, "application/octet-stream");
             result.FileDownloadName = docName + ".zip";
             return result;
         }

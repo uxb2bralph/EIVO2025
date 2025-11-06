@@ -71,6 +71,7 @@ namespace ModelCore.Helper
             if (_root == null)
             {
                 _root = new XElement("AllowanceRoot");
+                //_root.Add(new XElement("ProcessType", PreferredProcessType.ToString()));
             }
 
             _invoice = new XElement("Allowance",
@@ -86,7 +87,6 @@ namespace ModelCore.Helper
                         );
 
             _root.Add(_invoice);
-            _root.Add(new XElement("ProcessType", PreferredProcessType.ToString()));
         }
 
         private void buildDetails(string[] column)

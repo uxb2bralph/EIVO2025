@@ -51,18 +51,19 @@ namespace InvoiceClient.Agent
                 {
                     foreach (var issuer in issuers)
                     {
-                        if (Directory.GetFiles(storedPath, String.Format("{0}_{1}_{2}*.xml", issuer, queryDate.Year, queryPeriod)).Length == 0)
+                        var resultNode = invSvc.GetVacantInvoiceNo(signedReq, issuer);
+                        if (resultNode != null)
                         {
-                            var resultNode = invSvc.GetVacantInvoiceNo(signedReq, issuer);
-                            if (resultNode != null)
+                            BranchTrackBlank[] items = resultNode.ConvertTo<BranchTrackBlank[]>();
+                            if(items == null || items.Length == 0)
                             {
-                                BranchTrackBlank[] items = resultNode.ConvertTo<BranchTrackBlank[]>();
-                                foreach (var blank in items)
-                                {
-                                    String path = Path.Combine(storedPath, String.Format("{0}_{1}_{2}_{3}.xml", issuer, queryDate.Year, queryPeriod, blank.Main.InvoiceTrack));
-                                    blank.ConvertToXml().SaveDocumentWithEncoding(path);
-                                    bRun = true;
-                                }
+                                continue;
+                            }
+                            foreach (var blank in items)
+                            {
+                                String path = Path.Combine(storedPath, String.Format("{0}_{1}_{2}_{3}.xml", issuer, queryDate.Year, queryPeriod, blank.Main.InvoiceTrack));
+                                blank.ConvertToXml().SaveDocumentWithEncoding(path);
+                                bRun = true;
                             }
                         }
                     }

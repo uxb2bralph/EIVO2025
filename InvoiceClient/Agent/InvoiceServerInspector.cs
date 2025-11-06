@@ -19,11 +19,6 @@ namespace InvoiceClient.Agent
 
     public class InvoiceServerInspector : ServerInspector
     {
-        public class LocalSettings
-        {
-            public String ServiceHost { get; } = ServiceInfo.ServiceHost;  //"https://eguitest.uxifs.com/cbe";
-        }
-
         public InvoiceServerInspector()
         {
 

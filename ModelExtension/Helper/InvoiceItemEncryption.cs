@@ -35,7 +35,7 @@ namespace ModelCore.Helper
             }
         }
 
-        public static String EncryptContent(this InvoiceItem item)
+        public static String? EncryptContent(this InvoiceItem item)
         {
             if(!String.IsNullOrEmpty(Key) && item!=null)
             {
@@ -57,7 +57,7 @@ namespace ModelCore.Helper
             return qrencrypter.AESEncrypt(content, Key);
         }
 
-        public static string BuildEncryptedData(this InvoiceItem item)
+        public static string? BuildEncryptedData(this InvoiceItem item)
         {
             return item.EncryptContent();
         }

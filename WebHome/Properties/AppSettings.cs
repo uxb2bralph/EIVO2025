@@ -48,6 +48,7 @@ namespace WebHome.Properties
         public InvoiceNumberApplySetting InvoiceNumberApplySetting = new InvoiceNumberApplySetting();
         public IEnumerable<InvoiceNumberApplyWordSetting> InvoiceNumberApplyWordSetting { get; set; }
         public string ExceptionNotificationUrl { get; internal set; } = "~/Notification/DataUploadExceptionList";
+        public string[] AllowCORS { get; set; } = { "http://localhost:5000", "http://localhost:5050", "https://egui.uxifs.com", "https://eguitest.uxifs.com" };
     }
 
     public class InvoiceNumberApplySetting

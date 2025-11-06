@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -24,11 +24,6 @@
         $.datepicker.setDefaults($.datepicker.regional['zh-tw']);
         $('.form_date').datepicker({ showButtonPanel: true, changeYear: true, changeMonth: true, yearRange: '2012:+1' });
     });
-
-    function clearErrors() {
-        $('.error input,select,textarea').removeClass('error')
-        $('label.error').remove();
-    }
 
     function showInvoiceModal(docID) {
         var element = event.target;

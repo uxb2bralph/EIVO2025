@@ -37,7 +37,12 @@ namespace InvoiceClient.Agent
         {
             if ((DateTime.Today.Month % 2) == 1 && DateTime.Today.Day < 11)
             {
-                return UploadTo(requestFile, $"{ServerInspector.ServiceInfo.TaskCenterUrl}/InvoiceData/UploadInvoiceRequestXlsx?keyID={HttpUtility.UrlEncode(ServerInspector.ServiceInfo.AgentToken)}&sender={ServerInspector.ServiceInfo.AgentUID}&processType={(int?)XlsxInvoiceTransferManager.Default?.Settings.DefaultProcessType ?? (int?)ServerInspector.ServiceInfo.DefaultProcessType}&ConditionID={(int)ProcessRequestCondition.ConditionType.UseLastPeriodTrackCodeNo}");
+                List<KeyValuePair<String, String>> queryParams = new List<KeyValuePair<string, string>>();
+                queryParams.Add(new KeyValuePair<string, String>("KeyID", ServerInspector.ServiceInfo.AgentToken));
+                queryParams.Add(new KeyValuePair<string, String>("Sender", $"{ServerInspector.ServiceInfo.AgentUID}"));
+                queryParams.Add(new KeyValuePair<string, String>("ProcessType", $"{(int?)XlsxInvoiceTransferManager.Default?.Settings.DefaultProcessType ?? (int?)ServerInspector.ServiceInfo.DefaultProcessType}"));
+                queryParams.Add(new KeyValuePair<string, String>("StoragePath", TxnPath));
+                return UploadTo(requestFile, $"{ServerInspector.ServiceInfo.TaskCenterUrl}/InvoiceData/UploadInvoiceRequestXlsx", queryParams);
             }
             else
             {

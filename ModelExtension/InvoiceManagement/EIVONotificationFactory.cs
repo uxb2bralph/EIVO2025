@@ -53,9 +53,9 @@ namespace ModelCore.InvoiceManagement
             });
         }
 
-        private static void PushMailQueue(CDS_Document docItem, RenderStyleViewModel viewModel)
+        private static void PushMailQueue(RenderStyleViewModel viewModel)
         {
-            string queueItem = Path.Combine(AppSettings.Default.MailQueuePath, $"{docItem!.DocID}.json");
+            string queueItem = Path.Combine(AppSettings.Default.MailQueuePath, $"{viewModel!.DocID}.json");
             if (File.Exists(queueItem))
                 return;
             
@@ -73,18 +73,11 @@ namespace ModelCore.InvoiceManagement
             }
             else if (viewModel?.DocID > 0)
             {
-                using ModelSource models = new ModelSource();
-
                 viewModel.ProcessType ??= Naming.InvoiceProcessType.F0401;
                 viewModel.Title ??= "電子發票開立通知";
                 viewModel.MailUrl ??= ModelExtension.Properties.AppSettings.Default.NotifyIssuedInvoiceUrl;
-                var docItem = models.GetTable<CDS_Document>()
-                    .FirstOrDefault(x => x.DocID == viewModel.DocID);
-                if (docItem != null)
-                {
-                    PushMailQueue(docItem, viewModel);
-                    return true;
-                }
+                PushMailQueue(viewModel);
+                return true;
             }
             return false;
         }
@@ -161,17 +154,11 @@ namespace ModelCore.InvoiceManagement
             }
             else if (viewModel?.DocID > 0)
             {
-                using ModelSource models = new ModelSource();
                 viewModel.ProcessType ??= Naming.InvoiceProcessType.F0501;
                 viewModel.Title = "電子發票作廢通知";
                 viewModel.MailUrl = ModelExtension.Properties.AppSettings.Default.NotifyIssuedInvoiceCancellationUrl;
-                var docItem = models.GetTable<DerivedDocument>()
-                    .FirstOrDefault(x => x.DocID == viewModel.DocID || x.SourceID == viewModel.DocID)?.CDS_Document;
-                if (docItem != null)
-                {
-                    PushMailQueue(docItem, viewModel);
-                    return true;
-                }
+                PushMailQueue(viewModel);
+                return true;
             }
             return false;
         }
@@ -186,17 +173,11 @@ namespace ModelCore.InvoiceManagement
             }
             else if (viewModel.DocID > 0)
             {
-                using ModelSource models = new ModelSource();
                 viewModel.ProcessType ??= Naming.InvoiceProcessType.G0501;
                 viewModel.Title = "電子發票折讓證明作廢通知";
                 viewModel.MailUrl = ModelExtension.Properties.AppSettings.Default.NotifyIssuedAllowanceCancellationUrl;
-                var docItem = models.GetTable<DerivedDocument>()
-                    .FirstOrDefault(x => x.DocID == viewModel.DocID || x.SourceID == viewModel.DocID)?.CDS_Document;
-                if (docItem != null)
-                {
-                    PushMailQueue(docItem, viewModel);
-                    return true;
-                }
+                PushMailQueue(viewModel);
+                return true;
             }
             return false;
         }
@@ -219,20 +200,99 @@ namespace ModelCore.InvoiceManagement
             return NotifyIssuedInvoice(viewModel, notifyImmediately);
         }
 
+        public static void NotifyIssuedA0401(this IEnumerable<int> docID, String? mailTo = null, bool forceTodo = true)
+        {
+            ThreadPool.QueueUserWorkItem(t =>
+            {
+                foreach (var id in docID)
+                {
+                    EIVONotificationFactory.NotifyIssuedA0401(new RenderStyleViewModel
+                    {
+                        DocID = id,
+                        MailTo = mailTo,
+                        ForceTodo = forceTodo
+                    });
+                }
+            });
+        }
+
+        public static void NotifyWinningInvoice(this IEnumerable<int> docID, bool? appendAttachment, String? mailTo = null)
+        {
+            ThreadPool.QueueUserWorkItem(state =>
+            {
+                foreach (var invoiceID in docID)
+                {
+                    EIVONotificationFactory.NotifyWinningInvoice(new RenderStyleViewModel
+                    {
+                        DocID = invoiceID,
+                        AppendAttachment = appendAttachment,
+                        MailTo = mailTo,
+                    });
+                }
+            });
+        }
+
+        public static void NotifyIssuedInvoiceCancellation(this IEnumerable<int> docID, String? mailTo = null)
+        {
+            ThreadPool.QueueUserWorkItem(t =>
+            {
+                foreach (var id in docID)
+                {
+                    EIVONotificationFactory.NotifyIssuedInvoiceCancellation(new RenderStyleViewModel
+                    {
+                        DocID = id,
+                        MailTo = mailTo,
+                    });
+                }
+            });
+
+        }
+
+        public static void NotifyIssuedAllowance(this IEnumerable<int> docID)
+        {
+            ThreadPool.QueueUserWorkItem(t =>
+            {
+                foreach (var id in docID)
+                {
+                    EIVONotificationFactory.NotifyIssuedAllowance(id);
+                }
+            });
+        }
+
+        public static void NotifyIssuedAllowanceCancellation(this IEnumerable<int> docID)
+        {
+            ThreadPool.QueueUserWorkItem(t =>
+            {
+                foreach (var id in docID)
+                {
+                    EIVONotificationFactory.NotifyIssuedAllowanceCancellation(new RenderStyleViewModel { DocID = id });
+                }
+            });
+        }
+
+        public static void NotifyIssuedInvoiceCancellation(int docID)
+        {
+            EIVONotificationFactory.NotifyIssuedInvoiceCancellation(new RenderStyleViewModel { DocID = docID }, false);
+        }
+        public static void NotifyIssuedAllowanceCancellation(int docID)
+        {
+            EIVONotificationFactory.NotifyIssuedAllowanceCancellation(new RenderStyleViewModel { DocID = docID }, false);
+        }
+
         //public static EventHandler<EventArgs<DocumentQueryViewModel>>? NotifyCommissionedToReceive
         //{
         //    get;
         //    set;
         //}
 
-        public static bool NotifyCommissionedToReceiveA0401(RenderStyleViewModel? viewModel, bool notifyImmediately = false)
-        {
-            if (viewModel == null)
-                return false;
-            viewModel.StepID = Naming.InvoiceStepDefinition.已接收資料待通知;
-            viewModel.MailUrl = ModelExtension.Properties.AppSettings.Default.NotifyCommissionedToReceiveA0401Url;
-            return NotifyIssuedInvoice(viewModel, notifyImmediately);
-        }
+        //public static bool NotifyCommissionedToReceiveA0401(RenderStyleViewModel? viewModel, bool notifyImmediately = false)
+        //{
+        //    if (viewModel == null)
+        //        return false;
+        //    viewModel.StepID = Naming.InvoiceStepDefinition.已接收資料待通知;
+        //    viewModel.MailUrl = ModelExtension.Properties.AppSettings.Default.NotifyCommissionedToReceiveA0401Url;
+        //    return NotifyIssuedInvoice(viewModel, notifyImmediately);
+        //}
 
         public static void Notify()
         {
@@ -262,6 +322,10 @@ namespace ModelCore.InvoiceManagement
                             {
                                 InvoiceHandler handler = new InvoiceHandler(models);
                                 handler.SendMailNotification();
+                                handler.NotifyIssuedInvoice();
+                                handler.NotifyIssuedAllowance();
+                                handler.NotifyIssuedInvoiceCancellation();
+                                handler.NotifyIssuedAllowanceCancellation();
                             }
                         },
                         MilliSecondsWait = ModelExtension.Properties.AppSettings.Default.TaskDelayInMilliseconds,

@@ -25,7 +25,7 @@ namespace ProcessorUnit.Execution
 
         public AllowanceJsonRequestProcessor()
         {
-            appliedProcessType = Naming.InvoiceProcessType.D0401_Json;
+            appliedProcessType = Naming.InvoiceProcessType.G0401_Json;
             processRequest = (jsonData, requestItem) => 
             {
                 Root result = this.CreateMessageToken();

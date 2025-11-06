@@ -19,7 +19,7 @@ namespace ProcessorUnit.Execution
     {
         public InvoiceExcelRequestForCBEProcessor() 
         {
-            appliedProcessType = Naming.InvoiceProcessType.C0401_Xlsx_CBE;
+            appliedProcessType = Naming.InvoiceProcessType.F0401_Xlsx_CBE;
             processDataSet = (ds, requestItem) =>
             {
                 using (InvoiceDataSetManager manager = new InvoiceDataSetManager(models))

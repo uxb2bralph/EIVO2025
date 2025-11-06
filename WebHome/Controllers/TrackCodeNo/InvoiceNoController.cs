@@ -70,7 +70,14 @@ namespace WebHome.Controllers.TrackCodeNo
 
             _dbInstance = false;
             IQueryable<InvoiceNoMainAssignment> items = viewModel.InquireHeaquarterNoAssignment(models!);
-            return View("~/Views/InvoiceNo/Module/DownloadE0401.cshtml", items);
+            if (items.Any())
+            {
+                return View("~/Views/InvoiceNo/Module/DownloadE0401.cshtml", items);
+            }
+            else
+            {
+                return View("~/Views/InvoiceNo/Module/DownloadE0401Query.cshtml", viewModel.InquireInvoiceNoInterval(models!, profile));
+            }
 
         }
 
@@ -212,7 +219,7 @@ namespace WebHome.Controllers.TrackCodeNo
                 }
             }
 
-            var result = new VirtualFileResult(outFile, "application/octet-stream");
+            var result = new PhysicalFileResult(outFile, "application/octet-stream");
             result.FileDownloadName = "空白發票字軌.zip";
             return result;
         }

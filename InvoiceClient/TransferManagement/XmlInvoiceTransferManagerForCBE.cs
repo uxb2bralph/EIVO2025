@@ -51,7 +51,7 @@ namespace InvoiceClient.TransferManagement
         {
             _InvoiceWatcher = new XmlProcessRequestWatcher(Path.Combine(fullPath, _Settings.InvoiceRequestPath)) 
             {
-                ResponsibleProcessType = Naming.InvoiceProcessType.C0401_Xml_CBE
+                ResponsibleProcessType = Naming.InvoiceProcessType.F0401_Xml_CBE
             };
             _InvoiceWatcher.StartUp();
 

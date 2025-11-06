@@ -1,5 +1,5 @@
 ﻿<%@ Page Title="" Language="C#" AutoEventWireup="true" Inherits="System.Web.Mvc.ViewPage" %>
-<%@ Import Namespace="eIVOGo.Helper" %>
+<%@ Import Namespace="WebHome.Helper" %>
 
 <script>
     $(function () {

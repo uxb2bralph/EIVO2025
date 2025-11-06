@@ -124,7 +124,7 @@ namespace TaskCenter.Helper.RequestAction
                     .Where(c => c.HasValue)
                     .Select(c => new ProcessRequestCondition
                     {
-                        ConditionID = (int)c
+                        ConditionID = (int)c!
                     }));
             }
             models.SubmitChanges();

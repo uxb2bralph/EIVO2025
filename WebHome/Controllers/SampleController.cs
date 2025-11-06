@@ -93,6 +93,7 @@ namespace WebHome.Controllers
             else
             {
                 viewModel.PageIndex = 0;
+                viewModel.InitQuery = true;
                 if (viewModel.QueryResult == null)
                 {
                     viewModel.QueryResult = "~/Views/Common/Module/QueryResult.cshtml";

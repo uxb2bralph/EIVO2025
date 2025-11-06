@@ -19,7 +19,7 @@ namespace ProcessorUnit.Execution
     {
         public InvoiceExcelRequestForIssuerProcessor() : base()
         {
-            appliedProcessType = Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer;
+            appliedProcessType = Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByIssuer;
             processDataSet = (ds, requestItem) =>
             {
                 using (InvoiceDataSetManager manager = new InvoiceDataSetManager(models))

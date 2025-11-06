@@ -551,13 +551,17 @@ namespace ModelCore.Helper
         public static XmlDocument CreateA0101(this InvoiceItem item)
         {
             var a0101 = item.CreateInvoiceMIG();
-            a0101!.Amount!.SalesAmount = a0101.Amount.SalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
+            a0101!.Amount!.SalesAmount = a0101.Amount.SalesAmount > 0
+                    ? a0101.Amount.SalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0)
+                    : a0101.Amount.TotalAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
             a0101.Amount.TaxAmount = a0101.Amount.TaxAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
             a0101.Amount.TotalAmount = a0101.Amount.TotalAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
             a0101.Amount.DiscountAmount = a0101.Amount.DiscountAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
             a0101!.Main!.CarrierId1 = a0101.Main.CarrierId2 = a0101.Main.CarrierType 
                 = a0101.Main.PrintMark = a0101.Main.NPOBAN = a0101.Main.RandomNumber = null;
             a0101!.Amount.FreeTaxSalesAmount = a0101.Amount.ZeroTaxSalesAmount = null;
+            //a0101!.Amount!.FreeTaxSalesAmount = a0101.Amount.FreeTaxSalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
+            //a0101!.Amount!.ZeroTaxSalesAmount = a0101.Amount.ZeroTaxSalesAmount.ToFix(item.InvoiceAmountType.CurrencyType?.Decimals ?? 0);
             var docInv = a0101.ConvertToXml();
             docInv.DocumentElement!.SetAttribute("xmlns", ModelCore.Properties.AppSettings.Default.MIG.A0101);
             docInv.LoadXml(docInv.OuterXml);

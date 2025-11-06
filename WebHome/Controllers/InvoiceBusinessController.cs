@@ -227,7 +227,7 @@ namespace WebHome.Controllers
                 newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
                 if (viewModel.Counterpart == true || !String.IsNullOrEmpty(viewModel.BuyerReceiptNo) || !String.IsNullOrEmpty(viewModel.EMail))
                 {
-                    newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                    //newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                 }
                 models.SubmitChanges();
 
@@ -274,9 +274,9 @@ namespace WebHome.Controllers
                 return View("~/Views/DataView/Module/InvoiceContent.cshtml", newItem);
             }
 
-            models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
-            A0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
-            A0401Handler.PushStepQueueOnSubmit(models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+            models!.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+            newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+            //newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
             models.SubmitChanges();
 
             //EIVONotificationFactory.Notify();
@@ -355,7 +355,7 @@ namespace WebHome.Controllers
             if (newItem.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.G0401)
             {
                 newItem.CDS_Document.PushStepQueueOnSubmit(models, validator.Seller!.StepReadyToAllowanceMIG(), Naming.InvoiceProcessType.G0401);
-                newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
+                //newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
             }
             else
             {
@@ -381,20 +381,20 @@ namespace WebHome.Controllers
             DataSet ds;
             switch (viewModel.ProcessType)
             {
-                case Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer:
-                case Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer:
+                case Naming.InvoiceProcessType.A0101_Xlsx_Allocation_ByIssuer:
+                case Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByIssuer:
                     ds = items.GetInvoiceDataForIssuer(models);
                     break;
 
-                case Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC:
+                case Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC:
                     ds = items.GetInvoiceDataForVAC(models);
                     break;
 
-                case Naming.InvoiceProcessType.C0401_Xlsx_CBE:
+                case Naming.InvoiceProcessType.F0401_Xlsx_CBE:
                     ds = items.GetInvoiceDataForCBE(models);
                     break;
 
-                case Naming.InvoiceProcessType.C0401_Xlsx:
+                case Naming.InvoiceProcessType.F0401_Xlsx:
                 default:
                     ds = items.GetInvoiceData(models);
                     break;

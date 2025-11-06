@@ -236,7 +236,7 @@ namespace ModelCore.Models.ViewModel
                     Piece = _allowanceItem.Piece[i],
                     PieceUnit = _allowanceItem.PieceUnit[i],
                     OriginalDescription = _allowanceItem.OriginalDescription[i],
-                    TaxType = (byte)_allowanceItem.TaxType[i],
+                    TaxType = (byte?)_allowanceItem.TaxType[i],
                     No = (short)(i + 1),
                     UnitCost = _allowanceItem.UnitCost[i],
                     Tax = _allowanceItem.Tax[i],

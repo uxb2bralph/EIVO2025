@@ -26,7 +26,7 @@ namespace ProcessorUnit.Execution
 
         public VoidInvoiceJsonRequestProcessor()
         {
-            appliedProcessType = Naming.InvoiceProcessType.C0501_Json;
+            appliedProcessType = Naming.InvoiceProcessType.F0501_Json;
             processRequest = (jsonData, requestItem) => 
             {
                 Root result = this.CreateMessageToken();

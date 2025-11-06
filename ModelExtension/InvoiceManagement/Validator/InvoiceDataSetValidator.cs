@@ -90,7 +90,7 @@ namespace ModelCore.InvoiceManagement.Validator
         {
             switch (processType)
             {
-                case Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC:
+                case Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC:
                     InvoiceField.Data_ID = 0;
                     InvoiceField.Data_Date = 1;
                     InvoiceField.Seller_ID = 2;
@@ -131,7 +131,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     DetailsField.Remark = 7;
 
                     break;
-                case Naming.InvoiceProcessType.C0401_Xlsx_CBE:
+                case Naming.InvoiceProcessType.F0401_Xlsx_CBE:
                     InvoiceField.Data_ID = 0;
                     InvoiceField.Data_Date = 1;
                     InvoiceField.Seller_ID = 2;
@@ -153,8 +153,8 @@ namespace ModelCore.InvoiceManagement.Validator
 
                     break;
 
-                case Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer:
-                case Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer:
+                case Naming.InvoiceProcessType.A0101_Xlsx_Allocation_ByIssuer:
+                case Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByIssuer:
                     InvoiceField.Invoice_No = 0;
                     InvoiceField.Invoice_Date = 1;
                     InvoiceField.Data_ID = 2;
@@ -201,7 +201,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
         String NPOBAN()
         {
-            return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetString(InvoiceField.NPOBAN);
+            return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetString(InvoiceField.NPOBAN);
         }
 
         String RandomNumber()
@@ -211,16 +211,16 @@ namespace ModelCore.InvoiceManagement.Validator
 
         byte? CustomsClearanceMark()
         {
-            return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetData<byte>(InvoiceField.Customs_Clearance_Mark);
+            return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetData<byte>(InvoiceField.Customs_Clearance_Mark);
         }
 
         byte? TaxType()
         {
-            return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? (byte)Naming.TaxTypeDefinition.應稅 : GetData<byte>(InvoiceField.Tax_Type);
+            return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? (byte)Naming.TaxTypeDefinition.應稅 : GetData<byte>(InvoiceField.Tax_Type);
         }
         byte? InvoiceType()
         {
-            return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? (byte)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票 : GetData<byte>(InvoiceField.Invoice_Type);
+            return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? (byte)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票 : GetData<byte>(InvoiceField.Invoice_Type);
         }
 
         decimal? TaxAmount()
@@ -233,37 +233,37 @@ namespace ModelCore.InvoiceManagement.Validator
             return GetData<decimal>(InvoiceField.Total_Amount);
         }
         decimal? SalesAmount() { return GetData<decimal>(InvoiceField.Sales_Amount); }
-        decimal? FreeTaxSalesAmount() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetData<decimal>(InvoiceField.Free_Tax_Sales_Amount); }
-        decimal? ZeroTaxSalesAmount() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetData<decimal>(InvoiceField.Zero_Tax_Sales_Amount); }
-        decimal? TaxRate() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? 0.05m : GetData<decimal>(InvoiceField.Tax_Rate); }
-        string PrintMark() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? "N" : GetString(InvoiceField.Print_Mark)?.ToUpper(); }
+        decimal? FreeTaxSalesAmount() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetData<decimal>(InvoiceField.Free_Tax_Sales_Amount); }
+        decimal? ZeroTaxSalesAmount() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetData<decimal>(InvoiceField.Zero_Tax_Sales_Amount); }
+        decimal? TaxRate() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? 0.05m : GetData<decimal>(InvoiceField.Tax_Rate); }
+        string PrintMark() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? "N" : GetString(InvoiceField.Print_Mark)?.ToUpper(); }
         string MainRemark() { return GetString(InvoiceField.Main_Remark); }
-        DateTime? InvoiceDate() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetData<DateTime>(InvoiceField.Invoice_Date); }
+        DateTime? InvoiceDate() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetData<DateTime>(InvoiceField.Invoice_Date); }
         String InvoiceNo()
         {
-            return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE || processType == Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC ? null : GetString(InvoiceField.Invoice_No);
+            return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE || processType == Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC ? null : GetString(InvoiceField.Invoice_No);
         }
         String DataID() { return GetString(InvoiceField.Data_ID); }
         DateTime? DataDate() { return GetData<DateTime>(InvoiceField.Data_Date); }
         String SellerID() { return GetString(InvoiceField.Seller_ID); }
-        String BuyerID() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? "0000000000" : GetString(InvoiceField.Buyer_ID).GetEfficientString() ?? "0000000000"; }
-        String BuyerName() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetString(InvoiceField.Buyer_Name); }
-        String CarrierType() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? __CROSS_BORDER_MURCHANT : GetString(InvoiceField.Carrier_Type); }
+        String BuyerID() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? "0000000000" : GetString(InvoiceField.Buyer_ID).GetEfficientString() ?? "0000000000"; }
+        String BuyerName() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetString(InvoiceField.Buyer_Name); }
+        String CarrierType() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? __CROSS_BORDER_MURCHANT : GetString(InvoiceField.Carrier_Type); }
         String CarrierId1() { return GetString(InvoiceField.Carrier_Id1); }
-        String CarrierId2() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetString(InvoiceField.Carrier_Id2); }
-        String EMail() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? GetString(InvoiceField.Carrier_Id1) : GetString(InvoiceField.EMail); }
-        String Address() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetString(InvoiceField.Address); }
-        String Phone() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetString(InvoiceField.Phone); }
+        String CarrierId2() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetString(InvoiceField.Carrier_Id2); }
+        String EMail() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? GetString(InvoiceField.Carrier_Id1) : GetString(InvoiceField.EMail); }
+        String Address() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetString(InvoiceField.Address); }
+        String Phone() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetString(InvoiceField.Phone); }
         int? BuyerMark()
         {
-            return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetData<int>(InvoiceField.Buyer_Mark);
+            return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetData<int>(InvoiceField.Buyer_Mark);
         }
         String CustomerID() { return GetString(InvoiceField.Customer_ID); }
         String ContactName()
         {
-            return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? null : GetString(InvoiceField.Contact_Name);
+            return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? null : GetString(InvoiceField.Contact_Name);
         }
-        String DonateMark() { return processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE ? "0" : GetString(InvoiceField.Donate_Mark); }
+        String DonateMark() { return processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE ? "0" : GetString(InvoiceField.Donate_Mark); }
         String Currency() { return GetString(InvoiceField.Currency); }
 
 
@@ -450,7 +450,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     {
                         OwnerID = _owner?.CompanyID ?? _seller!.CompanyID,
                     },
-                    ProcessType = processType == Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer
+                    ProcessType = processType == Naming.InvoiceProcessType.A0101_Xlsx_Allocation_ByIssuer
                         ? (int)Naming.InvoiceProcessType.A0401
                         : (int)Naming.InvoiceProcessType.C0401,
                 },
@@ -699,7 +699,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
             }
 
-            if (processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE)
+            if (processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE)
             {
             }
             else if (BuyerID().GetEfficientString() == null)
@@ -726,7 +726,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 return new Exception(String.Format(MessageResources.InvalidBuyerNameLengthLimit, BuyerName()));
             }
 
-            if (processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE)
+            if (processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE)
             {
                 randomNo = String.Format("{0:ffff}", DateTime.Now);
             }
@@ -1128,7 +1128,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 PieceUnit = GetString(i, DetailsField.Unit),
                 UnitCost = GetDetails<decimal>(i, DetailsField.Unit_Price),
                 Remark = GetString(i, DetailsField.Remark),
-                TaxType = processType == Naming.InvoiceProcessType.C0401_Xlsx_CBE
+                TaxType = processType == Naming.InvoiceProcessType.F0401_Xlsx_CBE
                             ? (byte)Naming.TaxTypeDefinition.應稅
                             : GetDetails<byte>(i, DetailsField.Item_Tax_Type),
                 No = (seqNo++)

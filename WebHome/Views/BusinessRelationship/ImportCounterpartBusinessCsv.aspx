@@ -3,12 +3,12 @@
 <%@ Import Namespace="System.Linq.Expressions" %>
 <%@ Import Namespace="System.Web.Mvc.Html" %>
 <%@ Import Namespace="System.Web.Mvc" %>
-<%@ Import Namespace="eIVOGo.Helper" %>
+<%@ Import Namespace="WebHome.Helper" %>
 <%@ Import Namespace="Model.Locale" %>
-<%@ Import Namespace="eIVOGo.Models.ViewModel" %>
+<%@ Import Namespace="WebHome.Models.ViewModel" %>
 <%@ Import Namespace="Model.Models.ViewModel" %>
 <%@ Import Namespace="ModelCore.DataEntity" %>
-<%@ Import Namespace="eIVOGo.Controllers" %>
+<%@ Import Namespace="WebHome.Controllers" %>
 
 <asp:Content ID="header" ContentPlaceHolderID="headContent" runat="server">
 </asp:Content>

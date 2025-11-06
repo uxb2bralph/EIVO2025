@@ -12,6 +12,7 @@ using ModelCore.Locale;
 using ModelCore.Helper;
 using CommonLib.DataAccess;
 using CommonLib.Core.Utility;
+using ModelCore.Models.ViewModel;
 
 namespace ModelCore.InvoiceManagement
 {
@@ -85,16 +86,28 @@ namespace ModelCore.InvoiceManagement
 
                 foreach(var id in docID)
                 {
-                    if (this.ExecuteCommand(@"
-                                    UPDATE          [proc].C0401DispatchQueue
-                                    SET                   StepID = {2}
-                                    WHERE          DocID = {0} And StepID = {1}", id, (int)Naming.InvoiceStepDefinition.文件準備中, (int)Naming.InvoiceStepDefinition.已接收資料待通知) == 0)
+                    var queueItem = this.GetTable<DataProcessQueue>().Where(q => q.DocID == id && q.StepID == (int)Naming.InvoiceStepDefinition.文件準備中).FirstOrDefault();
+                    if (queueItem != null)
                     {
-                        this.ExecuteCommand(@"
-                                    UPDATE          [proc].A0401DispatchQueue
-                                    SET                   StepID = {2}
-                                    WHERE          DocID = {0} And StepID = {1}", id, (int)Naming.InvoiceStepDefinition.文件準備中, (int)Naming.InvoiceStepDefinition.已接收資料待通知);
+                        EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel
+                        {
+                            DocID = id,
+                            AppendAttachment = true,
+                        });
+
+                        queueItem.PushStepLogOnSubmit(this, Naming.DataProcessStatus.Done);
+                        queueItem.PopupQueueItem(this);
                     }
+                    //if (this.ExecuteCommand(@"
+                    //                UPDATE          [proc].C0401DispatchQueue
+                    //                SET                   StepID = {2}
+                    //                WHERE          DocID = {0} And StepID = {1}", id, (int)Naming.InvoiceStepDefinition.文件準備中, (int)Naming.InvoiceStepDefinition.已接收資料待通知) == 0)
+                    //{
+                    //    this.ExecuteCommand(@"
+                    //                UPDATE          [proc].A0401DispatchQueue
+                    //                SET                   StepID = {2}
+                    //                WHERE          DocID = {0} And StepID = {1}", id, (int)Naming.InvoiceStepDefinition.文件準備中, (int)Naming.InvoiceStepDefinition.已接收資料待通知);
+                    //}
                 }
             }
         }

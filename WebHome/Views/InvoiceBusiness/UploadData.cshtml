@@ -35,17 +35,18 @@
 }
 
 @{
-    if (!_viewModel.InvoiceProcessType.HasValue)
-    {
-        _viewModel.InvoiceProcessType = Naming.InvoiceProcessType.C0401;
-    }
+    _viewModel.InvoiceProcessType ??= Naming.InvoiceProcessType.F0401_Xlsx;
 }
 
 @{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "傳送Excel資料");}
 
 <form role="form" method="post">
-    @{ await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/InvoiceProcessTypeDirection.cshtml");}
-
+    <div class="border_gray">
+        【選擇其他開立方式：
+        @{
+            Html.ActionLink("線上開立", "CreateInvoice", "InvoiceBusiness").WriteTo(Output, HtmlEncoder);
+        }】
+    </div>    
     <div class="border_gray">
         <!--表格 開始-->
         <table class="table table-striped">
@@ -55,7 +56,7 @@
                 </th>
                 <td class="tdleft">
                     @{
-                        @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>(new SellerSelectorViewModel { FieldName = "KeyID", Encrypt = true }));
+                        @(await Component.InvokeAsync<InquireInvoiceSellerViewComponent>(new InquireInvoiceViewModel { FieldName = "KeyID", Encrypt = true }));
                     }
                 </td>
             </tr>
@@ -88,47 +89,41 @@
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
                     new InvoiceRequestViewModel
                     {
-                        Comment = "【配號通用格式】",
-                        ProcessType = Naming.InvoiceProcessType.C0401_Xlsx,
+                        Comment = "【配號通用格式—存證】",
+                        ProcessType = Naming.InvoiceProcessType.F0401_Xlsx,
                     });
-                if (_profile.IsSystemAdmin() || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC)
-                {
-                    await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
-                        new InvoiceRequestViewModel
-                        {
-                            Comment = "【加值中心配號】",
-                            ProcessType = Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC,
-                        });
-                }
-                if (_profile.IsSystemAdmin()
-                    || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer
-                    || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)
-                {
-                    await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
-                        new InvoiceRequestViewModel
-                        {
-                            Comment = "【開立人配號】",
-                            ProcessType = Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer,
-                        });
 
+                if (_profile.IsSystemAdmin() || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC)
+                {
                     await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
                         new InvoiceRequestViewModel
                         {
-                            Comment = "【A0401開立人配號】",
-                            ProcessType = Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer,
+                            Comment = "【加值中心配號—存證】",
+                            ProcessType = Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC,
                         });
                 }
 
-                if (_profile.IsSystemAdmin() || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.C0401_Xlsx_CBE)
-                {
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                    new InvoiceRequestViewModel
+                    {
+                        Comment = "【開立人配號—存證】",
+                        ProcessType = Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByIssuer,
+                    });
 
-                    await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                    new InvoiceRequestViewModel
+                    {
+                        Comment = "【開立人配號—交換】",
+                        ProcessType = Naming.InvoiceProcessType.A0101,
+                    });
+
+
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
                         new InvoiceRequestViewModel
                         {
                             Comment = "【境外電商專用】",
-                            ProcessType = Naming.InvoiceProcessType.C0401_Xlsx_CBE,
+                            ProcessType = Naming.InvoiceProcessType.F0401_Xlsx_CBE,
                         });
-                }
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidInvoice.cshtml");
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadAllowance.cshtml");
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidAllowance.cshtml");

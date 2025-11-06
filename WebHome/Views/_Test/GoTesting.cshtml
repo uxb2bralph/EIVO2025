@@ -28,21 +28,25 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
-    UserProfileViewModel _viewModel = new UserProfileViewModel();
+    LoginViewModel _viewModel = new LoginViewModel();
     ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
     ViewBag.ViewModel = _viewModel;
 
 }
 @{
     var Response = Context.Response;
+    if (_viewModel?.KeyID != null)
+    {
+        _viewModel.PID = _viewModel.KeyID.DecryptData();
+    }
     var pid = _viewModel?.PID;
     if (pid != null)
     {
         var userProfile = ModelCore.Security.MembershipManagement.UserProfileFactory.CreateInstance(pid);
-        if(userProfile != null)
+        if (userProfile != null)
         {
             await Context.SignOnAsync(userProfile);
-            Response.Redirect(VirtualPathUtility.ToAbsolute("~/BusinessRelationship/MaintainRelationship"));
+            Response.Redirect(VirtualPathUtility.ToAbsolute(_viewModel!.ReturnUrl ?? "~/BusinessRelationship/MaintainRelationship"));
         }
     }
 

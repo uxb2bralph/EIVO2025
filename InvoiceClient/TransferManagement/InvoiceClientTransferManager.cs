@@ -44,6 +44,7 @@ namespace InvoiceClient.TransferManagement
                         continue;
                     try
                     {
+                        Logger.Info($"Loading TransferManager {typeName}...");
                         Type? type = Type.GetType(typeName);
                         if (type != null && type.GetInterface("InvoiceClient.TransferManagement.ITransferManager") != null)
                         {
@@ -51,6 +52,7 @@ namespace InvoiceClient.TransferManagement
                             if(manager == null)
                                 continue;
                             _ManagerInstance[type] = manager;
+                            Logger.Info($"TransferManager {typeName} loaded.");
                         }
                     }
                     catch (Exception ex)
@@ -70,6 +72,7 @@ namespace InvoiceClient.TransferManagement
                         continue;
                     try
                     {
+                        Logger.Info($"Loading ServerInspector {typeName}...");
                         Type? type = Type.GetType(typeName);
                         if (type != null && type.IsSubclassOf(typeof(ServerInspector)))
                         {
@@ -79,6 +82,7 @@ namespace InvoiceClient.TransferManagement
                             _InspectorInstance[type] = inspector;
                             inspector.ChainedInspector = chainedInspector;
                             chainedInspector = inspector;
+                            Logger.Info($"ServerInspector {typeName} loaded.");
                         }
                     }
                     catch (Exception ex)
@@ -170,6 +174,7 @@ namespace InvoiceClient.TransferManagement
 
             if (_ServiceController == null || _ServiceController.Status != ServiceControllerStatus.Running)
             {
+                Logger.Info("Service is not running, enable all transfer manager.");
                 foreach (var instance in _ManagerInstance.Values)
                 {
                     instance.EnableAll(fullPath);
@@ -188,6 +193,7 @@ namespace InvoiceClient.TransferManagement
             if (Environment.UserInteractive)
             {
                 _ServiceController = ServiceController.GetServices().Where(s => s.ServiceName == Settings.Default.ServiceName).FirstOrDefault();
+                Logger.Info($"ServiceController status: {_ServiceController?.Status.ToString() ?? "Not Found"}");
             }
         }
 

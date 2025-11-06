@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using TaskCenter.Controllers.Filters;
+using TaskCenter.Properties;
 
 namespace TaskCenter
 {
@@ -16,6 +17,25 @@ namespace TaskCenter
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddMemoryCache();
+
+            // 註冊 CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowMyClient", policy =>
+                {
+                    policy.WithOrigins(AppSettings.Default.AllowCORS) // 允許的來源
+                          .AllowAnyHeader()                  // 允許所有 headers
+                          .AllowAnyMethod();                 // 允許 GET, POST, PUT, DELETE
+                });
+
+                // 如果要允許全部來源 (僅限測試用，不建議正式環境)
+                //options.AddPolicy("AllowAll", policy =>
+                //{
+                //    policy.AllowAnyOrigin()
+                //          .AllowAnyHeader()
+                //          .AllowAnyMethod();
+                //});
+            });
 
             builder.Services.AddSession(options =>
             {
@@ -78,6 +98,8 @@ namespace TaskCenter
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseCors("AllowMyClient");
 
             //app.UseHttpsRedirection();
             app.UseRouting();

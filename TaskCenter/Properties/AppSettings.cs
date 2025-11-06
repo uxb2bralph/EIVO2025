@@ -30,6 +30,7 @@ namespace TaskCenter.Properties
         }
 
         public long TimeoutTicks { get; set; } = 86400000000000;
+        public string[] AllowCORS { get; set; } = { "http://localhost:5000", "http://localhost:5050", "https://egui.uxifs.com", "https://eguitest.uxifs.com" };
 
     }
 

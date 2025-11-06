@@ -72,7 +72,7 @@ namespace WebHome.Controllers
 
             var items = models.GetTable<UniformInvoiceWinningNumber>().Where(w => w.Year == viewModel.Year && w.Period == viewModel.PeriodNo);
 
-            return View("~/Views/WinningNumber/Module/QueryResult.ascx", items);
+            return View("~/Views/WinningNumber/Module/QueryResult.cshtml", items);
         }
 
         public ActionResult EditItem(int? id)
@@ -81,7 +81,7 @@ namespace WebHome.Controllers
             UniformInvoiceWinningNumber model = result.Model as UniformInvoiceWinningNumber;
             if (model != null)
             {
-                result.ViewName = "~/Views/WinningNumber/Module/EditItem.ascx";
+                result.ViewName = "~/Views/WinningNumber/Module/EditItem.cshtml";
             }
             return result;
         }
@@ -119,7 +119,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "中獎號碼資料錯誤!!");
             }
 
-            return View("~/Views/WinningNumber/Module/DataItem.ascx", item);
+            return View("~/Views/WinningNumber/Module/DataItem.cshtml", item);
 
         }
 
@@ -219,12 +219,12 @@ namespace WebHome.Controllers
                 createWinningNo(table, model.Year, model.Period, viewModel.WinningNo.Substring(4), Naming.WinningPrizeType.五獎);
                 createWinningNo(table, model.Year, model.Period, viewModel.WinningNo.Substring(5), Naming.WinningPrizeType.六獎);
                 models.SubmitChanges();
-                return View("~/Views/WinningNumber/Module/QueryRequired.ascx", model);
+                return View("~/Views/WinningNumber/Module/QueryRequired.cshtml", model);
             }
             else
             {
                 models.SubmitChanges();
-                return View("~/Views/WinningNumber/Module/DataItem.ascx", model);
+                return View("~/Views/WinningNumber/Module/DataItem.cshtml", model);
             }
 
         }

@@ -25,7 +25,7 @@ namespace ProcessorUnit.Execution
     {
         public InvoiceXmlRequestForCBEProcessor()
         {
-            appliedProcessType = Naming.InvoiceProcessType.C0401_Xml_CBE;
+            appliedProcessType = Naming.InvoiceProcessType.F0401_Xml_CBE;
             processRequest = (uploadData, requestItem) =>
             {
                 Root result = this.CreateMessageToken();

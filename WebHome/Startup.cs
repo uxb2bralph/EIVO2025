@@ -66,6 +66,25 @@ namespace WebHome
             //services.AddControllersWithViews();
             services.AddMemoryCache();
 
+            // 註冊 CORS
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowMyClient", policy =>
+                {
+                    policy.WithOrigins(AppSettings.Default.AllowCORS) // 允許的來源
+                          .AllowAnyHeader()                  // 允許所有 headers
+                          .AllowAnyMethod();                 // 允許 GET, POST, PUT, DELETE
+                });
+
+                // 如果要允許全部來源 (僅限測試用，不建議正式環境)
+                //options.AddPolicy("AllowAll", policy =>
+                //{
+                //    policy.AllowAnyOrigin()
+                //          .AllowAnyHeader()
+                //          .AllowAnyMethod();
+                //});
+            });
+
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(WebHome.Properties.AppSettings.Default.SessionTimeoutInMinutes);
@@ -148,6 +167,14 @@ namespace WebHome
                 app.UseDeveloperExceptionPage();
                 app.UseHsts();
             }
+
+            // 使用 CORS
+            // ✅ 若要限制指定來源
+            app.UseCors("AllowMyClient");
+
+            // ❌ 或允許所有來源 (不建議正式環境)
+            //app.UseCors("AllowAll");
+
             app.UseStaticFiles();
 
             app.UseRouting();

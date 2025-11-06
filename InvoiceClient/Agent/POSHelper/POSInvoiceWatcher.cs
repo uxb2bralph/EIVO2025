@@ -99,8 +99,8 @@ namespace InvoiceClient.Agent.POSHelper
                 };
 
                 var preparedDoc = prepared.ConvertToXml();
-                preparedDoc.Save(Path.Combine(POSReady._Settings.PreparedInvoice, $"{Guid.NewGuid()}.xml"));
-                preparedDoc.Save(Path.Combine(POSReady._Settings.SellerInvoice, $"{Guid.NewGuid()}.xml"));
+                preparedDoc.Save(Path.Combine(POSReady.Settings.PreparedInvoice, $"{Guid.NewGuid()}.xml"));
+                preparedDoc.Save(Path.Combine(POSReady.Settings.SellerInvoice, $"{Guid.NewGuid()}.xml"));
 
             }
             result.Automation = automation.ToArray();

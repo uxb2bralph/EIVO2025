@@ -377,12 +377,6 @@ namespace ModelCore.Locale
             進項 = 2
         }
 
-        public enum InvoiceCenterBusinessQueryType
-        {
-            銷項 = 1,
-            進項 = 2
-        }
-
         public enum MessageTypeDefinition
         {
             發票開立通知 = 1,
@@ -535,20 +529,20 @@ namespace ModelCore.Locale
             G0501,
             F0701,
             CounterpartBusiness = 81,
-            C0401_Xlsx = 101,
-            C0401_Xlsx_Allocation_ByVAC = 201,
-            C0401_Xlsx_Allocation_ByIssuer = 301,
-            A0401_Xlsx_Allocation_ByIssuer = 311,
-            C0401_Xlsx_CBE = 401,
-            C0401_Xml_CBE = 501,
-            C0501_Xlsx = 102,
-            D0401_Xlsx = 103,
-            D0501_Xlsx = 104,
-            D0401_Full_Xlsx = 113,
-            C0401_Json_CBE = 601,
-            C0501_Json = 202,
-            D0401_Json = 203,
-            D0501_Json = 204,
+            F0401_Xlsx = 101,
+            F0401_Xlsx_Allocation_ByVAC = 201,
+            F0401_Xlsx_Allocation_ByIssuer = 301,
+            A0101_Xlsx_Allocation_ByIssuer = 321,
+            F0401_Xlsx_CBE = 401,
+            F0401_Xml_CBE = 501,
+            F0501_Xlsx = 102,
+            G0401_Xlsx = 103,
+            G0501_Xlsx = 104,
+            G0401_Full_Xlsx = 113,
+            F0401_Json_CBE = 601,
+            F0501_Json = 202,
+            G0401_Json = 203,
+            G0501_Json = 204,
             ReceivedA0101 = 701,
             ReceivedA0201,
             ReceivedB0101,

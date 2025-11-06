@@ -12,7 +12,7 @@ namespace ProcessorUnit.Execution
     {
         public VoidAllowanceExcelRequestProcessor()
         {
-            appliedProcessType = Naming.InvoiceProcessType.D0501_Xlsx;
+            appliedProcessType = Naming.InvoiceProcessType.G0501_Xlsx;
             processDataSet = (ds, requestItem) =>
             {
                 using (VoidAllowanceDataSetManager manager = new VoidAllowanceDataSetManager(models))

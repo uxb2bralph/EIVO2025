@@ -19,7 +19,7 @@ namespace ProcessorUnit.Execution
     {
         public InvoiceExcelRequestForVACProcessor() : base()
         {
-            appliedProcessType = Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC;
+            appliedProcessType = Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC;
             processDataSet = (ds, requestItem) =>
             {
                 using (InvoiceDataSetManager manager = new InvoiceDataSetManager(models))

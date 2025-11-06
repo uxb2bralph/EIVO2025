@@ -26,13 +26,15 @@
     <title></title>
 </head>
 <body>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         <div>F0401:@(ModelExtension.Properties.AppSettings.Default.F0401Outbound)</div>
         <div>F0701:@(ModelExtension.Properties.AppSettings.Default.F0701Outbound)</div>
         <div>
             Invoice No:
             <textarea cols="80" rows="10" name="invoiceNo">@(_viewModel?.InvoiceNo)</textarea><br />
             EndNo No: <input type="text" name="endNo" value="@(_viewModel?.EndNo)" />
+            Invoice No CSV:
+            <input type="file" name="CsvFile" />
             <button ID="btnCreate" type="submit">OK!!</button>
         </div>
         <br />
@@ -83,12 +85,41 @@
             invoiceItems = invoiceItems.Where(i => i.InvoiceDate < _viewModel.DateTo.Value.AddDays(1));
         }
 
-        if (endNo == null)
+        if (_viewModel.CsvFile != null && _viewModel.CsvFile.Length > 0)
+        {
+            using (var reader = new StreamReader(_viewModel.CsvFile.OpenReadStream()))
+            {
+                String csvContent = reader.ReadToEnd();
+                String[] items = csvContent.Split(new String[] { "\r\n", ",", ";", "、" }, StringSplitOptions.RemoveEmptyEntries);
+                Task.Run(() =>
+                {
+                    foreach (var invNo in items)
+                    {
+                        if (invNo.Length != 10)
+                            continue;
+                        var item = invoiceItems
+                        .Where(i => i.TrackCode == invNo.Substring(0, 2)
+                            && i.No == invNo.Substring(2))
+                        .OrderByDescending(i => i.InvoiceID)
+                        .FirstOrDefault();
+                        if (item != null)
+                        {
+                            storedMIG(item, storedPath);
+                        }
+                    }
+                });
+                alert($"送出執行註銷筆數:{items.Length}");
+            }
+        }
+        else if (endNo == null)
         {
             if (invoiceNo?.Length == 10)
             {
-                var item = invoiceItems.Where(i => i.TrackCode == invoiceNo.Substring(0, 2)
-                    && i.No == invoiceNo.Substring(2)).FirstOrDefault();
+                var item = invoiceItems
+                    .Where(i => i.TrackCode == invoiceNo.Substring(0, 2)
+                        && i.No == invoiceNo.Substring(2))
+                    .OrderByDescending(i => i.InvoiceID)
+                    .FirstOrDefault();
                 if (item != null)
                 {
                     _item = item.CreateF0401();
@@ -103,8 +134,11 @@
                 {
                     if (invNo.Length != 10)
                         break;
-                    var item = invoiceItems.Where(i => i.TrackCode == invNo.Substring(0, 2)
-                        && i.No == invNo.Substring(2)).FirstOrDefault();
+                    var item = invoiceItems
+                        .Where(i => i.TrackCode == invNo.Substring(0, 2)
+                            && i.No == invNo.Substring(2))
+                        .OrderByDescending(i => i.InvoiceID)
+                        .FirstOrDefault();
                     if (item != null)
                     {
                         storedMIG(item, storedPath);
@@ -148,10 +182,10 @@
         }
     }
 
-    void storedMIG(InvoiceItem item, String storedPath)
+    static void storedMIG(InvoiceItem item, String storedPath)
     {
         String invoiceNo = item.TrackCode + item.No;
-        item.CreateF0401().Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
+        //item.CreateF0401().Save(System.IO.Path.Combine(storedPath, "F0401_" + invoiceNo + ".xml"));
         item.CreateF0701().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "F0701_" + invoiceNo + ".xml"));
     }
 

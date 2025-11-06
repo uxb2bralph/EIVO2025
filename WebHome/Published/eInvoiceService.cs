@@ -178,13 +178,19 @@ namespace WebHome.Published
                         message.Subject = "電子發票系統 營業人資料傳送異常通知";
                         message.IsBodyHtml = true;
 
-                        using (WebClient wc = new WebClient())
+                        using (WebClient client = new WebClient())
                         {
-                            wc.Encoding = Encoding.UTF8;
-                            message.Body = wc.DownloadString(String.Format("{0}{1}?companyID={2}&MaxLogID={3}",
+                            client.Encoding = Encoding.UTF8;
+                            client.Headers[HttpRequestHeader.ContentType] = "application/json";
+
+                            message.Body = client.UploadString(String.Format("{0}{1}",
                                 ModelExtension.Properties.AppSettings.Default.HostUrl,
-                                VirtualPathUtility.ToAbsolute(ModelExtension.Properties.AppSettings.Default.ExceptionNotificationUrl),
-                                e.CompanyID, e.MaxLogID));
+                                VirtualPathUtility.ToAbsolute(ModelExtension.Properties.AppSettings.Default.ExceptionNotificationUrl)),
+                                (new
+                                {
+                                    e.CompanyID,
+                                    e.MaxLogID
+                                }).JsonStringify());
                         }
 
                         SmtpClient smtpclient = new SmtpClient(ModelExtension.Properties.AppSettings.Default.MailServer);

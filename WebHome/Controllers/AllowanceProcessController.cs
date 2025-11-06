@@ -75,7 +75,7 @@ namespace WebHome.Controllers
             if(viewModel.Status == "ReadyToMIG")
             {
                 var d0401Ready = models.GetTable<DataProcessQueue>()
-                    .Where(s => s.ProcessType == (int)Naming.InvoiceProcessType.G0401)
+                    //.Where(s => s.ProcessType == (int)Naming.InvoiceProcessType.G0401)
                     .Where(s => s.StepID == (int)Naming.InvoiceStepDefinition.待批次傳送);
                 modelSource.Items = modelSource.Items.Where(a => d0401Ready.Any(d => d.DocID == a.AllowanceID));
             }
@@ -426,28 +426,22 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult TransferToMIG([FromBody] QueryViewModel viewModel)
+        public async Task<ActionResult> TransferToMIGAsync()
         {
+            QueryViewModel viewModel = await PrepareViewModelAsync<QueryViewModel>();
             ViewBag.ViewModel = viewModel;
+
             var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
                 foreach(var id in chkItem)
                 {
-                    if(models.ExecuteCommand(@"UPDATE [proc].D0401DispatchQueue
+                    models!.ExecuteCommand(@"UPDATE [proc].DataProcessQueue
                         SET        StepID = {0}
                         WHERE   (DocID = {1}) AND (StepID = {2})",
-                            (int)Naming.InvoiceStepDefinition.已開立,
-                            id,
-                            (int)Naming.InvoiceStepDefinition.待批次傳送) == 0)
-                    {
-                        models.ExecuteCommand(@"UPDATE [proc].B0401DispatchQueue
-                        SET        StepID = {0}
-                        WHERE   (DocID = {1}) AND (StepID = {2})",
-                            (int)Naming.InvoiceStepDefinition.已開立,
-                            id,
-                            (int)Naming.InvoiceStepDefinition.待批次傳送);
-                    }
+                                                (int)Naming.InvoiceStepDefinition.已開立,
+                                                id,
+                                                (int)Naming.InvoiceStepDefinition.待批次傳送);
                 }
 
                 ViewBag.Message = "折讓資料已排定送出至財政部雲端。";

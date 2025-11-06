@@ -199,7 +199,7 @@ namespace WebHome.Helper
                     : true;
         }
 
-        public static async Task<string> CreateContentAsPDFAsync<T>(this SampleController controller, String viewPath, T model, double timeOutInMinute, String[]? args = null)
+        public static async Task<string?> CreateContentAsPDFAsync<T>(this SampleController controller, String viewPath, T model, double timeOutInMinute, String[]? args = null)
         {
             String path = Startup.MapPath("~/temp");
             path.CheckStoredPath();

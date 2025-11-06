@@ -50,30 +50,30 @@ namespace ModelCore.InvoiceManagement
             return _signerCert;
         }
 
-        protected virtual void ApplyProcessFlow(CDS_Document doc, Naming.InvoiceCenterBusinessType? businessType = null)
-        {
-            switch (ProcessType)
-            {
-                case Naming.InvoiceProcessType.A0401:
-                    doc.ProcessType = (int)ProcessType;
-                    A0401Handler.PushStepQueueOnSubmit(this, doc, Naming.InvoiceStepDefinition.已接收資料待通知);
-                    A0401Handler.PushStepQueueOnSubmit(this, doc, Naming.InvoiceStepDefinition.已開立);
-                    break;
+        //protected virtual void ApplyProcessFlow(CDS_Document doc, Naming.InvoiceCenterBusinessType? businessType = null)
+        //{
+        //    switch (ProcessType)
+        //    {
+        //        case Naming.InvoiceProcessType.A0401:
+        //            doc.ProcessType = (int)ProcessType;
+        //            A0401Handler.PushStepQueueOnSubmit(this, doc, Naming.InvoiceStepDefinition.已接收資料待通知);
+        //            A0401Handler.PushStepQueueOnSubmit(this, doc, Naming.InvoiceStepDefinition.已開立);
+        //            break;
 
-                case Naming.InvoiceProcessType.A0101:
-                    doc.ProcessType = (int)ProcessType;
-                    if (businessType == Naming.InvoiceCenterBusinessType.進項)
-                    {
-                        doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.待接收, Naming.InvoiceProcessType.A0101);
-                    }
-                    else
-                    {
-                        doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0101);
-                    }
-                    break;
+        //        case Naming.InvoiceProcessType.A0101:
+        //            doc.ProcessType = (int)ProcessType;
+        //            if (businessType == Naming.InvoiceCenterBusinessType.進項)
+        //            {
+        //                doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.待接收, Naming.InvoiceProcessType.A0101);
+        //            }
+        //            else
+        //            {
+        //                doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0101);
+        //            }
+        //            break;
 
-            }
-        }
+        //    }
+        //}
 
         //public override Dictionary<int, Exception> SaveUploadInvoice(InvoiceRoot item, OrganizationToken? owner)
         //{

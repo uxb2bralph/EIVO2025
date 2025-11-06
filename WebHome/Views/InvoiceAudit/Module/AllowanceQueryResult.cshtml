@@ -8,7 +8,6 @@
 @using WebHome.Models
 @using WebHome.Controllers
 @using ModelCore.DataEntity
-@using ModelCore.Helper
 @using ModelCore.Locale
 @using ModelCore.Security.MembershipManagement
 @using ModelCore.Models.ViewModel
@@ -37,6 +36,7 @@
         if (recordCount > 0)
         {
             await Html.RenderPartialAsync("~/Views/InvoiceAudit/Module/AllowanceQueryPaging.cshtml", _model);
+            await Html.RenderPartialAsync("~/Views/AllowanceProcess/Module/ResultAction.cshtml", _model);
         }
         else
         {

@@ -1,22 +1,22 @@
-﻿using System;
+﻿using CommonLib.Core.Utility;
+using CommonLib.Utility;
+using CommonLib.Utility.Properties;
+using InvoiceClient.Helper;
+using InvoiceClient.Properties;
+using InvoiceClient.TransferManagement;
+using ModelCore.Schema.TXN;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
-using System.Xml;
-
-using InvoiceClient.Properties;
-using CommonLib.Core.Utility;
-using CommonLib.Utility;
-using ModelCore.Schema.TXN;
-using InvoiceClient.Helper;
-using InvoiceClient.TransferManagement;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Web;
-using System.Net;
+using System.Xml;
 
 
 namespace InvoiceClient.Agent.POSHelper
@@ -24,37 +24,51 @@ namespace InvoiceClient.Agent.POSHelper
 
     public class POSReady : InvoiceServerInspector
     {
-        internal static readonly LocalSettings _Settings;
 
         static POSReady()
         {
-            String filePath = Path.Combine(Logger.LogPath, "InvoiceNoInspector.json");
-            if (File.Exists(filePath))
-            {
-                _Settings = JsonConvert.DeserializeObject<LocalSettings>(File.ReadAllText(filePath));
-            }
-            else
-            {
-                _Settings = new LocalSettings { };
-            }
-
-            File.WriteAllText(filePath, _Settings.JsonStringify());
-
-            _Settings.InvoiceNoPreload.CheckStoredPath();
-            _Settings.PreparedInvoice.CheckStoredPath();
-            _Settings.PreparedAllowance.CheckStoredPath();
-            _Settings.SellerInvoice.CheckStoredPath();
-            _Settings.PrintInvoice.CheckStoredPath();
-            _Settings.MIGResponse.CheckStoredPath();
+            Settings.InvoiceNoPreload.CheckStoredPath();
+            Settings.PreparedInvoice.CheckStoredPath();
+            Settings.PreparedAllowance.CheckStoredPath();
+            Settings.SellerInvoice.CheckStoredPath();
+            Settings.PrintInvoice.CheckStoredPath();
+            Settings.MIGResponse.CheckStoredPath();
         }
 
-        public static LocalSettings Settings => _Settings;
+        public static LocalSettings Settings => LocalSettings.Default;
 
-        public new class LocalSettings : InvoiceServerInspector.LocalSettings
+        public class LocalSettings : AppSettingsBase
         {
+            static LocalSettings()
+            {
+                _default = Initialize<LocalSettings>(typeof(LocalSettings).Namespace);
+            }
+
+            public LocalSettings() : base()
+            {
+
+            }
+
+            static LocalSettings _default;
+            public static LocalSettings Default
+            {
+                get
+                {
+                    return _default;
+                }
+            }
+
+            public static void Reload()
+            {
+                Reload<LocalSettings>(ref _default, typeof(LocalSettings).Namespace);
+            }
+
+            public String ServiceHost { get; } = ServiceInfo.ServiceHost;  //"https://eguitest.uxifs.com/cbe";
+
             public String InvoiceNoPreload { get; set; } = Path.Combine(Logger.LogPath, "InvoiceNoInspector", "InvoiceNo");
             public int LowVolumeAlert { get; set; } = 500;
             public int Booklet { get; set; } = 10;
+            public String? DeviceNo { get; set; }
             public String LoadInvoiceNoUrl { get; set; } = "/POSDevice/AllocateInvoiceNo";
             public String PreparedInvoice { get; set; } = Path.Combine(Logger.LogPath, "InvoiceNoInspector", "PreparedInvoice");
             public String BlindReturn { get; set; } = Path.Combine(Logger.LogPath, "InvoiceNoInspector", "BlindReturn");
@@ -82,16 +96,10 @@ namespace InvoiceClient.Agent.POSHelper
             public string A0501 { get; set; } = "A0501";
             public bool Initialized { get; set; } = false;
             public string InitBatch { get; set; } = "Init.bat";
-            public string SellerReceiptNo { get; set; }
+            public string? SellerReceiptNo { get; set; }
             public bool UserClose { get; set; } = true;
-            public String DefaultPOSPrinter { get; set; }
+            public String? DefaultPOSPrinter { get; set; }
             public int InvoiceFileEncodingPage { get; set; } = Encoding.Unicode.CodePage;
-
-            public void Save()
-            {
-                String filePath = Path.Combine(Logger.LogPath, "InvoiceNoInspector.json");
-                File.WriteAllText(filePath, this.JsonStringify());
-            }
         }
 
         public POSReady()

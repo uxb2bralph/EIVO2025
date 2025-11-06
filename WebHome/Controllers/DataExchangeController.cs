@@ -95,7 +95,7 @@ namespace WebHome.Controllers
         public ActionResult UpdateBuyerInfo(bool? issueNotification)
         {
             ActionResult result = UpdateBuyer(issueNotification);
-            if(result is VirtualFileResult)
+            if(result is PhysicalFileResult)
             {
                 return View("~/Views/DataExchange/Module/UpdateBuyerInfo.cshtml", result);
             }

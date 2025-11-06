@@ -47,6 +47,12 @@ namespace ModelCore.InvoiceManagement
         {
         }
 
+        public bool IgnoreDeviceNameCheck
+        {
+            get;
+            set;
+        } = false;
+
         public void ApplyInvoiceTypeIndication(Naming.InvoiceTypeDefinition indication)
         {
             _typeIndication = indication;
@@ -174,7 +180,7 @@ namespace ModelCore.InvoiceManagement
             return true;
         }
 
-        public InvoiceNoAllocation AllocateInvoiceNo()
+        public InvoiceNoAllocation? AllocateInvoiceNo()
         {
             if (InitializeInvoiceNoInterval() == null)
             {
@@ -284,7 +290,7 @@ namespace ModelCore.InvoiceManagement
             {
                 items = items.Where(i => i.InvoiceNoSegment.DeviceName == _deviceName);
             }
-            else
+            else if (!IgnoreDeviceNameCheck)
             {
                 items = items.Where(i => i.InvoiceNoSegment == null);
             }

@@ -35,6 +35,7 @@
         if (recordCount > 0)
         {
             await Html.RenderPartialAsync("~/Views/InvoiceAudit/Module/InvoiceQueryPaging.cshtml", _model);
+            await Html.RenderPartialAsync("~/Views/InvoiceProcess/ResultAction/MainQueryAction.cshtml");
         }
         else
         {

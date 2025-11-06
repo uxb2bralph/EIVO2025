@@ -44,22 +44,22 @@ namespace InvoiceClient.TransferManagement
         {
             this._InvoiceWatcher = (InvoiceWatcher)new ProcessRequestWatcher(Path.Combine(fullPath, this._Settings.InvoiceRequestPath))
             {
-                ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.C0401_Json_CBE)
+                ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.F0401_Json_CBE)
             };
             this._InvoiceWatcher.StartUp();
             this._CancellationWatcher = (InvoiceWatcher)new ProcessRequestWatcher(Path.Combine(fullPath, this._Settings.VoidInvoiceRequestPath))
             {
-                ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.C0501_Json)
+                ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.F0501_Json)
             };
             this._CancellationWatcher.StartUp();
             this._AllowanceWatcher = (InvoiceWatcher)new ProcessRequestWatcher(Path.Combine(fullPath, this._Settings.AllowanceRequestPath))
             {
-                ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.D0401_Json)
+                ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.G0401_Json)
             };
             this._AllowanceWatcher.StartUp();
             this._AllowanceCancellationWatcher = (InvoiceWatcher)new ProcessRequestWatcher(Path.Combine(fullPath, this._Settings.VoidAllowanceRequestPath))
             {
-                ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.D0501_Json)
+                ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.G0501_Json)
             };
             this._AllowanceCancellationWatcher.StartUp();
         }

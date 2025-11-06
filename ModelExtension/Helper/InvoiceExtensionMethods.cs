@@ -3,6 +3,7 @@ using CommonLib.DataAccess;
 using CommonLib.Utility;
 using DocumentFormat.OpenXml.Office.CustomUI;
 using ModelCore.DataEntity;
+using ModelCore.InvoiceManagement;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
@@ -676,7 +677,7 @@ namespace ModelCore.Helper
             else
             {
                 doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.G0501);
-                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0501);
+                //doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0501);
             }
 
             return voidItem;
@@ -726,7 +727,7 @@ namespace ModelCore.Helper
             else
             {
                 doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0501);
-                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
+                //doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
             }
 
             return voidItem;

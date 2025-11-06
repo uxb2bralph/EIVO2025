@@ -57,7 +57,7 @@ namespace InvoiceClient.Agent.POSHelper
                         try
                         {
                             var invItem = item.Invoice[idx];
-                            String tmpHtml = Path.Combine(POSReady._Settings.PrintInvoice, $"{invItem.DataNumber ?? invItem.InvoiceNumber}.htm");
+                            String tmpHtml = Path.Combine(POSReady.Settings.PrintInvoice, $"{invItem.DataNumber ?? invItem.InvoiceNumber}.htm");
                             File.WriteAllText(tmpHtml, client.UploadString(ConvertPrintFormUrl, JsonConvert.SerializeObject(invItem)));
                             eventItems.Add(invItem);
                         }

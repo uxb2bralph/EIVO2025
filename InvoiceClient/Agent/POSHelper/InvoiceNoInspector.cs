@@ -55,10 +55,10 @@ namespace InvoiceClient.Agent.POSHelper
 
             String path = GetInvoiceNoPreloadPath(DateTime.Today).CheckStoredPath();
 
-            if (Directory.EnumerateFiles(path).Count() > POSReady._Settings.LowVolumeAlert)
+            if (Directory.EnumerateFiles(path).Count() > POSReady.Settings.LowVolumeAlert)
                 return;
 
-            String url = $"{POSReady._Settings.ServiceHost}{POSReady._Settings.LoadInvoiceNoUrl}";
+            String url = $"{POSReady.Settings.ServiceHost}{POSReady.Settings.LoadInvoiceNoUrl}";
             using (WebClientEx client = new WebClientEx())
             {
                 client.Timeout = 43200000;
@@ -75,7 +75,8 @@ namespace InvoiceClient.Agent.POSHelper
                         new
                         {
                             SellerID = POSReady.Settings.SellerReceiptNo,
-                            POSReady._Settings.Booklet,
+                            POSReady.Settings.Booklet,
+                            POSReady.Settings.DeviceNo,
                         }));
                 try
                 {
@@ -112,7 +113,7 @@ namespace InvoiceClient.Agent.POSHelper
 
         public static String GetInvoiceNoPreloadPath(int? year,int? periodNo)
         {
-            return Path.Combine(POSReady._Settings.InvoiceNoPreload, POSReady.Settings.SellerReceiptNo, $"{year:0000}", $"{periodNo:00}");
+            return Path.Combine(POSReady.Settings.InvoiceNoPreload, POSReady.Settings.SellerReceiptNo, $"{year:0000}", $"{periodNo:00}");
         }
 
 

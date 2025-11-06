@@ -79,7 +79,7 @@ namespace ModelCore.InvoiceManagement
                         ? new DateTime(DateTime.Today.Year, (DateTime.Today.Month + 1) / 2 * 2 - 1, 1).AddDays(-1)
                         : DateTime.Today;
 
-            InvoiceDataSetValidator validator = new InvoiceDataSetValidator(this, owner, Naming.InvoiceProcessType.C0401_Xlsx_CBE)
+            InvoiceDataSetValidator validator = new InvoiceDataSetValidator(this, owner, Naming.InvoiceProcessType.F0401_Xlsx_CBE)
             {
                 UseDefaultCrossBorderMerchantCarrier = true,
             };
@@ -130,7 +130,7 @@ namespace ModelCore.InvoiceManagement
 
         public DataTable SaveUploadInvoiceAutoTrackNoForVAC(DataSet item, ProcessRequest request)
         {
-            return SaveUploadInvoiceAutoTrackNo(item, request, Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByVAC);
+            return SaveUploadInvoiceAutoTrackNo(item, request, Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC);
         }
 
         void processAutoTrackInvoiceNo(ProcessRequest request, IEnumerable<DataRow> items, IEnumerable<DataRow> itemDetails, Naming.InvoiceTypeDefinition indication, InvoiceDataSetValidator validator,ref int invSeq, List<InvoiceItem> eventItems, DataTable result)
@@ -183,18 +183,10 @@ namespace ModelCore.InvoiceManagement
                     }
 
                     InvoiceItem newItem = validator.InvoiceItem;
-                    if (!newItem.InvoiceBuyer.IsB2C() && validator.ExpectedSeller.HybridB2B())
+                    newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+                    if(deferredNotice)
                     {
-                        newItem.CDS_Document.ProcessType = (int)(int)Naming.InvoiceProcessType.A0401;
-                        A0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                        A0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
-                            deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知);
-                    }
-                    else
-                    {
-                        newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
-                        newItem.CDS_Document.PushStepQueueOnSubmit(this, 
-                            deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                        newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.文件準備中, Naming.InvoiceProcessType.F0401);
                     }
 
                     this.EntityList.InsertOnSubmit(newItem);
@@ -215,7 +207,7 @@ namespace ModelCore.InvoiceManagement
             validator.EndAutoTrackNo();
         }
 
-        public DataTable SaveUploadInvoiceAutoTrackNo(DataSet item, ProcessRequest request, Naming.InvoiceProcessType processType = Naming.InvoiceProcessType.C0401_Xlsx)
+        public DataTable SaveUploadInvoiceAutoTrackNo(DataSet item, ProcessRequest request, Naming.InvoiceProcessType processType = Naming.InvoiceProcessType.F0401_Xlsx)
         {
             Organization owner = request.Organization;
             this.ApplyInvoiceDate = request.ProcessRequestCondition.Any(c => c.ConditionID == (int)ProcessRequestCondition.ConditionType.UseLastPeriodTrackCodeNo)
@@ -347,11 +339,11 @@ namespace ModelCore.InvoiceManagement
         //    }
         //}
 
-        public DataTable SaveUploadInvoice(DataSet item, ProcessRequest request,bool useA0401 = false)
+        public DataTable SaveUploadInvoice(DataSet item, ProcessRequest request,bool useA0101 = false)
         {
             Organization owner = request.Organization;
 
-            InvoiceDataSetValidator validator = new InvoiceDataSetValidator(this, owner, useA0401 ? Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer : Naming.InvoiceProcessType.C0401_Xlsx_Allocation_ByIssuer);
+            InvoiceDataSetValidator validator = new InvoiceDataSetValidator(this, owner, useA0101 ? Naming.InvoiceProcessType.A0101_Xlsx_Allocation_ByIssuer : Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByIssuer);
 
             DataTable result = InitializeInvoiceResponseTable();
 
@@ -417,26 +409,16 @@ namespace ModelCore.InvoiceManagement
 
                             InvoiceItem newItem = validator.InvoiceItem;
 
-                            if (useA0401)
+                            if (useA0101)
                             {
-                                A0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                                A0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
-                                    deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知);
+                                newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0101);
                             }
                             else
                             {
-                                if(!newItem.InvoiceBuyer.IsB2C() && validator.ExpectedSeller.HybridB2B())
+                                newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+                                if (deferredNotice)
                                 {
-                                    newItem.CDS_Document.ProcessType = (int)(int)Naming.InvoiceProcessType.A0401;
-                                    A0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
-                                    A0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document,
-                                        deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知);
-                                }
-                                else
-                                {
-                                    newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
-                                    newItem.CDS_Document.PushStepQueueOnSubmit(this, 
-                                        deferredNotice ? Naming.InvoiceStepDefinition.文件準備中 : Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                                    newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.文件準備中, Naming.InvoiceProcessType.F0401);
                                 }
                             }
 

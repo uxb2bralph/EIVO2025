@@ -32,6 +32,7 @@
     String currentID = $"table{DateTime.Now.Ticks}";
     ViewBag.TableColumns = new string[]
     {
+        "~/Views/InvoiceAudit/DataField/ItemCheckBox.cshtml",
             "~/Views/InvoiceAudit/DataField/InvoiceDate.cshtml",
             "~/Views/InvoiceAudit/DataField/InvoiceNo.cshtml",
             "~/Views/InvoiceAudit/DataField/IssuerReceiptNo.cshtml",
@@ -47,7 +48,7 @@
             "~/Views/InvoiceAudit/DataField/PrintMark.cshtml",
             "~/Views/InvoiceAudit/DataField/CarrierType.cshtml",
             "~/Views/InvoiceAudit/DataField/CarrierNo.cshtml",
-            };
+                    };
 }
 @if (_viewModel.PageIndex.HasValue)
 {

@@ -97,7 +97,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
 
 
-        public InvoiceItem SaveRootInvoice(InvoiceRootInvoice invItem, out Exception exception)
+        public InvoiceItem? SaveRootInvoice(InvoiceRootInvoice invItem, out Exception? exception)
         {
             if ((exception = this.Validate(invItem)) != null)
             {
@@ -107,7 +107,7 @@ namespace ModelCore.InvoiceManagement.Validator
             InvoiceItem newItem = this.InvoiceItem;
             _models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
 
-            newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+            //newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
             newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
             _models.SubmitChanges();

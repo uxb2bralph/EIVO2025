@@ -636,7 +636,7 @@ namespace WebHome.Controllers
                     }
                 }
             }
-            var result = new VirtualFileResult(outFile, "application/octet-stream");
+            var result = new PhysicalFileResult(outFile, "application/octet-stream");
             result.FileDownloadName = "發票附件.zip";
             return result;
 

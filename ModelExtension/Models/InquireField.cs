@@ -66,7 +66,7 @@ namespace ModelCore.Models
 
     public partial class InquireInvoiceSeller : CommonInquiry<InvoiceItem, InquireInvoiceViewModel>
     {
-        public override void BuildQueryExpression(ModelSource< InvoiceItem> models)
+        public override void BuildQueryExpression(ModelSource<InvoiceItem> models)
         {
             if (QueryViewModel.SellerID.HasValue)
             {
@@ -204,7 +204,7 @@ namespace ModelCore.Models
 
         public override void BuildQueryExpression(ModelSource< InvoiceItem> models)
         {
-            models.Items = models.FilterInvoiceByRole(_userProfile, models.Items);
+            models.Items = models.FilterInvoiceByRole(_userProfile, models.Items, QueryViewModel?.BusinessType);
             base.BuildQueryExpression(models);
         }
     }
@@ -340,6 +340,15 @@ namespace ModelCore.Models
         public override void BuildQueryExpression(ModelSource< InvoiceItem> models)
         {
             models.Items = models.Items.QueryByInvoiceNo(QueryViewModel, models, ref effective);
+            base.BuildQueryExpression(models);
+        }
+    }
+
+    public partial class InquireDataNo : CommonInquiry<InvoiceItem, InquireInvoiceViewModel>
+    {
+        public override void BuildQueryExpression(ModelSource<InvoiceItem> models)
+        {
+            models.Items = models.Items.QueryByDataNo(QueryViewModel, models, ref effective);
             base.BuildQueryExpression(models);
         }
 

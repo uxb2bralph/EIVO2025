@@ -49,17 +49,6 @@ namespace ModelCore.Models.ViewModel
         public String? CommandText { get; set; }
     }
 
-    public partial class SellerSelectorViewModel : CommonQueryViewModel
-    {
-        public bool? SelectAll { get; set; }
-        public String? SelectorIndication { get; set; }
-        public String? SelectorIndicationValue { get; set; }
-        public String? JS_OnSelect { get; set; }
-        public int? SellerID { get; set; }
-        [JsonIgnore]
-        public Organization? DefaultItem { get; set; }
-    }
-
     public partial class ReviseInvoiceViewModel : InquireInvoiceViewModel
     {
         public Naming.VoidActionMode? Mode { get; set; }

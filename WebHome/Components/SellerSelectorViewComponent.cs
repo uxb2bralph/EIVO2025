@@ -17,7 +17,7 @@ namespace WebHome.Components
         protected ModelSource<InvoiceItem> models;
         protected ModelStateDictionary _modelState;
 
-        public IViewComponentResult Invoke(SellerSelectorViewModel viewModel)
+        public IViewComponentResult Invoke(InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             models = (ModelSource<InvoiceItem>)HttpContext.Items["Models"];
@@ -26,7 +26,7 @@ namespace WebHome.Components
             return SellerSelector(viewModel);
         }
 
-        public IViewComponentResult SellerSelector(SellerSelectorViewModel viewModel)
+        public IViewComponentResult SellerSelector(InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if ((viewModel.FieldName = viewModel.FieldName.GetEfficientString()) == null)

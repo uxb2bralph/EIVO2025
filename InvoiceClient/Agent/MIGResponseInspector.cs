@@ -112,7 +112,7 @@ namespace InvoiceClient.Agent
 
         private void StoreMIG(Naming.InvoiceProcessType processType, MIGContent item)
         {
-            String storePath = Path.Combine(_Settings.MIGResponse, item.ReceiptNo ?? "0000000000", $"{item.DocDate:yyyyMMdd}", $"{processType}")
+            String storePath = Path.Combine(POSReady.Settings.MIGResponse, item.ReceiptNo ?? "0000000000", $"{item.DocDate:yyyyMMdd}", $"{processType}")
                 .CheckStoredPath();
 
             XmlDocument doc = new XmlDocument();

@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using CommonLib.DataAccess;
 using CommonLib.Core.Utility;
+using ModelCore.Models.ViewModel;
 
 namespace ModelCore.InvoiceManagement
 {
@@ -175,7 +176,8 @@ namespace ModelCore.InvoiceManagement
 
                         this.EntityList.InsertOnSubmit(newItem);
                         newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
-                        newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                        EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel { DocID = newItem.CDS_Document.DocID });
+                        //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
 
                         this.SubmitChanges();
                     }

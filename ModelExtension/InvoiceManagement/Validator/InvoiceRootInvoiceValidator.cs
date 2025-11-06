@@ -541,7 +541,10 @@ namespace ModelCore.InvoiceManagement.Validator
 
                 if (_seller.OrganizationStatus?.EnableTrackCodeInvoiceNoValidation == true)
                 {
-                    TrackNoManager trackMgr = new TrackNoManager(_models, _seller.CompanyID);
+                    TrackNoManager trackMgr = new TrackNoManager(_models, _seller.CompanyID)
+                    { 
+                        IgnoreDeviceNameCheck = true,
+                    };
                     var item = trackMgr.GetAppliedInterval(invoiceDate, _container.TrackCode, int.Parse(_container.No));
 
                     if (item == null)
