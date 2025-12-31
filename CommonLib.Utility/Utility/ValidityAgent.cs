@@ -590,11 +590,20 @@ namespace CommonLib.Utility
             return isTel;
         }
 
-        public static string MakePassword(this string password)
+        public static String MakePassword(this String password)
         {
-            MD5 md5 = MD5.Create();
-            return String.Join("", md5.ComputeHash(Encoding.Default.GetBytes(password)).Select(i => String.Format("{0:X02}", i)));
+            if (String.IsNullOrEmpty(password))
+                return null;
+            return Convert.ToBase64String(MD5.Create().ComputeHash(Encoding.Default.GetBytes(password)));
         }
+
+        //public static string MakePassword(this string password)
+        //{
+        //    if (String.IsNullOrEmpty(password))
+        //        return null;
+        //    MD5 md5 = MD5.Create();
+        //    return String.Join("", md5.ComputeHash(Encoding.Default.GetBytes(password)).Select(i => String.Format("{0:X02}", i)));
+        //}
 
         public static string HashPassword(this string password)
         {
@@ -602,6 +611,15 @@ namespace CommonLib.Utility
             return String.Join("", md5.ComputeHash(Encoding.Default.GetBytes(password)).Select(i => String.Format("{0:X02}", i)));
         }
 
+        public static string ComputeSHA256Hash(this string password)
+        {
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                var bytes = System.Text.Encoding.UTF8.GetBytes(password);
+                var hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
+        }
 
     }
 }

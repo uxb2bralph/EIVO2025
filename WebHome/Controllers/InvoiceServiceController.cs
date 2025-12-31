@@ -1,4 +1,26 @@
-﻿using System;
+﻿using CommonLib.Core.Utility;
+using CommonLib.Security.UseCrypto;
+using CommonLib.Utility;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using ModelCore.DataEntity;
+using ModelCore.DocumentManagement;
+using ModelCore.Helper;
+using ModelCore.InvoiceManagement;
+using ModelCore.InvoiceManagement.ErrorHandle;
+using ModelCore.InvoiceManagement.InvoiceProcess;
+using ModelCore.InvoiceManagement.Validator;
+using ModelCore.Locale;
+using ModelCore.Models.ViewModel;
+using ModelCore.Notification;
+using ModelCore.Schema.EIVO;
+using ModelCore.Schema.EIVO.B2B;
+using ModelCore.Schema.TurnKey;
+using ModelCore.Schema.TXN;
+using ModelCore.Service;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,32 +29,9 @@ using System.Text;
 using System.Threading;
 using System.Web;
 using System.Xml;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-
 using WebHome.Helper;
-using ModelCore.Models.ViewModel;
 using WebHome.Properties;
 using WebHome.Published;
-
-using ModelCore.DataEntity;
-using ModelCore.DocumentManagement;
-using ModelCore.Helper;
-using ModelCore.InvoiceManagement;
-using ModelCore.Locale;
-using ModelCore.Schema.EIVO;
-using ModelCore.Schema.EIVO.B2B;
-using ModelCore.Schema.TurnKey;
-using ModelCore.Schema.TXN;
-using ModelCore.InvoiceManagement.ErrorHandle;
-using CommonLib.Security.UseCrypto;
-using CommonLib.Utility;
-using CommonLib.Core.Utility;
-using ModelCore.Notification;
-using ModelCore.Service;
-using ModelCore.InvoiceManagement.InvoiceProcess;
-using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace WebHome.Controllers
 {
@@ -599,6 +598,38 @@ namespace WebHome.Controllers
             return clientID == "uxb2b";
         }
 
+        [HttpPost("Validate")]
+        [Consumes("application/json")]
+        [Produces("application/json")]
+        public ActionResult Validate([FromBody] InquireInvoiceViewModel viewModel)
+        {
+            if (viewModel == null)
+            {
+                ModelState.AddModelError("ViewModel", "無效的請求");
+            }
+            else
+            {
+                var carrierId = viewModel.CarrierNo;
+                if (carrierId != null)
+                {
+                    if (!(carrierId?.Length == 8 && InvoiceRootInvoiceValidator.__MatchCellPhoneBarcode.IsMatch(carrierId)))
+                    {
+                        ModelState.AddModelError("CarrierNo", "載具號碼格式錯誤");
+                    }
+                }
+
+                var receiptNo = viewModel.ReceiptNo;
+                if (receiptNo != null)
+                {
+                    if (!receiptNo.CheckRegno())
+                    {
+                        ModelState.AddModelError("ReceiptNo", "發票號碼格式錯誤");
+                    }
+                }
+            }
+
+            return Json(new { result = ModelState.IsValid, message = ModelState.ErrorMessage() });
+        }
 
 
     }

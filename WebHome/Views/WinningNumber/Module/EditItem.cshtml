@@ -1,0 +1,34 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@{
+    var _model = (UniformInvoiceWinningNumber)this.Model;
+}
+<tr>
+    <td>@_model.Year</td>
+    <td>@string.Format("{0:00}-{1:00}月", _model.Period * 2 - 1, _model.Period * 2)</td>
+    <td>
+        @{
+            ViewBag.FieldName = "Rank";
+            await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelector.cshtml", typeof(Naming.EditableWinningPrizeType));
+        }
+    </td>
+    <td></td>
+    <td>
+        <input type="text" name="WinningNo" placeholder="請輸入中獎號碼" value="@_model.WinningNO" data-role="edit" />
+    </td>
+    <td>
+        <div class="btn-group dropdown" data-toggle="dropdown">
+            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a class="btn" onclick="uiWinningNo.commitItem(@_model.WinningID, @_model.Year, @_model.Period);">確定</a></li>
+                <li><a class="btn" onclick="uiWinningNo.showItem(@_model.WinningID);">取消</a></li>
+            </ul>
+        </div>
+    </td>
+</tr>

@@ -87,6 +87,7 @@ namespace ModelCore.Models.ViewModel
         public string? Period { get; set; }
         public string? Donation { get; set; }
         public Naming.InvoiceCenterBusinessType? BusinessType { get; set; }
+        public bool? Allow { get; set; }
     }
 
     public enum DataQueryType

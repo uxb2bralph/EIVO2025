@@ -1,0 +1,258 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Models
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using WebHome.Controllers
+@using WebHome.Helper
+@using ModelCore.Models.ViewModel
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = ViewBag.ViewModel as QueryViewModel ?? new QueryViewModel { };
+
+}
+<script>
+    var $inquiryAgent = {
+        initQuery: false,
+        columns: null,
+        sort: function (name, target) {
+            if (!$inquiryAgent.viewModel.SortName) {
+                $inquiryAgent.viewModel.SortName = [];
+            }
+            if (!$inquiryAgent.viewModel.SortType) {
+                $inquiryAgent.viewModel.SortType = [];
+            }
+            var sortType = 1;
+            var idx = $inquiryAgent.viewModel.SortName.indexOf(name);
+            if (idx >= 0) {
+                sortType = ($inquiryAgent.viewModel.SortType[idx] + 2) % 3 - 1;
+                $inquiryAgent.viewModel.SortType[idx] = sortType;
+            } else {
+                $inquiryAgent.viewModel.SortName.push(name);
+                $inquiryAgent.viewModel.SortType.push(sortType);
+                //if ($inquiryAgent.viewModel.SortName.length > 0) {
+                //    $inquiryAgent.viewModel.SortName[0] = name;
+                //} else {
+                //    $inquiryAgent.viewModel.SortName.push(name);
+                //}
+                //if ($inquiryAgent.viewModel.SortType.length > 0) {
+                //    $inquiryAgent.viewModel.SortType[0] = sortType;
+                //} else {
+                //    $inquiryAgent.viewModel.SortType.push(sortType);
+                //}
+            }
+
+            var $target = $(target);
+            $target.find('i').remove();
+            if (sortType == 1) {
+                $target.append('<i class="fa fa-sort-asc" aria-hidden="true"></i>');
+            } else if (sortType == -1) {
+                $target.append('<i class="fa fa-sort-desc" aria-hidden="true"></i>');
+            }
+            $inquiryAgent.inquire(-1);
+        },
+        pageIndex: 0,
+        doPage: function (data) {
+        },
+        onBodyLoad: function () {
+        },
+        onQueryDone: null,
+        queryArea: '#queryArea',
+    };
+
+</script>
+
+@RenderSection("PrepareAgent", required: true)
+
+<script>
+    $(function () {
+        $inquiryAgent.inquire = function (pageNum) {
+            var $this = $inquiryAgent;
+            var $queryArea = $($this.queryArea);
+            var $formData = $queryArea.find('input,select,textarea').serializeObject();
+
+            if (isNaN(pageNum)) {
+                $inquiryAgent.viewModel.PageIndex = null;
+                $this.initQuery = true;
+            }
+            else if (pageNum > 0) {
+                $inquiryAgent.viewModel.PageIndex = pageNum;
+            } else if (!$inquiryAgent.viewModel.PageIndex) {
+                $inquiryAgent.viewModel.PageIndex = 1;
+            }
+            $formData = $.extend({}, $inquiryAgent.viewModel, $formData);
+            clearErrors();
+            showLoading();
+            $.post($this.inquiryAction, $formData, function (data) {
+                hideLoading();
+                if ($.isPlainObject(data)) {
+                    alert(data.message);
+                } else {
+                    if ($this.initQuery) {
+                        $global.createTab('queryResult', '查詢', data, true);
+                        $this.initQuery = false;
+                    } else {
+                        $this.doPage(data);
+                    }
+                    if ($this.onQueryDone) {
+                        $this.onQueryDone();
+                    }
+                }
+            });
+        };
+    });
+
+</script>
+@if (_viewModel.DeleteAction != null)
+{
+    <script>
+        $(function () {
+            $inquiryAgent.deleteItem = function (keyID) {
+                if (confirm('確定刪除此項目?')) {
+                    var event = event || window.event;
+                    var $tr = $(event.target).closest('tr');
+                    $.post($inquiryAgent.deleteAction, { 'keyID': keyID, 'displayType':@((int)Naming.FieldDisplayType.Edit) }, function (data) {
+                        if (data.result) {
+                            alert('資料已刪除!!')
+                            $tr.remove();
+                        } else {
+                            alert(data.message);
+                        }
+                    });
+                }
+            };
+        });
+    </script>
+}
+@if (_viewModel.LoadAction != null)
+{
+    <script>
+        $(function () {
+            $inquiryAgent.loadItem = function (viewModel, onload) {
+                showLoading();
+                $.post($inquiryAgent.loadAction, viewModel, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        alert(data.message);
+                    } else {
+                        onload(data);
+                    }
+                });
+            };
+        });
+    </script>
+}
+@if (_viewModel.EditAction != null)
+{
+    <script>
+        $(function () {
+            $inquiryAgent.editItem = function (keyID) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                $global.$scope = $tr;
+                var viewModel = $tr.find('input,select,textArea').serializeObject();
+                viewModel.keyID = keyID;
+                viewModel.displayType = @((int)Naming.FieldDisplayType.Edit);
+                $inquiryAgent.loadItem(viewModel, function (data) {
+                    $tr.after(data).remove();
+                });
+            };
+
+            $inquiryAgent.dataItem = function (viewModel, scope, done) {
+                var event = event || window.event;
+                var $tr = scope || $(event.target).closest('tr');
+                $global.$scope = $tr;
+                if (viewModel.displayType === undefined) {
+                    viewModel.displayType = @((int)Naming.FieldDisplayType.DataItem);
+                }
+                $inquiryAgent.loadItem(viewModel, function (data) {
+                    $tr.after(data).remove();
+                    if (done) {
+                        done();
+                    }
+                });
+            };
+        });
+    </script>
+}
+@if (_viewModel.CommitAction != null)
+{
+    <script>
+        $(function () {
+            $inquiryAgent.commitItem = function (keyID) {
+                var event = event || window.event;
+                var $tr = $(event.target).closest('tr');
+                $global.$scope = $tr;
+                var $parent = $tr.parent();
+                var viewModel = $tr.find('input,select,textArea').serializeObject();
+                viewModel.keyID = keyID;
+                clearErrors();
+                $.post($inquiryAgent.commitAction, viewModel, function (data) {
+                    if ($.isPlainObject(data)) {
+                        if (data.result) {
+                            $inquiryAgent.dataItem(data, $tr, function () {
+                                if (data.isNew) {
+                                    $inquiryAgent.loadItem({ 'displayType':@((int)Naming.FieldDisplayType.Create), 'keyID': '@(_viewModel.EmptyKeyID)' }, function (d) {
+                                        $parent.append(d);
+                                    });
+                                }
+                            });
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        $(data).appendTo($('body')).remove();
+                    }
+                });
+            };
+        });
+
+    </script>
+}
+@if (_viewModel.DownloadAction != null)
+{
+    <script>
+        $(function () {
+            $inquiryAgent.downloadQuery = function (queryData) {
+
+                var $formData;
+                var $this = $inquiryAgent;
+                var $queryArea = $($this.queryArea);
+
+                if ($.isPlainObject(queryData)) {
+                    $formData = queryData;
+                } else {
+                    $formData = $queryArea.find('input,select,textarea').serializeObject();
+                    $formData = $.extend({}, $inquiryAgent.viewModel, $formData);
+                }
+
+                clearErrors();
+                showLoading();
+                $.post($inquiryAgent.downloadAction, $formData, function (data) {
+                    hideLoading();
+                    if ($.isPlainObject(data)) {
+                        if (data.message != undefined) {
+                            alert(data.message);
+                        }
+                    } else {
+                        $(data).appendTo($('body'));
+                    }
+                });
+            };
+        });
+
+    </script>
+}

@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "@vue/devtools": "^8.0.5"
+  }
+}

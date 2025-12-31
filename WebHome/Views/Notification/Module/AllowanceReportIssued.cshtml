@@ -1,0 +1,36 @@
+﻿
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+
+@using System.Xml
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.AspNetCore.Html
+
+@{
+    Layout = "~/Views/Notification/Module/IssuedAllowanceTemplate.cshtml";
+    ModelSource<InvoiceItem> models;
+    InvoiceAllowance _model;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (InvoiceAllowance)this.Model;
+
+}
+@section AllowanceMailView 
+{
+
+}
+

@@ -273,7 +273,7 @@ namespace WebHome.Helper
                     Phone = column[4],
                     EMail = column[2],
                     Address = column[3],
-                    Password2 = ValidityAgent.HashPassword(pid),
+                    Password2 = ValidityAgent.MakePassword(pid),
                     UserProfileExtension = new UserProfileExtension
                     {
                         IDNo = column[1]

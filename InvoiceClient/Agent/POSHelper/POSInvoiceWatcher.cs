@@ -1,22 +1,21 @@
-﻿using System;
+﻿using CommonLib.Core.Utility;
+using CommonLib.Utility;
+using InvoiceClient.Helper;
+using InvoiceClient.Properties;
+using ModelCore.InvoiceManagement.Validator;
+using ModelCore.Resource;
+using ModelCore.Schema.EIVO;
+using ModelCore.Schema.EIVO.B2B;
+using ModelCore.Schema.TXN;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Web;
 using System.Xml;
-
-using InvoiceClient.Helper;
-using InvoiceClient.Properties;
-
-using ModelCore.InvoiceManagement.Validator;
-using ModelCore.Resource;
-using ModelCore.Schema.EIVO;
-using ModelCore.Schema.EIVO.B2B;
-using ModelCore.Schema.TXN;
-using CommonLib.Core.Utility;
-using CommonLib.Utility;
 
 namespace InvoiceClient.Agent.POSHelper
 {

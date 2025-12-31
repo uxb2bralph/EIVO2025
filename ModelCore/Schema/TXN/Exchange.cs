@@ -105,6 +105,9 @@ namespace ModelCore.Schema.TXN {
         
         /// <remarks/>
         public string CarrierNo2;
+        
+        /// <remarks/>
+        public string InvoiceUrl;
     }
     
     /// <remarks/>
@@ -341,25 +344,25 @@ namespace ModelCore.Schema.TXN {
         [System.Xml.Serialization.XmlElementAttribute("InvoiceNo")]
         public RootResponseInvoiceNo[] InvoiceNo;
         
-        ///// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute("Invoice")]
-        //public object[] Invoice;
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("Invoice")]
+        public object[] Invoice;
         
-        ///// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute("CancelInvoice")]
-        //public object[] CancelInvoice;
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("CancelInvoice")]
+        public object[] CancelInvoice;
         
-        ///// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute("RejectInvoice")]
-        //public object[] RejectInvoice;
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("RejectInvoice")]
+        public object[] RejectInvoice;
         
-        ///// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute("Allowance")]
-        //public object[] Allowance;
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("Allowance")]
+        public object[] Allowance;
         
-        ///// <remarks/>
-        //[System.Xml.Serialization.XmlElementAttribute("CancelAllowance")]
-        //public object[] CancelAllowance;
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("CancelAllowance")]
+        public object[] CancelAllowance;
     }
     
     /// <remarks/>

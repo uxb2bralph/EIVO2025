@@ -25,19 +25,13 @@
             }
 
             var $formData = $('input[name="chkItem"]:checked').serializeObject();
+            toArrayField($formData, 'chkItem');
             $formData.Cancelled = $('#queryArea select[name="Cancelled"]').val();
             $formData.ProcessType = $('#queryArea select[name="ProcessType"]').val();
             $formData.MailTo = $('input[name="MailTo"]').val();
 
-
-            showLoading();
-            $.post('@(Url.Action("IssueInvoiceNotice", "InvoiceProcess"))', $formData, function (data) {
-                hideLoading();
-                if ($.isPlainObject(data)) {
-                    alert(data.message);
-                } else {
-                    $(data).appendTo($('body')).remove();
-                }
+            doPost('@(Url.Action("IssueInvoiceNotice", "InvoiceProcess"))', $formData, function (data) {
+                $(data).appendTo($('body')).remove();
             });
 
         };

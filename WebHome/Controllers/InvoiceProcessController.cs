@@ -13,7 +13,6 @@ using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
 using ModelCore.Resource;
 using Newtonsoft.Json;
-using OpenQA.Selenium.DevTools.V133.Memory;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -979,8 +978,14 @@ namespace WebHome.Controllers
             return View("~/Views/InvoiceProcess/Module/PrintResult.cshtml");
         }
 
-        public ActionResult IssueInvoiceNotice(InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> IssueInvoiceNoticeAsync([FromBody] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InquireInvoiceViewModel>();
+                ModelState.Clear();
+            }
+
             var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
@@ -1011,8 +1016,14 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult IssueWinningNotice(InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> IssueWinningNoticeAsync([FromBody] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InquireInvoiceViewModel>();
+                ModelState.Clear();
+            }
+
             List<int> items = new List<int>();
             if (viewModel.ChkItem != null && viewModel.ChkItem.Length > 0)
             {
@@ -1109,11 +1120,18 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult AuthorizeToPrint(int[] chkItem)
+        public async Task<ActionResult> AuthorizeToPrintAsync([FromBody] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InquireInvoiceViewModel>();
+                ModelState.Clear();
+            }
+
+            var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
-                var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID))
+                var items = models!.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID))
                         .Where(i => i.CDS_Document.DocumentPrintLog.Any() && i.CDS_Document.DocumentAuthorization == null)
                         .Select(i => i.InvoiceID).ToList()
                         .Select(i => new DocumentAuthorization
@@ -1135,13 +1153,20 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult DesireToVoidInvoice(int[] chkItem, bool? allow)
+        public async Task<ActionResult> DesireToVoidInvoiceAsync([FromBody] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InquireInvoiceViewModel>();
+                ModelState.Clear();
+            }
+
+            var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
-                if (allow == true)
+                if (viewModel.Allow == true)
                 {
-                    var items = models.GetTable<InvoiceItem>()
+                    var items = models!.GetTable<InvoiceItem>()
                         .Where(i => i.AuthorizeToVoid != null && i.AuthorizeToVoid.VoidMode == (int)Naming.VoidActionMode.註銷作廢)
                         .Where(i => chkItem.Contains(i.InvoiceID));
                     if (items.Count() > 0)

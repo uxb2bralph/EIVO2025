@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using CommonLib.Core.Utility;
 using CommonLib.DataAccess;
 using CommonLib.Utility;
 using Microsoft.AspNetCore.Authorization;
@@ -390,12 +391,20 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult Print(int[] chkItem, RenderStyleViewModel viewModel)
+        public async Task<ActionResult> PrintAsync([FromBody] InquireInvoiceViewModel dataModel, [FromBody] RenderStyleViewModel viewModel)
         {
-            ViewBag.ViewModel = viewModel;
+            if(dataModel == null)
+            {
+                dataModel = await PrepareViewModelAsync<InquireInvoiceViewModel>();
+            }
+
+            if(viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<RenderStyleViewModel>();
+            }
 
             var profile = HttpContext.GetUser();
-            if (profile.EnqueueDocumentPrint(models, chkItem))
+            if (dataModel.ChkItem?.Length > 0 && profile.EnqueueDocumentPrint(models, dataModel.ChkItem))
             {
                 return View("~/Views/AllowanceProcess/Module/PrintResult.cshtml");
             }
@@ -403,11 +412,18 @@ namespace WebHome.Controllers
                 return Json(new { result = false, message = "資料已列印請重新選擇!!" });
         }
 
-        public ActionResult IssueAllowanceNotice(int[] chkItem,bool? cancellation)
+        public async Task<ActionResult> IssueAllowanceNoticeAsync([FromBody] InquireInvoiceViewModel viewModel)
         {
+            if(viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InquireInvoiceViewModel>();
+                ModelState.Clear();
+            }
+
+            var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
-                if (cancellation == true)
+                if (viewModel.Cancelled == true)
                 {
                     chkItem.NotifyIssuedAllowanceCancellation();
                 }
@@ -455,8 +471,15 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult DeleteAllowance(int?[] chkItem)
+        public async Task<ActionResult> DeleteAllowanceAsync([FromBody] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InquireInvoiceViewModel>();
+                ModelState.Clear();
+            }
+
+            var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
                 foreach (var id in chkItem)

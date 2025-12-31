@@ -1,0 +1,27 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@{
+    var _viewModel = (InquireNoIntervalViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <td>@_viewModel.Year</td>
+    <td>@string.Format("{0:00}-{1:00}月", _viewModel.PeriodNo * 2 - 1, _viewModel.PeriodNo * 2)</td>
+    <td>
+        @{ 
+            ViewBag.FieldName = "Rank";
+            await Html.RenderPartialAsync("~/Views/Common/Module/EnumSelector.cshtml", typeof(Naming.EditableWinningPrizeType));
+        }
+    </td>
+    <td></td>
+    <td>
+        <input type="text" name="WinningNo" placeholder="請輸入中獎號碼" value="" data-role="add" />
+    </td>
+    <td>
+        <a class="btn" onclick="uiWinningNo.commitItem(null, @_viewModel.Year, @_viewModel.PeriodNo);">新增中獎號碼</a>
+    </td>
+</tr>

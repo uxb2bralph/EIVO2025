@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <!-- ClientApp files are managed by npm/Vite; do not explicitly include them as Content to avoid duplicates -->
+
+  <!-- Files produced by client build will be copied into wwwroot -->
+  <ItemGroup>
+    <ClientDistFiles Include="ClientApp\dist\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="7.0.0" />
+  </ItemGroup>
+
+  <Target Name="BuildClientApp" BeforeTargets="Publish">
+    <!-- Run npm install and build if Node/npm are available -->
+    <Message Importance="high" Text="Building ClientApp (npm install &amp;&amp; npm run build)" />
+    <Exec WorkingDirectory="$(ProjectDir)ClientApp" Command="npm ci" IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="NpmInstallExitCode" />
+    </Exec>
+    <Warning Text="npm install failed or npm not available; skipping client build." Condition="'$(NpmInstallExitCode)' != '0'" />
+    <Exec WorkingDirectory="$(ProjectDir)ClientApp" Command="npm run build" IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="NpmBuildExitCode" />
+    </Exec>
+    <Warning Text="npm run build failed or npm not available; skipping copy to wwwroot." Condition="'$(NpmBuildExitCode)' != '0'" />
+
+    <!-- If build succeeded, copy dist to wwwroot -->
+    <RemoveDir Directories="$(ProjectDir)wwwroot" Condition="'$(NpmBuildExitCode)' == '0'" />
+    <MakeDir Directories="$(ProjectDir)wwwroot" Condition="'$(NpmBuildExitCode)' == '0'" />
+    <Copy SourceFiles="@(ClientDistFiles)" DestinationFiles="@(ClientDistFiles->'$(ProjectDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition="'$(NpmBuildExitCode)' == '0'" />
+  </Target>
+
+</Project>

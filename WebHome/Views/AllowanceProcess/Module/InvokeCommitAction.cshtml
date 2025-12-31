@@ -31,6 +31,7 @@
         }
 
         var $formData = $('input[name="chkItem"]:checked').serializeObject();
+        toArrayField($formData, 'chkItem');
 
         doPost('@Html.Raw(Url.Action(_viewModel.CommitAction, "AllowanceProcess"))', $formData, function (data) {
             $(data).appendTo($('body')).remove();

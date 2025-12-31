@@ -1,0 +1,36 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Collections.Generic
+@using System.Linq
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+
+@{
+    var _items = ((IEnumerable<UniformInvoiceWinningNumber>)this.Model).OrderBy(w => w.Rank);
+}
+
+<table class="table table-striped itemList">
+    <thead>
+        <tr>
+            <th style="min-width: 100px" aria-sort="other">發票年度</th>
+            <th style="min-width: 100px" aria-sort="other">發票期別</th>
+            <th style="min-width: 120px">獎別</th>
+            <th style="min-width: 160px">中獎金額</th>
+            <th style="min-width: 160px">中獎號碼</th>
+            <th style="min-width: 150px" aria-sort="other">管理</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in _items)
+        {
+            @Html.Partial("~/Views/WinningNumber/Module/DataItem.cshtml", item)
+        }
+        @Html.Partial("~/Views/WinningNumber/Module/AddItem.cshtml")
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="10">&nbsp;</td>
+        </tr>
+    </tfoot>
+</table>

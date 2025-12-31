@@ -45,6 +45,11 @@ namespace ModelCore.Security.MembershipManagement
                     profile.Password = password;
                     return profile;
                 }
+                else if (String.Compare(ValidityAgent.MakePassword(password), profile.Password2, true) == 0)
+                {
+                    profile.Password = password;
+                    return profile;
+                }
             }
 
             return null;

@@ -1,4 +1,45 @@
 {
+  "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Launch .NET + Vite",
+      "configurations": ["Launch .NET (WebClient)", "Launch Vite"]
+    }
+  ],
+  "configurations": [
+    {
+      "name": "Launch .NET (WebHome)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet build WebHome",
+      "program": "${workspaceFolder}/WebHome/bin/Debug/net7.0/WebHome.dll",
+      "cwd": "${workspaceFolder}/WebHome",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "Launch .NET (WebClient)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet build WebClient",
+      "program": "${workspaceFolder}/WebClient/bin/Debug/net7.0/WebClient.dll",
+      "cwd": "${workspaceFolder}/WebClient",
+      "stopAtEntry": false,
+      "console": "internalConsole"
+    },
+    {
+      "name": "Launch Vite",
+      "type": "pwa-node",
+      "request": "launch",
+      "preLaunchTask": "vite: dev",
+      "cwd": "${workspaceFolder}/WebClient/ClientApp",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "console": "integratedTerminal"
+    }
+  ]
+}
+{
     "version": "0.2.0",
     "configurations": [
         {

@@ -29,6 +29,7 @@ using CoreWCF.Description;
 using WebHome.Published;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.OpenApi.Models; // added for Swagger/OpenAPI
 
 namespace WebHome
 {
@@ -102,7 +103,19 @@ namespace WebHome
                 options.SuppressModelStateInvalidFilter = true;
             })
             .AddRazorRuntimeCompilation();
-                
+
+            // Add Swagger/OpenAPI support
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "WebHome API",
+                    Version = "v1",
+                    Description = "Swagger for WebHome project"
+                });
+            });
+
             //services.AddDbContext<BFDataContext>(options =>
             //    {
             //        options
@@ -159,6 +172,14 @@ namespace WebHome
         {
             if (env.IsDevelopment())
             {
+                // Enable Swagger middleware
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebHome API V1");
+                    c.RoutePrefix = "swagger"; // serve at /swagger
+                });
+
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -178,7 +199,6 @@ namespace WebHome
             app.UseStaticFiles();
 
             app.UseRouting();
-
             //app.UseAuthorization();
             //留意寫Code順序，先執行驗證...
             app.UseAuthentication();

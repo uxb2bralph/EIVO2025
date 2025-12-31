@@ -31,6 +31,7 @@
             }
 
             var $formData = $('input[name="chkItem"]:checked').serializeObject();
+            toArrayField($formData, 'chkItem');
             $('').launchDownload('@(Url.Action("DownloadC0401", "InvoiceProcess"))', $formData);
 
             //showLoading();
@@ -43,6 +44,7 @@
             }
 
             var $formData = $('input[name="chkItem"]:checked').serializeObject();
+            toArrayField($formData, 'chkItem');
             $('').launchDownload('@(Url.Action("DownloadC0701", "InvoiceProcess"))', $formData);
 
             //showLoading();
@@ -54,6 +56,7 @@
             }
 
             var $formData = $('input[name="chkItem"]:checked').serializeObject();
+            toArrayField($formData, 'chkItem');
             $('').launchDownload('@(Url.Action("DownloadC0501", "InvoiceProcess"))', $formData);
 
             //showLoading();

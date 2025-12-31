@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CommonLib.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ModelCore.DataEntity;
 using ModelCore.Helper;
+using ModelCore.InvoiceManagement.Validator;
 using ModelCore.Models.ViewModel;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -26,7 +28,7 @@ namespace WebHome.Controllers
             return View();
         }
 
-        public ActionResult SearchCompany(String term,bool? encrypt)
+        public ActionResult SearchCompany(String term, bool? encrypt)
         {
             IQueryable<Organization> items = models.GetTable<Organization>();
 
@@ -44,7 +46,7 @@ namespace WebHome.Controllers
                 .Select(o => new
                 {
                     label = $"{o.ReceiptNo} {o.CompanyName}",
-                    value = encrypt==true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString()
+                    value = encrypt == true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString()
                 }));
         }
 
@@ -106,7 +108,7 @@ namespace WebHome.Controllers
 
             IQueryable<Organization> items = (IQueryable<Organization>)ViewBag.DataItems;
 
-            if(sellerID.HasValue)
+            if (sellerID.HasValue)
             {
                 var dataItems = items
                     .OrderBy(o => o.ReceiptNo)

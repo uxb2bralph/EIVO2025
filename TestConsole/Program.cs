@@ -111,7 +111,7 @@ namespace TestConsole
             //    doc.Save(outFile);
             //}
 
-            test12(args);
+            //test12(args);
 
             //using (XLWorkbook xlwb = new XLWorkbook("G:\\temp\\發票資料明細.xlsx"))
             //{
@@ -318,7 +318,14 @@ namespace TestConsole
 
             //test50();
 
-            //Console.ReadKey();
+            //InvoiceHandler.SendMailNotification();
+            XmlDocument doc = new XmlDocument();
+            doc.PreserveWhitespace = true;
+            doc.Load("C:\\Project\\AppDev\\CDS(Wcf)\\web\\logs\\2025\\12\\19\\ca_log\\000000000001(1341452361)-XmlSig.nfo.xml");
+            CryptoUtility crypto = new CryptoUtility();
+            var result = crypto.VerifyXmlSignature(doc);
+            Console.WriteLine(result);
+            Console.ReadKey();
         }
 
         private static void test50()

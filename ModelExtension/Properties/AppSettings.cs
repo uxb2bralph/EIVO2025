@@ -95,6 +95,7 @@ namespace ModelExtension.Properties
         public String NotifyIssuedA0401Url { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/IssueA0401";
         public String NotifyToReceiveA0401Url { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/NotifyToReceiveA0401";
         public String NotifyCommissionedToReceiveA0401Url { get; set; } = "https://egui.uxifs.com/eivo2025/Notification/CommissionedToReceiveA0401";
+        public String ReviewInvoice { get; set; } = "https://egui.uxifs.com/eivo2025/DataView/ShowInvoice";
         public String ShowInvoiceUrl { get; set; } = "https://egui.uxifs.com/eivo2025/DataView/ShowInvoice";
         public String ShowAllowanceUrl { get; set; } = "https://egui.uxifs.com/eivo2025/DataView/ShowAllowance";
         public String MailQueuePath { get; set; } = Path.Combine(Logger.LogPath, "MailQueue").CheckStoredPath();

@@ -54,17 +54,6 @@ namespace ModelCore.DataEntity
             }
         }
 
-        public static void ResetDocumentDispatch(this CDS_Document item, Naming.DocumentTypeDefinition docType)
-        {
-            if (!item.DocumentDispatches.Any(d => d.TypeID == (int)docType))
-            {
-                item.DocumentDispatches.Add(new DocumentDispatch
-                {
-                    TypeID = (int)docType
-                });
-            }
-        }
-
         public static bool IsB2C(this InvoiceBuyer buyer)
         {
             return buyer.ReceiptNo == "0000000000";
@@ -450,6 +439,22 @@ namespace ModelCore.DataEntity
         }
         public static string GetJsonString(this InvoiceItem item)
         {
+            BuildNavigation(item);
+
+            var json = item.JsonStringify();
+            return json;
+        }
+
+        public static string GetJsonString(this InvoiceAllowance item)
+        {
+            BuildNavigation(item);
+
+            var json = item.JsonStringify();
+            return json;
+        }
+
+        private static InvoiceItem BuildNavigation(InvoiceItem item)
+        {
             Object val = item.InvoiceAmountType;
             val = item.InvoiceBuyer;
             val = item.InvoiceCarrier;
@@ -458,9 +463,20 @@ namespace ModelCore.DataEntity
             val = item.InvoicePurchaseOrder;
             val = item.InvoiceSeller;
             val = item.InvoiceWinningNumber;
+            //val = item.CDS_Document;
+            val = item.InvoiceCancellation;
+            val = item.InvoiceAllowances.Select(a => BuildNavigation(a)).ToList();
+            return item;
+        }
 
-            var json = item.JsonStringify();
-            return json;
+        private static InvoiceAllowance BuildNavigation(InvoiceAllowance item)
+        {
+            Object val = item.InvoiceAllowanceItemExtension;
+            val = item.InvoiceAllowanceBuyer;
+            val = item.InvoiceAllowanceSeller;
+            val = item.InvoiceAllowanceCancellation;
+            val = item.InvoiceAllowanceDetails.Select(d => d.InvoiceAllowanceItem).ToList();
+            return item;
         }
     }
 

@@ -1,4 +1,27 @@
 {
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "vite: dev",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "options": { "cwd": "${workspaceFolder}/WebClient/ClientApp" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    },
+    {
+      "label": "dotnet build WebClient",
+      "type": "shell",
+      "command": "dotnet build ${workspaceFolder}/WebClient/WebClient.csproj",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": ["$msCompile"]
+    }
+  ]
+}
+{
     "version": "2.0.0",
     "tasks": [
         {

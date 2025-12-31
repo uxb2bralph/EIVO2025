@@ -1,6 +1,7 @@
 ﻿using CommonLib.Core.Utility;
 using CommonLib.Security.UseCrypto;
 using CommonLib.Utility;
+using Microsoft.AspNetCore;
 using ModelCore.DataEntity;
 using ModelCore.Helper;
 using ModelCore.InvoiceManagement;
@@ -11,9 +12,11 @@ using ModelCore.Schema.TXN;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Xml;
 
 namespace Business.Helper.InvoiceProcessor
@@ -150,6 +153,7 @@ namespace Business.Helper.InvoiceProcessor
                             InvoiceDate = String.Format("{0:yyyy/MM/dd}", i.InvoiceDate),
                             InvoiceTime = String.Format("{0:HH:mm:ss}", i.InvoiceDate),
                             EncData = i.BuildEncryptedData(),
+                            InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
                         }
                     }));
                 }
@@ -169,6 +173,7 @@ namespace Business.Helper.InvoiceProcessor
                             CarrierType = i.InvoiceCarrier?.CarrierType,
                             CarrierNo = i.InvoiceCarrier?.CarrierNo,
                             CarrierNo2 = i.InvoiceCarrier?.CarrierNo2,
+                            InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
                         }
                     }));
                 }
@@ -236,7 +241,8 @@ namespace Business.Helper.InvoiceProcessor
                         {
                             SellerId = i.InvoiceSeller.ReceiptNo,
                             InvoiceNumber = i.TrackCode + i.No,
-                            EncData = i.BuildEncryptedData()
+                            EncData = i.BuildEncryptedData(),
+                            InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
                         },
                     }));
                 }
@@ -249,7 +255,9 @@ namespace Business.Helper.InvoiceProcessor
                         Invoice = new AutomationItemInvoice
                         {
                             SellerId = i.InvoiceSeller.ReceiptNo,
-                            InvoiceNumber = i.TrackCode + i.No
+                            InvoiceNumber = i.TrackCode + i.No,
+                            EncData = i.BuildEncryptedData(),
+                            InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
                         }
                     }));
                 }

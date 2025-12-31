@@ -32,7 +32,7 @@
 
 }
 @{
-    if (_model == null)
+    if (_model == null || !_model.Any())
     {
 
         var orgItems = models.GetTable<Organization>().Where(
@@ -50,9 +50,10 @@
         var agents = models.GetTable<InvoiceIssuerAgent>().Where(a => orgItems.Any(o => a.IssuerID == o.CompanyID))
                         .Join(models.GetTable<Organization>(), a => a.AgentID, c => c.CompanyID, (a, c) => c);
 
-        _model = orgItems.Union(agents)
+        var items = orgItems.Union(agents)
             .Where(o => o.ContactEmail != null)
-            .Select(o => o.ContactEmail)
+            .Select(o => o.ContactEmail);
+        _model = items
             .ToList()
             .Select(m => m.GetEfficientString())
             .Where(m => m != null)
@@ -79,7 +80,7 @@
     }
 }
  @{ 
-     await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml", model: "公告訊息已送出!!");
+     await Html.RenderPartialAsync("~/Views/Shared/AlertMessage.cshtml", model: $"公告訊息已送出!!({_model?.Length})");
  }
 
 

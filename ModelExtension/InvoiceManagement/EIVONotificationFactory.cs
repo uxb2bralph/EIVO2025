@@ -321,7 +321,7 @@ namespace ModelCore.InvoiceManagement
                             using (InvoiceManager models = new InvoiceManager())
                             {
                                 InvoiceHandler handler = new InvoiceHandler(models);
-                                handler.SendMailNotification();
+                                InvoiceHandler.SendMailNotification();
                                 handler.NotifyIssuedInvoice();
                                 handler.NotifyIssuedAllowance();
                                 handler.NotifyIssuedInvoiceCancellation();

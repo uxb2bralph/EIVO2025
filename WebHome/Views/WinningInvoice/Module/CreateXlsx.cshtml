@@ -1,0 +1,137 @@
+﻿
+@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+@using System.Data
+@using ClosedXML.Excel
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using CommonLib.DataAccess
+
+@functions
+{
+    ModelSource<InvoiceItem>? models;
+    IQueryable<WinningInvoiceReportItem>? _model;
+    InquireInvoiceViewModel? _viewModel;
+    UserProfile? profile;
+
+    void SaveAsExcel(int taskID, String resultFile)
+    {
+        Task.Run(() =>
+        {
+            try
+            {
+                using (DataSet ds = new DataSet())
+                {
+
+                    Exception? exception = null;
+
+                    try
+                    {
+                        DataTable table = _model!.ToDataTable();
+                        table.TableName = "中獎統計";
+                        table.Columns[0].ColumnName = "賣方統一編號";
+                        table.Columns[1].ColumnName = "賣方名稱";
+                        table.Columns[2].ColumnName = "賣方地址";
+                        table.Columns[3].ColumnName = "中獎張數";
+                        table.Columns[4].ColumnName = "捐贈張數";
+                        ds.Tables.Add(table);
+
+                        using (XLWorkbook xls = ds.ConvertToExcel())
+                        {
+                            xls.SaveAs(resultFile);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"{ex}\r\n{_model}");
+                        exception = ex;
+                    }
+
+                    var db = models!;
+
+                    ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
+                        .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                    if (taskItem != null)
+                    {
+                        if (exception != null)
+                        {
+                            var logItem = new ExceptionLog
+                            {
+                                DataContent = exception.Message,
+                                LogTime = DateTime.Now,
+                            };
+                            db.GetTable<ExceptionLog>
+                                ().InsertOnSubmit(logItem);
+                            db.SubmitChanges();
+
+                            taskItem.LogID = logItem.LogID;
+                        }
+
+                        taskItem.ProcessComplete = DateTime.Now;
+                        db.SubmitChanges();
+                    }
+                }
+
+                models!.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        });
+    }
+
+}
+@{
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    _model = (IQueryable<WinningInvoiceReportItem>)this.Model;
+    profile = Context.GetUser();
+
+}
+@{
+    ProcessRequest processItem = new ProcessRequest
+    {
+        Sender = profile?.UID,
+        SubmitDate = DateTime.Now,
+        ProcessStart = DateTime.Now,
+        ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
+    };
+
+    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.SubmitChanges();
+
+    SaveAsExcel(processItem.TaskID, processItem.ResponsePath);
+
+    await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
+        new AttachmentViewModel
+        {
+            TaskID = processItem.TaskID,
+            FileName = processItem.ResponsePath,
+            FileDownloadName = $"中獎統計表({DateTime.Today:yyyy-MM-dd}).xlsx",
+        });
+}
+
+
+
+
+

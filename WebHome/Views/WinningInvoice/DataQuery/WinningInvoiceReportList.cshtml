@@ -1,0 +1,73 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+    IQueryable<WinningInvoiceReportItem> _model = (IQueryable<WinningInvoiceReportItem>)this.Model;
+
+}
+@{
+    String currentID = $"table{DateTime.Now.Ticks}";
+    ViewBag.TableColumns = new string[]
+    {
+                "~/Views/WinningInvoice/DataField/SellerReceiptNo.cshtml",
+                "~/Views/WinningInvoice/DataField/SellerName.cshtml",
+                "~/Views/WinningInvoice/DataField/SellerAddr.cshtml",
+                "~/Views/WinningInvoice/DataField/WinningCount.cshtml",
+                "~/Views/WinningInvoice/DataField/DonationCount.cshtml",
+            };
+
+    ViewBag.ColumnPriority = new Dictionary<int, int>
+    {
+        { 2,2 },
+        { 3,2 },
+        { 6,2 },
+        { 7,2 },
+        { 8,2 },
+    };
+}
+@{
+    //ViewBag.CreateNew = new BusinessRelationship
+    //{
+
+    //};
+
+    if (_viewModel.DisplayType.HasValue)
+    {
+        var item = _model.FirstOrDefault();
+        if (item == null)
+        {
+            ViewBag.IsNew = true;
+            item = ViewBag.CreateNew as WinningInvoiceReportItem;
+        }
+        await Html.RenderPartialAsync("~/Views/Common/Module/TableRow.cshtml", item);
+    }
+    else
+    {
+        if (_viewModel.InitQuery!=true && _viewModel.PageIndex.HasValue)
+        {
+            await Html.RenderPartialAsync("~/Views/Common/Module/TableBody.cshtml", _model);
+        }
+        else
+        {
+            await Html.RenderPartialAsync("~/Views/Common/Module/TableSkeleton.cshtml", _model);
+        }
+    }
+}

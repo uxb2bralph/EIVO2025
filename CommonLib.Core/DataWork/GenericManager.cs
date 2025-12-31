@@ -93,9 +93,9 @@ namespace CommonLib.Core.DataWork
         }
 
         public GenericManager()
-            : this(new T())
         {
-
+            _db = new T();
+            _isInstance = true;
         }
 
         public GenericManager(GenericManager<T> mgr)
@@ -107,15 +107,10 @@ namespace CommonLib.Core.DataWork
             }
             else
             {
-                initialize(new T());
+                _db = new T();
             }
         }
 
-
-        private void initialize(T db)
-        {
-            _db = db;
-        }
 
         internal IDbConnection DbConnection => _db.Database.GetDbConnection();
 

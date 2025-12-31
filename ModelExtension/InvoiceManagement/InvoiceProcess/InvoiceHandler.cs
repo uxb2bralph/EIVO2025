@@ -1,27 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Xml;
-
-
+﻿using CommonLib.Core.Utility;
+using CommonLib.DataAccess;
+using CommonLib.Helper;
+using CommonLib.Utility;
 using ModelCore.DataEntity;
 using ModelCore.DocumentManagement;
 using ModelCore.Helper;
 using ModelCore.Locale;
-using ModelExtension.Properties;
-using CommonLib.Utility;
-using System.Security.Cryptography.Pkcs;
-
-using System.Data.Linq;
-using System.Threading.Tasks;
-using CommonLib.DataAccess;
-using CommonLib.Core.Utility;
 using ModelCore.Models.ViewModel;
+using ModelExtension.Properties;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data.Linq;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography.Pkcs;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace ModelCore.InvoiceManagement.InvoiceProcess
 {
@@ -44,6 +42,54 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             AppSettings.Default.G0401Outbound.CheckStoredPath();
             AppSettings.Default.G0501Outbound.CheckStoredPath();
         }
+
+        public static QueuedProcessHandler MailDispatcher { get; } =
+            new QueuedProcessHandler(FileLogger.Logger)
+            {
+                MaxWaitingCount = 1,
+                Process = () =>
+                {
+                    RenderStyleViewModel? viewModel;
+                    var files = Directory.EnumerateFiles(AppSettings.Default.MailQueuePath, "*.json");
+
+                    if (files.Any())
+                    {
+                        foreach (var file in files)
+                        {
+                            viewModel = PrepareNoticeItem(file);
+                            if (viewModel == null)
+                            {
+                                continue;
+                            }
+                            Console.WriteLine($"{file}, Processing mail notification for DocID: {viewModel.DocID}, StepID: {viewModel.StepID}, ProcessType: {viewModel.ProcessType}");
+                            try
+                            {
+                                using ModelSource models = new ModelSource();
+                                InvoiceHandler handler = new InvoiceHandler(models);
+                                var docItem = models.GetTable<CDS_Document>()
+                                        .Where(d => d.DocID == viewModel.DocID).FirstOrDefault();
+
+                                if (docItem != null)
+                                {
+                                    if (EIVONotificationFactory.SendNotification(viewModel))
+                                    {
+                                        docItem.PushLogOnSubmit(models, viewModel.StepID, Naming.DataProcessStatus.Done, processType: viewModel.ProcessType);
+                                        models.SubmitChanges();
+
+                                        handler.PopupNoticeItem(viewModel);
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error(ex);
+                            }
+                        }
+                    }
+                },
+                MilliSecondsWait = ModelExtension.Properties.AppSettings.Default.TaskDelayInMilliseconds,
+            };
+
 
         private GenericManager<EIVOEntityDataContext> models;
         private Table<DataProcessQueue> _table;
@@ -102,43 +148,35 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             return null;
         }
 
-        private RenderStyleViewModel? PrepareNoticeItem()
+        private static RenderStyleViewModel? PrepareNoticeItem(string file)
         {
-            lock (typeof(InvoiceHandler))
+            try
             {
-
-                var files = Directory.EnumerateFiles(AppSettings.Default.MailQueuePath, "*.json");
-
-                if (files.Any())
+                if(!File.Exists(file))
                 {
-                    foreach(var file in files)
-                    {
-                        try
-                        {
-                            var readyFile = Path.Combine(AppSettings.Default.MailReadyPath, Path.GetFileName(file));
-                            if(File.Exists(readyFile))
-                            {
-                                File.Delete(readyFile);
-                            }
-                            File.Move(file, readyFile);
-                            var content = File.ReadAllText(readyFile);
-                            var viewModel = JsonConvert.DeserializeObject<RenderStyleViewModel>(content);
-                            if (viewModel != null)
-                            {
-                                viewModel.JsonPath = readyFile;
-                                return viewModel;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error(ex);
-                        }
-                    }
+                    return null;
+                }
+                var readyFile = Path.Combine(AppSettings.Default.MailReadyPath, Path.GetFileName(file));
+                if (File.Exists(readyFile))
+                {
+                    File.Delete(readyFile);
+                }
+                File.Move(file, readyFile);
+                var content = File.ReadAllText(readyFile);
+                var viewModel = JsonConvert.DeserializeObject<RenderStyleViewModel>(content);
+                if (viewModel != null)
+                {
+                    viewModel.JsonPath = readyFile;
+                    return viewModel;
                 }
             }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
             return null;
         }
-
 
         public void WriteA0101ToTurnkey()
         {
@@ -168,32 +206,9 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
         }
 
 
-        public void SendMailNotification()
+        public static void SendMailNotification()
         {
-            RenderStyleViewModel? viewModel;
-            while ((viewModel = PrepareNoticeItem()) != null)
-            {
-                try
-                {
-                    var docItem = models.GetTable<CDS_Document>()
-                            .Where(d => d.DocID == viewModel.DocID).FirstOrDefault();
-
-                    if (docItem != null)
-                    {
-                        if (EIVONotificationFactory.SendNotification(viewModel))
-                        {
-                            docItem.PushLogOnSubmit(models, viewModel.StepID, Naming.DataProcessStatus.Done, processType: viewModel.ProcessType);
-                            models.SubmitChanges();
-
-                            PopupNoticeItem(viewModel);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
-            }
+            MailDispatcher.Notify();
         }
 
         private void PopupNoticeItem(RenderStyleViewModel viewModel)

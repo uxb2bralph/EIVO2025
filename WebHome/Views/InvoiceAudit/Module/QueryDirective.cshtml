@@ -1,0 +1,31 @@
+﻿@using ModelCore.Helper
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+@using Newtonsoft.Json
+@{
+    InquireInvoiceViewModel _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+}
+<tr>
+    <th style="width:136px;">
+        查詢項目
+    </th>
+    <td class="tdleft">
+        <input type="radio" name="DocType" value="@((int)Naming.DocumentTypeDefinition.E_Invoice)" checked="@(_viewModel.DocType == Naming.DocumentTypeDefinition.E_Invoice)" onchange="window.location.href='@Html.Raw(Url.Action("QueryIndex","InvoiceAudit"))';" />發票
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <input type="radio" name="DocType" value="@((int)Naming.DocumentTypeDefinition.E_Invoice)" checked="@(_viewModel.DocType == Naming.DocumentTypeDefinition.E_Allowance)" onchange="window.location.href='@Html.Raw(Url.Action("AllowanceIndex","InvoiceAudit"))';" />折讓單
+    </td>
+</tr>
+
+
+
+

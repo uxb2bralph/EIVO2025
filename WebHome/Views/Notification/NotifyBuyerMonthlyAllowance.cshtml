@@ -1,0 +1,74 @@
+﻿
+@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+@using System.Data
+@using System.Xml
+@using ClosedXML.Excel
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Schema.EIVO
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using CommonLib.DataAccess
+@functions
+{
+    ModelSource<InvoiceItem>? models;
+    InquireInvoiceViewModel? _viewModel;
+
+}
+@{
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    if (_viewModel == null)
+    {
+        _viewModel = new InquireInvoiceViewModel();
+        ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).BuildViewModel(_viewModel);
+        ViewBag.ViewModel = _viewModel;
+    }
+
+    DateTime start = DateTime.Today.AddMonths(-1);
+    _viewModel.DateFrom ??= new DateTime(start.Year, start.Month, 1);
+    _viewModel.ReceiptNo ??= "43460094";
+    _viewModel.SellerID ??= models.GetTable<Organization>()
+                            .Where(o => o.ReceiptNo == _viewModel.ReceiptNo)
+                            .Select(o => o.CompanyID)
+                            .FirstOrDefault();
+
+    var items = models.GetTable<InvoiceAllowance>()
+            .Where(a => a.InvoiceAllowanceSeller.SellerID == _viewModel.SellerID)
+            .Where(a => a.AllowanceDate >= _viewModel.DateFrom);
+    if (_viewModel.DateTo.HasValue)
+    {
+        items = items.Where(a => a.AllowanceDate < _viewModel.DateTo.Value.AddDays(1));
+    }
+
+    var buyerGroups = items.GroupBy(a => new
+    {
+        a.InvoiceAllowanceBuyer.ReceiptNo,
+        a.InvoiceAllowanceBuyer.CustomerName,
+        a.InvoiceAllowanceBuyer.EMail
+    });
+
+    foreach (var item in buyerGroups)
+    {
+            <pre>@(item.Key.ReceiptNo)</pre>
+            await Html.RenderPartialAsync("~/Views/Notification/IssueBuyerAllowance.cshtml", new Object[] { item.Key.CustomerName, item.Key.ReceiptNo, item.Key.EMail, item });
+        }
+
+}
+

@@ -235,14 +235,8 @@
             },
             notifyWinning: function (keyID) {
 
-                showLoading();
-                $.post('@(Url.Action("IssueWinningNotice", "InvoiceProcess"))', { 'keyID': keyID }, function (data) {
-                    hideLoading();
-                    if ($.isPlainObject(data)) {
-                        alert(data.message);
-                    } else {
-                        $(data).appendTo($('body')).remove();
-                    }
+                doPost('@(Url.Action("IssueWinningNotice", "InvoiceProcess"))', { 'keyID': keyID }, function (data) {
+                    $(data).appendTo($('body')).remove();
                 });
             },
         };

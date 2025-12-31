@@ -1,0 +1,137 @@
+﻿@using System.Linq
+@using System.IO
+@using System.Linq.Expressions
+@using System.Data
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@using WebHome.Controllers
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using CommonLib.DataAccess
+
+@{
+
+    ModelSource<InvoiceItem> models;
+    Object[] _model;
+    InquireInvoiceViewModel _viewModel;
+
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _model = (Object[])this.Model;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+
+    String buyerName = (String)_model[0];
+    String receiptNo = (String)_model[1];
+    String mailTo = (String)_model[2];
+    IEnumerable<InvoiceAllowance> allowanceItems = (IEnumerable<InvoiceAllowance>)_model[3];
+}
+
+@if (allowanceItems.Any())
+{
+    InvoiceAllowance allowanceItem = allowanceItems.First();
+
+    if (_viewModel.ForTest == true)
+    {
+        await Html.RenderPartialAsync("~/Views/Notification/Module/AllowanceReportIssued.cshtml", allowanceItem);
+    }
+    else
+    {
+        System.Net.Mail.Attachment attachment = PrepareAttachment(models, allowanceItems);
+
+        List<String> mailing = [ModelExtension.Properties.AppSettings.Default.WebMaster, mailTo];
+
+        mailTo = String.Join(",",
+               mailing
+                   .Select(m => m.GetEfficientString())
+                   .Where(m => m != null));
+
+        if (!String.IsNullOrEmpty(mailTo))
+        {
+
+            String subject = $"{allowanceItem.InvoiceAllowanceSeller.CustomerName} 折讓證明開立報表通知";
+            String body = (await Html.PartialAsync("~/Views/Notification/Module/AllowanceReportIssued.cshtml", allowanceItem)).RenderHtmlContentToString(HtmlEncoder);
+            try
+            {
+                body.SendMailMessage(mailTo, subject, new System.Net.Mail.Attachment[] { attachment });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                Logger.Warn($"{ex.Message}:\r\nSubject:{subject}\r\nMail To:{mailTo}");
+            }
+        }
+
+    }
+}
+
+@functions
+{
+    private static System.Net.Mail.Attachment PrepareAttachment(ModelSource<InvoiceItem> models, IEnumerable<InvoiceAllowance> items)
+    {
+        var allowanceItems = items.Select(i =>
+                new
+                {
+                    折讓單號碼 = i.AllowanceNumber,
+                    折讓日期 = i.AllowanceDate,
+                    客戶ID = i.InvoiceAllowanceBuyer.CustomerID,
+                    發票開立人 = i.InvoiceAllowanceSeller.CustomerName,
+                    開立人統編 = i.InvoiceAllowanceSeller.ReceiptNo,
+                    未稅金額 = i.TotalAmount,
+                    稅額 = i.TaxAmount,
+                    含稅金額 = i.TotalAmount + i.TaxAmount,
+                    買受人名稱 = i.InvoiceAllowanceBuyer.CustomerName,
+                    買受人統編 = i.InvoiceAllowanceBuyer.ReceiptNo,
+                    //連絡人名稱 = i.InvoiceAllowanceBuyer.ContactName,
+                    //連絡人地址 = i.InvoiceAllowanceBuyer.Address,
+                    //買受人EMail = i.InvoiceAllowanceBuyer.EMail,
+                    折讓單狀態 = i.InvoiceAllowanceCancellation != null ? "已作廢" : null,
+                });
+
+        IEnumerable<InvoiceAllowanceDetail> details = items.SelectMany(a => a.InvoiceAllowanceDetails);
+        var allowanceDetails = details.Select(i =>
+                new
+                {
+                    折讓單號碼 = i.InvoiceAllowance.AllowanceNumber,
+                    原發票號碼 = i.InvoiceAllowanceItem.InvoiceNo,
+                    原發票日期 = i.InvoiceAllowanceItem.InvoiceDate,
+                    未稅金額 = i.InvoiceAllowanceItem.Amount,
+                    稅額 = i.InvoiceAllowanceItem.Tax,
+                    備註 = i.InvoiceAllowanceItem.Remark
+                });
+
+        using (DataSet ds = new DataSet())
+        {
+            var table = allowanceItems.ToDataTable();
+            table.TableName = $"折讓單";
+            ds.Tables.Add(table);
+
+            table = allowanceDetails.ToDataTable();
+            table.TableName = $"折讓單明細";
+            ds.Tables.Add(table);
+
+            MemoryStream stream = new MemoryStream();
+            using (var xls = ds.ConvertToExcel())
+            {
+                xls.SaveAs(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(stream, System.Net.Mime.MediaTypeNames.Application.Octet);
+                attachment.Name = $"{DateTime.Today:yyyy-MM-dd}.xlsx";
+                return attachment;
+            }
+        }
+
+
+    }
+}
+
+

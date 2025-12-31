@@ -1,0 +1,25 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@using CommonLib.Core.Utility
+
+@{
+    var _model = (IEnumerable<UniformInvoiceWinningNumber>)this.Model;
+    var recordCount = _model.Count();
+}
+
+@Html.Partial("~/Views/SiteAction/FunctionTitleBar.cshtml", "查詢結果")
+
+<div class="border_gray" style="overflow-x: auto; min-width: max-content; ">
+    @if (recordCount > 0)
+    {
+        @Html.Partial("~/Views/WinningNumber/Module/ItemList.cshtml", _model)
+        @Html.Partial("~/Views/WinningNumber/ResultAction/DoMatch.cshtml")
+    }
+    else
+    {
+        <font color="red">查無資料!!</font>
+        @Html.Partial("~/Views/WinningNumber/Module/ItemList.cshtml", _model)
+    }
+</div>
