@@ -34,10 +34,9 @@ namespace ModelCore.Models.ViewModel
         public int?[]? InvoiceID { get; set; }
     }
 
-    public partial class TaxMediaQueryViewModel : QueryViewModel
+    public partial class TaxMediaQueryViewModel : EncQueryViewModel
     {
         public CategoryDefinition.CategoryEnum? BusinessBorder { get; set; } 
-        public int? SellerID { get; set; }
         public String? TaxNo { get; set; }
         public int? Year { get; set; }
         public int? PeriodNo { get; set; }

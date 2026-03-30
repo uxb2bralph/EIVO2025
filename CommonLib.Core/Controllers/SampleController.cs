@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
@@ -29,7 +30,10 @@ namespace CommonLib.Core.Controllers
         }
 
         private IViewRenderService? _viewRenderService;
+        protected bool DumpRequest { get; set; } = false;
+        protected String? DumpFilePath { get; set; } = null;
 
+        [NonAction]
         public async Task<string> RenderViewToStringAsync(String viewName, object model)
         {
             if (_viewRenderService == null)
@@ -43,7 +47,7 @@ namespace CommonLib.Core.Controllers
 
         protected async Task<string> DumpAsync(bool includeHeader = true)
         {
-            String fileName = Path.Combine(FileLogger.Logger.LogDailyPath, $"request{DateTime.Now.Ticks}.txt");
+            String fileName = Path.Combine(FileLogger.Logger.LogDailyPath, $"request_{DateTime.Now.Ticks}.txt");
             await Request.SaveAsAsync(fileName, includeHeader);
             return fileName;
         }
@@ -63,6 +67,7 @@ namespace CommonLib.Core.Controllers
             }
         }
 
+        [NonAction]
         public async Task<T> PrepareViewModelAsync<T>()
             where T : class
         {
@@ -112,12 +117,14 @@ namespace CommonLib.Core.Controllers
             return viewModel!;
         }
 
+        [NonAction]
         public T? FromJsonBody<T>()
             where T : class
         {
             return JsonConvert.DeserializeObject<T>(RequestBody);
         }
 
+        [NonAction]
         public void BuildViewModel(object viewModel)
         {
             var t = this.TryUpdateModelAsync(viewModel, viewModel.GetType(), String.Empty);
@@ -144,6 +151,8 @@ namespace CommonLib.Core.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet]
+        [HttpPost]
         public ActionResult HandleUnknownAction(string actionName, IFormCollection forms)
         {
             ViewEngineResult viewResult = CheckView(actionName);
@@ -160,6 +169,7 @@ namespace CommonLib.Core.Controllers
             //this.View(actionName).ExecuteResult(this.ControllerContext);
         }
 
+        [NonAction]
         public IHtmlHelper<dynamic> GetHtmlHelper(String viewName)
         {
             var htmlHelper = ServiceProvider.GetRequiredService<IHtmlHelper<dynamic>>();
@@ -173,6 +183,7 @@ namespace CommonLib.Core.Controllers
             return htmlHelper;
         }
 
+        [NonAction]
         public ViewContext CreateViewContext(String viewName)
         {
             // 獲取必要的服務
@@ -216,6 +227,29 @@ namespace CommonLib.Core.Controllers
             
             return viewContext;
         }
+
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            base.OnActionExecuted(context);
+
+            try
+            {
+                //var env = ServiceProvider.GetService<IHostEnvironment>();
+                //if (env != null && env.IsDevelopment())
+                if(DumpRequest)
+                {
+                    var task = DumpAsync();
+                    task.Wait();
+                    DumpFilePath = task.Result;
+                }
+            }
+            catch
+            {
+                // suppress any exception to avoid affecting request pipeline
+            }
+
+        }
+
     }
 
 }

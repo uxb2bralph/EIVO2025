@@ -1,26 +1,29 @@
-﻿using System;
+﻿using CommonLib.Core.Utility;
+using CommonLib.Utility;
+using InvoiceClient.Helper;
+using InvoiceClient.Properties;
+using InvoiceClient.TransferManagement;
+using ModelCore.DataEntity;
+using ModelCore.InvoiceManagement;
+using ModelCore.Locale;
+using ModelCore.Helper;
+using ModelCore.Schema.TXN;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
-using System.Xml;
-using System.Net;
-
-using InvoiceClient.Properties;
-using CommonLib.Core.Utility;
-using CommonLib.Utility;
-using ModelCore.Schema.TXN;
-using InvoiceClient.Helper;
-using InvoiceClient.TransferManagement;
-using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Xml;
 
 
 namespace InvoiceClient.Agent
 {
 
-    public class InvoicePDFGeneratorForGooglePlay : InvoicePDFGenerator
+    public class InvoicePDFGeneratorForGooglePlay : InvoicePDFInspectorForGoogleAdWords
     {
         public InvoicePDFGeneratorForGooglePlay() : base()
         {
@@ -29,89 +32,67 @@ namespace InvoiceClient.Agent
 
         public override String GetSaleInvoices(int? index = null)
         {
-            eInvoiceServiceClient invSvc = InvoiceWatcher.CreateInvoiceService();
+            return retrieveFiles2026(index);
+        }
 
+        private string retrieveFiles2026(int? index, Naming.ChannelIDType? channelID = null)
+        {
             try
             {
-                Root token = this.CreateMessageToken("下載電子發票PDF");
-                if (index >= 0 && Settings.Default.ProcessCount > 0)
+                InvoiceManager models = new InvoiceManager();
+                ///憑證資料檢查
+                ///
+                var token = models.GetTable<OrganizationToken>().Where(t => t.Thumbprint == AppSigner.SignerCertificate.Thumbprint).FirstOrDefault();
+                if (token != null)//&& token.Organization.OrganizationStatus.EntrustToPrint == true
                 {
-                    token.Request.processIndexSpecified = token.Request.totalProcessCountSpecified = true;
-                    token.Request.processIndex = index.Value + Settings.Default.ProcessArrayIndex;
-                    token.Request.totalProcessCount = Math.Max(Settings.Default.ProcessArrayCount, Settings.Default.ProcessCount);
-                }
-                String storedPath = Settings.Default.DownloadDataInAbsolutePath ? Settings.Default.DownloadSaleInvoiceFolder : Path.Combine(Settings.Default.InvoiceTxnPath[0], Settings.Default.DownloadSaleInvoiceFolder);
-                storedPath.CheckStoredPath();
+                    IQueryable<InvoiceItem> queryItems = models.InquireInvoiceSubscription(token.CompanyID, null, channelID, Settings.Default.ClientID, true);
 
-                XmlDocument signedReq = token.ConvertToXml().Sign();
-                string[] items = invSvc.ReceiveContentAsPDFForIssuer(signedReq, Settings.Default.ClientID);
-                if (items != null && items.Length > 1)
-                {
-                    String serviceUrl = items[0];
-
-                    List<InvoicePDFGeneratorForGooglePlayModel> logItems = new List<InvoicePDFGeneratorForGooglePlayModel>();
-
-                    void proc(int i)
+                    int count = 0;
+                    InvoiceItem? item = queryItems.FirstOrDefault();
+                    
+                    while (item != null)
                     {
-                        var item = items[i];
-                        String[] paramValue = item.Split('\t');
-                        String invNo = paramValue[0];
-
-                        String pdfFile = Path.Combine(Settings.Default.PDFGeneratorOutput,
-                            _prefix_name + paramValue[1] + "_" + invNo + ".pdf");
-                        var url = $"{serviceUrl}?keyID={paramValue[2]}";
-                        fetchPDF(pdfFile, url);
-
-                        InvoicePDFGeneratorForGooglePlayModel logItem = new InvoicePDFGeneratorForGooglePlayModel
+                        if (models.ExecuteCommand("delete DocumentSubscriptionQueue where DocID = {0}", item.InvoiceID) > 0)
                         {
-                            Date = DateTime.Now,
-                            Path = pdfFile,
-                            OrderNo = paramValue[1],
-                            Url = url,
-                        };
+                            String pdfFile = Path.Combine(Settings.Default.PDFGeneratorOutput,
+                                $"{_prefix_name}{item.InvoicePurchaseOrder?.OrderNo}_{item.TrackCode}{item.No}.pdf");
 
-                        logItems.Add(logItem);
-                    }
+                            String invoiceUrl = String.Format(AppSettings.Default.InvoiceViewUrlPattern, item.InvoiceID);
 
-                    //Parallel.For(1, items.Length, (idx) =>
-                    //{
-                    //    proc(idx);
-                    //});
-                    for (int idx = 1; idx < items.Length; idx++)
-                    {
-                        proc(idx);
-                    }
+                            Logger.Info($"Invoice PDF Url:{invoiceUrl}");
+                            fetchPDF(pdfFile, invoiceUrl);
 
-                    String filePath = Path.Combine(Logger.LogDailyPath, "InvoicePDFGeneratorForGooglePlay.csv");
-                    using (StreamWriter writer = new StreamWriter(filePath, true))
-                    {
-                        using (CsvHelper.CsvWriter csv = new CsvHelper.CsvWriter(writer, System.Globalization.CultureInfo.CurrentCulture, true))
-                        {
-                            foreach (var item in logItems)
-                            {
-                                csv.WriteRecord<InvoicePDFGeneratorForGooglePlayModel>(item);
-                                csv.NextRecord();
-                            }
+                            models.ExecuteCommand(@"INSERT INTO [proc].DataProcessLog
+                                                            (DocID, LogDate, Status, StepID)
+                                                            VALUES          ({0},{1},{2},{3})",
+                                    item.InvoiceID, DateTime.Now, (int)Naming.DataProcessStatus.Done,
+                                    (int)Naming.InvoiceStepDefinition.PDF待傳輸);
+
+                            count++;
                         }
+                        else
+                        {
+                            continue;
+                        }
+
+                        if (count >= 1024)
+                        {
+                            count = 0;
+                            models.Dispose();
+                            models = new InvoiceManager();
+                            queryItems = models.InquireInvoiceSubscription(token.CompanyID, null, channelID, Settings.Default.ClientID, true);
+                        }
+                        item = queryItems.FirstOrDefault();
                     }
 
-                    Logger.Debug($"fetch count:{items.Length - 1}");
-                    return storedPath;
+                    models.Dispose();
                 }
-                return null;
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
             }
-
-            return null;
-        }        
-
-        protected override void fetchPDF(string pdfFile, string url)
-        {
-            url = $"{url}&html={true}";
-            url.ConvertHtmlToPDF(pdfFile, 1);
+            return Settings.Default.PDFGeneratorOutput;
         }
 
         public override Type UIConfigType => typeof(InvoiceClient.MainContent.GoogleInvoiceServerConfigForPDFGeneratorGooglePlay);

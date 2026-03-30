@@ -148,15 +148,11 @@
           <div>課稅別：@(_model.InvoiceAmountType.TaxTypeString)</div>
           @if (!_buyer.IsB2C())
           {
-            <div>應稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == 1 || _model.InvoiceAmountType.TaxType == 9
-              ? _model.InvoiceAmountType.SalesAmount
-              : _model.InvoiceAmountType.TaxType == 4
-                ? _model.InvoiceAmountType.TotalAmount
-                : 0))
+            <div>應稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.SalesAmount))
             </div>
-            <div>零稅率銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)2 ? _model.InvoiceAmountType.SalesAmount : 0))</div>
-            <div>免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)3 ? _model.InvoiceAmountType.SalesAmount : 0))</div>
-            <div>稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4 ? 0 : _model.InvoiceAmountType.TaxAmount))</div>
+            <div>零稅率銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.ZeroTaxSalesAmount))</div>
+            <div>免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.FreeTaxSalesAmount))</div>
+            <div>稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceAmountType.TaxAmount))</div>
           }
           <div>備註：@(String.Join(";", _model.InvoiceDetails.Select(d => d.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))</div>
           <div>退貨請憑電子發票證明聯辦理</div>

@@ -17,12 +17,37 @@ using TaskCenter.Properties;
 using System.IO.Compression;
 using System.Text;
 using CommonLib.Core.Utility;
+using CoreApiBase = TaskCenter.Core.ApiBaseController;
 
 namespace TaskCenter.Helper.RequestAction
 {
     public static class UploadDataExtensions
     {
-        public static Organization CheckRequest(this AuthQueryViewModel viewModel, SampleController controller)
+        public static Organization? CheckRequestForApi(this AuthQueryViewModel viewModel, CoreApiBase controller)
+        {
+            var ModelState = controller.ModelState;
+            var models = controller.models;
+
+            if (viewModel.KeyID != null)
+            {
+                viewModel.AgentID = viewModel.DecryptKeyValue(out long ticks);
+                bool expired = (DateTime.Now.Ticks - ticks) > Settings.Default.TimeoutTicks;
+                if (expired)
+                {
+                    ModelState.AddModelError("E1001", ErrorMessage.E1001);
+                }
+            }
+
+            var item = models?.GetTable<Organization>().Where(c => c.CompanyID == viewModel.AgentID).FirstOrDefault();
+            if (item == null)
+            {
+                ModelState.AddModelError("E1003", ErrorMessage.E1003);
+            }
+
+            return item;
+        }
+
+        public static Organization? CheckRequest(this AuthQueryViewModel viewModel, SampleController controller)
         {
             var ModelState = controller.ModelState;
             var ViewBag = controller.ViewBag;
@@ -116,16 +141,23 @@ namespace TaskCenter.Helper.RequestAction
                 },
                 ViewModel = viewModel.JsonStringify(),
             };
-            models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+            models.GetTable<ProcessRequest>().Add(processItem);
 
             if (viewModel.ConditionID != null && viewModel.ConditionID.Length > 0)
             {
-                processItem.ProcessRequestCondition.AddRange(viewModel.ConditionID
+                CommonLib.Core.DataWork.ExtensionMethods.AddRange(processItem.ProcessRequestCondition, viewModel.ConditionID
                     .Where(c => c.HasValue)
                     .Select(c => new ProcessRequestCondition
                     {
                         ConditionID = (int)c!
                     }));
+
+                //processItem.ProcessRequestCondition.AddRange(viewModel.ConditionID
+                //    .Where(c => c.HasValue)
+                //    .Select(c => new ProcessRequestCondition
+                //    {
+                //        ConditionID = (int)c!
+                //    }));
             }
             models.SubmitChanges();
 

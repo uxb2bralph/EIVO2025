@@ -101,7 +101,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
 
             model = new InvoiceNoInterval
             {
-                LockID = seller.OrganizationCustomSetting?.Settings.E0501InitialLock == Naming.Truth.False ? (int?)null : 1,
+                LockID = seller.OrganizationCustomSetting?.Settings.E0501InitialLock == Naming.Truth.True ? 1 : null,
             };
             codeAssignment.InvoiceNoInterval.Add(model);
 

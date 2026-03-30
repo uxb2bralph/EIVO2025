@@ -160,8 +160,8 @@ namespace TaskCenter.Controllers
                         new
                         {
                             q.TaskID,
-                            q.ProcessRequestType.ChannelName,
-                            q.ProcessRequestType.ChannelResponse,
+                            q.ProcessTypeNavigation!.ChannelName,
+                            q.ProcessTypeNavigation!.ChannelResponse,
                             ResponseName = Path.GetFileName(q.ResponsePath),
                             TxnPath = q.ViewModel != null ? JsonConvert.DeserializeObject<InvoiceRequestViewModel>(q.ViewModel).StoragePath : null
                         }).ToArray()
@@ -265,22 +265,22 @@ namespace TaskCenter.Controllers
                 case Naming.InvoiceProcessType.F0401:
                 case Naming.InvoiceProcessType.A0401:
                     invoiceItems = models!.GetInvoiceByAgent(models!.GetTable<InvoiceItem>(), viewModel.AgentID ?? -1);
-                    var migC0401 = models.GetTable<DataProcessQueue>()
-                                        .Where(d=> d.ProcessType == (int)Naming.InvoiceProcessType.F0401)
+                    var resultItems = models.GetTable<DataProcessQueue>()
+                                        .Where(d => d.ProcessType == (int)Naming.InvoiceProcessType.F0401)
                                         .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
                                         .Where(d => invoiceItems.Any(i => i.InvoiceID == d.DocID))
-                                        .Take(MAX_ITEMS)
-                                        .ToList();
+                                        .Take(MAX_ITEMS);
+                    var migC0401 = resultItems.ToList();
                     viewModel.LastReceivedKey = migC0401.Select(d => d.DocID).ToArray();
                     viewModel.Items = migC0401
                         .Select(d => 
                         new MIGContent 
                         {
                             DocID = d.DocID,
-                            DocDate = d.CDS_Document.DocDate,
-                            No = d.CDS_Document.InvoiceItem?.InvoiceNo(),
-                            ReceiptNo = d.CDS_Document.InvoiceItem?.Organization?.ReceiptNo,
-                            MIG = d.CDS_Document.InvoiceItem?.CreateF0401().GetXml()
+                            DocDate = d.Doc.DocDate,
+                            No = d.Doc.InvoiceItem?.InvoiceNo(),
+                            ReceiptNo = d.Doc.InvoiceItem?.Seller?.ReceiptNo,
+                            MIG = d.Doc.InvoiceItem?.CreateF0401().GetXml()
                         }).ToArray();
                     break;
 
@@ -288,22 +288,22 @@ namespace TaskCenter.Controllers
                 case Naming.InvoiceProcessType.F0501:
                 case Naming.InvoiceProcessType.A0501:
                     invoiceItems = models!.GetInvoiceByAgent(models!.GetTable<InvoiceItem>(), viewModel.AgentID ?? -1);
-                    var migC0501 = models!.GetTable<DataProcessQueue>()
+                    var resultItems2 = models!.GetTable<DataProcessQueue>()
                                         .Where(d => d.ProcessType == (int)Naming.InvoiceProcessType.F0501)
-                                        .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
-                                        .Where(d => invoiceItems.Any(i => i.InvoiceID == d.CDS_Document.DerivedDocument.SourceID))
-                                        .Take(MAX_ITEMS)
-                                        .ToList();
+                    .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
+                    .Where(d => invoiceItems.Any(i => i.InvoiceID == d.Doc.DerivedDocumentDoc.SourceID))
+                                        .Take(MAX_ITEMS);
+                    var migC0501 = resultItems2.ToList();
                     viewModel.LastReceivedKey = migC0501.Select(d => d.DocID).ToArray();
                     viewModel.Items = migC0501
                         .Select(d =>
                         new MIGContent
                         {
                             DocID = d.DocID,
-                            DocDate = d.CDS_Document.DocDate,
-                            No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.InvoiceNo(),
-                            ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.Organization?.ReceiptNo,
-                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501()?.OuterXml
+                            DocDate = d.Doc.DocDate,
+                            No = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.InvoiceNo(),
+                            ReceiptNo = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.Seller?.ReceiptNo,
+                            MIG = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.CreateF0501()?.OuterXml
                         }).ToArray();
                     break;
 
@@ -311,22 +311,22 @@ namespace TaskCenter.Controllers
                 case Naming.InvoiceProcessType.G0401:
                 case Naming.InvoiceProcessType.B0401:
                     allowanceItems = models!.GetAllowanceByAgent(viewModel.AgentID ?? -1);
-                    var migD0401 = models!.GetTable<DataProcessQueue>()
+                    var resultItems1 = models!.GetTable<DataProcessQueue>()
                                         .Where(d => d.ProcessType == (int)Naming.InvoiceProcessType.G0401)
-                                        .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)    
+                                        .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
                                         .Where(d => allowanceItems.Any(i => i.AllowanceID == d.DocID))
-                                        .Take(MAX_ITEMS)
-                                        .ToList();
+                                        .Take(MAX_ITEMS);
+                    var migD0401 = resultItems1.ToList();
                     viewModel.LastReceivedKey = migD0401.Select(d => d.DocID).ToArray();
                     viewModel.Items = migD0401
                         .Select(d =>
                         new MIGContent
                         {
                             DocID = d.DocID,
-                            DocDate = d.CDS_Document.DocDate,
-                            No = d.CDS_Document.InvoiceAllowance?.AllowanceNumber,
-                            ReceiptNo = d.CDS_Document.InvoiceAllowance?.InvoiceAllowanceSeller?.ReceiptNo,
-                            MIG = d.CDS_Document.InvoiceAllowance?.CreateG0401().OuterXml
+                            DocDate = d.Doc.DocDate,
+                            No = d.Doc.InvoiceAllowance?.AllowanceNumber,
+                            ReceiptNo = d.Doc.InvoiceAllowance?.InvoiceAllowanceSeller?.ReceiptNo,
+                            MIG = d.Doc.InvoiceAllowance?.CreateG0401().OuterXml
                         }).ToArray();
                     break;
 
@@ -334,22 +334,22 @@ namespace TaskCenter.Controllers
                 case Naming.InvoiceProcessType.G0501:
                 case Naming.InvoiceProcessType.B0501:
                     allowanceItems = models!.GetAllowanceByAgent(viewModel.AgentID ?? -1);
-                    var migD0501 = models!.GetTable<DataProcessQueue>()
+                    var resultItems3 = models!.GetTable<DataProcessQueue>()
                                         .Where(d => d.ProcessType == (int)Naming.InvoiceProcessType.G0501)
-                                        .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
-                                        .Where(d => allowanceItems.Any(i => i.AllowanceID == d.CDS_Document.DerivedDocument.SourceID))
-                                        .Take(MAX_ITEMS)
-                                        .ToList();
+                    .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
+                    .Where(d => allowanceItems.Any(i => i.AllowanceID == d.Doc.DerivedDocumentDoc.SourceID))
+                                        .Take(MAX_ITEMS);
+                    var migD0501 = resultItems3.ToList();
                     viewModel.LastReceivedKey = migD0501.Select(d => d.DocID).ToArray();
                     viewModel.Items = migD0501
                         .Select(d =>
                         new MIGContent
                         {
                             DocID = d.DocID,
-                            DocDate = d.CDS_Document.DocDate,
-                            No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.AllowanceNumber,
-                            ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.InvoiceAllowanceSeller?.ReceiptNo,
-                            MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.CDS_Document.InvoiceAllowance)?.CreateG0501()?.OuterXml
+                            DocDate = d.Doc.DocDate,
+                            No = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.AllowanceNumber,
+                            ReceiptNo = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.InvoiceAllowanceSeller?.ReceiptNo,
+                            MIG = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.CreateG0501()?.OuterXml
                         }).ToArray();
                     break;
 

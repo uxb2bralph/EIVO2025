@@ -104,79 +104,9 @@ namespace ModelCore.DataEntity
             return models.GetTable<OrganizationCategory>().Any(c => c.CompanyID == companyID && c.CategoryID == (int)Naming.CategoryID.COMP_CROSS_BORDER_MURCHANT);
         }
 
-        public static bool MoveToNextStep(this DocumentAccessaryFlow item, GenericManager<EIVOEntityDataContext> mgr)
-        {
-
-            var currentStep = mgr.GetTable<DocumentFlowControl>().Where(f => f.StepID == item.CurrentFlowStep).First();
-            var table = mgr.GetTable<DocumentAccessaryFlow>();
-
-            if (currentStep.NextStep.HasValue)
-            {
-                if (!table.Any(a => a.DocID == item.DocID && a.CurrentFlowStep == currentStep.NextStep))
-                {
-                    table.DeleteOnSubmit(item);
-
-                    mgr.GetTable<DocumentAccessaryFlow>().InsertOnSubmit(new DocumentAccessaryFlow
-                    {
-                        DocID = item.DocID,
-                        CurrentFlowStep = currentStep.NextStep.Value
-                    });
-
-                    mgr.SubmitChanges();
-                    return true;
-                }
-            }
-            else
-            {
-                table.DeleteOnSubmit(item);
-                mgr.SubmitChanges();
-                return true;
-            }
-            return false;
-        }
-
         public static bool MoveToFirstBranchStep(this CDS_Document item, GenericManager<EIVOEntityDataContext> mgr)
         {
             return item.MoveToBranchStep(mgr, 0);
-        }
-
-        public static bool MoveToSecondBranchStep(this CDS_Document item, GenericManager<EIVOEntityDataContext> mgr, bool isConcurrentFlow)
-        {
-            var flowStep = item.DocumentFlowStep;
-            if (flowStep != null)
-            {
-                var currentStep = mgr.GetTable<DocumentFlowControl>().Where(f => f.StepID == flowStep.CurrentFlowStep).First();
-                if (currentStep.BranchFlow.Count > 1)
-                {
-                    var branchStep = currentStep.BranchFlow.Select(b => b.BranchStepItem).OrderBy(b => b.FlowID).Skip(1).First();
-                    if (isConcurrentFlow)
-                    {
-                        if (!item.DocumentAccessaryFlow.Any(a => a.CurrentFlowStep == branchStep.StepID))
-                        {
-                            item.DocumentAccessaryFlow.Add(new DocumentAccessaryFlow
-                            {
-                                CurrentFlowStep = branchStep.StepID
-                            });
-                        }
-                    }
-                    else
-                    {
-                        flowStep.CurrentFlowStep = branchStep.StepID;
-                        item.CurrentStep = branchStep.LevelID;
-
-                        mgr.GetTable<DocumentProcessLog>().InsertOnSubmit(new DocumentProcessLog
-                        {
-                            DocID = flowStep.DocID,
-                            StepDate = DateTime.Now,
-                            FlowStep = branchStep.LevelID
-                        });
-                    }
-
-                    mgr.SubmitChanges();
-                    return true;
-                }
-            }
-            return false;
         }
 
         public static bool MoveToSecondBranchStep(this CDS_Document item, GenericManager<EIVOEntityDataContext> mgr)

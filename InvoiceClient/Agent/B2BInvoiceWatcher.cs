@@ -15,7 +15,7 @@ using CommonLib.Utility;
 
 namespace InvoiceClient.Agent
 {
-    public class B2BInvoiceWatcher : InvoiceWatcher
+    public class B2BInvoiceWatcher : InvoiceWatcherV2
     {
         public B2BInvoiceWatcher(String fullPath)
             : base(fullPath)
@@ -23,12 +23,21 @@ namespace InvoiceClient.Agent
 
         }
 
-        protected override Root processUpload(eInvoiceServiceClient invSvc, XmlDocument docInv)
+        protected override XmlDocument prepareInvoiceDocument(string invoiceFile)
         {
-            var result = invSvc.B2BUploadInvoice(docInv).ConvertTo<Root>();
-            return result;
+            XmlDocument docInv = base.prepareInvoiceDocument(invoiceFile);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(@"<?xml version=""1.0"" encoding=""utf-8""?><InvoiceRoot></InvoiceRoot>");
+            XmlNodeList? nodes = docInv.DocumentElement?.ChildNodes;
+            if (nodes != null)
+            {
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    doc.DocumentElement!.AppendChild(doc.ImportNode(nodes.Item(i)!, true));
+                }
+            }
+            return doc;
         }
-
 
         protected override bool processError(IEnumerable<RootResponseInvoiceNo> rootInvoiceNo, XmlDocument docInv, string fileName)
         {

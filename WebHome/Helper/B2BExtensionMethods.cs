@@ -31,7 +31,7 @@ namespace WebHome.Helper
                 Directory.CreateDirectory(TempForReceivePDF);
         }
 
-        //public static void ReceiveInvoiceItem(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, InvoiceItem item)
+        //public static void ReceiveInvoiceItem(this UserProfile userProfile, GenericDbContext<EIVOEntityDataContext> mgr, InvoiceItem item)
         //{
         //    userProfile.MoveToNextStep(item.CDS_Document, mgr);
         //    ThreadPool.QueueUserWorkItem(t =>

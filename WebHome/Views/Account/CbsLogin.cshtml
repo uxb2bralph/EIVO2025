@@ -43,12 +43,12 @@
                                 <img class="mx-auto d-block logosize" src="~/images/e-GUIplatform.png" alt="" style="max-width:300px; " />
                                 <div class="form-group prompt">
                                     <label for="user_login">ID</label>
-                                    <input class="form-control" name="PID" type="text" required autofocus>
+                                    <input class="form-control" name="PID" type="text" required autofocus autocomplete="new-password" />
                                 </div>
                                 <div class="form-group prompt">
                                     <label>Password</label>
                                     <a class="form-sublink" href="@(Url.Action("ForgetPassword","Account"))">Forgot password</a>
-                                    <input class="form-control" name="Password" type="password" value="" required>
+                                    <input class="form-control" name="Password" type="password" value="" required autocomplete="new-password" />
                                 </div>
                                 <button id="btn" type="button" class="btn btn-inverted btn-block mb-4">Sign In</button>
                                 <div class="form-group">

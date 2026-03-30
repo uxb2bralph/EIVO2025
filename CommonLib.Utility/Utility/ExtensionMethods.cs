@@ -1341,6 +1341,15 @@ namespace CommonLib.Utility
             File.WriteAllText(jsonPath, model.JsonStringify());
         }
 
+        public static T DeserializeObjectFromJson<T>(this string json)
+        {
+            if (!string.IsNullOrEmpty(json))
+            {
+                return JsonConvert.DeserializeObject<T>(json);
+            }
+            return default;
+        }
+
         public static String ToAmountString(this decimal? value)
         {
             return $"{(value ?? 0):##,###,###,###,##0}";

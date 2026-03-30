@@ -304,11 +304,6 @@ namespace InvoiceClient.Helper
             return PostData("B2BUploadReceiptCancellation", uploadData);
         }
 
-        public XmlDocument B2BUploadInvoice(XmlDocument uploadData)
-        {
-            return PostData("B2BUploadInvoice", uploadData);
-        }
-
         public XmlDocument B2BUploadAllowance(XmlDocument uploadData)
         {
             return PostData("B2BUploadAllowance", uploadData);

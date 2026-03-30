@@ -186,7 +186,7 @@ namespace WebHome.Controllers
 
             return false;
         }
-        public ActionResult CommitIssuerAgent(OrganizationViewModel viewModel, int[]? agentID)
+        public ActionResult CommitIssuerAgent(OrganizationViewModel viewModel, List<int>? agentID)
         {
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization? item = result.Model as Organization;
@@ -196,7 +196,7 @@ namespace WebHome.Controllers
                 return result;
             }
 
-            CommitIssuerAgent(item, agentID);
+            CommitIssuerAgent(item!, agentID);
 
             if (!ModelState.IsValid)
             {
@@ -206,17 +206,17 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        private int CommitIssuerAgent(Organization item, int[]? agentID, bool masterBranch = false)
+        private int CommitIssuerAgent(Organization item, List<int>? agentID, bool masterBranch = false)
         {
             int result = 0;
-            if (agentID != null && agentID.Length > 0)
+            if (agentID != null && agentID.Count > 0)
             {
                 foreach (var id in agentID)
                 {
-                    InvoiceIssuerAgent cycleAgent = null;
+                    InvoiceIssuerAgent? cycleAgent = null;
                     if (CheckAgentCycle(item.CompanyID, id, out cycleAgent))
                     {
-                        ModelState.AddModelError("Message", $"發生循環經銷({cycleAgent.InvoiceIssuer.ReceiptNo}, {cycleAgent.InvoiceIssuer.CompanyName})!!");
+                        ModelState.AddModelError("Message", $"發生循環經銷({cycleAgent!.InvoiceIssuer.ReceiptNo}, {cycleAgent.InvoiceIssuer.CompanyName})!!");
                     }
                 }
             }
@@ -427,15 +427,15 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            Organization item = null;
-            item = models.GetTable<Organization>().Where(u => u.CompanyID == viewModel.SellerID).FirstOrDefault();
+            Organization? item = null;
+            item = models!.GetTable<Organization>().Where(u => u.CompanyID == viewModel.SellerID).FirstOrDefault();
 
             if (item == null)
             {
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "複製來源營業人資料錯誤!!");
             }
 
-            if (viewModel.ChkItem == null || viewModel.ChkItem.Length == 0)
+            if (viewModel.ChkItem == null || viewModel.ChkItem.Count == 0)
             {
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "請勾選複製目標營業人!!");
             }
@@ -483,12 +483,12 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "總機構營業人資料錯誤!!");
             }
 
-            if (viewModel.ChkItem == null || viewModel.ChkItem.Length == 0)
+            if (viewModel.ChkItem == null || viewModel.ChkItem.Count == 0)
             {
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "請勾選分支機構營業人!!");
             }
 
-            int result = CommitIssuerAgent(item, viewModel.ChkItem, true);
+            int result = CommitIssuerAgent(item, viewModel.ChkItem!, true);
 
             return Json(new { result = true, message = result });
         }

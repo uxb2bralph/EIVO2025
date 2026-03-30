@@ -108,6 +108,9 @@ namespace ModelCore.Schema.TXN {
         
         /// <remarks/>
         public string InvoiceUrl;
+        
+        /// <remarks/>
+        public string InvoicePdf;
     }
     
     /// <remarks/>

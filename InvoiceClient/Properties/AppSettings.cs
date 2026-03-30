@@ -1,4 +1,5 @@
-﻿using CommonLib.Utility.Properties;
+﻿using CommonLib.Core.Utility;
+using CommonLib.Utility.Properties;
 using ModelCore.Locale;
 using ModelCore.Schema.TXN;
 using System;
@@ -40,6 +41,7 @@ namespace InvoiceClient.Properties
         public bool InstalledService { get; set; } = false;
         public bool UseMainForm { get; set; } = true;
         public String InvoiceViewUrlPattern { get; set; } = "http://localhost:5000/DataView/ShowInvoice?PrintCuttingLine=True&PaperStyle=A4&UseCustomView=True&ProcessType=C0401&DocID={0}";
+        public String AllowanceViewUrlPattern { get; set; } = "http://localhost:5000/DataView/GetCustomerAllowancePDF?DocID={0}";
         public String[] InvoiceTxnPath { get; set; } = ["C:\\UXB2B_EIVO"];
         public string? ActivationKey { get; set; }
         public string AppCulture { get; set; } = "en-US";
@@ -146,6 +148,13 @@ namespace InvoiceClient.Properties
         public string InvoiceClient_WS_Invoice_eInvoiceServiceClient { get; set; } = "http://localhost:5000/api/InvoiceService";
         public LocalSettings? TurnkeyCSVSettings { get; set; }
         public LocalSettings? TurnkeyExchangeCSVSettings { get; set; }
+        public AllowancePDFGeneratorSettings? AllowancePDFGeneratorSettings { get; set; }
+    }
+
+    public class AllowancePDFGeneratorSettings
+    {
+        public String AllowancePDFStore { get; set; } = Path.Combine(Logger.LogPath, "AllowancePDF");
+        public String BucklePrefix { get; set; } = "taiwan_uxb2b_scanned_sac_pdf_";
     }
 
     public class LocalSettings

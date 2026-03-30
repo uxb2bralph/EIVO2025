@@ -226,9 +226,9 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult ResetKey()
+        public ActionResult ResetKey(bool reset = false)
         {
-            AppResource.Instance.InitializeKey(true);
+            AppResource.Instance.InitializeKey(reset);
             return Content("OK");
         }
 

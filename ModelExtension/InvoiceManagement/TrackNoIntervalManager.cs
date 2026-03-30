@@ -116,18 +116,25 @@ namespace ModelCore.InvoiceManagement
             this.DeleteAll<UnassignedInvoiceNo>(u => u.SellerID == assignment.SellerID && u.TrackID == assignment.TrackID);
 
             var trackCodeItem = assignment.InvoiceTrackCode;
+            DateTime startDate = new DateTime(assignment.InvoiceTrackCode.Year, assignment.InvoiceTrackCode.PeriodNo * 2 - 1, 1);
+            DateTime endDate = startDate.AddMonths(2);
 
             foreach (var interval in noIntervals)
             {
                 String startNo = String.Format("{0:00000000}", interval.StartNo),
                     endNo = String.Format("{0:00000000}", interval.EndNo);
-                var items = this.GetTable<InvoiceItem>().Where(i => i.SellerID == assignment.SellerID && i.TrackCode == trackCodeItem.TrackCode
-                    && String.Compare(i.No, startNo) >= 0 && String.Compare(i.No, endNo) <= 0);
+                var items = this.GetTable<InvoiceItem>()
+                    .Where(i => i.InvoiceDate >= startDate && i.InvoiceDate < endDate)
+                    .Where(i => i.SellerID == assignment.SellerID && i.TrackCode == trackCodeItem.TrackCode
+                        && String.Compare(i.No, startNo) >= 0 && String.Compare(i.No, endNo) <= 0);
 
                 int recordCount = interval.EndNo - interval.StartNo + 1;
 
                 if (items.Count() >= recordCount)
+                {
+                    Logger.Info($"\r\ninterval({interval.IntervalID}, {recordCount}) all numbers are assigned.");
                     continue;
+                }
 
                 var table = this.GetTable<UnassignedInvoiceNo>();
 

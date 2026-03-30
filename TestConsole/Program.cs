@@ -319,12 +319,15 @@ namespace TestConsole
             //test50();
 
             //InvoiceHandler.SendMailNotification();
-            XmlDocument doc = new XmlDocument();
-            doc.PreserveWhitespace = true;
-            doc.Load("C:\\Project\\AppDev\\CDS(Wcf)\\web\\logs\\2025\\12\\19\\ca_log\\000000000001(1341452361)-XmlSig.nfo.xml");
-            CryptoUtility crypto = new CryptoUtility();
-            var result = crypto.VerifyXmlSignature(doc);
-            Console.WriteLine(result);
+            //XmlDocument doc = new XmlDocument();
+            //doc.PreserveWhitespace = true;
+            //doc.Load("C:\\Project\\AppDev\\CDS(Wcf)\\web\\logs\\2025\\12\\19\\ca_log\\000000000001(1341452361)-XmlSig.nfo.xml");
+            //CryptoUtility crypto = new CryptoUtility();
+            //var result = crypto.VerifyXmlSignature(doc);
+            //Console.WriteLine(result);
+
+            new Class1().Test5();
+
             Console.ReadKey();
         }
 
@@ -601,45 +604,45 @@ namespace TestConsole
             }
         }
 
-        private static void test41()
-        {
-            using (ModelSource models = new ModelSource())
-            {
-                var migC0501 = models.GetTable<C0501DispatchQueue>().Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
-                                    .ToList();
+        //private static void test41()
+        //{
+        //    using (ModelSource models = new ModelSource())
+        //    {
+        //        var migC0501 = models.GetTable<C0501DispatchQueue>().Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
+        //                            .ToList();
 
-                foreach (var d in migC0501)
-                {
-                    var a = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501();
-                    var s = a?.OuterXml;
-                    var c = new MIGContent
-                    {
-                        DocID = d.DocID,
-                        DocDate = d.CDS_Document.DocDate,
-                        No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.InvoiceNo(),
-                        ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.Organization?.ReceiptNo,
-                        MIG = s
-                    };
-                    Console.WriteLine(c.JsonStringify());
-                }
-                var items = migC0501
-                    .Select(d =>
-                    new MIGContent
-                    {
-                        DocID = d.DocID,
-                        DocDate = d.CDS_Document.DocDate,
-                        No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.InvoiceNo(),
-                        ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.Organization?.ReceiptNo,
-                        MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501()?.OuterXml
-                    }).ToArray();
+        //        foreach (var d in migC0501)
+        //        {
+        //            var a = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501();
+        //            var s = a?.OuterXml;
+        //            var c = new MIGContent
+        //            {
+        //                DocID = d.DocID,
+        //                DocDate = d.CDS_Document.DocDate,
+        //                No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.InvoiceNo(),
+        //                ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.Organization?.ReceiptNo,
+        //                MIG = s
+        //            };
+        //            Console.WriteLine(c.JsonStringify());
+        //        }
+        //        var items = migC0501
+        //            .Select(d =>
+        //            new MIGContent
+        //            {
+        //                DocID = d.DocID,
+        //                DocDate = d.CDS_Document.DocDate,
+        //                No = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.InvoiceNo(),
+        //                ReceiptNo = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.Organization?.ReceiptNo,
+        //                MIG = (d.CDS_Document.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.CDS_Document.InvoiceItem)?.CreateF0501()?.OuterXml
+        //            }).ToArray();
 
-                //File.WriteAllText("G:\\temp\\data.json", items.JsonStringify());
-                foreach (var item in items)
-                {
-                    Console.WriteLine(item.JsonStringify());
-                }
-            }
-        }
+        //        //File.WriteAllText("G:\\temp\\data.json", items.JsonStringify());
+        //        foreach (var item in items)
+        //        {
+        //            Console.WriteLine(item.JsonStringify());
+        //        }
+        //    }
+        //}
 
         class MyApplicationContext : ApplicationContext
         {

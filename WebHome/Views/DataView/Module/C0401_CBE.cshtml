@@ -117,14 +117,10 @@
                                         @if (!_buyer.IsB2C())
                                         {
                                             <text>
-                                                應稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == 1 || _model.InvoiceAmountType.TaxType == 9
-                                                                      ? _model.InvoiceAmountType.SalesAmount
-                                                                      : _model.InvoiceAmountType.TaxType == 4
-                                                                          ? _model.InvoiceAmountType.TotalAmount
-                                                                          : 0)) <br /><br />
-                                                零稅率銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)2 ? _model.InvoiceAmountType.SalesAmount : 0)) <br /><br />
-                                                免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TaxType == (byte)3 ? _model.InvoiceAmountType.SalesAmount : 0)) <br /><br />
-                                                稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4 ? 0 : _model.InvoiceAmountType.TaxAmount)) <br /><br />
+                                                應稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.SalesAmount)) <br /><br />
+                                                零稅率銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.ZeroTaxSalesAmount)) <br /><br />
+                                                免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.FreeTaxSalesAmount)) <br /><br />
+                                                稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceAmountType.TaxAmount)) <br /><br />
                                             </text>
                                         }
                                         備註：@(String.Join(";", _model.InvoiceDetails.Select(d => d.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n", "<br/>").Replace("\n", "<br/>"))<br />

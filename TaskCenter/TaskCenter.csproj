@@ -1,22 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.10" />
+    <PackageReference Include="AutoMapper" Version="16.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.5" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
+    <PackageReference Include="Microsoft.OpenApi" Version="3.4.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ApplicationResource\ApplicationResource.csproj" />
-    <ProjectReference Include="..\Business\Business.csproj" />
+    <ProjectReference Include="..\Business.EF\Business.EF.csproj" />
     <ProjectReference Include="..\CommonLib.Core\CommonLib.Core.csproj" />
-    <ProjectReference Include="..\ModelExtension\ModelExtension.csproj" />
+    <ProjectReference Include="..\ModelExtension.EF\ModelExtension.EF.csproj" />
   </ItemGroup>
 
 </Project>

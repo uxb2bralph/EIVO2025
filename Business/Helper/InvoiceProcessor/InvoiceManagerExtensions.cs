@@ -154,6 +154,7 @@ namespace Business.Helper.InvoiceProcessor
                             InvoiceTime = String.Format("{0:HH:mm:ss}", i.InvoiceDate),
                             EncData = i.BuildEncryptedData(),
                             InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
+                            InvoicePdf = $"{ModelExtension.Properties.AppSettings.Default.InvoicePdfUrl}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
                         }
                     }));
                 }
@@ -174,6 +175,7 @@ namespace Business.Helper.InvoiceProcessor
                             CarrierNo = i.InvoiceCarrier?.CarrierNo,
                             CarrierNo2 = i.InvoiceCarrier?.CarrierNo2,
                             InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
+                            InvoicePdf = $"{ModelExtension.Properties.AppSettings.Default.InvoicePdfUrl}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
                         }
                     }));
                 }
@@ -243,6 +245,7 @@ namespace Business.Helper.InvoiceProcessor
                             InvoiceNumber = i.TrackCode + i.No,
                             EncData = i.BuildEncryptedData(),
                             InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
+                            InvoicePdf = $"{ModelExtension.Properties.AppSettings.Default.InvoicePdfUrl}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}"
                         },
                     }));
                 }
@@ -258,6 +261,7 @@ namespace Business.Helper.InvoiceProcessor
                             InvoiceNumber = i.TrackCode + i.No,
                             EncData = i.BuildEncryptedData(),
                             InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
+                            InvoicePdf = $"{ModelExtension.Properties.AppSettings.Default.InvoicePdfUrl}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
                         }
                     }));
                 }

@@ -37,6 +37,20 @@ namespace ModelCore.DataEntity
             return (EIVOEntityDataContext)this._db;
         }
 
+        public EIVOEntityDataContext Context
+        {
+            get
+            {
+                return (EIVOEntityDataContext)this._db;
+            }
+        }
+
+        public List<TEntity>? EventItems
+        {
+            get;
+            protected set;
+        }
+
         public void BuildQuery()
         {
             if (_inquiry != null)

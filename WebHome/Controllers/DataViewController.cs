@@ -39,6 +39,7 @@ using CommonLib.Core.Utility;
 using CommonLib.Core.Helper;
 using Business.Helper.ProcessRequestProcessor;
 using ModelCore.InvoiceManagement.Validator;
+using CommonLib.Core.Controllers;
 
 namespace WebHome.Controllers
 {
@@ -122,7 +123,7 @@ namespace WebHome.Controllers
                 return new EmptyResult { };
             }
 
-            this.TempData["viewModel"] = viewModel;
+            this.TempData["viewModel"] = viewModel.JsonStringify();
             String[] useThermalPOSArgs;
             String pdfFile = await this.CreateContentAsPDFAsync(getInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
 
@@ -199,7 +200,7 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
             viewModel.UseCustomView = viewModel.UseCustomView ?? true;
-            this.TempData["viewModel"] = viewModel;
+            this.TempData["viewModel"] = viewModel.JsonStringify();
 
             if (viewModel.KeyID != null)
             {
@@ -259,7 +260,7 @@ namespace WebHome.Controllers
             else
             {
                 String[] useThermalPOSArgs;
-                this.TempData["viewModel"] = viewModel;
+                this.TempData["viewModel"] = viewModel.JsonStringify();
                 String pdfFile = await this.CreateContentAsPDFAsync(getInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
                 if (pdfFile != null)
                 {
@@ -277,7 +278,7 @@ namespace WebHome.Controllers
         protected async Task<string> GetInvoicePdfFileAsync(InvoiceItem item, RenderStyleViewModel viewModel)
         {
             String[] useThermalPOSArgs;
-            this.TempData["viewModel"] = viewModel;
+            this.TempData["viewModel"] = viewModel.JsonStringify();
             return await this.CreateContentAsPDFAsync(getInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle, viewModel.ProcessType), item, ModelExtension.Properties.AppSettings.Default.SessionTimeout, useThermalPOSArgs);
         }
 
@@ -364,7 +365,7 @@ namespace WebHome.Controllers
         public async Task<ActionResult> GetCustomerAllowancePDFAsync(RenderStyleViewModel viewModel, bool? ackDel, bool? html)
         {
             ViewBag.ViewModel = viewModel;
-            this.TempData["viewModel"] = viewModel;
+            this.TempData["viewModel"] = viewModel.JsonStringify();
 
             if (viewModel.KeyID != null)
             {
@@ -479,6 +480,12 @@ namespace WebHome.Controllers
             }
 
             return View("~/Views/DataView/ShowInvoicePageView.cshtml", item);
+        }
+
+        public ActionResult ReviewInvoice(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
+        {
+            viewModel.UseCBEView = true;
+            return ShowInvoice(viewModel, queryModel);
         }
 
         public ActionResult ShowInvoice(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
@@ -614,7 +621,7 @@ namespace WebHome.Controllers
         public async Task<ActionResult> PrintC0401AsPDFAsync(RenderStyleViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
-            this.TempData["viewModel"] = viewModel;
+            this.TempData["viewModel"] = viewModel.JsonStringify();
             ViewResult result = (ViewResult)PrintC0401(viewModel);
             IQueryable<DocumentPrintQueue> items = result.Model as IQueryable<DocumentPrintQueue>;
             String pdfFile = viewModel.PaperStyle == "A4"

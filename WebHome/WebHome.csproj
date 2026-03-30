@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <RazorCompileOnPublish>true</RazorCompileOnPublish>
 	<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
@@ -11,6 +11,8 @@
   <ItemGroup>
     <Content Remove="Views\AshxHelper\DumpExceptionLog.cshtml" />
     <Content Remove="Views\AshxHelper\GetSample.cshtml" />
+    <Content Remove="Views\InvoiceBusiness\Module\InvoiceCreated.cshtml" />
+    <Content Remove="wwwroot\ts\index.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,7 +22,6 @@
   <ItemGroup>
     <!-- <Folder Include="wwwroot\" /> -->
     <Folder Include="Views\DonatedInvoice\Module\" />
-    <Folder Include="Views\InvoiceBusiness\POSDevice\" />
     <Folder Include="Views\InvoiceProcess\Buyer\" />
     <Folder Include="Views\Module\" />
     <Folder Include="Views\TestAll\" />
@@ -30,19 +31,24 @@
   <ItemGroup>
     <None Include="Views\AshxHelper\DumpExceptionLog.cshtml" />
     <None Include="Views\AshxHelper\GetSample.cshtml" />
+    <None Include="Views\InvoiceBusiness\Module\InvoiceCreated.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CoreWCF.Http" Version="1.8.0" />
     <PackageReference Include="CoreWCF.Primitives" Version="1.8.0" />
     <PackageReference Include="GoogleAuthenticator" Version="3.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.10" />
-    <PackageReference Include="PDFsharp" Version="6.2.2" />
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.5" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.9.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="PDFsharp" Version="6.2.4" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.1" />
     <PackageReference Include="System.Security.Cryptography.Csp" Version="4.3.0" />
     <PackageReference Include="ZXing.Net" Version="0.16.11" />
     <PackageReference Include="ZXing.Net.Bindings.Windows.Compatibility" Version="0.16.14" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -66,5 +72,33 @@
       <HintPath>bin\Dependencies\Lib\ThoughtWorks.QRCode.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <!-- TypeScript / frontend tooling support -->
+  <ItemGroup>
+    <None Include="package.json" />
+    <None Include="tsconfig.json" />
+    <None Include="wwwroot\ts\**\*.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="wwwroot\ts\index.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\ts\index.ts" />
+  </ItemGroup>
+
+  <!--
+    Optional TypeScript build hook. To enable automatic TypeScript build during MSBuild,
+    invoke msbuild with -p:TypeScriptBuild=true or set the property in your IDE.
+    This keeps the default build unchanged unless you explicitly enable it.
+  -->
+  <Target Name="BuildTypeScript" BeforeTargets="Build" Condition="'$(TypeScriptBuild)'=='true'">
+    <!-- Run npm install (only once per machine/project) -->
+    <Message Importance="high" Text="TypeScript build enabled: running npm install..." />
+    <Exec Command="npm install" WorkingDirectory="$(ProjectDir)" />
+
+    <!-- Run TypeScript compilation using package.json scripts -->
+    <Message Importance="high" Text="Running npm run build:ts" />
+    <Exec Command="npm run build:ts" WorkingDirectory="$(ProjectDir)" />
+  </Target>
 
 </Project>

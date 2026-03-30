@@ -45,7 +45,7 @@ namespace WebHome.Controllers
             if (item == null)
                 return Content("營業人資料錯誤!!");
 
-            return View("POSDeviceList", item);
+            return View("~/Views/InvoiceBusiness/POSDevice/POSDeviceList.cshtml", item);
         }
 
         public ActionResult CommitPOS(int? id, int? deviceID, String POSNo)
@@ -152,7 +152,7 @@ namespace WebHome.Controllers
             viewModel.SellerName = seller.CompanyName;
             viewModel.SellerReceiptNo = seller.ReceiptNo;
 
-            //using (TrackNoManager mgr = new TrackNoManager(new GenericManager<EIVOEntityDataContext>(models.DataContext), seller.CompanyID))
+            //using (TrackNoManager mgr = new TrackNoManager(new GenericDbContext<EIVOEntityDataContext>(models.DataContext), seller.CompanyID))
             //{
             //    if (!mgr.ApplyInvoiceDate(viewModel.InvoiceDate.Value))
             //    {
@@ -237,7 +237,7 @@ namespace WebHome.Controllers
                 viewModel.No = newItem.No;
 
 
-                return View("~/Views/InvoiceBusiness/Module/InvoiceCreated.ascx", newItem);
+                return View("~/Views/InvoiceBusiness/Module/InvoiceCreated.cshtml", newItem);
             }
             catch (Exception ex)
             {

@@ -103,6 +103,7 @@ namespace WebHome.Controllers
             }
         }
 
+        [NonAction]
         public ActionResult CreateExcelDownloadResult(IQueryable<dynamic> items, String tableName, String downloadFileName)
         {
 

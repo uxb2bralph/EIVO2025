@@ -386,7 +386,7 @@ namespace ModelCore.Models.ViewModel
         public String? ResultAction { get; set; }
 
         public String? EmptyKeyID { get; set; }
-        public int[]? ChkItem { get; set; }
+        public List<int>? ChkItem { get; set; }
         public bool? ForceTodo { get; set; }
         [JsonIgnore]
         public List<QueryResultDataColumnHelper>? DataColumns { get; set; }
@@ -445,6 +445,7 @@ namespace ModelCore.Models.ViewModel
         public String? MailUrl { get; set; }
         public bool? PrintBuyerAddr { get; set; }
         public bool? UseCustomView { get; set; }
+        public bool? UseCBEView { get; set; }
         public bool? CreateNew { get; set; }
 
         [JsonIgnore]

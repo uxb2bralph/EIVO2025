@@ -62,6 +62,7 @@ namespace CommonLib.Core.Utility
                     {
                         using (StreamWriter writer = new StreamWriter(fs, leaveOpen: true))
                         {
+                            writer.WriteLine($"[{DateTime.Now:O}] HTTP {Request.Method} {Request.Path}{Request.QueryString}");
                             foreach (var h in Request.Headers)
                             {
                                 writer.WriteLine($"{h.Key}: {h.Value}");
@@ -75,6 +76,7 @@ namespace CommonLib.Core.Utility
             else
             {
                 StringBuilder sb = new StringBuilder();
+                sb.AppendLine($"[{DateTime.Now:O}] HTTP {Request.Method} {Request.Path}{Request.QueryString}");
                 if (includeHeader)
                 {
                     foreach (var h in Request.Headers)

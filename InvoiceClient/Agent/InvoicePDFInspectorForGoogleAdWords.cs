@@ -140,10 +140,10 @@ namespace InvoiceClient.Agent
                     String storedPath = Settings.Default.DownloadDataInAbsolutePath ? Settings.Default.DownloadSaleInvoiceFolder : Path.Combine(Settings.Default.InvoiceTxnPath[0], Settings.Default.DownloadSaleInvoiceFolder);
                     storedPath.CheckStoredPath();
 
-                    IQueryable<InvoiceItem> queryItems = BuildQueryItems(models, token, channelID);
+                    IQueryable<InvoiceItem> queryItems = models.InquireInvoiceSubscription(token.CompanyID, null, channelID);
 
                     int count = 0;
-                    InvoiceItem item = queryItems.FirstOrDefault();
+                    InvoiceItem? item = queryItems.FirstOrDefault();
                     if (item != null)
                     {
                         tmpPath.CheckStoredPath();
@@ -182,7 +182,7 @@ namespace InvoiceClient.Agent
                             count = 0;
                             models.Dispose();
                             models = new InvoiceManager();
-                            queryItems = BuildQueryItems(models, token, channelID);
+                            queryItems = models.InquireInvoiceSubscription(token.CompanyID, null, channelID);
                         }
                         item = queryItems.FirstOrDefault();
                     }
@@ -220,27 +220,6 @@ namespace InvoiceClient.Agent
         {
             url = $"{url}&html={true}";
             url.ConvertHtmlToPDF(pdfFile, 1);
-        }
-
-        private static IQueryable<InvoiceItem> BuildQueryItems(InvoiceManager models, OrganizationToken token, Naming.ChannelIDType? channelID)
-        {
-            IQueryable<CDS_Document> docItems = models.GetTable<CDS_Document>();
-            if (Settings.Default.ClientID?.Length > 0)
-            {
-                docItems = docItems.Join(models.GetTable<DocumentOwner>().Where(o => o.ClientID == Settings.Default.ClientID), d => d.DocID, o => o.DocID, (d, o) => d);
-            }
-
-            if (channelID.HasValue)
-            {
-                docItems = docItems.Where(d => d.ChannelID == (int)channelID);
-            }
-
-            var items = models.GetTable<DocumentSubscriptionQueue>()
-                .Join(docItems, s => s.DocID, d => d.DocID, (s, d) => d)
-                //.Where(d => d.DocumentOwner.ClientID == clientID)
-                .Join(models.GetTable<InvoiceItem>(), d => d.DocID, i => i.InvoiceID, (d, i) => i);
-            IQueryable<InvoiceItem> queryItems = items.Where(i => i.SellerID == token.CompanyID);
-            return queryItems;
         }
 
         public override Type UIConfigType

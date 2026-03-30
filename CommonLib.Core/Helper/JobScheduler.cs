@@ -26,7 +26,7 @@ namespace CommonLib.Core.Helper
         private JobScheduler(int period)
         {
             initialize();
-            if (Startup.Properties.GetValue<bool>("EnableJobScheduler"))
+            if (Startup.Properties?.GetValue<bool>("EnableJobScheduler") == true)
             {
                 _timer = new Timer(run, null, period, period);
             }

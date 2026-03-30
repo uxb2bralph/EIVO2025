@@ -51,4 +51,12 @@
     }
 
 }
+<script type="module" src="~/js/index.js" asp-append-version="true"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 呼叫從 TS 暴露到 window 的函式
+        (window).myApp && (window).myApp.greet('User');
+    });
+</script>
 

@@ -7,6 +7,7 @@ using CommonLib.Utility;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using InvoiceClient.Agent.TurnkeyProcess;
 using CommonLib.Core.Utility;
+using EIVOConsole.Properties;
 
 namespace EIVOConsole
 {
@@ -38,6 +39,7 @@ namespace EIVOConsole
                         ProcessVacantInvoiceNo(args.Length > 2 ? args[1] : null, args.Length > 2 ? args[2] : null, args.Length > 3 ? args[3] : null);
                         break;
                     case "settings":
+                        EIVOConsole.Properties.AppSettings.Default.Save();
                         CommonLib.Core.Properties.AppSettings.Default.Save();
                         CommonLib.Logger.Properties.AppSettings.Default.Save();
                         ModelCore.Properties.AppSettings.Default.Save();
@@ -89,7 +91,17 @@ Use command:
 
             void SaveE0402(InvoiceTrackCodeAssignment assignment)
             {
-                if(assignment.UnassignedInvoiceNo.Any())
+                if(AppSettings.Default.ExclusiveE0402?.Contains(assignment.Organization.ReceiptNo) == true)
+                {
+                    return;
+                }
+
+                if (assignment.Organization.OrganizationExtension?.AutoBlankTrackEmittance == false)
+                {
+                    return;
+                }
+
+                if (assignment.UnassignedInvoiceNo.Any())
                 {
                     E0402Handler.WriteToTurnkey(assignment.CreateE0402());
                 }

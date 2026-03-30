@@ -244,7 +244,7 @@ namespace ModelCore.Helper
         //    return result;
         //}
 
-        //public static ModelCore.Schema.TurnKey.D0401.Allowance CreateD0401(this InvoiceAllowance item, GenericManager<EIVOEntityDataContext> models = null, bool withExtension = false)
+        //public static ModelCore.Schema.TurnKey.D0401.Allowance CreateD0401(this InvoiceAllowance item, GenericDbContext<EIVOEntityDataContext> models = null, bool withExtension = false)
         //{
         //    //bool isCBM = models.IsCrossBorderMerchant(item.InvoiceAllowanceSeller.SellerID);
 

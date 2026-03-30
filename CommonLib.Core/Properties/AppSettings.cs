@@ -39,8 +39,11 @@ namespace CommonLib.Core.Properties
         public String IPdfUtilityImplAssembly { get; set; } = "ExternalPdfWrapper, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
         public bool SqlLog { get; set; } = true;
         public bool EnableJobScheduler { get; set; } = true;
+        public String LogPath { get; set; }
         public bool IgnoreCertificateRevoked { get; set; } = true;
         public bool SqlLogIgnoreSelect { get; internal set; } = true;
+        public double LoginExpireMinutes { get; set; } = 1440 * 7;
+
     }
 
 }

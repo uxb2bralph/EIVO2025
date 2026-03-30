@@ -23,7 +23,7 @@
 
   ModelSource<InvoiceItem> models;
   IQueryable<DocumentPrintQueue> _model;
-  RenderStyleViewModel _viewModel;
+  RenderStyleViewModel? _viewModel;
 
 
   models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
@@ -31,7 +31,7 @@
   _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
   if (_viewModel == null)
   {
-    _viewModel = this.TempData["viewModel"] as RenderStyleViewModel;
+    _viewModel = (this.TempData["viewModel"] as String)?.DeserializeObjectFromJson<RenderStyleViewModel>();
     if (_viewModel != null)
     {
       ViewBag.ViewModel = _viewModel;

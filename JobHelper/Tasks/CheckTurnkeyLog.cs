@@ -73,6 +73,8 @@ namespace JobHelper.Tasks
                                     models = new ModelSource(new GenericManager<EIVOEntityDataContext>(db));
                                 }
 
+                                Console.WriteLine($"Checking log {log.LogID} with message type {log.MESSAGE_TYPE} and status {log.STATUS}...");
+
                                 var result = turnkeyDB.ExecuteCommand(
                                     @"Update TurnkeyTriggerLog set LockID = 1
                                                     WHERE (LogID = {0}) AND LockID is null", log.LogID);

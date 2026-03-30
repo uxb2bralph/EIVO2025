@@ -15,6 +15,9 @@ using InvoiceClient.Helper;
 using InvoiceClient.TransferManagement;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using ModelCore.Locale;
+using ModelCore.InvoiceManagement;
+using ModelCore.DataEntity;
 
 namespace InvoiceClient.Agent
 {

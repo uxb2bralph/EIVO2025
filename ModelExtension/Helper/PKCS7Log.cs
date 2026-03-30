@@ -28,75 +28,75 @@ namespace ModelCore.Helper
 
             if(OwnerID.HasValue)
             {
-                using (InvoiceManager mgr = new InvoiceManager())
-                {
-                    var item = new CALog
-                    {
-                        Catalog = (int)Catalog,
-                        ContentPath = path,
-                        LogDate = DateTime.Now,
-                        TypeID = (int?)TypeID,
-                        CompanyID = OwnerID,
-                        DocID = DocID
-                    };
+                //using (InvoiceManager mgr = new InvoiceManager())
+                //{
+                //    var item = new CALog
+                //    {
+                //        Catalog = (int)Catalog,
+                //        ContentPath = path,
+                //        LogDate = DateTime.Now,
+                //        TypeID = (int?)TypeID,
+                //        CompanyID = OwnerID,
+                //        DocID = DocID
+                //    };
 
-                    //if (DocID.HasValue)
-                    //{
-                    //    item.DocID = DocID;
-                    //}
-                    //else
-                    //{ 
-                    //    item.CDS_Document = new CDS_Document
-                    //    {
-                    //        DocumentOwner = new DocumentOwner
-                    //        {
-                    //            OwnerID = OwnerID.Value
-                    //        },
-                    //        DocDate = DateTime.Now
-                    //    };
-                    //}
+                //    //if (DocID.HasValue)
+                //    //{
+                //    //    item.DocID = DocID;
+                //    //}
+                //    //else
+                //    //{ 
+                //    //    item.CDS_Document = new CDS_Document
+                //    //    {
+                //    //        DocumentOwner = new DocumentOwner
+                //    //        {
+                //    //            OwnerID = OwnerID.Value
+                //    //        },
+                //    //        DocDate = DateTime.Now
+                //    //    };
+                //    //}
 
-                    mgr.GetTable<CALog>().InsertOnSubmit(item);
+                //    mgr.GetTable<CALog>().InsertOnSubmit(item);
 
-                    mgr.SubmitChanges();
-                }
+                //    mgr.SubmitChanges();
+                //}
             }
             else if (Crypto != null && Crypto.SignerCertificate != null)
             {
-                using (InvoiceManager mgr = new InvoiceManager())
-                {
-                    var org = mgr.GetOrganizationByThumbprint(Crypto.SignerCertificate.Thumbprint);
-                    if (org != null)
-                    {
-                        var item = new CALog
-                        {
-                            Catalog = (int)Catalog,
-                            ContentPath = XmlSignature != null ? Crypto.CA_Log.DataSignature : path,
-                            LogDate = DateTime.Now,
-                            TypeID = (int?)TypeID,
-                            CompanyID = org.CompanyID,
-                            DocID = DocID
-                        };
+                //using (InvoiceManager mgr = new InvoiceManager())
+                //{
+                //    var org = mgr.GetOrganizationByThumbprint(Crypto.SignerCertificate.Thumbprint);
+                //    if (org != null)
+                //    {
+                //        var item = new CALog
+                //        {
+                //            Catalog = (int)Catalog,
+                //            ContentPath = XmlSignature != null ? Crypto.CA_Log.DataSignature : path,
+                //            LogDate = DateTime.Now,
+                //            TypeID = (int?)TypeID,
+                //            CompanyID = org.CompanyID,
+                //            DocID = DocID
+                //        };
 
-                        //if (DocID.HasValue)
-                        //{
-                        //    item.DocID = DocID;
-                        //}
-                        //else
-                        //{ 
-                        //    item.CDS_Document = new CDS_Document
-                        //    {
-                        //        DocumentOwner = new DocumentOwner
-                        //        {
-                        //            OwnerID = org.CompanyID
-                        //        },
-                        //        DocDate = DateTime.Now
-                        //    };
-                        //}
-                        mgr.GetTable<CALog>().InsertOnSubmit(item);
-                        mgr.SubmitChanges();
-                    }
-                }
+                //        //if (DocID.HasValue)
+                //        //{
+                //        //    item.DocID = DocID;
+                //        //}
+                //        //else
+                //        //{ 
+                //        //    item.CDS_Document = new CDS_Document
+                //        //    {
+                //        //        DocumentOwner = new DocumentOwner
+                //        //        {
+                //        //            OwnerID = org.CompanyID
+                //        //        },
+                //        //        DocDate = DateTime.Now
+                //        //    };
+                //        //}
+                //        mgr.GetTable<CALog>().InsertOnSubmit(item);
+                //        mgr.SubmitChanges();
+                //    }
+                //}
 
             }
 

@@ -5,6 +5,7 @@ import { resolve } from 'path'
 
 
 export default defineConfig({
+  base: './',
   plugins: [vue(), VueDevTools()],
   root: '.',
   resolve: {
@@ -13,7 +14,14 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5274',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
   build: {
     sourcemap: true

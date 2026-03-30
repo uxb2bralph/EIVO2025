@@ -1025,7 +1025,7 @@ namespace WebHome.Controllers
             }
 
             List<int> items = new List<int>();
-            if (viewModel.ChkItem != null && viewModel.ChkItem.Length > 0)
+            if (viewModel.ChkItem != null && viewModel.ChkItem.Count > 0)
             {
                 items.AddRange(viewModel.ChkItem);
             }
@@ -1058,7 +1058,7 @@ namespace WebHome.Controllers
             }
 
             ViewBag.ViewModel = viewModel;
-            if (viewModel.ChkItem?.Length > 0)
+            if (viewModel.ChkItem?.Count > 0)
             {
                 InvoiceManager mgr = new InvoiceManager(models!);
                 mgr.VoidInvoice(viewModel.ChkItem);
@@ -1086,10 +1086,10 @@ namespace WebHome.Controllers
                 ModelState.Clear();
             }
 
-            if (viewModel.ChkItem?.Length>0)
+            if (viewModel.ChkItem?.Count > 0)
             {
                 var profile = HttpContext.GetUser();
-                var items = models.GetTable<InvoiceItem>().Where(i => viewModel.ChkItem.Contains(i.InvoiceID));
+                var items = models!.GetTable<InvoiceItem>().Where(i => viewModel.ChkItem!.Contains(i.InvoiceID));
                 items = models.FilterInvoiceByRole(profile, items);
 
                 if (items.Count() > 1)
@@ -1210,7 +1210,7 @@ namespace WebHome.Controllers
 
             ViewBag.ViewModel = viewModel;
             IQueryable<InvoiceItem>? items = null;
-            if (viewModel?.ChkItem?.Length > 0)
+            if (viewModel?.ChkItem?.Count > 0)
             {
 
                 var profile = HttpContext.GetUser();
@@ -1229,6 +1229,21 @@ namespace WebHome.Controllers
                         if (viewModel?.ReviseContent?.ReceiptNo.CheckRegno() != true)
                         {
                             ModelState.AddModelError("Message", "公司統一編號錯誤!!");
+                        }
+                    }
+
+                    if(viewModel!.Mode != Naming.VoidActionMode.註銷重開)
+                    {
+                        DateTime startDate = CanResendF0401AfterVoidPeriodStart();
+                        var invalidItems = items
+                            .Where(i => i.InvoiceDate < startDate)
+                            .Select(i => $"{i.TrackCode}{i.No}")
+                            .ToList();
+
+                        if (invalidItems.Count > 0)
+                        {
+                            ModelState.AddModelError("Message",
+                                $"下列發票已逾註銷期限，僅限當期發票，或於單數月15日(含)前註銷前一期發票：\r\n{String.Join("\r\n", invalidItems)}");
                         }
                     }
                 }
@@ -1348,6 +1363,18 @@ namespace WebHome.Controllers
         //        }
         //    }
         //}
+        private static DateTime CanResendF0401AfterVoidPeriodStart()
+        {
+            DateTime date = DateTime.Today;
+            var startMonth = date.Month % 2 == 1 ? date.Month : date.Month - 1;
+            DateTime due = new DateTime(date.Year, startMonth, 16);
+            DateTime startDate = new DateTime(date.Year, startMonth, 1);
+            if (date < due)
+            {
+                startDate = startDate.AddMonths(-2);
+            }
+            return startDate;
+        }
 
         private void doVoidInvoice(IEnumerable<InvoiceItem> items, Naming.VoidActionMode? mode, ReviseInvoiceViewModel? viewModel = null)
         {
@@ -2000,6 +2027,129 @@ namespace WebHome.Controllers
             }
 
             return View("~/Views/InvoiceProcess/DataQuery/PrepareInvoiceQueryDataItem.cshtml", item);
+        }
+
+        [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS })]
+        public ActionResult GeneralInvoiceProcess()
+        {
+            ViewBag.ViewModel = new InquireInvoiceViewModel();
+            return View("~/Views/InvoiceProcess/GeneralInvoiceProcess.cshtml");
+        }
+
+        public class DeleteInvoicesRequest
+        {
+            public List<string>? InvoiceNumbers { get; set; }
+        }
+
+        [HttpPost]
+        [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
+        public ActionResult DeleteInvoices([FromBody] DeleteInvoicesRequest req)
+        {
+            if (req?.InvoiceNumbers == null || req.InvoiceNumbers.Count == 0)
+                return Json(new { success = false, message = "未提供發票號碼" });
+
+            var failed = new List<string>();
+            int deleted = 0;
+
+            var tran = models!.EnterTransaction();
+            try
+            {
+                foreach (var raw in req.InvoiceNumbers)
+                {
+                    var s = (raw ?? "").Trim();
+                    if (string.IsNullOrEmpty(s)) continue;
+
+                    InvoiceItem? item = null;
+                    if (s.Length > 2)
+                    {
+                        var track = s.Substring(0, 2);
+                        var no = s.Substring(2);
+                        item = models.GetTable<InvoiceItem>()
+                            .Where(i => i.TrackCode == track && i.No == no)
+                            .FirstOrDefault();
+                    }
+                    if (item == null)
+                    {
+                        item = models.GetTable<InvoiceItem>()
+                            .Where(i => (i.TrackCode + i.No) == s)
+                            .FirstOrDefault();
+                    }
+
+                    if (item == null)
+                    {
+                        failed.Add(s);
+                        continue;
+                    }
+
+                    var invoiceID = item.InvoiceID;
+
+                    // 先刪折讓相關子資料
+                    //var allowanceIDs = models.GetTable<InvoiceAllowance>()
+                    //    .Where(a => a.InvoiceID == invoiceID)
+                    //    .Select(a => a.AllowanceID)
+                    //    .ToList();
+
+                    //foreach (var aid in allowanceIDs)
+                    //{
+                    //    models.ExecuteCommand("DELETE InvoiceAllowanceCancellation WHERE AllowanceID = {0}", aid);
+                    //    models.ExecuteCommand("DELETE InvoiceAllowanceDetail WHERE AllowanceID = {0}", aid);
+                    //    models.ExecuteCommand("DELETE InvoiceAllowanceBuyer WHERE AllowanceID = {0}", aid);
+                    //    models.ExecuteCommand("DELETE InvoiceAllowanceSeller WHERE AllowanceID = {0}", aid);
+                    //    models.ExecuteCommand("DELETE InvoiceAllowanceItemExtension WHERE AllowanceID = {0}", aid);
+                    //    models.ExecuteCommand(@"DELETE CDS_Document
+                    //        FROM DerivedDocument
+                    //        INNER JOIN CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
+                    //        WHERE DerivedDocument.SourceID = {0}", aid);
+                    //    models.ExecuteCommand("DELETE DerivedDocument WHERE SourceID = {0}", aid);
+                    //    models.ExecuteCommand("DELETE CDS_Document WHERE DocID = {0}", aid);
+                    //}
+                    //models.ExecuteCommand("DELETE InvoiceAllowance WHERE InvoiceID = {0}", invoiceID);
+
+                    // 刪 InvoiceItem 子資料
+                    //models.ExecuteCommand("DELETE InvoiceDetail WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceDeliveryTracking WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoicePrintQueue WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoicePrintAssertion WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceCarrier WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceMail WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceBuyer WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceSeller WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceNoAssignment WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceAmountType WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceByHousehold WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceDonation WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceItemExtension WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceWinningNumber WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE AuthorizeToVoid WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoicePaperRequest WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE B2BBuyerInvoiceTag WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE DocumentPostLog WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoicePurchaseOrderAudit WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoicePurchaseOrder WHERE InvoiceID = {0}", invoiceID);
+                    //models.ExecuteCommand("DELETE InvoiceCancellation WHERE InvoiceID = {0}", invoiceID);
+                    // 刪 DerivedDocument 及衍生的 CDS_Document
+                    models.ExecuteCommand(@"DELETE CDS_Document
+                        FROM DerivedDocument
+                        INNER JOIN CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
+                        WHERE DerivedDocument.SourceID = {0}", invoiceID);
+                    models.ExecuteCommand("DELETE DerivedDocument WHERE SourceID = {0}", invoiceID);
+                    // 刪 InvoiceItem 本體
+                    //models.ExecuteCommand("DELETE InvoiceItem WHERE InvoiceID = {0}", invoiceID);
+                    // 刪 CDS_Document
+                    models.ExecuteCommand("DELETE CDS_Document WHERE DocID = {0}", invoiceID);
+
+                    deleted++;
+                }
+
+                tran.Commit();
+                return Json(new { success = true, deletedCount = deleted, failed = failed, message = "刪除完成" });
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                CommonLib.Core.Utility.FileLogger.Logger.Error(ex);
+                return Json(new { success = false, deletedCount = deleted, failed = failed, message = ex.Message });
+            }
         }
     }
 }

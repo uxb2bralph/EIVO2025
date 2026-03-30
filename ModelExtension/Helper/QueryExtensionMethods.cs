@@ -1,18 +1,19 @@
-﻿using System;
+﻿using CommonLib.DataAccess;
+using CommonLib.Utility;
+using ModelCore.DataEntity;
+using ModelCore.InvoiceManagement;
+using ModelCore.Locale;
+using ModelCore.Models;
+using ModelCore.Models.ViewModel;
+using ModelCore.Security.MembershipManagement;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
-using System.Web;
-using CommonLib.DataAccess;
-using ModelCore.DataEntity;
-using ModelCore.Locale;
-using ModelCore.Security.MembershipManagement;
 using System.Threading.Tasks;
-using CommonLib.Utility;
-using ModelCore.Models.ViewModel;
-using ModelCore.Models;
+using System.Web;
 
 namespace ModelCore.Helper
 {
@@ -143,6 +144,41 @@ namespace ModelCore.Helper
             }
         }
 
+        public static IQueryable<InvoiceItem> InquireInvoiceSubscription(this GenericManager<EIVOEntityDataContext> models, int? sellerID, int? agentID, Naming.ChannelIDType? channelID, String? clientID = null, bool issuerOnly = false)
+        {
+            IQueryable<CDS_Document> docItems = models.GetTable<CDS_Document>();
+            if (clientID?.Length > 0)
+            {
+                docItems = docItems.Join(models.GetTable<DocumentOwner>().Where(o => o.ClientID == clientID), d => d.DocID, o => o.DocID, (d, o) => d);
+            }
+
+            if (channelID.HasValue)
+            {
+                docItems = docItems.Where(d => d.ChannelID == (int)channelID);
+            }
+
+            if (clientID != null)
+            {
+                docItems = docItems.Join(models.GetTable<DocumentOwner>().Where(o => o.ClientID == clientID), d => d.DocID, o => o.DocID, (d, o) => d);
+            }
+
+            IQueryable<InvoiceItem> items = models.GetTable<DocumentSubscriptionQueue>()
+                .Join(docItems, s => s.DocID, d => d.DocID, (s, d) => d)
+                .Join(models.GetTable<InvoiceItem>(), d => d.DocID, i => i.InvoiceID, (d, i) => i);
+            IQueryable<InvoiceItem> queryItems = items;
+
+            if (sellerID.HasValue)
+            {
+                queryItems = items.Where(i => i.SellerID == sellerID);
+            }
+            else if (agentID.HasValue)
+            {
+                queryItems = models.GetInvoiceByAgent(items, agentID.Value, issuerOnly);
+            }
+
+            return queryItems;
+        }
+
         public static DataSet GetDataSetResult<TEntity>(this ModelSource<TEntity> models)
             where TEntity : class, new()
         {
@@ -170,8 +206,8 @@ namespace ModelCore.Helper
             }
         }
 
-        //public static DataSet GetDataSetResult<TEntity>(this ModelSource<TEntity> models, IQueryable items,DataTable table)
-        //    where TEntity : class, new()
+        //public static DataSet GetDataSetResult<T>(this ModelSource<T> models, IQueryable items,DataTable table)
+        //    where T : class, new()
         //{
         //    using (SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items))
         //    {
@@ -187,8 +223,8 @@ namespace ModelCore.Helper
             }
         }
 
-        //public static DataSet GetDataSetResult<TEntity>(this ModelSource<TEntity> models, SqlCommand sqlCmd, DataTable table)
-        //    where TEntity : class, new()
+        //public static DataSet GetDataSetResult<T>(this ModelSource<T> models, SqlCommand sqlCmd, DataTable table)
+        //    where T : class, new()
         //{
         //    sqlCmd.Connection = (SqlConnection)models.GetDataContext().Connection;
         //    using (SqlDataAdapter adapter = new SqlDataAdapter(sqlCmd))

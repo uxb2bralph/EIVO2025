@@ -24,7 +24,7 @@
 
     ModelSource<InvoiceItem> models;
     InvoiceItem _model;
-    RenderStyleViewModel _viewModel;
+    RenderStyleViewModel? _viewModel;
 
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
@@ -33,7 +33,7 @@
 
     if (_viewModel == null)
     {
-        _viewModel = this.TempData["viewModel"] as RenderStyleViewModel;
+        _viewModel = (this.TempData["viewModel"] as String)?.DeserializeObjectFromJson<RenderStyleViewModel>();
         if (_viewModel != null)
         {
             ViewBag.ViewModel = _viewModel;
@@ -49,6 +49,10 @@
     {
         Layout = null;
     }
+    if(invoicePrintView.EndsWith(".ascx", StringComparison.OrdinalIgnoreCase))
+    {
+        invoicePrintView = invoicePrintView.Substring(0, invoicePrintView.Length - 5) + ".cshtml";
+    }
     await Html.RenderPartialAsync(invoicePrintView, _model);
 }
 else
@@ -56,6 +60,10 @@ else
     if (_viewModel.PrintCuttingLine == true)
     {
         await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4_Print.cshtml", _model);
+    }
+    else if(_viewModel.UseCBEView == true)
+    {
+        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_CBE.cshtml", _model);
     }
     else
     {

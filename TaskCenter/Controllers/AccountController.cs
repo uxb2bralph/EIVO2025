@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using ModelCore.DataEntity;
 using ModelCore.Helper;
 using ModelCore.Locale;
-
-
 using ModelCore.Security;
+using ModelCore.Security.MembershipManagement;
 using System.Security.Cryptography;
 using Newtonsoft.Json;
 using System;
@@ -14,7 +13,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
-
 using TaskCenter.Helper.RequestAction;
 using TaskCenter.Properties;
 using ModelCore.InvoiceManagement;
@@ -89,5 +87,55 @@ namespace TaskCenter.Controllers
 
             return Content(viewModel.JsonStringify(), "application/json");
         }
+
+        //[HttpPost]
+        //[Route("api/auth/login")]
+        //public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        //{
+        //    try
+        //    {
+        //        // 驗證輸入
+        //        if (string.IsNullOrWhiteSpace(request.Id) || string.IsNullOrWhiteSpace(request.Password))
+        //        {
+        //            return Ok(new LoginResponse
+        //            {
+        //                Success = false,
+        //                Message = "請輸入帳號與密碼"
+        //            });
+        //        }
+
+        //        // 驗證使用者
+        //        var userProfile = UserProfileFactory.CreateInstance(request.Id, request.Password);
+
+        //        if (userProfile == null)
+        //        {
+        //            return Ok(new LoginResponse
+        //            {
+        //                Success = false,
+        //                Message = "帳號或密碼錯誤"
+        //            });
+        //        }
+
+        //        // 執行登入
+        //        await HttpContext.SignOnAsync(userProfile, request.RememberMe);
+
+        //        return Ok(new LoginResponse
+        //        {
+        //            Success = true,
+        //            Message = "登入成功",
+        //            RedirectUrl = "/Home"
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        logger.LogError(ex, "登入處理發生錯誤");
+        //        return Ok(new LoginResponse
+        //        {
+        //            Success = false,
+        //            Message = "系統發生錯誤，請稍後再試"
+        //        });
+        //    }
+        //}
+
     }
 }

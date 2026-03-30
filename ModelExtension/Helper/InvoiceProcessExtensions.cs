@@ -3,6 +3,7 @@ using CommonLib.Utility;
 using ModelCore.DataEntity;
 using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
+using ModelExtension.Properties;
 using System.Xml;
 
 namespace ModelCore.Helper
@@ -30,6 +31,16 @@ namespace ModelCore.Helper
             models!.SubmitChanges();
 
             return request;
+        }
+
+        public static int CommitProcessRequestQueue(this GenericManager<EIVOEntityDataContext> models, int taskID)
+        {
+            return models.ExecuteCommand(@"
+                UPDATE [proc].ProcessRequestQueue
+                SET        BookingTime = GETDATE()
+                WHERE   (TaskID = {0}) AND (BookingTime IS NULL OR
+                               BookingTime < DATEADD(SECOND, -{1}, GETDATE()))",
+                taskID, AppSettings.Default.ProcessRequestExecutionInSeconds);
         }
     }
 }

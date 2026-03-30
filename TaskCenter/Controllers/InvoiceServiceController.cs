@@ -23,12 +23,16 @@ using CommonLib.Utility;
 
 namespace TaskCenter.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
+    [Produces("application/json")]
     public class InvoiceServiceController : SampleController
     {
         public InvoiceServiceController(IServiceProvider serviceProvider, ILoggerFactory loggerFactory) : base(serviceProvider, loggerFactory)
         {
         }
 
+        [HttpPost("UploadInvoiceAutoTrackNo")]
         public ActionResult UploadInvoiceAutoTrackNo([FromBody] InvoiceRequestViewModel viewModel)
         {
             InvoiceRoot? invoice = FromJsonBody<InvoiceRequestViewModel>()?.InvoiceRoot;
@@ -45,6 +49,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
+        [HttpPost("UploadInvoice")]
         public ActionResult UploadInvoice([FromBody] InvoiceRequestViewModel viewModel)
         {
             Root result = createMessageToken();
@@ -62,6 +67,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
+        [HttpPost("UploadInvoiceCancellation")]
         public ActionResult UploadInvoiceCancellation([FromBody] InvoiceRequestViewModel viewModel)
         {
             Root result = createMessageToken();
@@ -74,6 +80,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
+        [HttpPost("UploadAllowance")]
         public ActionResult UploadAllowance([FromBody] InvoiceRequestViewModel viewModel)
         {
             Root result = createMessageToken();
@@ -86,6 +93,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
+        [HttpPost("UploadAllowanceCancellation")]
         public ActionResult UploadAllowanceCancellation([FromBody] InvoiceRequestViewModel viewModel)
         {
             Root result = createMessageToken();
@@ -101,6 +109,7 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
+        [HttpPost("GetStorageToken")]
         public ActionResult GetStorageToken([FromBody] InvoiceRequestViewModel viewModel)
         {
             String? storageToken = null;

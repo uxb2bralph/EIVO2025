@@ -29,12 +29,13 @@ using CoreWCF.Description;
 using WebHome.Published;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.OpenApi.Models; // added for Swagger/OpenAPI
+using Microsoft.OpenApi; // added for Swagger/OpenAPI
 
 namespace WebHome
 {
     public class Startup
     {
+        public static IServiceProvider? ServiceProvider { get; private set; }
         //public static IConfigurationSection? Properties { get; private set; }
         public static IWebHostEnvironment? Environment { get; private set; }
         public static  IConfiguration? GlobalConfiguration { get; private set; }
@@ -53,8 +54,6 @@ namespace WebHome
             Configuration = configuration;
             GlobalConfiguration = configuration;
             //Properties = Configuration.GetSection("WebHome");
-            _ = new CommonLib.Core.Startup(Configuration);
-
         }
 
         public IConfiguration Configuration { get; }
@@ -253,11 +252,16 @@ namespace WebHome
             var serviceMetadataBehavior = app.ApplicationServices.GetRequiredService<CoreWCF.Description.ServiceMetadataBehavior>();
             serviceMetadataBehavior.HttpGetEnabled = true;
 
+            _ = new CommonLib.Core.Startup(Configuration, app.ApplicationServices);
+
             //call ConfigureLogger in a centralized place in the code
             ApplicationLogging.ConfigureLogger(loggerFactory);
             //set it as the primary LoggerFactory to use everywhere
             ApplicationLogging.LoggerFactory = loggerFactory;
             Environment = env;
+
+            // expose root IServiceProvider so non-DI-aware static helpers can resolve services when necessary
+            ServiceProvider = app.ApplicationServices;
 
             eInvoiceService.StartUp(); // 初始化eInvoiceService相關設定
         }

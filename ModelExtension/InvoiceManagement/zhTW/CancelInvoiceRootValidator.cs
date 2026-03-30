@@ -154,7 +154,7 @@ namespace ModelCore.InvoiceManagement.zhTW
             return null;
         }
 
-        //public static Exception CheckMandatoryFields_Proxy(this CancelInvoiceRootCancelInvoice invItem, GenericManager<EIVOEntityDataContext> mgr, OrganizationToken owner, out InvoiceItem invoice, out DateTime cancelDate)
+        //public static Exception CheckMandatoryFields_Proxy(this CancelInvoiceRootCancelInvoice invItem, GenericDbContext<EIVOEntityDataContext> mgr, OrganizationToken owner, out InvoiceItem invoice, out DateTime cancelDate)
         //{
         //    invoice = null;
         //    cancelDate = default(DateTime);

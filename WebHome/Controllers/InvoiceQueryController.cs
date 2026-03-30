@@ -32,6 +32,7 @@ using CommonLib.DataAccess;
 using ModelCore.Models;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using CommonLib.Core.Controllers;
 
 namespace WebHome.Controllers
 {

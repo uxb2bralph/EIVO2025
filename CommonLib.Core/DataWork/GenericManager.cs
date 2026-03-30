@@ -23,12 +23,12 @@ namespace CommonLib.Core.DataWork
         protected internal TEntity? _entity;
 
         public GenericManager() : base() { }
-        public GenericManager(GenericManager<T> models) : base(models) { }
+        public GenericManager(GenericManager<T>? models) : base(models) { }
 
 
         public TEntity? DataEntity => _entity;
 
-        public DbSet<TEntity> EntityList => _db.Set<TEntity>();
+        public DbSet<TEntity> EntityList => _db!.Set<TEntity>();
 
 
         protected TEntity? InstantiateData(IQueryable<TEntity> values)
@@ -48,18 +48,18 @@ namespace CommonLib.Core.DataWork
         {
             if (_entity != null)
             {
-                _db.Set<TEntity>().Remove(_entity);
+                _db!.Set<TEntity>().Remove(_entity);
                 _db.SaveChanges();
             }
             _entity = default(TEntity);
         }
 
-        public TEntity DeleteAny(Expression<Func<TEntity, bool>> predicate)
+        public TEntity? DeleteAny(Expression<Func<TEntity, bool>> predicate)
         {
             return DeleteAny<TEntity>(predicate);
         }
 
-        public TEntity DeleteAnyOnSubmit(Expression<Func<TEntity, bool>> predicate)
+        public TEntity? DeleteAnyOnSubmit(Expression<Func<TEntity, bool>> predicate)
         {
             return DeleteAnyOnSubmit<TEntity>(predicate);
         }
@@ -78,18 +78,26 @@ namespace CommonLib.Core.DataWork
     public class GenericManager<T> : IDisposable
                 where T : DbContext, new()
     {
-        protected internal T _db;
+        protected internal T? _db;
         protected internal bool _isInstance = true;
 
         private bool _bDisposed = false;
 
-        public GenericManager(T db)
+        public GenericManager(T? db)
         {
             //
             // TODO: 在此加入建構函式的程式碼
             //
-            _db = db;
-            _isInstance = false;
+            if (db != null)
+            {
+                _db = db;
+                _isInstance = false;
+            }
+            else
+            {
+                _db = new T();
+                _isInstance = true;
+            }
         }
 
         public GenericManager()
@@ -98,7 +106,7 @@ namespace CommonLib.Core.DataWork
             _isInstance = true;
         }
 
-        public GenericManager(GenericManager<T> mgr)
+        public GenericManager(GenericManager<T>? mgr)
         {
             if (mgr != null)
             {
@@ -112,20 +120,24 @@ namespace CommonLib.Core.DataWork
         }
 
 
-        internal IDbConnection DbConnection => _db.Database.GetDbConnection();
+        internal IDbConnection DbConnection => _db!.Database.GetDbConnection();
 
-        public T DataContext => _db;
+        public T DataContext => _db!;
 
 
         public void SubmitChanges()
         {
-            _db.SaveChanges();
+            _db!.SaveChanges();
         }
 
+        public void SaveChanges()
+        {
+            _db!.SaveChanges();
+        }
 
         public DbSet<TTable> GetTable<TTable>() where TTable : class
         {
-            return _db.Set<TTable>();
+            return _db!.Set<TTable>();
         }
 
         public DbCommand GetCommand(IQueryable query)
@@ -139,30 +151,30 @@ namespace CommonLib.Core.DataWork
         public IEnumerable<TResult> ExecuteQuery<TResult>(string query, params Object[] parameters)
             where TResult:class
         {
-            return _db.Set<TResult>().FromSqlRaw(query, parameters);
+            return _db!.Set<TResult>().FromSqlRaw(query, parameters);
         }
 
-        public DbConnection Connection => _db.Database.GetDbConnection();
+        public DbConnection Connection => _db!.Database.GetDbConnection();
 
         public int ExecuteCommand(string command, params Object[] parameters)
         {
-            return _db.Database.ExecuteSqlRaw(command, parameters);
+            return _db!.Database.ExecuteSqlRaw(command, parameters);
         }
 
-        public TSource DeleteAnyOnSubmit<TSource>(Expression<Func<TSource, bool>> predicate) where TSource : class, new()
+        public TSource? DeleteAnyOnSubmit<TSource>(Expression<Func<TSource, bool>> predicate) where TSource : class, new()
         {
-            var DbSet = _db.Set<TSource>();
-            TSource item = DbSet.Where(predicate).FirstOrDefault();
+            var DbSet = _db!.Set<TSource>();
+            TSource? item = DbSet?.Where(predicate).FirstOrDefault();
             if (item != null)
             {
-                DbSet.Remove(item);
+                DbSet!.Remove(item);
             }
             return item;
         }
 
         public IEnumerable<TSource> DeleteAllOnSubmit<TSource>(Expression<Func<TSource, bool>> predicate) where TSource : class, new()
         {
-            var DbSet = _db.Set<TSource>();
+            var DbSet = _db!.Set<TSource>();
             IQueryable<TSource> items = DbSet.Where(predicate);
             DbSet.RemoveRange(items);
             return items;
@@ -171,17 +183,17 @@ namespace CommonLib.Core.DataWork
         public IEnumerable<TSource> DeleteAll<TSource>(Expression<Func<TSource, bool>> predicate) where TSource : class, new()
         {
             IEnumerable<TSource> items = DeleteAllOnSubmit<TSource>(predicate);
-            _db.SaveChanges();
+            _db!.SaveChanges();
             return items;
         }
 
 
-        public TSource DeleteAny<TSource>(Expression<Func<TSource, bool>> predicate) where TSource : class, new()
+        public TSource? DeleteAny<TSource>(Expression<Func<TSource, bool>> predicate) where TSource : class, new()
         {
-            TSource item = DeleteAnyOnSubmit<TSource>(predicate);
+            TSource? item = DeleteAnyOnSubmit<TSource>(predicate);
             if (item != null)
             {
-                _db.SaveChanges();
+                _db!.SaveChanges();
             }
             return item;
         }
@@ -202,7 +214,7 @@ namespace CommonLib.Core.DataWork
                 {
                     if (_isInstance)
                     {
-                        _db.Dispose();
+                        _db!.Dispose();
                     }
                 }
 

@@ -404,7 +404,7 @@ namespace WebHome.Controllers
             }
 
             var profile = HttpContext.GetUser();
-            if (dataModel.ChkItem?.Length > 0 && profile.EnqueueDocumentPrint(models, dataModel.ChkItem))
+            if (dataModel.ChkItem?.Count > 0 && profile.EnqueueDocumentPrint(models, dataModel.ChkItem))
             {
                 return View("~/Views/AllowanceProcess/Module/PrintResult.cshtml");
             }

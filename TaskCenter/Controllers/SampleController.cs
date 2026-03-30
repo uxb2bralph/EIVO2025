@@ -18,7 +18,7 @@ using ModelCore.DataEntity;
 using ModelCore.Models.ViewModel;
 using ModelCore.Helper;
 using CommonLib.Utility;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Globalization;
 using CommonLib.Core.Utility;
@@ -34,7 +34,7 @@ namespace TaskCenter.Controllers
         protected internal ModelSource? _dataSource;
 
         protected internal bool _dbInstance;
-        protected internal GenericManager<EIVOEntityDataContext>? models;
+        protected internal GenericDbContext<ApplicationDbContext>? models;
 
         public SampleController(IServiceProvider serviceProvider, ILoggerFactory loggerFactory) : base(serviceProvider)
         {
@@ -49,16 +49,14 @@ namespace TaskCenter.Controllers
 
         public ModelSource DataSource => _dataSource!;
 
-        protected EIVOEntityDataContext db => models!.DataContext;
-
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             base.OnActionExecuting(context);
 
-            models = HttpContext.Items["__DB_Instance"] as GenericManager<EIVOEntityDataContext>;
+            models = HttpContext.Items["__DB_Instance"] as GenericDbContext<ApplicationDbContext>;
             if (models == null)
             {
-                models = new GenericManager<EIVOEntityDataContext>();
+                models = new GenericDbContext<ApplicationDbContext>();
                 _dbInstance = true;
                 HttpContext.Items["__DB_Instance"] = models;
             }
@@ -78,6 +76,7 @@ namespace TaskCenter.Controllers
         }
 
 
+        [NonAction]
         public int DecryptKeyValue(QueryViewModel viewModel, out bool expired)
         {
             int keyID = viewModel.DecryptKeyValue(out long ticks);

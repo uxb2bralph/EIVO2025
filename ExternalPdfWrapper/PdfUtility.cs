@@ -5,8 +5,7 @@ using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.DevTools;
-using OpenQA.Selenium.DevTools.V140;
-using OpenQA.Selenium.DevTools.V140.Page;
+using OpenQA.Selenium.DevTools.V145.Page;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace ExternalPdfWrapper
 {
-    public class PdfUtility : IPdfUtility
+    public class PdfUtility : IPdfUtility, IDisposable
     {
         static PdfUtility()
         {
@@ -240,6 +239,7 @@ namespace ExternalPdfWrapper
         }
 
 
+        private PuppeteerSharpUtility _puppeteerSharpUtility = new PuppeteerSharpUtility();
         public void ConvertHtmlToPDF(string htmlSource, string pdfFile, double timeOutInMinute, string[] args)
         {
             if (AppSettings.Default.UseRunBatch != null)
@@ -253,6 +253,10 @@ namespace ExternalPdfWrapper
                 {
                     UseChromeConvertHtmlToPDF(htmlSource, pdfFile, timeOutInMinute, args).Wait((int)(timeOutInMinute * 60000));
                 }
+            }
+            else if (AppSettings.Default.UsePuppeteerSharp)
+            {
+                _puppeteerSharpUtility.UsePuppeteerSharp(htmlSource, pdfFile, timeOutInMinute).Wait();
             }
             else
             {
@@ -280,12 +284,30 @@ namespace ExternalPdfWrapper
                 proc.StartInfo = info;
                 proc.Start();
                 proc.WaitForExit((int)(timeOutInMinute * 60000));
+
+                AssertFile(pdfFile, 3000);
             }
         }
 
         public void ConvertHtmlToPDF(string htmlFile, string pdfFile, double timeOutInMinute)
         {
             ConvertHtmlToPDF(htmlFile, pdfFile, timeOutInMinute, null);
+        }
+
+        bool disposed = false;
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                disposed = true;
+                // Dispose of any resources here
+                _puppeteerSharpUtility.Dispose();
+            }
+        }
+
+        ~PdfUtility()
+        {
+            Dispose();
         }
     }
 
@@ -321,5 +343,6 @@ namespace ExternalPdfWrapper
         public String ScreenshotPattern { get; set; } = "--headless --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf-no-header  --print-to-pdf={0} {1}";
         public String UseRunBatch { get; set; }
         public bool UseSelenium { get; set; } = false;
+        public bool UsePuppeteerSharp { get; set; } = false;
     }
 }

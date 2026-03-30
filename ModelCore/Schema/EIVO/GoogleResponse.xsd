@@ -21,6 +21,7 @@
 										<xs:element name="CarrierNo" type="xs:string"/>
 										<xs:element name="CarrierNo2" type="xs:string"/>
 										<xs:element name="InvoiceUrl" type="xs:string"/>
+										<xs:element name="InvoicePdf" type="xs:string"/>
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>

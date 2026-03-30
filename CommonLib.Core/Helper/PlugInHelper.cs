@@ -62,7 +62,7 @@ namespace CommonLib.Core.Helper
                             }
                             else
                             {
-                                FileLogger.Logger.Warn($"Pdf Utility intent type not found => {Startup.Properties["IPdfUtilityImplType"]},{AppSettings.Default.IPdfUtilityImplAssembly}");
+                                FileLogger.Logger.Warn($"Pdf Utility intent type not found => {Startup.Properties?["IPdfUtilityImplType"]},{AppSettings.Default.IPdfUtilityImplAssembly}");
                             }
                         }
                     }

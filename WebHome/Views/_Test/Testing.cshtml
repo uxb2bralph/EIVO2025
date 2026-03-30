@@ -37,7 +37,7 @@
     @*var data = "Hello, Line Notify...".PushToLineNotify();
         @Html.Raw(data);*@
     @*@Html.Raw(Request["Token"]);*@
-    if (_viewModel.ChkItem?.Length > 0)
+    if (_viewModel.ChkItem?.Count > 0)
     {
         foreach (var id in _viewModel.ChkItem)
         {
