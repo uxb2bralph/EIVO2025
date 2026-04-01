@@ -1,6 +1,18 @@
 {
     "dotnet.preferCSharpExtension": true,
     "chat.tools.terminal.autoApprove": {
-        "dotnet build": true
+        "dotnet build": true,
+        "/^python -c \"import os; dirs = \\['C:/Project/Github/EIVO2025\\.worktrees/copilot-worktree-2026-03-30T15-55-56/WebHome/Controllers/Api', 'C:/Project/Github/EIVO2025\\.worktrees/copilot-worktree-2026-03-30T15-55-56/WebClient/ClientApp/src/stores', 'C:/Project/Github/EIVO2025\\.worktrees/copilot-worktree-2026-03-30T15-55-56/WebClient/ClientApp/src/layouts', 'C:/Project/Github/EIVO2025\\.worktrees/copilot-worktree-2026-03-30T15-55-56/WebClient/ClientApp/src/pages'\\]; \\[os\\.makedirs\\(d, exist_ok=True\\) for d in dirs\\]; print\\('Done'\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^python -c \"import os; \\[os\\.makedirs\\(d, exist_ok=True\\) for d in \\['C:/Project/Github/EIVO2025\\.worktrees/copilot-worktree-2026-03-30T15-55-56/WebHome/Controllers/Api', 'C:/Project/Github/EIVO2025\\.worktrees/copilot-worktree-2026-03-30T15-55-56/WebClient/ClientApp/src/stores', 'C:/Project/Github/EIVO2025\\.worktrees/copilot-worktree-2026-03-30T15-55-56/WebClient/ClientApp/src/layouts', 'C:/Project/Github/EIVO2025\\.worktrees/copilot-worktree-2026-03-30T15-55-56/WebClient/ClientApp/src/pages'\\]\\]; print\\('Done'\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^\\$dirs = @\\(\n  'C:\\\\Project\\\\Github\\\\EIVO2025\\.worktrees\\\\copilot-worktree-2026-03-30T15-55-56\\\\WebHome\\\\Controllers\\\\Api',\n  'C:\\\\Project\\\\Github\\\\EIVO2025\\.worktrees\\\\copilot-worktree-2026-03-30T15-55-56\\\\WebClient\\\\ClientApp\\\\src\\\\stores',\n  'C:\\\\Project\\\\Github\\\\EIVO2025\\.worktrees\\\\copilot-worktree-2026-03-30T15-55-56\\\\WebClient\\\\ClientApp\\\\src\\\\layouts',\n  'C:\\\\Project\\\\Github\\\\EIVO2025\\.worktrees\\\\copilot-worktree-2026-03-30T15-55-56\\\\WebClient\\\\ClientApp\\\\src\\\\pages',\n  'C:\\\\Project\\\\Github\\\\EIVO2025\\.worktrees\\\\copilot-worktree-2026-03-30T15-55-56\\\\WebClient\\\\ClientApp\\\\src\\\\components\\\\organization-query'\n\\); foreach \\(\\$dir in \\$dirs\\) \\{ if \\(Test-Path \\$dir\\) \\{ Write-Host \"✓ Already exists: \\$dir\" \\} else \\{ New-Item -ItemType Directory -Path \\$dir -Force \\| Out-Null; Write-Host \"✓ Created: \\$dir\" \\} \\}$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

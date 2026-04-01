@@ -1,0 +1,21 @@
+{
+  "name": "webhome",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:ts": "tsc -p tsconfig.json",
+    "watch:ts": "tsc -p tsconfig.json --watch",
+    "build:es": "esbuild wwwroot/ts/index.ts --bundle --sourcemap --outfile=wwwroot/js/main.js",
+    "watch:es": "esbuild wwwroot/ts/index.ts --bundle --sourcemap --outfile=wwwroot/js/main.js --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "esbuild": "^0.27.3",
+    "typescript": "^5.9.3"
+  }
+}

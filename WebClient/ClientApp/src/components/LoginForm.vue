@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import axios from 'axios'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/auth'
 
 type State = 'idle' | 'submitting' | 'success' | 'error'
+
+const router = useRouter()
+const auth = useAuthStore()
 
 const id = ref('')
 const password = ref('')
@@ -22,8 +26,12 @@ const passwordError = computed(() => {
 })
 const hasErrors = computed(() => !!idError.value || !!passwordError.value)
 
-// 模擬 API endpoint（請改成你的後端路由）
-const endpoint = '/api/auth/login'
+// If already logged in, redirect to main page
+onMounted(() => {
+  if (auth.isLoggedIn.value) {
+    router.replace('/MainPage')
+  }
+})
 
 // 提交表單
 const onSubmit = async () => {
@@ -34,22 +42,12 @@ const onSubmit = async () => {
   }
   try {
     state.value = 'submitting'
-    const payload = {
-      id: id.value.trim(),
-      password: password.value,
-      rememberMe: rememberMe.value,
-    }
-    const { data } = await axios.post(endpoint, payload, {
-      // 需要跨域時可加 withCredentials 與適當 CORS 設定
-      withCredentials: true,
-    })
-    // 假設後端回傳 { success: boolean, message?: string, redirectUrl?: string }
+    const data = await auth.login(id.value.trim(), password.value, rememberMe.value)
     if (data?.success) {
       state.value = 'success'
-      // 選擇性導頁
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl
-      }
+      // Navigate within the SPA instead of a full page reload
+      const target = data.redirectUrl ?? '/MainPage'
+      router.push(target)
     } else {
       state.value = 'error'
       errorMsg.value = data?.message || '登入失敗，請確認帳密'

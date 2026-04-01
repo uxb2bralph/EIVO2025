@@ -1,9 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginForm from '@/components/LoginForm.vue'
 import InvoiceQuery from '@/components/invoice-process/InvoiceQuery.vue'
-import MainPage from '@/pages/MainPage.vue'
+import MainPage from '@/components/MainPage.vue'
 import TrackCodeQuery from '@/components/TrackCodeQuery.vue'
-import MvcMainPage from '../components/MvcMainPage.vue'
+import MvcMainPage from '@/components/MvcMainPage.vue'
+import DefaultLayout from '@/components/DefaultLayout.vue'
+import { useAuthStore } from '@/auth'
 
 const routes = [
   // ── Standalone pages (no layout wrapper) ────────────
@@ -12,12 +14,14 @@ const routes = [
     name: 'Login',
     component: LoginForm,
     alias: ['/Account/CbsLogin'],
+    meta: { public: true },
   },
 
-  // ── Pages wrapped in DefaultLayoutWithVerticalNav ────
+  // ── Pages wrapped in DefaultLayout ──────────────────
   {
     path: '/',
-    component: () => import('@/layouts/default.vue'),
+    component: DefaultLayout,
+    meta: { requiresAuth: true },
     children: [
       {
         path: '',
@@ -44,8 +48,7 @@ const routes = [
       {
         path: 'OrganizationQuery',
         name: 'OrganizationQuery',
-        component: () => import('@/components/organization-query/OrganizationQueryIndex.vue'),
-        // Aliases keep legacy MVC URLs working while the SPA takes over
+        component: () => import('@/components/OrganizationQueryIndex.vue'),
         alias: ['/OrganizationQuery/Index'],
       },
     ],
@@ -55,4 +58,17 @@ const routes = [
 export const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+// ── Navigation guard: redirect unauthenticated users to /Login ──
+router.beforeEach((to) => {
+  const auth = useAuthStore()
+  const isPublic = to.meta['public'] === true
+  const requiresAuth = to.matched.some(r => !!r.meta['requiresAuth'])
+  if (requiresAuth && !auth.isLoggedIn.value) {
+    return { path: '/Login', query: { returnUrl: to.fullPath } }
+  }
+  if (isPublic && auth.isLoggedIn.value && to.path === '/Login') {
+    return { path: '/MainPage' }
+  }
 })

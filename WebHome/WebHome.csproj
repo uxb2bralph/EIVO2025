@@ -6,6 +6,8 @@
     <RazorCompileOnPublish>true</RazorCompileOnPublish>
 	<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Use the explicit npm/tsconfig build hook below instead of legacy MSBuild TypeScript compilation. -->
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +24,7 @@
   <ItemGroup>
     <!-- <Folder Include="wwwroot\" /> -->
     <Folder Include="Views\DonatedInvoice\Module\" />
+    <Folder Include="Views\InvoiceBusiness\POSDevice\" />
     <Folder Include="Views\InvoiceProcess\Buyer\" />
     <Folder Include="Views\Module\" />
     <Folder Include="Views\TestAll\" />
@@ -82,10 +85,6 @@
   <ItemGroup>
     <None Remove="wwwroot\ts\index.ts" />
   </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="wwwroot\ts\index.ts" />
-  </ItemGroup>
-
   <!--
     Optional TypeScript build hook. To enable automatic TypeScript build during MSBuild,
     invoke msbuild with -p:TypeScriptBuild=true or set the property in your IDE.

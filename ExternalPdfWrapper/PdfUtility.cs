@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.DevTools;
-using OpenQA.Selenium.DevTools.V145.Page;
+using OpenQA.Selenium.DevTools.V143.Page;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

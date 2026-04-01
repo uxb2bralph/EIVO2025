@@ -1,0 +1,1065 @@
+﻿using CommonLib.Core.Utility;
+using CommonLib.Core.DataWork;
+using CommonLib.DataAccess;
+using CommonLib.Utility;
+using DocumentFormat.OpenXml.Office.CustomUI;
+using ModelCore.DataEntity;
+using ModelCore.InvoiceManagement;
+using ModelCore.InvoiceManagement.InvoiceProcess;
+using ModelCore.Locale;
+using ModelCore.Models.ViewModel;
+using ModelCore.Schema.TurnKey;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ModelCore.Helper
+{
+    public static class InvoiceExtensionMethods
+    {
+
+        public static void GetInvoiceNo(this String? invoiceNumber, out String? invNo, out String? trackCode)
+        {
+            if (!String.IsNullOrEmpty(invoiceNumber) && invoiceNumber.Length >= 10)
+            {
+                trackCode = invoiceNumber.Substring(0, 2);
+                invNo = invoiceNumber.Substring(2);
+            }
+            else
+            {
+                trackCode = null;
+                invNo = invoiceNumber;
+            }
+        }
+
+        public static InvoiceItem? ConvertToInvoiceItem(this GenericDbContext<ApplicationDbContext> models, ModelCore.Schema.TurnKey.Invoice.Invoice? invoice, OrganizationToken? owner)
+        {
+            if (invoice == null)
+            {
+                return null;
+            }
+
+            Organization? buyer = CheckBusinessRoleFromMIG(models, invoice.Main!.Buyer!);
+            Organization? seller = CheckBusinessRoleFromMIG(models, invoice.Main!.Seller!);
+
+            String? invNo, trackCode;
+            invoice!.Main!.InvoiceNumber.GetInvoiceNo(out invNo, out trackCode);
+
+            InvoiceItem newItem = new InvoiceItem
+            {
+                CDS_Document = new CDS_Document
+                {
+                    DocDate = DateTime.Now,
+                    DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
+                },
+                InvoiceBuyer = new InvoiceBuyer
+                {
+                    BuyerMark = (int?)invoice.Main.BuyerRemark,
+                    Name = invoice.Main!.Buyer!.Name,
+                    ReceiptNo = invoice.Main.Buyer.Identifier,
+                    ContactName = invoice.Main.Buyer.PersonInCharge,
+                    Address = invoice.Main.Buyer.Address,
+                    CustomerID = invoice.Main.Buyer.CustomerNumber,
+                    CustomerName = invoice.Main.Buyer.Name,
+                    EMail = invoice.Main.Buyer.EmailAddress,
+                    Fax = invoice.Main.Buyer.FacsimileNumber,
+                    PersonInCharge = invoice.Main.Buyer.PersonInCharge,
+                    Phone = invoice.Main.Buyer.TelephoneNumber,
+                    RoleRemark = invoice.Main.Buyer.RoleRemark,
+                    Buyer = buyer
+                },
+                InvoiceSeller = new InvoiceSeller
+                {
+                    Name = invoice.Main!.Seller!.Name,
+                    ReceiptNo = invoice.Main.Seller.Identifier,
+                    ContactName = invoice.Main!.Seller!.PersonInCharge,
+                    Address = invoice.Main!.Seller!.Address,
+                    CustomerID = invoice.Main!.Seller!.CustomerNumber,
+                    CustomerName = invoice.Main!.Seller!.Name,
+                    EMail = invoice.Main!.Seller!.EmailAddress,
+                    Fax = invoice.Main!.Seller!.FacsimileNumber,
+                    PersonInCharge = invoice.Main!.Seller!.PersonInCharge,
+                    Phone = invoice.Main!.Seller!.TelephoneNumber,
+                    RoleRemark = invoice.Main!.Seller!.RoleRemark,
+                    Seller = seller
+                },
+                InvoiceDate = invoice.Main.InvoiceDateTime,
+                InvoiceType = (byte?)(invoice.Main.InvoiceType),
+                No = invNo,
+                TrackCode = trackCode,
+                Seller = seller,
+                BuyerRemark = (byte?)invoice.Main.BuyerRemark,
+                Category = invoice.Main.Category,
+                DonateMark = $"{(int?)invoice.Main.DonateMark}",
+                CustomsClearanceMark = (byte?)invoice.Main.CustomsClearanceMark,
+                GroupMark = invoice.Main.GroupMark,
+                //PermitDate = String.IsNullOrEmpty(invoice.Main.PermitDate) ? (DateTime?)null : DateTime.ParseExact(invoice.Main.PermitDate, "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture),
+                //PermitNumber = invoice.Main.PermitNumber,
+                //PermitWord = invoice.Main.PermitWord,
+                RelateNumber = invoice.Main.RelateNumber,
+                Remark = invoice.Main.MainRemark,
+                //TaxCenter = invoice.Main.TaxCenter,
+                InvoiceAmountType = new InvoiceAmountType
+                {
+                    DiscountAmount = invoice.Amount!.DiscountAmount,
+                    SalesAmount = invoice.Amount.SalesAmount,
+                    TaxAmount = invoice.Amount.TaxAmount,
+                    TaxType = (byte)((int)invoice.Amount.TaxType),
+                    TotalAmount = invoice.Amount.TotalAmount,
+                    TotalAmountInChinese = ValidityAgent.MoneyShow(invoice.Amount.TotalAmount),
+                    TaxRate = invoice.Amount.TaxRate,
+                    CurrencyID = (int?)invoice.Amount.Currency,
+                    ExchangeRate = invoice.Amount.ExchangeRate,
+                    OriginalCurrencyAmount = invoice.Amount.OriginalCurrencyAmount
+                },
+                PrintMark = "Y",
+            };
+
+            if (owner != null)
+            {
+                newItem.CDS_Document.DocumentOwner = new DocumentOwner
+                {
+                    OwnerID = owner.CompanyID
+                };
+            }
+
+            short seqNo = 1;
+
+            var productItems = invoice.Details!.Select(i => new InvoiceProductItem
+            {
+                Product = new InvoiceProduct { Brief = i.Description },
+                CostAmount = i.Amount,
+                ItemNo = i.SequenceNumber,
+                Piece = i.Quantity,
+                PieceUnit = i.Unit,
+                UnitCost = i.UnitPrice,
+                Remark = i.Remark,
+                TaxType = newItem.InvoiceAmountType.TaxType,
+                RelateNumber = i.RelateNumber,
+                No = (seqNo++)
+            });
+
+            newItem.Product!.AddRange(productItems.Select(p => p.Product));
+            return newItem;
+        }
+
+        public static Organization CheckBusinessRoleFromMIG(this GenericDbContext<ApplicationDbContext> models, RoleDescription roleDescription)
+        {
+            var receiptNo = roleDescription.Identifier;
+            Organization? orgItem = models.GetTable<Organization>().Where(o => o.ReceiptNo == receiptNo).FirstOrDefault();
+            bool hasUpdate = false;
+            if (orgItem == null)
+            {
+                orgItem = new Organization
+                {
+                    Addr = roleDescription.Address,
+                    CompanyName = roleDescription.Name,
+                    UndertakerName = roleDescription.PersonInCharge,
+                    Phone = roleDescription.TelephoneNumber,
+                    Fax = roleDescription.FacsimileNumber,
+                    ContactEmail = roleDescription.EmailAddress,
+                    ReceiptNo = roleDescription.Identifier,
+                    OrganizationStatus = new OrganizationStatus
+                    {
+                        IronSteelIndustry = false
+                    }
+                };
+
+                models.GetTable<Organization>().Add(orgItem);
+                hasUpdate = true;
+            }
+            else if (orgItem.OrganizationStatus == null)
+            {
+                orgItem.OrganizationStatus = new OrganizationStatus
+                {
+                    IronSteelIndustry = false
+                };
+                hasUpdate = true;
+            }
+
+            if (hasUpdate)
+            {
+                models.SubmitChanges();
+            }
+
+            return orgItem;
+        }
+
+        public static InvoiceItem ConvertToInvoiceItem(this GenericDbContext<ApplicationDbContext> models, InvoiceEntity invoice)
+        {
+            InvoiceItem item = invoice.MainItem;
+            if (item.InvoiceBuyer == null)
+            {
+                invoice.Status = Naming.UploadStatusDefinition.匯入失敗;
+                invoice.Reason = "InvoiceBuyer is null";
+                return null;
+            }
+            Organization buyer = models.GetTable<Organization>().Where(o => o.ReceiptNo == item.InvoiceBuyer.ReceiptNo).FirstOrDefault();
+            if (buyer == null)
+            {
+                buyer = new Organization
+                {
+                    Addr = item.InvoiceBuyer.Address,
+                    CompanyName = item.InvoiceBuyer.Name,
+                    UndertakerName = item.InvoiceBuyer.PersonInCharge,
+                    Phone = item.InvoiceBuyer.Phone,
+                    Fax = item.InvoiceBuyer.Fax,
+                    ContactEmail = item.InvoiceBuyer.EMail,
+                    ReceiptNo = item.InvoiceBuyer.ReceiptNo,
+                    OrganizationStatus = new OrganizationStatus
+                    {
+                        IronSteelIndustry = false
+                    }
+                };
+            }
+
+            item.InvoiceBuyer.Buyer = buyer;
+
+            if (item.InvoiceSeller == null)
+            {
+                invoice.Status = Naming.UploadStatusDefinition.匯入失敗;
+                invoice.Reason = "InvoiceSeller is null";
+                return null;
+            }
+
+            Organization seller = models.GetTable<Organization>().Where(o => o.ReceiptNo == item.InvoiceSeller.ReceiptNo).FirstOrDefault();
+            if (seller == null)
+            {
+                seller = new Organization
+                {
+                    Addr = item.InvoiceSeller.Address,
+                    CompanyName = item.InvoiceSeller.Name,
+                    UndertakerName = item.InvoiceSeller.PersonInCharge,
+                    Phone = item.InvoiceSeller.Phone,
+                    Fax = item.InvoiceSeller.Fax,
+                    ContactEmail = item.InvoiceSeller.EMail,
+                    ReceiptNo = item.InvoiceSeller.ReceiptNo,
+                    OrganizationStatus = new OrganizationStatus
+                    {
+                        IronSteelIndustry = false
+                    }
+                };
+            }
+            else if (seller.OrganizationStatus == null)
+            {
+                seller.OrganizationStatus = new OrganizationStatus
+                {
+                    IronSteelIndustry = false
+                };
+            }
+            item.Seller = seller;
+
+            item.InvoiceSeller.Seller = seller;
+            item.CDS_Document = new CDS_Document
+            {
+                DocDate = DateTime.Now,
+                DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
+            };
+
+            //foreach(var p in invoice.ItemDetails)
+            //{
+            //    p.Product = new Product
+            //    {
+            //        Brief = p.Product.Brief
+            //    };
+            //}
+
+            item.Product.Clear();
+            item.Product.AddRange(invoice.ItemDetails!.Select(p => p));
+
+
+            return item;
+        }
+
+        public static DataSet GetInvoiceData(this IQueryable<InvoiceItem> items, GenericDbContext<ApplicationDbContext> models)
+        {
+            var productItems = items.SelectMany(d => d.Product.SelectMany(p => p.InvoiceProductItem));
+
+            var dataItems = items.ToArray().Select(i => new
+            {
+                Invoice_No = $"{i.TrackCode}{i.No}",
+                Invoice_Date = i.InvoiceDate,
+                Data_ID = i.InvoicePurchaseOrder?.OrderNo,
+                Data_Date = i.InvoicePurchaseOrder?.PurchaseDate,
+                Seller_ID = i.InvoiceSeller?.ReceiptNo,
+                Buyer_Name = i.InvoiceBuyer?.CustomerName,
+                Buyer_ID = i.InvoiceBuyer?.ReceiptNo,
+                Buyer_Mark = i.BuyerRemark,
+                Customs_Clearance_Mark = i.CustomsClearanceMark,
+                Customer_ID = i.InvoiceBuyer?.CustomerID,
+                Contact_Name = i.InvoiceBuyer?.ContactName,
+                EMail = i.InvoiceBuyer?.EMail,
+                Address = i.InvoiceBuyer?.Address,
+                Phone = i.InvoiceBuyer?.Phone,
+                Sales_Amount = i.InvoiceAmountType?.SalesAmount,
+                Free_Tax_Sales_Amount = (decimal?)null,
+                Zero_Tax_Sales_Amount = (decimal?)null,
+                Invoice_Type = (int?)i.InvoiceType,
+                Tax_Type = (int?)i.InvoiceAmountType?.TaxType,
+                Tax_Rate = i.InvoiceAmountType?.TaxRate,
+                Tax_Amount = i.InvoiceAmountType?.TaxAmount,
+                Total_Amount = i.InvoiceAmountType?.TotalAmount,
+                Currency = i.InvoiceAmountType?.Currency?.AbbrevName,
+                Print_Mark = i.PrintMark,
+                Carrier_Type = i.InvoiceCarrier?.CarrierType,
+                Carrier_Id1 = i.InvoiceCarrier?.CarrierNo,
+                Carrier_Id2 = i.InvoiceCarrier?.CarrierNo2,
+                Donate_Mark = i.DonateMark,
+                NPOBAN = i.InvoiceDonation?.AgencyCode,
+                Random_Number = i.RandomNo,
+                Main_Remark = i.Remark,
+                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+            });
+
+            var detailItems = productItems.ToList().Select(d => new
+            {
+                Invoice_No = $"{d.Product?.Invoice.FirstOrDefault()?.TrackCode}{d.Product?.Invoice.FirstOrDefault()?.No}",
+                Data_ID = d.Product?.Invoice.FirstOrDefault()?.InvoicePurchaseOrder?.OrderNo,
+                Description = d.Product?.Brief,
+                Quantity = d.Piece,
+                Unit = d.PieceUnit,
+                Unit_Price = d.UnitCost,
+                Amount = d.CostAmount,
+                Item_Tax_Type = d.TaxType,
+                Remark = d.Remark,
+            });
+
+            DataSet ds = new DataSet();
+
+            DataTable table = dataItems.ToDataTable();
+            table.TableName = "Invoice";
+            ds.Tables.Add(table);
+
+            table = detailItems.ToDataTable();
+            table.TableName = "Details";
+            ds.Tables.Add(table);
+            return ds;
+
+        }
+
+        public static DataSet GetAllowanceData(this IQueryable<InvoiceAllowance> items, GenericDbContext<ApplicationDbContext> models)
+        {
+            var productItems = items.SelectMany(d => d.InvoiceAllowanceDetails);
+
+            var dataItems = items.ToArray().Select(i => new
+            {
+                Allowance_No = i.AllowanceNumber,
+                Allowance_Date = i.AllowanceDate,
+                Seller_ID = i.InvoiceAllowanceSeller?.ReceiptNo,
+                //Customer_ID = i.InvoiceAllowanceBuyer.CustomerID,
+                //Buyer_Name = i.InvoiceAllowanceBuyer.CustomerName,
+                //Buyer_ID = i.InvoiceAllowanceBuyer.ReceiptNo,
+                //Allowance_Type = i.AllowanceType,
+                Contact_Name = i.InvoiceAllowanceBuyer?.ContactName,
+                EMail = i.InvoiceAllowanceBuyer?.EMail,
+                Address = i.InvoiceAllowanceBuyer?.Address,
+                Phone = i.InvoiceAllowanceBuyer?.Phone,
+                Tax_Amount = i.TaxAmount,
+                Total_Amount = i.TotalAmount,
+                Currency = i.Currency?.AbbrevName,
+            });
+
+            var detailItems = productItems.ToArray().Select(d => new
+            {
+                Allowance_No = d.Allowance.First().AllowanceNumber,
+                Original_Invoice_Date = d.InvoiceDate,
+                Original_Invoice_No = d.InvoiceNo,
+                Original_Sequence_No = d.OriginalSequenceNo,
+                Original_Description = d.OriginalDescription,
+                Quantity = d.Piece,
+                Unit_Price = d.UnitCost,
+                Amount = d.Amount,
+                Tax = d.Tax,
+                Allowance_Sequence_No = d.No,
+                Item_Tax_Type = d.TaxType,
+            });
+
+            DataSet ds = new DataSet();
+
+            DataTable table = dataItems.ToDataTable();
+            table.TableName = "Allowance";
+            ds.Tables.Add(table);
+
+            table = detailItems.ToDataTable();
+            table.TableName = "Details";
+            ds.Tables.Add(table);
+            return ds;
+
+        }
+
+        public static DataSet GetInvoiceDataForVAC(this IQueryable<InvoiceItem> items, GenericDbContext<ApplicationDbContext> models)
+        {
+            var productItems = items.SelectMany(d => d.Product.SelectMany(p=>p.InvoiceProductItem));
+
+            var dataItems = items.ToList().Select(i => new
+            {
+                Data_ID = i.InvoicePurchaseOrder?.OrderNo,
+                Data_Date = i.InvoicePurchaseOrder?.PurchaseDate,
+                Seller_ID = i.InvoiceSeller?.ReceiptNo,
+                Buyer_Name = i.InvoiceBuyer?.CustomerName,
+                Buyer_ID = i.InvoiceBuyer?.ReceiptNo,
+                Buyer_Mark = i.BuyerRemark,
+                Customs_Clearance_Mark = i.CustomsClearanceMark,
+                Customer_ID = i.InvoiceBuyer?.CustomerID,
+                Contact_Name = i.InvoiceBuyer?.ContactName,
+                EMail = i.InvoiceBuyer?.EMail,
+                Address = i.InvoiceBuyer?.Address,
+                Phone = i.InvoiceBuyer?.Phone,
+                Sales_Amount = i.InvoiceAmountType?.SalesAmount,
+                Free_Tax_Sales_Amount = (decimal?)null,
+                Zero_Tax_Sales_Amount = (decimal?)null,
+                Invoice_Type = (int?)i.InvoiceType,
+                Tax_Type = (int?)i.InvoiceAmountType?.TaxType,
+                Tax_Rate = i.InvoiceAmountType?.TaxRate,
+                Tax_Amount = i.InvoiceAmountType?.TaxAmount,
+                Total_Amount = i.InvoiceAmountType?.TotalAmount,
+                Currency = i.InvoiceAmountType?.Currency?.AbbrevName,
+                Print_Mark = i.PrintMark,
+                Carrier_Type = i.InvoiceCarrier?.CarrierType,
+                Carrier_Id1 = i.InvoiceCarrier?.CarrierNo,
+                Carrier_Id2 = i.InvoiceCarrier?.CarrierNo2,
+                Donate_Mark = i.DonateMark,
+                NPOBAN = i.InvoiceDonation?.AgencyCode,
+                Random_Number = i.RandomNo,
+                Main_Remark = i.Remark,
+                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+            });
+
+            var detailItems = productItems.ToArray().Select(d => new
+            {
+                Data_ID = d.Product?.Invoice?.First().InvoicePurchaseOrder?.OrderNo,
+                Description = d.Product.Brief,
+                Quantity = d.Piece,
+                Unit = d.PieceUnit,
+                Unit_Price = d.UnitCost,
+                Amount = d.CostAmount,
+                Item_Tax_Type = d.TaxType,
+                Remark = d.Remark,
+            });
+
+            DataSet ds = new DataSet();
+
+            DataTable table = dataItems.ToDataTable();
+            table.TableName = "Invoice";
+            ds.Tables.Add(table);
+
+            table = detailItems.ToDataTable();
+            table.TableName = "Details";
+            ds.Tables.Add(table);
+            return ds;
+
+        }
+
+        public static DataSet GetInvoiceDataForIssuer(this IQueryable<InvoiceItem> items, GenericDbContext<ApplicationDbContext> models)
+        {
+            var productItems = items.SelectMany(d => d.Product.SelectMany(p => p.InvoiceProductItem));
+
+            var dataItems = items.ToArray().Select(i => new
+            {
+                Invoice_No = $"{i.TrackCode}{i.No}",
+                Invoice_Date = i.InvoiceDate,
+                Data_ID = i.InvoicePurchaseOrder?.OrderNo,
+                Seller_ID = i.InvoiceSeller?.ReceiptNo,
+                Buyer_Name = i.InvoiceBuyer?.CustomerName,
+                Buyer_ID = i.InvoiceBuyer?.ReceiptNo,
+                Buyer_Mark = i.BuyerRemark,
+                Customs_Clearance_Mark = i.CustomsClearanceMark,
+                Customer_ID = i.InvoiceBuyer?.CustomerID,
+                Contact_Name = i.InvoiceBuyer?.ContactName,
+                EMail = i.InvoiceBuyer?.EMail,
+                Address = i.InvoiceBuyer?.Address,
+                Phone = i.InvoiceBuyer?.Phone,
+                Sales_Amount = i.InvoiceAmountType?.SalesAmount,
+                Free_Tax_Sales_Amount = (decimal?)null,
+                Zero_Tax_Sales_Amount = (decimal?)null,
+                Invoice_Type = (int?)i.InvoiceType,
+                Tax_Type = (int?)i.InvoiceAmountType?.TaxType,
+                Tax_Rate = i.InvoiceAmountType?.TaxRate,
+                Tax_Amount = i.InvoiceAmountType?.TaxAmount,
+                Total_Amount = i.InvoiceAmountType?.TotalAmount,
+                Currency = i.InvoiceAmountType?.Currency?.AbbrevName,
+                Print_Mark = i.PrintMark,
+                Carrier_Type = i.InvoiceCarrier?.CarrierType,
+                Carrier_Id1 = i.InvoiceCarrier?.CarrierNo,
+                Carrier_Id2 = i.InvoiceCarrier?.CarrierNo2,
+                Donate_Mark = i.DonateMark,
+                NPOBAN = i.InvoiceDonation?.AgencyCode,
+                Random_Number = i.RandomNo,
+                Main_Remark = i.Remark,
+                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+            });
+
+            var detailItems = productItems.ToArray().Select(d => new
+            {
+                Invoice_No = $"{d.Product?.Invoice.FirstOrDefault()?.TrackCode}{d.Product?.Invoice.FirstOrDefault()?.No}",
+                Description = d.Product?.Brief,
+                Quantity = d.Piece,
+                Unit = d.PieceUnit,
+                Unit_Price = d.UnitCost,
+                Amount = d.CostAmount,
+                Item_Tax_Type = d.TaxType,
+                Remark = d.Remark,
+            });
+
+            DataSet ds = new DataSet();
+
+            DataTable table = dataItems.ToDataTable();
+            table.TableName = "Invoice";
+            ds.Tables.Add(table);
+
+            table = detailItems.ToDataTable();
+            table.TableName = "Details";
+            ds.Tables.Add(table);
+            return ds;
+
+        }
+        public static DataSet GetInvoiceDataForCBE(this IQueryable<InvoiceItem> items, GenericDbContext<ApplicationDbContext> models)
+        {
+            var productItems = items.SelectMany(d => d.Product.SelectMany(p => p.InvoiceProductItem));
+
+            var dataItems = items.ToArray().Select(i => new
+            {
+                Data_ID = i.InvoicePurchaseOrder?.OrderNo,
+                Data_Date = i.InvoicePurchaseOrder?.PurchaseDate,
+                Seller_ID = i.InvoiceSeller?.ReceiptNo,
+                Customer_ID = i.InvoiceBuyer?.CustomerID,
+                Sales_Amount = i.InvoiceAmountType?.SalesAmount,
+                Tax_Amount = i.InvoiceAmountType?.TaxAmount,
+                Total_Amount = i.InvoiceAmountType?.TotalAmount,
+                Currency = i.InvoiceAmountType?.Currency?.AbbrevName,
+                Carrier_Id1 = i.InvoiceCarrier?.CarrierNo,
+                Main_Remark = i.Remark,
+            });
+
+            var detailItems = productItems.ToArray().Select(d => new
+            {
+                Data_ID = d.Product?.Invoice.First().InvoicePurchaseOrder?.OrderNo,
+                Description = d.Product?.Brief,
+                Quantity = d.Piece,
+                Unit = d.PieceUnit,
+                Unit_Price = d.UnitCost,
+                Amount = d.CostAmount,
+                Remark = d.Remark,
+            });
+
+            DataSet ds = new DataSet();
+
+            DataTable table = dataItems.ToDataTable();
+            table.TableName = "Invoice";
+            ds.Tables.Add(table);
+
+            table = detailItems.ToDataTable();
+            table.TableName = "Details";
+            ds.Tables.Add(table);
+            return ds;
+
+        }
+
+        public static DataSet GetVoidInvoiceData(this IQueryable<InvoiceCancellation> items, GenericDbContext<ApplicationDbContext> models)
+        {
+            var dataItems = items.ToArray().Select(i => new
+            {
+                Void_Invoice_No = $"{i.Invoice.TrackCode}{i.Invoice.No}",
+                //Buyer_ID = i.Invoice.InvoiceBuyer?.ReceiptNo,
+                Seller_ID = i.Invoice.InvoiceSeller?.ReceiptNo,
+                Invoice_Date = i.Invoice.InvoiceDate,
+                Void_Date = i.CancelDate,
+                Reason = i.CancelReason,
+                Return_Tax_Document_No = i.ReturnTaxDocumentNo,
+                Remark = i.Remark,
+            });
+
+            DataSet ds = new DataSet();
+
+            DataTable table = dataItems.ToDataTable();
+            table.TableName = "Void_Invoice";
+            ds.Tables.Add(table);
+
+            return ds;
+
+        }
+
+        public static DataSet GetInvoiceDataForFullAllowance(this IQueryable<InvoiceItem> items, GenericDbContext<ApplicationDbContext> models)
+        {
+            var dataItems = items.ToArray().Select(i => new
+            {
+                Data_No = $"{i.TrackCode}{i.No}",
+                Seller_ID = i.InvoiceSeller?.ReceiptNo,
+                Allowance_No = "",
+                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+            });
+
+            DataSet ds = new DataSet();
+
+            DataTable table = dataItems.ToDataTable();
+            table.TableName = "Allowance";
+            ds.Tables.Add(table);
+
+            return ds;
+
+        }
+
+        public static DataSet GetVoidAllowanceData(this IQueryable<InvoiceAllowanceCancellation> items, GenericDbContext<ApplicationDbContext> models)
+        {
+            var dataItems = items.ToArray().Select(i => new
+            {
+                Void_AllowanceNo = i.Allowance.AllowanceNumber,
+                //Buyer_ID = i.Allowance.InvoiceAllowanceBuyer?.ReceiptNo,
+                Seller_ID = i.Allowance.InvoiceAllowanceSeller?.ReceiptNo,
+                Allowance_Date = i.Allowance.AllowanceDate,
+                Reason = i.CancelReason,
+                Void_Date = i.CancelDate,
+                Remark = i.Remark,
+                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+            });
+
+            DataSet ds = new DataSet();
+
+            DataTable table = dataItems.ToDataTable();
+            table.TableName = "Void_Allowance";
+            ds.Tables.Add(table);
+
+            return ds;
+
+        }
+
+        public static InvoiceAllowanceCancellation PrepareVoidItem(this InvoiceAllowance allowance, GenericDbContext<ApplicationDbContext> models, ref DerivedDocument? doc, Naming.InvoiceProcessType? processType = Naming.InvoiceProcessType.G0501)
+        {
+            InvoiceAllowanceCancellation voidItem = new InvoiceAllowanceCancellation
+            {
+                Allowance = allowance,
+                AllowanceID = allowance.AllowanceID,
+            };
+
+            doc = new DerivedDocument
+            {
+                CDS_Document = new CDS_Document
+                {
+                    DocDate = DateTime.Now,
+                    DocType = (int)Naming.DocumentTypeDefinition.E_AllowanceCancellation,
+                    ProcessType = allowance.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0101
+                                    ? (int)Naming.InvoiceProcessType.B0201
+                                    : (int?)processType,
+                },
+                SourceID = allowance.AllowanceID,
+            };
+
+            if (allowance.CDS_Document.DocumentOwner != null)
+            {
+                doc.CDS_Document.DocumentOwner = new DocumentOwner
+                {
+                    OwnerID = allowance.CDS_Document.DocumentOwner.OwnerID
+                };
+            }
+
+            models.GetTable<InvoiceAllowanceCancellation>().Add(voidItem);
+            models.GetTable<DerivedDocument>().Add(doc);
+
+            if (doc.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.B0201)
+            {
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.B0201);
+            }
+            else
+            {
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.G0501);
+                //doc.Doc.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0501);
+            }
+
+            return voidItem;
+        }
+
+        public static InvoiceCancellation PrepareVoidItem(this InvoiceItem invoice, GenericDbContext<ApplicationDbContext> models, ref DerivedDocument? doc, Naming.InvoiceProcessType processType = Naming.InvoiceProcessType.F0501)
+        {
+            InvoiceCancellation voidItem = new InvoiceCancellation
+            {
+                Invoice = invoice,
+                InvoiceID = invoice.InvoiceID,
+                CancellationNo = $"{invoice.TrackCode}{invoice.No}",
+            };
+
+            doc = new DerivedDocument
+            {
+                CDS_Document = new CDS_Document
+                {
+                    DocType = (int)Naming.DocumentTypeDefinition.E_InvoiceCancellation,
+                    DocDate = DateTime.Now,
+                    ProcessType = invoice.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101 
+                                    ? (int)Naming.InvoiceProcessType.A0201 
+                                    : (int)processType,
+                },
+                SourceID = invoice.InvoiceID
+            };
+
+            if (invoice.CDS_Document.DocumentOwner != null)
+            {
+                doc.CDS_Document.DocumentOwner = new DocumentOwner
+                {
+                    OwnerID = invoice.CDS_Document.DocumentOwner.OwnerID
+                };
+            }
+
+            models.GetTable<InvoiceCancellation>().Add(voidItem);
+            models.GetTable<DerivedDocument>().Add(doc);
+
+            if (doc.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0201)
+            {
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0201);
+            }
+            else if (doc.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.ReceivedA0201)
+            {
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待接收, Naming.InvoiceProcessType.A0201);
+            }
+            else
+            {
+                doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0501);
+                //doc.Doc.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
+            }
+
+            return voidItem;
+        }
+
+        public static IQueryable<InvoiceProductItem> GetInvoiceProductItem(this InvoiceItem item, GenericDbContext<ApplicationDbContext> models)
+        {
+            return models.GetTable<InvoiceItem>().Where(v => v.InvoiceID == item.InvoiceID)
+                            .SelectMany(v => v.Product.SelectMany(p => p.InvoiceProductItem));
+        }
+
+        public static IQueryable<InvoiceItem> PromptWinningInvoiceForNotification(this GenericDbContext<ApplicationDbContext> models, int year, int period)
+        {
+            var items = models.GetTable<InvoiceItem>()
+                .Where(i => i.InvoiceCancellation == null)
+                .Where(i => i.InvoiceDonation == null)
+                .Where(i => i.PrintMark == "N")
+                .Join(models.GetTable<Organization>()
+                    .Join(models.GetTable<OrganizationStatus>().Where(s => (s.InvoiceNoticeSetting & (int)Naming.InvoiceNoticeStatus.Winning) > 0),
+                        o => o.CompanyID, s => s.CompanyID, (o, s) => o),
+                    i => i.SellerID, o => o.CompanyID, (i, o) => i)
+                .Join(models.GetTable<InvoiceWinningNumber>()
+                    .Join(models.GetTable<UniformInvoiceWinningNumber>()
+                        .Where(u => u.Year == year && u.Period == period),
+                        w => w.WinningID, u => u.WinningID, (w, u) => w),
+                    i => i.InvoiceID, w => w.InvoiceID, (i, w) => i);
+
+            return items;
+        }
+
+        public static InvoicePurchaseOrderAudit CreateInvoicePurchaseOrderAudit(this GenericDbContext<ApplicationDbContext> models, int sellerID, String orderNo)
+        {
+            lock (typeof(InvoiceExtensionMethods))
+            {
+                var table = models.GetTable<InvoicePurchaseOrderAudit>();
+                if (table.Where(a => a.SellerID == sellerID)
+                    .Where(a => a.OrderNo == orderNo).Any())
+                {
+                    return null;
+                }
+
+                InvoicePurchaseOrderAudit audit = new InvoicePurchaseOrderAudit
+                {
+                    OrderNo = orderNo,
+                    SellerID = sellerID,
+                };
+
+                table.Add(audit);
+                models.SubmitChanges();
+
+                return audit;
+            }
+        }
+
+        public static int? TurnkeyLogFeedback(this GenericDbContext<ApplicationDbContext> models, string msgType, string code, string no)
+        {
+            try
+            {
+                switch (msgType)
+                {
+                    case "A0401":
+                    case "C0401":
+                    case "F0401":
+                        return PushInvoiceTurnkeyLog(models, code, no, Naming.InvoiceProcessType.F0401);
+
+                    case "A0101":
+                    case "A0102":
+                    case "A0301":
+                    case "A0302":
+                        return PushInvoiceTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
+
+
+                    case "C0701":
+                    case "F0701":
+                        if (no?.Length == 10)
+                        {
+                            var invoice = models.GetTable<InvoiceItem>()
+                                    .Where(i => i.TrackCode == no.Substring(0, 2))
+                                    .Where(i => i.No == no.Substring(2))
+                                    .OrderByDescending(i => i.InvoiceID)
+                                    .FirstOrDefault();
+
+                            if (invoice != null)
+                            {
+                                var request = invoice.CDS_Document.VoidInvoiceRequest;
+                                if (request != null)
+                                {
+                                    request.CommitDate = DateTime.Now;
+                                    models.SubmitChanges();
+
+                                    if (code == "C")
+                                    {
+                                        models.CommitVoidInvoiceRequest(request);
+                                    }
+                                }
+                                return invoice.InvoiceID;
+                            }
+                        }
+                        break;
+
+                    case "A0501":
+                    case "C0501":
+                    case "F0501":
+                        return PushInvoiceCancellationTurnkeyLog(models, code, no, Naming.InvoiceProcessType.F0501);
+
+                    case "A0201":
+                    case "A0202":
+                        return PushInvoiceCancellationTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
+
+                    case "B0401":
+                    case "D0401":
+                    case "G0401":
+                        return PushAllowanceTurnkeyLog(models, code, no, Naming.InvoiceProcessType.G0401);
+
+                    case "B0101":
+                    case "B0102":
+                        return PushAllowanceTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
+
+                    case "B0501":
+                    case "D0501":
+                    case "G0501":
+                        return PushAllowanceCancellationTurnkeyLog(models, code, no, Naming.InvoiceProcessType.G0501);
+
+                    case "B0201":
+                    case "B0202":
+                        return PushAllowanceCancellationTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+            return null;
+        }
+
+        private static int? PushAllowanceCancellationTurnkeyLog(GenericDbContext<ApplicationDbContext> models, string code, string no,Naming.InvoiceProcessType processType)
+        {
+            var cancelAllowance = models.GetTable<InvoiceAllowance>()
+                                            .Where(i => i.AllowanceNumber == no)
+                                            .OrderByDescending(i => i.AllowanceID)
+                                            .Select(a => a.InvoiceAllowanceCancellation)
+                                            .FirstOrDefault();
+
+            CDS_Document? doc = cancelAllowance?.Allowance.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
+            if (doc != null)
+            {
+                if (code == "C")
+                {
+                    doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done,processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.Allowance.AllowanceNumber}) => C");
+                    return doc.DocID;
+                }
+                else if (code == "E")
+                {
+                    doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.Allowance.AllowanceNumber}) => E");
+                    return doc.DocID;
+                }
+            }
+
+            return null;
+        }
+
+        private static int? PushAllowanceTurnkeyLog(GenericDbContext<ApplicationDbContext> models, string code, string no, Naming.InvoiceProcessType processType)
+        {
+            var allowance = models.GetTable<InvoiceAllowance>()
+                    .Where(i => i.AllowanceNumber == no)
+                    .OrderByDescending(i => i.AllowanceID)
+                    .FirstOrDefault();
+
+            if (allowance == null)
+            {
+                if (no?.Length >= 10)
+                {
+                    var allowanceItem = models.GetTable<InvoiceAllowanceItem>()
+                        .Where(i => i.InvoiceNo == no.Substring(0, 10))
+                        .FirstOrDefault();
+                    if (allowanceItem != null && no == $"{allowanceItem.InvoiceNo}{allowanceItem.Allowance.First().AllowanceID % 1000000:000000}")
+                    {
+                        allowance = allowanceItem.Allowance.First();
+                    }
+                }
+            }
+
+            if (allowance != null)
+            {
+                if (code == "C")
+                {
+                    allowance.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"Allowance:({allowance.AllowanceID},{allowance.AllowanceNumber}) => C");
+                    return allowance.AllowanceID;
+                }
+                else if (code == "E")
+                {
+                    allowance.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"Allowance:({allowance.AllowanceID},{allowance.AllowanceNumber}) => E");
+                    return allowance.AllowanceID;
+                }
+            }
+
+            return null;
+        }
+
+        private static int? PushInvoiceCancellationTurnkeyLog(GenericDbContext<ApplicationDbContext> models, string code, string no, Naming.InvoiceProcessType processType)
+        {
+            var cancelItem = models.GetTable<InvoiceCancellation>()
+                                            .Where(i => i.CancellationNo == no)
+                                            .OrderByDescending(i => i.InvoiceID)
+                                            .FirstOrDefault();
+
+            CDS_Document? doc = cancelItem?.Invoice.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document;
+            if (doc != null)
+            {
+                if (code == "C")
+                {
+                    doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"InvoiceCancellation:({cancelItem.InvoiceID},{cancelItem.CancellationNo}) => C");
+                    return doc.DocID;
+                }
+                else if (code == "E")
+                {
+                    doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
+                    models.SubmitChanges();
+                    //Console.WriteLine($"InvoiceCancellation:({cancelItem.InvoiceID},{cancelItem.CancellationNo}) => E");
+                    return doc.DocID;
+                }
+            }
+
+            return null;
+        }
+
+        private static int? PushInvoiceTurnkeyLog(GenericDbContext<ApplicationDbContext> models, string code, string no, Naming.InvoiceProcessType processType)
+        {
+            if (no?.Length == 10)
+            {
+                var invoice = models.GetTable<InvoiceItem>()
+                        .Where(i => i.TrackCode == no.Substring(0, 2))
+                        .Where(i => i.No == no.Substring(2))
+                        .OrderByDescending(i => i.InvoiceID)
+                        .FirstOrDefault();
+
+                if (invoice != null)
+                {
+                    if (code == "C")
+                    {
+                        invoice.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done, processType: processType);
+                        models.SubmitChanges();
+                        //Console.WriteLine($"Invoice:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => C");
+                        return  invoice.InvoiceID;
+                    }
+                    else if (code == "E")
+                    {
+                        invoice.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
+                        models.SubmitChanges();
+                        //Console.WriteLine($"Invoice:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => E");
+                        return  invoice.InvoiceID;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static void CommitVoidInvoiceRequest(this GenericDbContext<ApplicationDbContext> models, VoidInvoiceRequest request)
+        {
+            var item = request.Doc.InvoiceItem;
+
+            var c0401 = item!.CreateF0401().ConvertToXml();
+            models.GetTable<ExceptionLog>().Add(new ExceptionLog
+            {
+                DataContent = c0401.OuterXml,
+                CompanyID = item!.SellerID,
+                LogTime = DateTime.Now,
+                TypeID = (int)Naming.DocumentTypeDefinition.E_InvoiceVoid,
+                Message = $"發票註銷({item.TrackCode}{item.No})"
+            });
+
+            models.SubmitChanges();
+
+            Naming.VoidActionMode? mode = (Naming.VoidActionMode?)request.RequestType;
+            if (mode == Naming.VoidActionMode.註銷作廢
+                || mode == Naming.VoidActionMode.索取紙本
+                || mode == Naming.VoidActionMode.修正)
+            {
+                if (mode == Naming.VoidActionMode.索取紙本
+                    && item.InvoiceCancellation == null)
+                {
+                    item.PrintMark = "Y";
+                    models.DeleteAnyOnSubmit<InvoiceCarrier>(c => c.InvoiceID == item.InvoiceID);
+                    models.SubmitChanges();
+                }
+
+                if (mode == Naming.VoidActionMode.修正
+                    && request.ReviseContent?.Length > 0)
+                {
+                    ReviseInvoiceContent? revise = JsonConvert.DeserializeObject<ReviseInvoiceContent>(request.ReviseContent);
+                    if ((revise?.ReceiptNo != null))
+                    {
+                        item.InvoiceBuyer.ReceiptNo = revise.ReceiptNo;
+                        models.SubmitChanges();
+                    }
+                }
+
+                request.Doc.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+
+                models.SubmitChanges();
+
+                if (mode == Naming.VoidActionMode.註銷作廢)
+                {
+                    models.ExecuteCommand(@"DELETE FROM Doc
+                        FROM    DerivedDocument INNER JOIN
+                                Doc ON DerivedDocument.DocID = Doc.DocID
+                        WHERE   (DerivedDocument.SourceID = {0})", item.InvoiceID);
+                    models.DeleteAny<InvoiceCancellation>(d => d.InvoiceID == item.InvoiceID);
+                }
+            }
+            else if (mode == Naming.VoidActionMode.註銷重開)
+            {
+                String storedPath = Path.Combine(Logger.LogPath, "Archive").CheckStoredPath();
+                c0401.Save(Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
+
+                CommitToVoidInvoice(models, request);
+            }
+        }
+
+        public static void CommitToVoidInvoice(this GenericDbContext<ApplicationDbContext> models, VoidInvoiceRequest request)
+        {
+            var item = request.Doc.InvoiceItem;
+            request.InvoiceContent = item!.GetJsonString();
+            request.Doc.DocType = (int)Naming.DocumentTypeDefinition.E_InvoiceVoid;
+            models.SubmitChanges();
+
+            models.ExecuteCommand(@"DELETE FROM Doc
+                        FROM    DerivedDocument INNER JOIN
+                                Doc ON DerivedDocument.DocID = Doc.DocID
+                        WHERE   (DerivedDocument.SourceID = {0})", item!.InvoiceID);
+            models.ExecuteCommand("delete Invoice where InvoiceID={0}", item!.InvoiceID);
+        }
+    }
+}

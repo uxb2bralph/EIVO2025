@@ -1,0 +1,41 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using WebHome.Controllers
+@using Business.Helper
+@using ModelCore.Helper
+
+@model ModelCore.DataEntity.InvoiceItem
+
+@if (Model != null)
+{
+    if (Model.PrintMark == "Y")
+    {
+        <div>
+            發票已開立，號碼：@Model.TrackCode@Model.No<br />
+            <a href='@Url.Action("PrintSingleInvoiceAsPDF", "DataView", new { keyID = Model.InvoiceID.EncryptKey() })' target="_blank">列印資料下載(A4)</a>
+            <br />
+            <a href='@Url.Action("PrintSingleInvoiceAsPDF", "DataView", new { keyID = Model.InvoiceID.EncryptKey(), PaperStyle = "POS" })' target="_blank">列印資料下載(熱感紙)</a>
+            <br />
+            <a href='@Url.Action("ShowInvoice", "DataView", new { keyID = Model.InvoiceID.EncryptKey(), ResultMode = Naming.DataResultMode.Print })' target="_blank">立即檢視列印(A4)</a>
+            <br />
+            <a href='@Url.Action("ShowInvoice", "DataView", new { keyID = Model.InvoiceID.EncryptKey(), ResultMode = Naming.DataResultMode.Print, PaperStyle = "POS" })' target="_blank">立即檢視列印(熱感紙)</a>
+            <br />
+        </div>
+    }
+    else
+    {
+        <div>
+            發票已開立，號碼：@Model.TrackCode@Model.No<br />，
+            @(Model.InvoiceCarrier != null ? "使用載具，不列印證明聯!!" : "。")
+        </div>
+    }
+
+    <script>
+        $('form').resetForm();
+    </script>
+}
