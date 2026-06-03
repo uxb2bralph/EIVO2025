@@ -12,6 +12,7 @@
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
 @using Microsoft.AspNetCore.WebUtilities
+@using Microsoft.AspNetCore.Http
 
 @{
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
@@ -20,7 +21,7 @@
     Response = Context.Response;
 
     await doTaskAsync();
-    @Html.Raw($"{storedPath},{recordCount}");
+    // @Html.Raw($"{storedPath},{recordCount}");
 }
 @functions
 {
@@ -38,42 +39,43 @@
     async Task WriteInvioceMIGAsync()
     {
         recordCount = invoiceItems.Count();
-        if (recordCount == 1)
-        {
-            Response.ContentType = "text/xml";
-            using (FileBufferingWriteStream output = new FileBufferingWriteStream())
-            {
-                ConvertInvoiceMIG(invoiceItems.First()).Save(output);
-                await output.DrainBufferAsync(Response.Body);
-            }
-
-        }
-        else
+        // if (recordCount == 1)
+        // {
+        //     Response.ContentType = "text/xml";
+        //     using (FileBufferingWriteStream output = new FileBufferingWriteStream())
+        //     {
+        //         ConvertInvoiceMIG(invoiceItems.First()).Save(output);
+        //         await output.DrainBufferAsync(Response.Body);
+        //     }
+        // }
+        // else
         {
             foreach (var item in invoiceItems)
             {
                 ConvertInvoiceMIG(item).Save(System.IO.Path.Combine(storedPath, $"{_viewModel.ProcessType}_{item.TrackCode}{item.No}.xml"));
             }
+            @Html.Raw($"{storedPath},{recordCount}");
         }
     }
     async Task WriteAllowanceMIGAsync()
     {
         recordCount = allowanceItems.Count();
-        if (recordCount == 1)
-        {
-            Response.ContentType = "text/xml";
-            using (FileBufferingWriteStream output = new FileBufferingWriteStream())
-            {
-                ConvertAllowanceMIG(allowanceItems.First()).Save(output);
-                await output.DrainBufferAsync(Response.Body);
-            }
-        }
-        else
+        // if (recordCount == 1)
+        // {
+        //     Response.ContentType = "text/xml";
+        //     using (FileBufferingWriteStream output = new FileBufferingWriteStream())
+        //     {
+        //         ConvertAllowanceMIG(allowanceItems.First()).Save(output);
+        //         await output.DrainBufferAsync(Response.Body);
+        //     }
+        // }
+        // else
         {
             foreach (var item in allowanceItems)
             {
                 ConvertAllowanceMIG(item).Save(System.IO.Path.Combine(storedPath, $"{_viewModel.ProcessType}_{item.AllowanceNumber.EscapeFileNameCharacter('_')}.xml"));
             }
+            @Html.Raw($"{storedPath},{recordCount}");
         }
     }
 

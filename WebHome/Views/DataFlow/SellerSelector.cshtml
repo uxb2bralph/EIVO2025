@@ -24,7 +24,8 @@
     if (_viewModel == null)
     {
         ViewBag.ViewModel = _viewModel = new InquireInvoiceViewModel { };
-        _viewModel.FieldName = ViewBag.FieldName ?? "SellerID";
+        _viewModel.Encrypt = true;
+        _viewModel.FieldName = ViewBag.FieldName ?? "EncSellerID";
     }
 
     String _fieldName;
@@ -35,7 +36,7 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _model = (IQueryable<Organization>)this.Model;
-    _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "SellerID";
+    _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "EncSellerID";
     _viewModel.FieldName = _fieldName;
     _profile = Context.GetUser();
 }

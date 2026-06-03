@@ -16,7 +16,7 @@
 @{
     Layout = "~/Views/Template/ContentPage.cshtml";
     ViewBag.ActionName = "首頁 > 大平台歸戶";
-    dynamic _model = this.Model as dynamic;
+    IFormCollection? _model = this.Model as IFormCollection;
 
     String _viewID = $"Q{DateTime.Now.Ticks}";
 
@@ -72,7 +72,7 @@
 <script>
     var dialogButtons = [];
 </script>
-@if (_model?.token == null)
+@if (_model != null && !string.IsNullOrEmpty(_model["token"]))
 {
     <script>
         dialogButtons.push({
@@ -82,7 +82,7 @@
                         },
                         click: function () {
                             var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
-                            $formData.Token = '@Html.Raw(_model?.token)';
+                            $formData.Token = '@Html.Raw(_model?["token"])';
                             clearErrors();
                             showLoading();
                             $.post('@Html.Raw(Url.Action("ValidateUserCarrier", "IndividualProcess"))', $formData, function (data) {
@@ -107,7 +107,7 @@ else
                         },
                         click: function () {
                             var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
-                            $formData.Token = '@Html.Raw(_model?.token)';
+                            $formData.Token = '@Html.Raw(_model?["token"])';
                             clearErrors();
                             showLoading();
                             $.post('@Html.Raw(Url.Action("ValidateUserCarrier", "IndividualProcess"))', $formData, function (data) {

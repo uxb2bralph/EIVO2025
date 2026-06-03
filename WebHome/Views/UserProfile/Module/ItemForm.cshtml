@@ -28,7 +28,8 @@
         </th>
         <td colspan="2" class="tdleft">
             @{
-                @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new InquireInvoiceViewModel { FieldName = "EncSellerID", Encrypt = true, SellerID = _model?.UserRole.FirstOrDefault()?.OrganizationCategory.CompanyID }));
+                var orgItem = _model?.UserRole.FirstOrDefault()?.OrganizationCategory.Organization;
+                @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new InquireInvoiceViewModel { FieldName = "EncSellerID", Encrypt = true, SellerID = orgItem?.CompanyID, Title = orgItem?.CompanyName }));
             }
         </td>
     </tr>
@@ -98,11 +99,11 @@
         </th>
         <td colspan="2" class="tdleft">
             <select name="RoleID" class="form-control">
-                <option value="@((int)Naming.RoleID.ROLE_SELLER)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.ROLE_SELLER)">營業人</option>
-                <option value="@((int)Naming.RoleID.資料稽核員)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.資料稽核員)">資料稽核員</option>
+                <option value="@((int)Naming.RoleID.ROLE_SELLER)" selected="@(_viewModel.RoleID == Naming.RoleID.ROLE_SELLER)">營業人</option>
+                <option value="@((int)Naming.RoleID.資料稽核員)" selected="@(_viewModel.RoleID == Naming.RoleID.資料稽核員)">資料稽核員</option>
                 @if (_profile.IsSystemAdmin())
                 {
-                    <option value="@((int)Naming.RoleID.ROLE_SYS)" selected="@Html.Raw(_viewModel.RoleID == Naming.RoleID.ROLE_SYS)">平台系統管理員</option>
+                    <option value="@((int)Naming.RoleID.ROLE_SYS)" selected="@(_viewModel.RoleID == Naming.RoleID.ROLE_SYS)">平台系統管理員</option>
                 }
             </select>
         </td>

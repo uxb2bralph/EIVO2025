@@ -33,16 +33,16 @@
 
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "SellerID";
+    _viewModel.Encrypt = true;
+    _fieldName = _viewModel.FieldName ?? ViewBag.FieldName ?? "EncSellerID";
     _profile = Context.GetUser();
     var _urlAction = _viewModel.UrlAction ?? Url.Action("SearchCompany", "Home", new { _viewModel.Encrypt });
 }
 
-<input type="text" class="form-control" size="40" id="@(_contentID)" value="" placeholder="請輸入檢索關鍵字" />
-<input type="hidden" id="@(_valueID)" name="@(_fieldName)" value="@(_viewModel.Encrypt==true && _viewModel.SellerID.HasValue ? _viewModel.SellerID.Value.EncryptKey() : _viewModel.SellerID.ToString())" />
+<input type="text" class="form-control" size="40" id="@(_contentID)" value="@Html.Raw(_viewModel.Title)" placeholder="請輸入檢索關鍵字" />
+<input type="hidden" id="@(_valueID)" name="@(_fieldName)" value="@(_viewModel.SellerID?.EncryptKey())" />
 <script>
         $(function () {
-            debugger;
             var $input = $('#@(_contentID)');
             $input.on('change', function (evt) {
                 if ($input.val() == '') {

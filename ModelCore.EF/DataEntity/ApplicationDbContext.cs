@@ -1412,9 +1412,9 @@ public partial class ApplicationDbContext : DbContext
                 .ValueGeneratedNever()
                 .HasComment("Primary Key");
             entity.Property(e => e.CarrierNo)
-                .HasMaxLength(64)
+                .HasMaxLength(400)
                 .HasComment("載具卡號");
-            entity.Property(e => e.CarrierNo2).HasMaxLength(64);
+            entity.Property(e => e.CarrierNo2).HasMaxLength(400);
             entity.Property(e => e.CarrierType)
                 .HasMaxLength(16)
                 .HasComment("載具類別\r\n1：悠遊卡\r\n2：UXB2B條碼卡");

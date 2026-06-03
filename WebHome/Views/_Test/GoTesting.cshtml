@@ -46,7 +46,7 @@
         if (userProfile != null)
         {
             await Context.SignOnAsync(userProfile);
-            Response.Redirect(VirtualPathUtility.ToAbsolute(_viewModel!.ReturnUrl ?? "~/BusinessRelationship/MaintainRelationship"));
+            Response.Redirect(VirtualPathUtility.ToAbsolute(_viewModel!.ReturnUrl ?? "../BusinessRelationship/MaintainRelationship"));
         }
     }
 

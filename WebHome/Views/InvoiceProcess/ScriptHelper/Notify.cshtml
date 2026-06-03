@@ -18,7 +18,7 @@
         if (!window.uiInvoiceQuery) {
             window.uiInvoiceQuery = {};
         }
-        window.uiInvoiceQuery.notify = function () {
+        window.uiInvoiceQuery.notify = function (winning) {
             if (!$('input[name="chkItem"]').is(':checked')) {
                 alert('請選擇重送資料!!');
                 return false;
@@ -30,7 +30,8 @@
             $formData.ProcessType = $('#queryArea select[name="ProcessType"]').val();
             $formData.MailTo = $('input[name="MailTo"]').val();
 
-            doPost('@(Url.Action("IssueInvoiceNotice", "InvoiceProcess"))', $formData, function (data) {
+            var url = winning ? '@(Url.Action("IssueWinningNotice", "InvoiceProcess"))' : '@(Url.Action("IssueInvoiceNotice", "InvoiceProcess"))';
+            doPost(url, $formData, function (data) {
                 $(data).appendTo($('body')).remove();
             });
 

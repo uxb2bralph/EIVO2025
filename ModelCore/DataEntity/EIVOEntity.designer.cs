@@ -11778,7 +11778,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CarrierNo", DbType="NVarChar(64)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CarrierNo", DbType="NVarChar(400)")]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=4)]
 		public string CarrierNo
 		{
@@ -11799,7 +11799,7 @@ namespace ModelCore.DataEntity
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CarrierNo2", DbType="NVarChar(64) NOT NULL", CanBeNull=false)]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CarrierNo2", DbType="NVarChar(400) NOT NULL", CanBeNull=false)]
 		[global::System.Runtime.Serialization.DataMemberAttribute(Order=5)]
 		public string CarrierNo2
 		{

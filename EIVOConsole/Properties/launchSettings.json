@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EIVOConsole": {
+      "commandName": "Project",
+      "commandLineArgs": "001"
+    }
+  }
+}

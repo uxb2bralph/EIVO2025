@@ -939,7 +939,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 if (UseDefaultCrossBorderMerchantCarrier && _isCrossBorderMerchant)
                 {
                     var carrierID = EMail();
-                    if (carrierID != null && carrierID.Length < 64)
+                    if (carrierID != null && carrierID.Length < 400)
                     {
                         _carrier = new InvoiceCarrier
                         {
@@ -949,7 +949,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     }
                     else
                     {
-                        return new Exception($"EMail as Carrier ID limits to 64 characters, \"{carrierID}\"");
+                        return new Exception($"EMail as Carrier ID limits to 400 characters, \"{carrierID}\"");
                     }
                 }
                 else

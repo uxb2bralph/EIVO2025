@@ -38,6 +38,8 @@ namespace InvoiceClient.Agent
 
         protected override void processBatchFiles(string[] files)
         {
+            Console.WriteLine($"InvoicePDFWatcherForZip total count:{files.Length}");
+
             if (files.Length < Settings.Default.MaxFileCountInPDFZip)
             {
                 if (_waitCycle < Settings.Default.MaxWaitingTurns)

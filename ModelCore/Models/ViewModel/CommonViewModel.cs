@@ -113,11 +113,10 @@ namespace ModelCore.Models.ViewModel
         public String? IssuerNo { get; set; }
     }
 
-    public partial class InquireNoIntervalViewModel : QueryViewModel
+    public partial class InquireNoIntervalViewModel : EncQueryViewModel
     {
         public int? Year { get; set; }
         public int? PeriodNo { get; set; }
-        public int? SellerID { get; set; }
         public String? SelectIndication { get; set; }
         public bool? BranchRelation { get; set; }
         public bool? WriteToMIG { get; set; }
@@ -198,7 +197,7 @@ namespace ModelCore.Models.ViewModel
         public String? EncSellerID
         {
             get => SellerID.HasValue ? SellerID.Value.EncryptKey() : null;
-            set => SellerID = (value != null ? value.DecryptKeyValue() : (int?)null);
+            set => SellerID = (value?.Length > 0 ? value.DecryptKeyValue() : (int?)null);
         }
 
         [JsonIgnore]
@@ -206,7 +205,7 @@ namespace ModelCore.Models.ViewModel
         public String? EncBuyerID
         {
             get => BuyerID.HasValue ? BuyerID.Value.EncryptKey() : null;
-            set => BuyerID = (value != null ? value.DecryptKeyValue() : (int?)null);
+            set => BuyerID = (value?.Length > 0 ? value.DecryptKeyValue() : (int?)null);
         }
 
 

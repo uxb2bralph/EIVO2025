@@ -32,7 +32,17 @@ namespace InvoiceClient.Agent
             }
             else
             {
-                result = invSvc.UploadInvoiceV2(docInv).ConvertTo<Root>();
+                var resultDoc = invSvc.UploadInvoiceV2(docInv);
+                try
+                {
+                    result = resultDoc.ConvertTo<Root>();
+                } 
+                catch 
+                {
+                    Logger.Error($"Failed to convert resultDoc to Root.\r\n{resultDoc.OuterXml}");
+                    throw;
+                }
+
             }
 
             return result;

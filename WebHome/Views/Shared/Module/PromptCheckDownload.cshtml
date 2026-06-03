@@ -31,7 +31,7 @@
     <label class="progress"></label>
     <a href="#" style="display:none;" onclick="$('').launchDownload('@(Url.Action("DownloadResource","DataExchange"))', { 'keyID': '@Html.Raw((new { _viewModel.FileDownloadName,_viewModel.FileName,_viewModel.ContentType }).JsonStringify().EncryptData())' },'_blank');">資料下載</a>
     <script>
-        debugger;
+        
         $(function () {
             var turn = 0;
             function checkResource() {

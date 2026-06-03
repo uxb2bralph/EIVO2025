@@ -877,7 +877,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 if (UseDefaultCrossBorderMerchantCarrier && _isCrossBorderMerchant)
                 {
                     var carrierID = _invItem.Contact?.Email?.GetEfficientString() ?? _invItem.CarrierId1?.GetEfficientString();
-                    if (carrierID != null && carrierID.Length < 64)
+                    if (carrierID != null && carrierID.Length < 400)
                     {
                         _carrier = new InvoiceCarrier
                         {

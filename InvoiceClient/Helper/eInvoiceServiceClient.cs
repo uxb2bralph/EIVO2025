@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,11 @@ namespace InvoiceClient.Helper
         private String _serviceUrl = Settings.Default.InvoiceClient_WS_Invoice_eInvoiceServiceClient;
         public eInvoiceServiceClient()
         {
-            _client = new HttpClient()
+            _client = new HttpClient(new HttpClientHandler
+            {
+                SslProtocols = SslProtocols.Tls13
+                | SslProtocols.Tls12
+            })
             {
                 Timeout = TimeSpan.FromMilliseconds(Settings.Default.WS_TimeoutInMilliSeconds),
             };
@@ -58,7 +63,8 @@ namespace InvoiceClient.Helper
             }
             else
             {
-                doc.LoadXml($"<Response>{data.Result}</Response>");
+                doc.LoadXml("<Response></Response>");
+                doc.DocumentElement!.InnerText = data.Result;
             }
             return doc;
             //return new XmlDocument() { InnerXml = data.Result };

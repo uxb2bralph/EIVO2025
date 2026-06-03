@@ -131,44 +131,54 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            viewModel.InvoiceNo = viewModel.InvoiceNo.GetEfficientString();
-            var match = viewModel.InvoiceNo.ParseInvoiceNo();
-
-            if (!match.Success || !viewModel.InvoiceDate.HasValue)
+            if(viewModel.KeyID != null)
             {
-                return NotFound();
+                viewModel.InvoiceID = viewModel.DecryptKeyValue();
             }
 
-            IQueryable<InvoiceItem> items = models.GetTable<InvoiceItem>()
-                .Where(i => i.TrackCode == match.Groups[1].Value && i.No == match.Groups[2].Value)
-                .Where(i => i.InvoiceDate >= viewModel.InvoiceDate && i.InvoiceDate < viewModel.InvoiceDate.Value.AddDays(1));
+            var item = models!.GetTable<InvoiceItem>().Where(i => i.InvoiceID == viewModel.InvoiceID).FirstOrDefault();
 
-            var item = items.FirstOrDefault();
-            if (item == null)
+            if(item == null)
             {
-                return NotFound();
-            }
+                viewModel.InvoiceNo = viewModel.InvoiceNo.GetEfficientString();
+                var match = viewModel.InvoiceNo.ParseInvoiceNo();
 
-            if (item.InvoiceBuyer.IsB2C())
-            {
-                if(item.RandomNo != viewModel.RandomNo.GetEfficientString())
+                if (!match.Success || !viewModel.InvoiceDate.HasValue)
                 {
                     return NotFound();
                 }
 
-                if (item.InvoiceCarrier != null)
+                IQueryable<InvoiceItem> items = models.GetTable<InvoiceItem>()
+                    .Where(i => i.TrackCode == match.Groups[1].Value && i.No == match.Groups[2].Value)
+                    .Where(i => i.InvoiceDate >= viewModel.InvoiceDate && i.InvoiceDate < viewModel.InvoiceDate.Value.AddDays(1));
+
+                item = items.FirstOrDefault();
+                if (item == null)
                 {
-                    if (item.InvoiceCarrier.CarrierNo != viewModel.CarrierNo.GetEfficientString())
+                    return NotFound();
+                }
+
+                if (item.InvoiceBuyer.IsB2C())
+                {
+                    if (item.RandomNo != viewModel.RandomNo.GetEfficientString())
                     {
                         return NotFound();
                     }
+
+                    if (item.InvoiceCarrier != null)
+                    {
+                        if (item.InvoiceCarrier.CarrierNo != viewModel.CarrierNo.GetEfficientString())
+                        {
+                            return NotFound();
+                        }
+                    }
                 }
-            }
-            else
-            {
-                if (item.InvoiceBuyer.ReceiptNo != viewModel.BuyerReceiptNo.GetEfficientString())
+                else
                 {
-                    return NotFound();
+                    if (item.InvoiceBuyer.ReceiptNo != viewModel.BuyerReceiptNo.GetEfficientString())
+                    {
+                        return NotFound();
+                    }
                 }
             }
 
@@ -190,6 +200,11 @@ namespace WebHome.Controllers
             var item = items.FirstOrDefault();
             viewModel.RandomNo = item?.RandomNo;
 
+            if (item == null)
+            {
+                return NotFound();
+            }
+
             return View("~/Views/IndividualProcess/Index.cshtml", item);
 
         }
@@ -198,12 +213,12 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            InvoiceBuyer item = null;
+            InvoiceBuyer? item = null;
 
             if (viewModel.KeyID != null)
             {
                 viewModel.InvoiceID = viewModel.DecryptKeyValue();
-                item = models.GetTable<InvoiceBuyer>().Where(u => u.InvoiceID == viewModel.InvoiceID).FirstOrDefault();
+                item = models!.GetTable<InvoiceBuyer>().Where(u => u.InvoiceID == viewModel.InvoiceID).FirstOrDefault();
             }
 
             if (item == null)

@@ -1,24 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
+﻿using CommonLib.Core.Utility;
+using CommonLib.Helper;
+using CommonLib.Utility;
 using InvoiceClient.Helper;
 using InvoiceClient.Properties;
 using InvoiceClient.TransferManagement;
 using ModelCore.Locale;
 using ModelCore.Schema.EIVO;
 using ModelCore.Schema.TXN;
-using CommonLib.Core.Utility;
-using CommonLib.Utility;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security.Authentication;
 using System.ServiceModel;
-using CommonLib.Helper;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
 
 
 namespace InvoiceClient.Agent
@@ -37,7 +38,11 @@ namespace InvoiceClient.Agent
 
         public ITransferManager TransferManager { get; set; }
 
-        public static readonly HttpClient TheHttpClient = new HttpClient()
+        public static readonly HttpClient TheHttpClient = new HttpClient(new HttpClientHandler
+        {
+            SslProtocols = SslProtocols.Tls13
+                | SslProtocols.Tls12
+        })
         {
             Timeout = Timeout.InfiniteTimeSpan,
         };

@@ -33,7 +33,7 @@
 <input type="hidden" name="@(_fieldName)" value="@(_model?.CompanyID)" />
 <script>
     $(function () {
-        debugger;
+        
         var $input = $('#@(_contentID)');
         $input.on('change', function (evt) {
             if ($input.val() == '') {

@@ -231,6 +231,10 @@ namespace WebHome.Controllers
                 //        models.ExecuteCommand("insert InvoiceIssuerAgent (AgentID,IssuerID) values ({0},{1})", id, item.CompanyID);
                 //    }
                 //}
+
+                models!.ExecuteCommand(@"DELETE FROM InvoiceIssuerAgent
+                        WHERE IssuerID = {0}", item.CompanyID);
+
                 foreach (var id in agentID!)
                 {
                     result += models!.ExecuteCommand(@"INSERT INTO InvoiceIssuerAgent
@@ -238,12 +242,12 @@ namespace WebHome.Controllers
                         SELECT {0}, {1}
                         WHERE (NOT EXISTS
                                  (SELECT NULL FROM InvoiceIssuerAgent
-                        WHERE (AgentID = {0}) AND (IssuerID = {1})))", item.CompanyID, id);
+                        WHERE (AgentID = {0}) AND (IssuerID = {1})))", id, item.CompanyID);
 
                     if (masterBranch)
                     {
                         models.ExecuteCommand(@"Update InvoiceIssuerAgent set RelationType = {2}
-                            WHERE AgentID = {0} AND IssuerID = {1}", item.CompanyID, id, (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch);
+                            WHERE AgentID = {0} AND IssuerID = {1}", id, item.CompanyID, (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch);
                     }
                 }
             }

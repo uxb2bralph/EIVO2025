@@ -103,7 +103,10 @@ namespace WebHome.Helper
 
         public static void SendMailMessage(this String body, String mailTo, String subject, CustomSmtpHost smtpSettings = null)
         {
-            body.SendSmtpMessage(mailTo, subject, ModelExtension.Properties.AppSettings.Default.WebMaster, null, ModelExtension.Properties.AppSettings.Default.ReplyTo, smtpSettings);
+            Task.Run(async () =>
+            {
+                body.SendSmtpMessage(mailTo, subject, ModelExtension.Properties.AppSettings.Default.WebMaster, null, ModelExtension.Properties.AppSettings.Default.ReplyTo, smtpSettings);
+            });
         }
 
         public static void AlertSMSError(int id, String reason, String content)

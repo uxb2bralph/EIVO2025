@@ -46,7 +46,9 @@
 
                         doPost('@(Url.Action("GetSellerName", "Dialog"))', null, function (data) {
                             $('body').append($(data));
+                            console.log($formData);
                             $global.dialogCallback = function (dialogResult) {
+                                console.log(dialogResult);
                                 $formData.ReviseContent = dialogResult;
                                 doPost('@(Url.Action("ReviseInvoiceContent", "InvoiceProcess"))', $formData, function (data) {
                                     var $data = $(data);

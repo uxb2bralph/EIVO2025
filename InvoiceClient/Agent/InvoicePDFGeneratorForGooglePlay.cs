@@ -27,7 +27,7 @@ namespace InvoiceClient.Agent
     {
         public InvoicePDFGeneratorForGooglePlay() : base()
         {
-
+            //System.Diagnostics.Debugger.Launch();
         }
 
         public override String GetSaleInvoices(int? index = null)
@@ -45,7 +45,7 @@ namespace InvoiceClient.Agent
                 var token = models.GetTable<OrganizationToken>().Where(t => t.Thumbprint == AppSigner.SignerCertificate.Thumbprint).FirstOrDefault();
                 if (token != null)//&& token.Organization.OrganizationStatus.EntrustToPrint == true
                 {
-                    IQueryable<InvoiceItem> queryItems = models.InquireInvoiceSubscription(token.CompanyID, null, channelID, Settings.Default.ClientID, true);
+                    IQueryable<InvoiceItem> queryItems = models.InquireInvoiceSubscription(null, token.CompanyID, channelID, Settings.Default.ClientID, true);
 
                     int count = 0;
                     InvoiceItem? item = queryItems.FirstOrDefault();

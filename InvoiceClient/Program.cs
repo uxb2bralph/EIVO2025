@@ -37,6 +37,7 @@ namespace InvoiceClient
                 | SecurityProtocolType.Tls11
                 | SecurityProtocolType.Tls /*| SecurityProtocolType.Ssl3*/;
 
+
             if (!String.IsNullOrEmpty(Settings.Default.AppCulture))
             {
                 Thread.CurrentThread.CurrentUICulture = MessageResources.Culture = System.Globalization.CultureInfo.GetCultureInfo(Settings.Default.AppCulture);

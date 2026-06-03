@@ -33,7 +33,7 @@ namespace EIVOConsole
         {
             if (args.Length > 0)
             {
-                switch (args[0])
+                switch (args[0].ToLower())
                 {
                     case "001":
                         ProcessVacantInvoiceNo(args.Length > 2 ? args[1] : null, args.Length > 2 ? args[2] : null, args.Length > 3 ? args[3] : null);
@@ -46,12 +46,18 @@ namespace EIVOConsole
                         ModelExtension.Properties.AppSettings.Default.Save();
                         JobHelper.Properties.AppSettings.Default.Save();
                         InvoiceClient.Properties.AppSettings.Default.Save();
+                        ProcessorUnit.Properties.AppSettings.Default.Save();
                         Console.WriteLine(InvoiceClient.Properties.AppSettings.AllSettings.JsonStringify());
+                        break; // Placeholder for future functionality
+                        case "pu":
+                        ProcessorUnit.Program.Main(args.Skip(1).ToArray());
                         break; // Placeholder for future functionality
                     default:
                         Console.WriteLine(@"
 Use command:
     001    執行前期空白發票號結算
+    settings    顯示目前設定值
+    pu    執行 ProcessorUnit
 ");
                         break;
                 }

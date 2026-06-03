@@ -936,7 +936,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 if (UseDefaultCrossBorderMerchantCarrier && _isCrossBorderMerchant)
                 {
                     var carrierID = EMail();
-                    if (carrierID != null && carrierID.Length < 64)
+                    if (carrierID != null && carrierID.Length < 400)
                     {
                         _carrier = new InvoiceCarrier
                         {

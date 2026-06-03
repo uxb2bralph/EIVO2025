@@ -219,7 +219,7 @@
                     toArrayField($formData, 'Amount');
                     toArrayField($formData, 'Tax');
                     toArrayField($formData, 'TaxType');
-                    debugger;
+                    
                     showLoading();
                     doPost('@Html.Raw(Url.Action("CommitAllowance","InvoiceBusiness"))', $formData, function (data) {
                         hideLoading();
