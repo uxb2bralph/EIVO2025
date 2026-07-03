@@ -1,0 +1,44 @@
+
+@using System.IO
+@using System.Linq.Expressions
+
+@using ModelCore.DataEntity
+@using ModelCore.Locale
+@{
+
+    IEnumerable<POSDevice> _items;
+    Organization _model;
+
+    _model = (Organization)this.Model;
+    _items = _model.POSDevice;
+
+}
+@{ Html.RenderPartial("~/Views/SiteAction/FunctionTitleBar.cshtml", "店家POS機維護");}
+
+<div class="table-responsive" data-pattern="priority-columns" data-add-focus-btn="">
+    <table class="table table-small-font table-bordered table-striped table01">
+        <thead>
+            <tr>
+                <th>POS機編號</th>
+                <th>管理</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ int idx = 0;}
+            @foreach (var item in _items)
+            {
+                idx++;
+                Html.RenderPartial("~/Views/InvoiceBusiness/POSDevice/DataItem.cshtml", item);
+            }
+            @{ 
+                Html.RenderPartial("~/Views/InvoiceBusiness/POSDevice/AddItem.cshtml", _model);
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2"> &nbsp;</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+

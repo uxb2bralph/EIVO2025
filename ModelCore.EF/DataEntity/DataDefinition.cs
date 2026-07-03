@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -18,7 +19,9 @@ namespace ModelCore.DataEntity
 
     public partial class InvoiceDeliveryTracking
     {
+        [NotMapped]
         public virtual int? DuplicateCount { get; set; }
+        [NotMapped]
         public virtual bool MergedItem { get; set; }
     }
 

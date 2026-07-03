@@ -345,7 +345,7 @@ namespace WebHome.Controllers
                     ViewBag.DataItemView = "~/Views/InvoiceProcess/Module/AuthorizeDataItemToPrint.ascx";
                     return;
                 case "Incoming":
-                    ViewBag.DataItemView = "~/Views/InvoiceProcess/Buyer/DataItem.ascx";
+                    ViewBag.DataItemView = "~/Views/InvoiceProcess/Buyer/DataItem.cshtml";
                     return;
                 case "Allow":
                     ViewBag.DataItemView = "~/Views/InvoiceProcess/Module/AuthorizeDataItemToVoid.ascx";

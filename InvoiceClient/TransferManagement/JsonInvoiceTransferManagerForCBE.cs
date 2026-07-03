@@ -4,60 +4,61 @@ using System.IO;
 using System.Linq;
 using System.ServiceProcess;
 using System.Text;
-
-using InvoiceClient.Properties;
-using ModelCore.Schema.EIVO;
-using InvoiceClient.Agent;
 using CommonLib.Core.Utility;
 using CommonLib.Utility;
-using Newtonsoft.Json;
-using ModelCore.Locale;
-using InvoiceClient.MainContent;
+using InvoiceClient.Agent;
+using InvoiceClient.Agent.JsonHelper;
 using InvoiceClient.Helper;
+using InvoiceClient.MainContent;
+using InvoiceClient.Properties;
+using ModelCore.Locale;
+using ModelCore.Schema.EIVO;
+using Newtonsoft.Json;
 
 namespace InvoiceClient.TransferManagement
 {
     public class JsonInvoiceTransferManagerForCBE : ITransferManager
     {
-        private InvoiceWatcher _InvoiceWatcher;
-        private InvoiceWatcher _CancellationWatcher;
-        private InvoiceWatcher _AllowanceWatcher;
-        private InvoiceWatcher _AllowanceCancellationWatcher;
-        private JsonInvoiceTransferManagerForCBE.LocalSettings _Settings;
-        public ITabWorkItem WorkItem { get; set; }
+        private InvoiceWatcher _InvoiceWatcher = null!;
+        private InvoiceWatcher _CancellationWatcher = null!;
+        private InvoiceWatcher _AllowanceWatcher = null!;
+        private InvoiceWatcher _AllowanceCancellationWatcher = null!;
+        private JsonInvoiceTransferManagerForCBE.LocalSettings _Settings = null!;
+        public ITabWorkItem? WorkItem { get; set; }
 
         public JsonInvoiceTransferManagerForCBE()
         {
             string path = Path.Combine(Logger.LogPath, "JsonInvoiceTransferManagerForCBE.json");
             if (File.Exists(path))
             {
-                this._Settings = JsonConvert.DeserializeObject<JsonInvoiceTransferManagerForCBE.LocalSettings>(File.ReadAllText(path));
+                _Settings = JsonConvert.DeserializeObject<JsonInvoiceTransferManagerForCBE.LocalSettings>(File.ReadAllText(path)) ?? null!;
             }
-            else
+
+            if (_Settings == null)
             {
-                this._Settings = new JsonInvoiceTransferManagerForCBE.LocalSettings();
-                File.WriteAllText(path, JsonConvert.SerializeObject((object)this._Settings));
+                _Settings = new JsonInvoiceTransferManagerForCBE.LocalSettings();
+                File.WriteAllText(path, _Settings.JsonStringify());
             }
         }
 
         public void EnableAll(string fullPath)
         {
-            this._InvoiceWatcher = (InvoiceWatcher)new ProcessRequestWatcher(Path.Combine(fullPath, this._Settings.InvoiceRequestPath))
+            this._InvoiceWatcher = (InvoiceWatcher)new CBEInvoiceJsonDataWatcher(Path.Combine(fullPath, _Settings.InvoiceRequestPath))
             {
                 ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.F0401_Json_CBE)
             };
             this._InvoiceWatcher.StartUp();
-            this._CancellationWatcher = (InvoiceWatcher)new ProcessRequestWatcher(Path.Combine(fullPath, this._Settings.VoidInvoiceRequestPath))
+            this._CancellationWatcher = (InvoiceWatcher)new InvoiceCancellationJsonDataWatcher(Path.Combine(fullPath, _Settings.VoidInvoiceRequestPath))
             {
                 ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.F0501_Json)
             };
             this._CancellationWatcher.StartUp();
-            this._AllowanceWatcher = (InvoiceWatcher)new ProcessRequestWatcher(Path.Combine(fullPath, this._Settings.AllowanceRequestPath))
+            this._AllowanceWatcher = (InvoiceWatcher)new AllowanceJsonDataWatcher(Path.Combine(fullPath, _Settings.AllowanceRequestPath))
             {
                 ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.G0401_Json)
             };
             this._AllowanceWatcher.StartUp();
-            this._AllowanceCancellationWatcher = (InvoiceWatcher)new ProcessRequestWatcher(Path.Combine(fullPath, this._Settings.VoidAllowanceRequestPath))
+            this._AllowanceCancellationWatcher = (InvoiceWatcher)new AllowanceCancellationJsonDataWatcher(Path.Combine(fullPath, _Settings.VoidAllowanceRequestPath))
             {
                 ResponsibleProcessType = new Naming.InvoiceProcessType?(Naming.InvoiceProcessType.G0501_Json)
             };

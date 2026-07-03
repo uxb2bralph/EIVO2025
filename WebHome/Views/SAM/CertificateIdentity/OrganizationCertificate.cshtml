@@ -54,7 +54,7 @@
         $(function () {
             $('#@(_viewID) button.btnUpload').click(function (event) {
                 var $formData = $('#@(_viewID)').find('input,select,textArea').serializeObject();
-                $formData.KeyID = '@(_model.CompanyID.EncryptKey())';
+                    $formData.KeyID = '@Html.Raw(_model?.CompanyID.EncryptKey())';
                 var $file = $('#@(_viewID) input[name="PfxFile"]');
                 var $th = $file.parent();
                 uploadFile($file, $formData, '@Html.Raw(Url.Action("CommitItem","CertificateIdentity"))',

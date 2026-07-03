@@ -55,7 +55,7 @@
         InvoiceItem item = (InvoiceItem)po;
         <td>
             @Html.Raw(item.Remark)
-            @(String.Join("", item.InvoiceDetails.Select(t => t.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)))
+            @(String.Join("", item.InvoiceDetails?.Select(t => t.InvoiceProduct.InvoiceProductItem.FirstOrDefault()?.Remark) ?? new string[0]))
         </td>
     }
 

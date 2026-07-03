@@ -24,7 +24,7 @@
     if (_viewModel == null)
     {
         ViewBag.ViewModel = _viewModel = new InquireInvoiceViewModel { };
-        _viewModel.Encrypt = true;
+        _viewModel.Encrypt = (ViewBag.FieldName as String) == null || ((String)ViewBag.FieldName).ToLower().StartsWith("enc");
         _viewModel.FieldName = ViewBag.FieldName ?? "EncSellerID";
     }
 

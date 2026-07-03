@@ -159,8 +159,9 @@ namespace ModelCore.Helper
 
                 default:
                     var agentID = profile.CurrentUserRole.OrganizationCategory.CompanyID;
-                    return items.Where(i => i.ProductSupplier.Any(s => s.SupplierID == agentID));
-
+                    return items.Where(i => i.ProductSupplier.Any(s => s.SupplierID == agentID)
+                        || i.ProductSupplier.Any(s => s.Organization.AsInvoiceIssuer.Any(a => a.AgentID == agentID))
+                    );
             }
 
         }

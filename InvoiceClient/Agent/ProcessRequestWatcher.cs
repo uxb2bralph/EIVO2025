@@ -119,7 +119,11 @@ namespace InvoiceClient.Agent
                     response.EnsureSuccessStatusCode();
                     Task<String> data = response.Content.ReadAsStringAsync();
                     data.Wait();
-                    return JsonConvert.DeserializeObject<JsonResult>(data.Result);
+                    return JsonConvert.DeserializeObject<JsonResult>(data.Result) ?? new JsonResult
+                    {
+                        result = false,
+                        message = "Invalid response format.",
+                    };
                 }
             }
             catch(Exception ex)
@@ -171,7 +175,7 @@ namespace InvoiceClient.Agent
             return UploadTo(requestFile, $"{ServerInspector.ServiceInfo.TaskCenterUrl}/InvoiceData/UploadProcessRequest?keyID={HttpUtility.UrlEncode(ServerInspector.ServiceInfo.AgentToken)}&sender={ServerInspector.ServiceInfo.AgentUID}&processType={(int?)ResponsibleProcessType}");
         }
 
-        protected override void processError(string message, XmlDocument docInv, string fileName)
+        protected override void processError(string message, XmlDocument? docInv, string fileName)
         {
             Logger.Warn($"upload file ({fileName}) at fault, cause:\r\n{message}");
         }

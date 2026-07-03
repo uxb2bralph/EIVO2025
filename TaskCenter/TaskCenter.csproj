@@ -7,11 +7,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="10.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
-    <PackageReference Include="Microsoft.OpenApi" Version="3.4.0" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.4.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.5" />
+    <!--
+      Pin the whole Microsoft.IdentityModel.* family to one coherent version. Transitive
+      resolution otherwise leaves JsonWebTokens / System.IdentityModel.Tokens.Jwt / Protocols.*
+      at 8.0.1 while Tokens/Logging/Xml resolve to 8.14.0. The mismatch makes the JWT bearer
+      handler throw MissingMethodException (Base64UrlEncoder.Decode) on every token read, so
+      every [Authorize] request returns 401.
+    -->
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols" Version="8.14.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.14.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +30,10 @@
     <ProjectReference Include="..\Business.EF\Business.EF.csproj" />
     <ProjectReference Include="..\CommonLib.Core\CommonLib.Core.csproj" />
     <ProjectReference Include="..\ModelExtension.EF\ModelExtension.EF.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Core\Mapping\" />
   </ItemGroup>
 
 </Project>

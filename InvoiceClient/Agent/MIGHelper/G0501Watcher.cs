@@ -30,7 +30,11 @@ namespace InvoiceClient.Agent.MIGHelper
             XmlDocument docInv = new XmlDocument();
             docInv.Load(invoiceFile);
 
-            CancelAllowanceRoot root = new CancelAllowanceRoot { };
+            CancelAllowanceRoot root = new CancelAllowanceRoot 
+            {
+                Notification = (short)(DefaultNotification ?? Naming.NotificationIndication.None),
+                NotificationSpecified = true,
+            };
 
             if (docInv.DocumentElement != null)
             {

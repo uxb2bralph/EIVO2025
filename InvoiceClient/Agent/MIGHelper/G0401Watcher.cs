@@ -31,7 +31,11 @@ namespace InvoiceClient.Agent.MIGHelper
             XmlDocument docInv = new XmlDocument();
             docInv.Load(invoiceFile);
 
-            AllowanceRoot root = new AllowanceRoot { };
+            AllowanceRoot root = new AllowanceRoot 
+            {
+                Notification = (short)(DefaultNotification ?? Naming.NotificationIndication.None),
+                NotificationSpecified = true,
+            };
 
             if (docInv.DocumentElement != null)
             {

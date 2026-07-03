@@ -1105,6 +1105,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     return new Exception(String.Format(MessageResources.InvalidPieceUnit, product.PieceUnit));
                 }
 
+                product.Product.InvoiceProductItem.Add(product);
 
                 //if (!product.UnitCost.HasValue || product.UnitCost == 0)
                 //{
@@ -1121,6 +1122,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 //    return new Exception(String.Format(MessageResources.InvalidQuantity, product.Piece));
                 //}
 
+                product.Product.InvoiceProductItem.Add(product);
             }
             return null;
         }

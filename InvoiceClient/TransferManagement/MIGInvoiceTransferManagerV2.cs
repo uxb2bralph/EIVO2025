@@ -13,6 +13,7 @@ using CommonLib.Utility;
 using Newtonsoft.Json;
 using InvoiceClient.Agent.MIGHelper;
 using InvoiceClient.Helper;
+using ModelCore.Locale;
 
 namespace InvoiceClient.TransferManagement
 {
@@ -139,6 +140,8 @@ namespace InvoiceClient.TransferManagement
             public string G0501 { get; set; } = "G0501";
             public string B0401 { get; set; } = "B0401";
             public string B0501 { get; set; } = "B0501";
+            public Naming.NotificationIndication? DefaultNotification { get; set; }
+
         }
     }
 }

@@ -515,7 +515,7 @@ namespace ModelCore.Models.ViewModel
         public DateTime? ProcessCompleteTo { get; set; }
     }
 
-    public class ProductCatalogQueryViewModel : QueryViewModel
+    public class ProductCatalogQueryViewModel : EncQueryViewModel
     {
         public int? ProductID { get; set; }
         public String? Barcode { get; set; }

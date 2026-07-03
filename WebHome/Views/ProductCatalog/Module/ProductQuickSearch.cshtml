@@ -56,7 +56,7 @@
             $input.autocomplete({
                 source: function (request, response) {
                     showLoading();
-                    $.post('@Html.Raw(Url.Action("QuickSearch", "ProductCatalog"))', { 'productName': request.term }, function (data) {
+                    $.post('@Html.Raw(Url.Action("QuickSearch", "ProductCatalog"))', { 'productName': request.term, 'encSellerID': $('#invoiceForm [name="EncSellerID"]').val() }, function (data) {
                         hideLoading();
                         if ($.isArray(data)) {
                             products = data;

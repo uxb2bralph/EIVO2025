@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using CommonLib.Core.DataWork;
+﻿using CommonLib.Core.DataWork;
 using CommonLib.Utility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -22,7 +21,6 @@ namespace TaskCenter.Core.Handlers
     public class LoginHandler
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private readonly IElementaryService _elementaryService;
         private readonly ILogger<LoginHandler> _logger;
         /// <inheritdoc />
@@ -30,7 +28,6 @@ namespace TaskCenter.Core.Handlers
             IElementaryService elementaryService)
         {
             _elementaryService = elementaryService;
-            _mapper = _elementaryService.Mapper;
             _unitOfWork = _elementaryService.UnitOfWork;
             _logger = _elementaryService.LoggerFactory.CreateLogger<LoginHandler>();
         }
@@ -93,14 +90,14 @@ namespace TaskCenter.Core.Handlers
         private async Task<LoginResultDto?> SignIn(HttpContext context, UserProfile user)
         {
             var (token, identity) = await GenerateJwtTokenAsync(user);
-            var refreshToken = GenerateRefreshToken();
+            var refreshToken = GenerateRefreshToken(user);
 
             await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(
                     new ClaimsIdentity(identity.Claims,
                         CookieAuthenticationDefaults.AuthenticationScheme)));
 
-            var userDto = _mapper.Map<UserProfileDto>(user);
+            var userDto = user.ToDto();
 
             return new LoginResultDto
             {
@@ -125,11 +122,19 @@ namespace TaskCenter.Core.Handlers
             {
                 _logger.LogInformation("Refresh token requested");
 
-                // First validate the JWT structure
+                // First validate the JWT structure (signature, issuer, audience, lifetime)
                 var isValid = ValidateToken(refreshToken, out ClaimsPrincipal principal);
                 if (!isValid)
                 {
                     _logger.LogWarning("Invalid JWT token structure");
+                    return null;
+                }
+
+                // 必須是 refresh token，避免 access token 被拿來換新 token
+                var tokenType = principal.Claims.FirstOrDefault(c => c.Type == "token_type")?.Value;
+                if (!string.Equals(tokenType, "refresh", StringComparison.Ordinal))
+                {
+                    _logger.LogWarning("Provided token is not a refresh token");
                     return null;
                 }
 
@@ -149,11 +154,11 @@ namespace TaskCenter.Core.Handlers
                     return null;
                 }
 
-                // Generate new tokens
+                // Generate new tokens (rotate refresh token)
                 var (token, identity) = await GenerateJwtTokenAsync(user);
-                var newRefreshToken = GenerateRefreshToken();
+                var newRefreshToken = GenerateRefreshToken(user);
 
-                var userDto = _mapper.Map<UserProfileDto>(user);
+                var userDto = user.ToDto();
 
                 return new LoginResultDto
                 {
@@ -229,18 +234,43 @@ namespace TaskCenter.Core.Handlers
             return (tokenHandler.WriteToken(token), claimsIdentity);
         }
 
-        private static string GenerateRefreshToken()
+        /// <summary>
+        /// 產生 refresh token。為了讓 <see cref="RefreshTokenAsync"/> 能離線驗證（本系統未保存
+        /// refresh token），refresh token 本身就是一個帶有 token_type=refresh 標記、效期較長的 JWT。
+        /// </summary>
+        private string GenerateRefreshToken(UserProfile user)
         {
-            var randomNumber = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(AppSettings.Default.Jwt.SecurityKey!);
+
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.UID.ToString()),
+                new("token_type", "refresh"),
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(GetRefreshTokenExpirationMinutes()),
+                Issuer = AppSettings.Default.Jwt.Issuer,
+                Audience = AppSettings.Default.Jwt.Audience,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
 
 
         private int GetTokenExpirationMinutes()
         {
             return AppSettings.Default.Jwt.ExpirationInMinutes;
+        }
+
+        private int GetRefreshTokenExpirationMinutes()
+        {
+            return AppSettings.Default.Jwt.RefreshExpirationInMinutes;
         }
 
         /// <inheritdoc />

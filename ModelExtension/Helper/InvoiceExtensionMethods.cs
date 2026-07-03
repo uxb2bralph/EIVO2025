@@ -107,6 +107,8 @@ namespace ModelCore.Helper
                 {
                     DiscountAmount = invoice.Amount!.DiscountAmount,
                     SalesAmount = invoice.Amount.SalesAmount,
+                    FreeTaxSalesAmount = invoice.Amount.FreeTaxSalesAmount,
+                    ZeroTaxSalesAmount = invoice.Amount.ZeroTaxSalesAmount,
                     TaxAmount = invoice.Amount.TaxAmount,
                     TaxType = (byte)((int)invoice.Amount.TaxType),
                     TotalAmount = invoice.Amount.TotalAmount,

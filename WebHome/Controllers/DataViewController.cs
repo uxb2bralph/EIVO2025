@@ -40,6 +40,7 @@ using CommonLib.Core.Helper;
 using Business.Helper.ProcessRequestProcessor;
 using ModelCore.InvoiceManagement.Validator;
 using CommonLib.Core.Controllers;
+using ModelCore.InvoiceManagement.InvoiceProcess;
 
 namespace WebHome.Controllers
 {
@@ -85,7 +86,7 @@ namespace WebHome.Controllers
         protected String getInvoiceViewPath(InvoiceItem item, out String[]? useThermalPOSArgs, String? paperStyle = null, Naming.InvoiceProcessType? processType = null)
         {
             useThermalPOSArgs = null;
-            if ((paperStyle == "B2B" || item.InvoiceBuyer.CustomerNumber?.Length > 4) && !item.InvoiceBuyer.IsB2C())
+            if (((paperStyle == "B2B" || item.Organization.HybridB2B() == true) && item.InvoiceBuyer.CustomerName?.Length > 4) && !item.InvoiceBuyer.IsB2C())
             {
                 return "~/Views/DataView/A0401.cshtml";
             }
@@ -93,6 +94,10 @@ namespace WebHome.Controllers
             {
                 useThermalPOSArgs = ThermalPOSPaper;
                 return "~/Views/DataView/C0401_POS.cshtml";
+            }
+            else if(paperStyle == "CBE")
+            {
+                return "~/Views/Notification/Custom/ForAll/C0401.cshtml";
             }
             else
             {
@@ -487,6 +492,14 @@ namespace WebHome.Controllers
             viewModel.UseCBEView = true;
             return ShowInvoice(viewModel, queryModel);
         }
+
+        public async Task<ActionResult> ReviewInvoiceAsPDFAsync(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
+        {
+            viewModel.UseCBEView = true;
+            viewModel.PaperStyle = "CBE";
+            return await PrintSingleInvoiceAsPDFAsync(viewModel, queryModel);
+        }
+
 
         public ActionResult ShowInvoice(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
         {

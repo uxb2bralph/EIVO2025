@@ -368,7 +368,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
                 if (invProductItem != null)
                 {
-                    allowanceItem.ItemID = invProductItem.ItemID;
+                    allowanceItem.ProductItemID = invProductItem.ItemID;
                 }
 
                 _productItems.Add(allowanceItem);

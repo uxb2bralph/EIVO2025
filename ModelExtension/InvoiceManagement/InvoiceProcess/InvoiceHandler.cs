@@ -484,7 +484,14 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.CDS_Document.InvoiceItem;
             try
             {
-                EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel { DocID = item.DocID }, false);
+                if (invoiceItem?.InvoiceBuyer.IsB2C() == true || !(invoiceItem?.Organization.HybridB2B() == true))
+                {
+                    EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel { DocID = item.DocID }, false);
+                }
+                else
+                {
+                    EIVONotificationFactory.NotifyIssuedA0401(new RenderStyleViewModel { DocID = item.DocID, ForceTodo = true }, false);
+                }
 
                 item.PushStepLogOnSubmit(models, Naming.DataProcessStatus.Done);
                 models.SubmitChanges();

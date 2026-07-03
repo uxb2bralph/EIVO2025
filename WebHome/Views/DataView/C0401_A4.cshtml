@@ -63,7 +63,8 @@ else
     }
     else if(_viewModel.UseCBEView == true)
     {
-        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_CBE.cshtml", _model);
+        //await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_CBE.cshtml", _model);
+        await Html.RenderPartialAsync("~/Views/Notification/Custom/ForAll/C0401.cshtml", _model);
     }
     else
     {

@@ -90,7 +90,7 @@
     $('#btn').click(function () {
         var event = event || window.event;
         var $formData = $('form').serializeObject();
-        $formData.KeyID = '@(_model.UID.EncryptKey())';
+        $formData.KeyID = '@Html.Raw(_model.UID.EncryptKey())';
         clearErrors();
         showLoading();
         $.post('@Html.Raw(Url.Action("TwoFactorAuth", "Account"))', $formData, function (data) {

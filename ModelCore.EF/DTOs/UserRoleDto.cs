@@ -1,7 +1,18 @@
-using System;
+using ModelCore.DataEntity;
 
 namespace ModelCore.DTOs
 {
+    public static class UserRoleMappingExtensions
+    {
+        public static UserRoleDto ToDto(this UserRole src) => new()
+        {
+            UID = src.UID,
+            RoleID = src.RoleID,
+            OrgaCateID = src.OrgaCateID,
+            OrganizationCategory = src.OrgaCate?.ToDto(),
+        };
+    }
+
     public class UserRoleDto
     {
         public int UID { get; set; }

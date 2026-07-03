@@ -1163,6 +1163,9 @@ namespace ModelCore.InvoiceManagement.Validator
                 //        return new Exception(MessageResources.InvalidProductAmount);
                 //    }
                 //}
+
+                product.Product.InvoiceProductItem.Add(product);
+
             }
             return null;
         }

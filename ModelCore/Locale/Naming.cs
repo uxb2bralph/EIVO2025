@@ -345,6 +345,7 @@ namespace ModelCore.Locale
             None = 0,
             Immediate = 1,
             Deferred = 2,
+            DepositOnly = 3,
         }
 
         public enum B2BInvoiceQueryStepDefinition

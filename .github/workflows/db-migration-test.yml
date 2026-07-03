@@ -1,0 +1,101 @@
+name: DB Migration Test
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'Domain/DbScripts/*.sql'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'Domain/DbScripts/*.sql'
+  workflow_dispatch:
+
+env:
+  SA_PASSWORD: "YourStrong!Passw0rd"
+  DB_NAME: "EISSUED_TEST"
+
+jobs:
+  db-migration-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: "Y"
+          MSSQL_SA_PASSWORD: "YourStrong!Passw0rd"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P YourStrong!Passw0rd -C -Q 'SELECT 1'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 30s
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install sqlcmd
+        run: |
+          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --batch --yes --dearmor | sudo tee /usr/share/keyrings/microsoft-prod.gpg > /dev/null
+          sudo sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/ubuntu/$(lsb_release -rs)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/mssql-release.list'
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
+
+      - name: Create database
+        run: |
+          sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -Q "CREATE DATABASE [$DB_NAME]"
+
+      - name: Run all update scripts in order
+        run: |
+          SCRIPT_DIR="Domain/DbScripts"
+          APPLIED=0
+          FAILED=0
+
+          echo "Applying all incremental update scripts in order..."
+          echo ""
+
+          # Get all update scripts (YYYYMMDD-Uxxx-enid.sql pattern) sorted by name
+          for SCRIPT in $(ls "$SCRIPT_DIR"/*-U*-enid.sql 2>/dev/null | sort); do
+            FILENAME=$(basename "$SCRIPT")
+            echo "========================================="
+            echo "Applying: $FILENAME"
+            echo "========================================="
+
+            OUTPUT=$(sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -b -d "$DB_NAME" -i "$SCRIPT" 2>&1 || true)
+            EXIT_CODE=${PIPESTATUS[0]:-$?}
+
+            # Check if output contains Msg (SQL Server error indicator)
+            if echo "$OUTPUT" | grep -q "^Msg "; then
+              echo ""
+              echo "❌ FAILED: $FILENAME"
+              echo "-----------------------------------------"
+              echo "$OUTPUT"
+              echo "-----------------------------------------"
+              echo "::error file=$SCRIPT::Failed to apply $FILENAME"
+              exit 1
+            else
+              echo "✅ Success: $FILENAME"
+              APPLIED=$((APPLIED + 1))
+            fi
+            echo ""
+          done
+
+          echo ""
+          echo "========================================="
+          echo "Total applied: $APPLIED scripts"
+          echo "========================================="
+
+      - name: Verify database objects
+        run: |
+          echo "=== Tables ==="
+          sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -d "$DB_NAME" \
+            -Q "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME"
+
+          echo ""
+          echo "=== Total table count ==="
+          sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -d "$DB_NAME" \
+            -Q "SELECT COUNT(*) AS TableCount FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE'"

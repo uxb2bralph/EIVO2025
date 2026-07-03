@@ -31,7 +31,11 @@ namespace InvoiceClient.Agent.MIGHelper
             XmlDocument docInv = new XmlDocument();
             docInv.Load(invoiceFile);
 
-            CancelInvoiceRoot root = new CancelInvoiceRoot { };
+            CancelInvoiceRoot root = new CancelInvoiceRoot 
+            {
+                Notification = (short)(DefaultNotification ?? Naming.NotificationIndication.None),
+                NotificationSpecified = true,
+            };
 
             if (docInv.DocumentElement != null)
             {

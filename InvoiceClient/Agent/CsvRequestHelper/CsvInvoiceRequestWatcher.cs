@@ -88,7 +88,7 @@ namespace InvoiceClient.Agent.CsvRequestHelper
 
                         processUpload();
                         _root.Add(new XElement("SourceLog", String.Join(";", masterLog, detailLog)));
-                        _root.Add(new XElement("ToFail", this._failedTxnPath));
+                        _root.Add(new XElement("LogFault", this._failedTxnPath));
                         _root.Save(Path.Combine(_ResponsedPath, $"{Path.GetFileNameWithoutExtension(fileName)}.xml"));
 
                         if (PreparedPrintPath != null)

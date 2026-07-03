@@ -64,35 +64,37 @@ namespace InvoiceClient.TransferManagement
         {
             get;
             private set;
-        }
+        } = AppSettings.Default.ServiceInfo ?? null!;
         public static void PrepareServiceInfo()
         {
-            using (eInvoiceServiceClient invSvc = InvoiceWatcher.CreateInvoiceService())
+            if(@ServiceInfo == null)
             {
-                var tmpInfo = ServiceInfo ?? AppSettings.Default.ServiceInfo;
-                try
+                using (eInvoiceServiceClient invSvc = InvoiceWatcher.CreateInvoiceService())
                 {
-                    Root token = invSvc.CreateMessageToken("讀取系統服務資訊");
-                    String result = invSvc.GetServiceInfo(token.ConvertToXml().Sign());
-                    if (result != null)
+                    try
                     {
-                        Logger.Info("ServerInfo:" + result);
-                        AppSettings.Default.ServiceInfo = ServiceInfo = JsonConvert.DeserializeObject<ServiceInfo>(result);
-                        if (tmpInfo == null)
+                        Root token = invSvc.CreateMessageToken("讀取系統服務資訊");
+                        String result = invSvc.GetServiceInfo(token.ConvertToXml().Sign());
+                        if (result != null)
                         {
-                            AppSettings.Default.Save();
+                            Logger.Info("ServerInfo:" + result);
+                            AppSettings.Default.ServiceInfo = ServiceInfo = JsonConvert.DeserializeObject<ServiceInfo>(result) ?? null!;
+                            if (ServiceInfo != null)
+                            {
+                                AppSettings.Default.Save();
+                            }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                    ServiceInfo = tmpInfo;
-                    Task.Run((Action)(() =>
+                    catch (Exception ex)
                     {
-                        MessageBox.Show($"請檢查網址及網路是否正確!!\r\n{Settings.Default.InvoiceClient_WS_Invoice_eInvoiceServiceClient}", "伺服端連線異常", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
-                    }));
+                        Logger.Error(ex);
+                        Task.Run((Action)(() =>
+                        {
+                            MessageBox.Show($"請檢查網址及網路是否正確!!\r\n{Settings.Default.InvoiceClient_WS_Invoice_eInvoiceServiceClient}", "伺服端連線異常", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.ServiceNotification);
+                        }));
+                    }
                 }
+
             }
 
             if (ServiceInfo == null)

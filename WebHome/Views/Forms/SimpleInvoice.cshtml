@@ -20,7 +20,7 @@
 
 @{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票開立");}
 
-<form role="form" method="post">
+<form role="form" method="post" id="invoiceForm">
     @{ await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/InvoiceProcessTypeDirection.cshtml");}
 
     <div class="border_gray">
@@ -213,7 +213,7 @@
                     課稅別
                 </th>
                 <td class="tdleft">
-                    <select class="form-control" name="TaxType">
+                    <select class="form-control" name="TaxType" onchange="uiInvoice.onTaxTypeChange(this.value);">
                         <option value="1">應稅</option>
                         <option value="2">零稅率</option>
                         <option value="3">免稅</option>
@@ -413,6 +413,10 @@
                     var $tr = $(event.target).parents('tr');
                     $tr.remove();
                 }
+            },
+            onTaxTypeChange: function (value) {
+                var taxRateMap = { '1': '0.05', '2': '0', '3': '', '4': '' };
+                $('input[name="TaxRate"]').val(taxRateMap[value] !== undefined ? taxRateMap[value] : '');
             },
             quickSearch: function (element) {
                 var event = event || window.event;

@@ -1,0 +1,788 @@
+<style>
+  :root {
+    --paper: #F3F5F6;
+    --panel: #FFFFFF;
+    --ground: #153039;
+    --ground-2: #1E434E;
+    --ink: #1B2A32;
+    --muted: #5C6B72;
+    --faint: #8B979C;
+    --accent: #0E7C74;
+    --accent-soft: #E0EEEC;
+    --hair: #D7DCDE;
+    --hair-strong: #C3CBCD;
+    --err: #B23B3B;
+    --err-soft: #F6E5E4;
+    --warn: #9A6B15;
+    --warn-soft: #F5ECD8;
+    --ok: #2E7D5B;
+    --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+    --cjk: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", "Hiragino Sans", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body-root { display: block; }
+
+  .doc {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--cjk);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    font-size: 15.5px;
+  }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    background: var(--ground);
+    color: #EAF1F0;
+    padding: 56px 40px 44px;
+    background-image:
+      linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.12)),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 64px);
+  }
+  .masthead-inner { max-width: 1180px; margin: 0 auto; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #7FB8B0;
+    margin: 0 0 18px;
+  }
+  .masthead h1 {
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.15;
+    margin: 0 0 14px;
+    font-weight: 700;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .masthead .lede {
+    max-width: 60ch;
+    color: #Bcd3d0;
+    color: #BFD3D0;
+    font-size: 16px;
+    margin: 0;
+  }
+  .meta-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 26px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255,255,255,0.14);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: #9EBAB6;
+  }
+  .meta-strip b { color: #DCEAE8; font-weight: 500; }
+
+  /* ---------- Shell ---------- */
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 40px 80px;
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+  }
+
+  /* ---------- Nav ---------- */
+  nav.toc {
+    position: sticky;
+    top: 24px;
+    margin-top: 40px;
+    font-size: 13.5px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+  nav.toc .toc-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding: 0 0 12px;
+    border-bottom: 1px solid var(--hair);
+    margin-bottom: 10px;
+  }
+  nav.toc a {
+    display: block;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-left: 2px solid transparent;
+    border-radius: 0 4px 4px 0;
+    transition: color .15s, background .15s, border-color .15s;
+  }
+  nav.toc a:hover { color: var(--accent); background: var(--accent-soft); border-left-color: var(--accent); }
+  nav.toc a .n { font-family: var(--mono); color: var(--faint); margin-right: 8px; font-size: 12px; }
+
+  /* ---------- Main ---------- */
+  main { min-width: 0; padding-top: 40px; }
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  section > h2 {
+    font-size: 22px;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  section > h2 .num {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+  .section-rule { height: 3px; width: 44px; background: var(--accent); border-radius: 2px; margin: 0 0 22px; }
+  h3 { font-size: 16.5px; margin: 32px 0 12px; color: var(--ground); }
+  h3 .tag { font-family: var(--mono); font-size: 13px; color: var(--accent); font-weight: 600; }
+  p { margin: 0 0 14px; max-width: 74ch; }
+  .note {
+    background: var(--panel);
+    border: 1px solid var(--hair);
+    border-left: 3px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0 0 20px;
+    max-width: 82ch;
+  }
+  .note b { color: var(--ink); }
+
+  /* ---------- Flow ---------- */
+  ol.flow { list-style: none; counter-reset: step; padding: 0; margin: 0 0 8px; display: grid; gap: 10px; }
+  ol.flow li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 34px 220px 1fr;
+    align-items: center;
+    gap: 16px;
+    background: var(--panel);
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    padding: 12px 18px;
+  }
+  ol.flow li::before {
+    content: counter(step);
+    font-family: var(--mono);
+    font-weight: 600;
+    color: #fff;
+    background: var(--ground);
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-size: 13px;
+  }
+  ol.flow code { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+  ol.flow .purpose { color: var(--muted); font-size: 14px; }
+
+  /* ---------- Tables ---------- */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--hair);
+    border-radius: 8px;
+    margin: 0 0 20px;
+    background: var(--panel);
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  thead th {
+    background: #EDF1F1;
+    color: var(--ground);
+    text-align: left;
+    font-weight: 600;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--hair-strong);
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  tbody td { padding: 10px 16px; border-bottom: 1px solid var(--hair); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #F6F9F9; }
+  td.idx, th.idx { font-family: var(--mono); text-align: center; font-variant-numeric: tabular-nums; color: var(--ground); font-weight: 600; width: 56px; }
+  code, .code { font-family: var(--mono); font-size: 13px; }
+  td code, .msg-key { color: var(--accent); font-weight: 600; }
+  .dash { color: var(--faint); font-family: var(--mono); }
+  .fixed-val { color: var(--warn); font-size: 12.5px; }
+
+  /* ---------- Chips ---------- */
+  .chip {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+  }
+  .chip.err { background: var(--err-soft); color: var(--err); border-color: #E7C4C2; }
+  .chip.warn { background: var(--warn-soft); color: var(--warn); border-color: #E6D2A6; }
+  .chip.cat { background: #EAF1F0; color: var(--ground); border-color: var(--hair-strong); }
+  .chip.hard { background: #ECECEC; color: #555; border-color: #D3D3D3; }
+
+  .fmt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 18px; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+  footer {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 40px 60px;
+    border-top: 1px solid var(--hair);
+    color: var(--faint);
+    font-size: 12.5px;
+    font-family: var(--mono);
+  }
+
+  a:focus-visible, nav.toc a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; padding: 0 22px 60px; gap: 0; }
+    nav.toc { display: none; }
+    main { padding-top: 28px; }
+    .masthead { padding: 40px 22px 32px; }
+    ol.flow li { grid-template-columns: 30px 1fr; }
+    ol.flow li .purpose { grid-column: 1 / -1; padding-left: 46px; }
+  }
+</style>
+
+<div class="doc">
+  <header class="masthead">
+    <div class="masthead-inner">
+      <p class="eyebrow">EIVO · 電子發票 · 匯入檢核規格</p>
+      <h1>發票匯入（Xlsx / DataSet）<br>資料格式檢核規則說明</h1>
+      <p class="lede">Excel 逐列匯入開立發票（B2B / B2C / 跨境電商 CBE）的完整格式檢核規則、欄位順序對照與錯誤訊息代碼對照。</p>
+      <div class="meta-strip">
+        <span>對象程式 <b>InvoiceDataSetValidator.cs</b></span>
+        <span>基底 <b>InvoiceRootInvoiceValidator</b></span>
+        <span>訊息來源 <b>MessageResources.resx</b></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell">
+    <nav class="toc" aria-label="章節導覽">
+      <div class="toc-title">目錄</div>
+      <a href="#flow"><span class="n">01</span>整體檢核流程</a>
+      <a href="#formats"><span class="n">02</span>支援格式與欄位對應</a>
+      <a href="#columns"><span class="n">03</span>Excel 欄位順序對照表</a>
+      <a href="#diff"><span class="n">04</span>三格式欄位差異速查</a>
+      <a href="#rules"><span class="n">05</span>逐項檢核規則</a>
+      <a href="#codes"><span class="n">06</span>錯誤訊息代碼總表</a>
+      <a href="#formatspec"><span class="n">07</span>關鍵格式規則</a>
+    </nav>
+
+    <main>
+      <!-- 01 -->
+      <section id="flow">
+        <h2><span class="num">01</span>整體檢核流程</h2>
+        <div class="section-rule"></div>
+        <p>進入點：<code class="code" style="color:var(--accent)">Validate(DataRow dataItem, IEnumerable&lt;DataRow&gt; details)</code>。依序執行下列檢核，任一步驟回傳 <code>Exception</code> 即中止並回報該筆錯誤；全部通過回傳 <code>null</code>。</p>
+        <ol class="flow">
+          <li><code>checkBusiness()</code><span class="purpose">賣方 / 買方 / 隨機碼 / 買方明細</span></li>
+          <li><code>checkDataNumber()</code> · <code>buildDataNumber()</code><span class="purpose">單據號碼、單據日期（自動配號時嚴格檢查）</span></li>
+          <li><code>checkAmount()</code><span class="purpose">金額、課稅別、稅率、通關方式、幣別</span></li>
+          <li><code>checkInvoiceDelivery()</code><span class="purpose">列印 / 載具 / 捐贈 交付方式組合決策表</span></li>
+          <li><code>checkMandatoryFields()</code><span class="purpose">捐贈註記、列印註記、發票類別</span></li>
+          <li><code>checkInvoiceProductItems()</code><span class="purpose">品項明細</span></li>
+          <li><code>checkInvoice()</code><span class="purpose">發票號碼、發票日期、重複、字軌</span></li>
+        </ol>
+        <div class="note"><b>_isAutoTrackNo</b> = <code>InvoiceNo()</code> 是否為空。自動配號模式會嚴格檢查單據號碼（步驟 2 走 <code>checkDataNumber()</code>）；自帶號碼模式僅以 <code>buildDataNumber()</code> 組裝單據資料。</div>
+      </section>
+
+      <!-- 02 -->
+      <section id="formats">
+        <h2><span class="num">02</span>支援的匯入格式與欄位對應</h2>
+        <div class="section-rule"></div>
+        <p><code>resetFieldIndex()</code> 依 <code>processType</code> 決定各欄位在 DataRow 的欄位索引。</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>processType</th><th>說明</th><th>含發票號欄</th><th>明細稅別欄</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>F0401_Xlsx_Allocation_ByVAC</code></td><td>VAC 配號（系統自動配號）</td><td>否（自動配號）</td><td>有</td></tr>
+              <tr><td><code>F0401_Xlsx_CBE</code></td><td>跨境電商（欄位精簡，多數欄位由程式帶固定值）</td><td>否（自動配號）</td><td>無（固定「應稅」）</td></tr>
+              <tr><td><code>A0101_Xlsx_Allocation_ByIssuer</code><br><code>F0401_Xlsx_Allocation_ByIssuer</code></td><td>開立人自帶發票號碼</td><td>有</td><td>有</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>CBE（跨境電商）特別行為</h3>
+        <p><code>processType == F0401_Xlsx_CBE</code> 時多欄位改帶固定值：</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>欄位 / 方法</th><th>固定值</th></tr></thead>
+            <tbody>
+              <tr><td><code>BuyerID()</code></td><td class="fixed-val">0000000000</td></tr>
+              <tr><td><code>TaxType()</code></td><td class="fixed-val">應稅</td></tr>
+              <tr><td><code>InvoiceType()</code></td><td class="fixed-val">一般稅額計算之電子發票</td></tr>
+              <tr><td><code>TaxRate()</code></td><td class="fixed-val">0.05</td></tr>
+              <tr><td><code>PrintMark()</code></td><td class="fixed-val">N</td></tr>
+              <tr><td><code>DonateMark()</code></td><td class="fixed-val">0</td></tr>
+              <tr><td><code>CarrierType()</code></td><td class="fixed-val">5G0001（跨境電商載具）</td></tr>
+              <tr><td>載具號 · <code>EMail()</code></td><td class="fixed-val">皆取 Carrier_Id1</td></tr>
+              <tr><td><code>randomNo</code></td><td class="fixed-val">以現在時間毫秒 ffff 產生</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 03 -->
+      <section id="columns">
+        <h2><span class="num">03</span>完整 Excel 欄位順序對照表</h2>
+        <div class="section-rule"></div>
+        <div class="note">欄位序號 = DataRow 欄位索引（0-based），即 Excel 由左至右第 1 欄對應索引 0。未列出欄位表示該格式無此欄，由程式帶固定值或不使用。</div>
+
+        <h3><span class="fmt-badge">格式 A</span>&nbsp; <span class="tag">F0401_Xlsx_Allocation_ByVAC</span> — 系統自動配號</h3>
+        <p style="font-size:13.5px;color:var(--muted)">發票主檔（共 29 欄）</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="idx">索引</th><th>欄位</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td class="idx">0</td><td><code>Data_ID</code></td><td>單據號碼</td></tr>
+              <tr><td class="idx">1</td><td><code>Data_Date</code></td><td>單據日期</td></tr>
+              <tr><td class="idx">2</td><td><code>Seller_ID</code></td><td>賣方統編</td></tr>
+              <tr><td class="idx">3</td><td><code>Buyer_Name</code></td><td>買方名稱</td></tr>
+              <tr><td class="idx">4</td><td><code>Buyer_ID</code></td><td>買方統編（空 = B2C 0000000000）</td></tr>
+              <tr><td class="idx">5</td><td><code>Buyer_Mark</code></td><td>買方註記</td></tr>
+              <tr><td class="idx">6</td><td><code>Customs_Clearance_Mark</code></td><td>通關方式</td></tr>
+              <tr><td class="idx">7</td><td><code>Customer_ID</code></td><td>客戶編號</td></tr>
+              <tr><td class="idx">8</td><td><code>Contact_Name</code></td><td>聯絡人</td></tr>
+              <tr><td class="idx">9</td><td><code>EMail</code></td><td>電子郵件</td></tr>
+              <tr><td class="idx">10</td><td><code>Address</code></td><td>地址</td></tr>
+              <tr><td class="idx">11</td><td><code>Phone</code></td><td>電話</td></tr>
+              <tr><td class="idx">12</td><td><code>Sales_Amount</code></td><td>應稅銷售額</td></tr>
+              <tr><td class="idx">13</td><td><code>Free_Tax_Sales_Amount</code></td><td>免稅銷售額</td></tr>
+              <tr><td class="idx">14</td><td><code>Zero_Tax_Sales_Amount</code></td><td>零稅率銷售額</td></tr>
+              <tr><td class="idx">15</td><td><code>Invoice_Type</code></td><td>發票類別</td></tr>
+              <tr><td class="idx">16</td><td><code>Tax_Type</code></td><td>課稅別</td></tr>
+              <tr><td class="idx">17</td><td><code>Tax_Rate</code></td><td>稅率</td></tr>
+              <tr><td class="idx">18</td><td><code>Tax_Amount</code></td><td>稅額</td></tr>
+              <tr><td class="idx">19</td><td><code>Total_Amount</code></td><td>總金額</td></tr>
+              <tr><td class="idx">20</td><td><code>Currency</code></td><td>幣別</td></tr>
+              <tr><td class="idx">21</td><td><code>Print_Mark</code></td><td>列印註記</td></tr>
+              <tr><td class="idx">22</td><td><code>Carrier_Type</code></td><td>載具類別</td></tr>
+              <tr><td class="idx">23</td><td><code>Carrier_Id1</code></td><td>載具顯碼</td></tr>
+              <tr><td class="idx">24</td><td><code>Carrier_Id2</code></td><td>載具隱碼</td></tr>
+              <tr><td class="idx">25</td><td><code>Donate_Mark</code></td><td>捐贈註記</td></tr>
+              <tr><td class="idx">26</td><td><code>NPOBAN</code></td><td>捐贈對象</td></tr>
+              <tr><td class="idx">27</td><td><code>Random_Number</code></td><td>隨機碼</td></tr>
+              <tr><td class="idx">28</td><td><code>Main_Remark</code></td><td>主要備註</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--muted)">明細（共 8 欄）</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="idx">索引</th><th>欄位</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td class="idx">0</td><td><code>Data_ID</code></td><td>單據號碼（對應主檔）</td></tr>
+              <tr><td class="idx">1</td><td><code>Description</code></td><td>品名</td></tr>
+              <tr><td class="idx">2</td><td><code>Quantity</code></td><td>數量</td></tr>
+              <tr><td class="idx">3</td><td><code>Unit</code></td><td>單位</td></tr>
+              <tr><td class="idx">4</td><td><code>Unit_Price</code></td><td>單價</td></tr>
+              <tr><td class="idx">5</td><td><code>Amount</code></td><td>金額</td></tr>
+              <tr><td class="idx">6</td><td><code>Item_Tax_Type</code></td><td>品項課稅別</td></tr>
+              <tr><td class="idx">7</td><td><code>Remark</code></td><td>備註</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="fmt-badge">格式 B</span>&nbsp; <span class="tag">A0101 / F0401_Xlsx_Allocation_ByIssuer</span> — 自帶發票號碼</h3>
+        <p style="font-size:13.5px;color:var(--muted)">發票主檔（共 30 欄）— 較格式 A 多首欄發票號碼與發票日期，且 <b style="color:var(--err)">無 Data_Date 欄</b></p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="idx">索引</th><th>欄位</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td class="idx">0</td><td><code>Invoice_No</code></td><td>發票號碼（2 碼字軌 + 8 碼）</td></tr>
+              <tr><td class="idx">1</td><td><code>Invoice_Date</code></td><td>發票日期</td></tr>
+              <tr><td class="idx">2</td><td><code>Data_ID</code></td><td>單據號碼</td></tr>
+              <tr><td class="idx">3</td><td><code>Seller_ID</code></td><td>賣方統編</td></tr>
+              <tr><td class="idx">4</td><td><code>Buyer_Name</code></td><td>買方名稱</td></tr>
+              <tr><td class="idx">5</td><td><code>Buyer_ID</code></td><td>買方統編</td></tr>
+              <tr><td class="idx">6</td><td><code>Buyer_Mark</code></td><td>買方註記</td></tr>
+              <tr><td class="idx">7</td><td><code>Customs_Clearance_Mark</code></td><td>通關方式</td></tr>
+              <tr><td class="idx">8</td><td><code>Customer_ID</code></td><td>客戶編號</td></tr>
+              <tr><td class="idx">9</td><td><code>Contact_Name</code></td><td>聯絡人</td></tr>
+              <tr><td class="idx">10</td><td><code>EMail</code></td><td>電子郵件</td></tr>
+              <tr><td class="idx">11</td><td><code>Address</code></td><td>地址</td></tr>
+              <tr><td class="idx">12</td><td><code>Phone</code></td><td>電話</td></tr>
+              <tr><td class="idx">13</td><td><code>Sales_Amount</code></td><td>應稅銷售額</td></tr>
+              <tr><td class="idx">14</td><td><code>Free_Tax_Sales_Amount</code></td><td>免稅銷售額</td></tr>
+              <tr><td class="idx">15</td><td><code>Zero_Tax_Sales_Amount</code></td><td>零稅率銷售額</td></tr>
+              <tr><td class="idx">16</td><td><code>Invoice_Type</code></td><td>發票類別</td></tr>
+              <tr><td class="idx">17</td><td><code>Tax_Type</code></td><td>課稅別</td></tr>
+              <tr><td class="idx">18</td><td><code>Tax_Rate</code></td><td>稅率</td></tr>
+              <tr><td class="idx">19</td><td><code>Tax_Amount</code></td><td>稅額</td></tr>
+              <tr><td class="idx">20</td><td><code>Total_Amount</code></td><td>總金額</td></tr>
+              <tr><td class="idx">21</td><td><code>Currency</code></td><td>幣別</td></tr>
+              <tr><td class="idx">22</td><td><code>Print_Mark</code></td><td>列印註記</td></tr>
+              <tr><td class="idx">23</td><td><code>Carrier_Type</code></td><td>載具類別</td></tr>
+              <tr><td class="idx">24</td><td><code>Carrier_Id1</code></td><td>載具顯碼</td></tr>
+              <tr><td class="idx">25</td><td><code>Carrier_Id2</code></td><td>載具隱碼</td></tr>
+              <tr><td class="idx">26</td><td><code>Donate_Mark</code></td><td>捐贈註記</td></tr>
+              <tr><td class="idx">27</td><td><code>NPOBAN</code></td><td>捐贈對象</td></tr>
+              <tr><td class="idx">28</td><td><code>Random_Number</code></td><td>隨機碼</td></tr>
+              <tr><td class="idx">29</td><td><code>Main_Remark</code></td><td>主要備註</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--muted)">明細（共 8 欄）— 首欄改為 Invoice_No 對應主檔</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="idx">索引</th><th>欄位</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td class="idx">0</td><td><code>Invoice_No</code></td><td>發票號碼（對應主檔）</td></tr>
+              <tr><td class="idx">1</td><td><code>Description</code></td><td>品名</td></tr>
+              <tr><td class="idx">2</td><td><code>Quantity</code></td><td>數量</td></tr>
+              <tr><td class="idx">3</td><td><code>Unit</code></td><td>單位</td></tr>
+              <tr><td class="idx">4</td><td><code>Unit_Price</code></td><td>單價</td></tr>
+              <tr><td class="idx">5</td><td><code>Amount</code></td><td>金額</td></tr>
+              <tr><td class="idx">6</td><td><code>Item_Tax_Type</code></td><td>品項課稅別</td></tr>
+              <tr><td class="idx">7</td><td><code>Remark</code></td><td>備註</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="fmt-badge">格式 C</span>&nbsp; <span class="tag">F0401_Xlsx_CBE</span> — 跨境電商（欄位精簡）</h3>
+        <p style="font-size:13.5px;color:var(--muted)">發票主檔（共 10 欄）— 其餘欄位由程式帶固定值</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="idx">索引</th><th>欄位</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td class="idx">0</td><td><code>Data_ID</code></td><td>單據號碼</td></tr>
+              <tr><td class="idx">1</td><td><code>Data_Date</code></td><td>單據日期</td></tr>
+              <tr><td class="idx">2</td><td><code>Seller_ID</code></td><td>賣方統編</td></tr>
+              <tr><td class="idx">3</td><td><code>Customer_ID</code></td><td>客戶編號</td></tr>
+              <tr><td class="idx">4</td><td><code>Sales_Amount</code></td><td>應稅銷售額</td></tr>
+              <tr><td class="idx">5</td><td><code>Tax_Amount</code></td><td>稅額</td></tr>
+              <tr><td class="idx">6</td><td><code>Total_Amount</code></td><td>總金額</td></tr>
+              <tr><td class="idx">7</td><td><code>Currency</code></td><td>幣別</td></tr>
+              <tr><td class="idx">8</td><td><code>Carrier_Id1</code></td><td>載具號（同時作為 EMail；載具類別固定 5G0001）</td></tr>
+              <tr><td class="idx">9</td><td><code>Main_Remark</code></td><td>主要備註</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--muted)">明細（共 7 欄）— 無品項課稅別欄（固定「應稅」）</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="idx">索引</th><th>欄位</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td class="idx">0</td><td><code>Data_ID</code></td><td>單據號碼（對應主檔）</td></tr>
+              <tr><td class="idx">1</td><td><code>Description</code></td><td>品名</td></tr>
+              <tr><td class="idx">2</td><td><code>Quantity</code></td><td>數量</td></tr>
+              <tr><td class="idx">3</td><td><code>Unit</code></td><td>單位</td></tr>
+              <tr><td class="idx">4</td><td><code>Unit_Price</code></td><td>單價</td></tr>
+              <tr><td class="idx">5</td><td><code>Amount</code></td><td>金額</td></tr>
+              <tr><td class="idx">6</td><td><code>Remark</code></td><td>備註</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 04 -->
+      <section id="diff">
+        <h2><span class="num">04</span>三格式主檔欄位差異速查</h2>
+        <div class="section-rule"></div>
+        <div class="legend">
+          <span><span class="dash">—</span> 該格式無此欄位</span>
+          <span><span class="fixed-val">固定 xxx</span> 程式帶入預設值，Excel 不需提供</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>欄位</th><th class="idx">A：ByVAC</th><th class="idx">B：ByIssuer</th><th class="idx">C：CBE</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>Invoice_No</code></td><td class="idx"><span class="dash">—</span></td><td class="idx">0</td><td class="idx"><span class="dash">—</span></td></tr>
+              <tr><td><code>Invoice_Date</code></td><td class="idx"><span class="dash">—</span></td><td class="idx">1</td><td class="idx"><span class="dash">—</span></td></tr>
+              <tr><td><code>Data_ID</code></td><td class="idx">0</td><td class="idx">2</td><td class="idx">0</td></tr>
+              <tr><td><code>Data_Date</code></td><td class="idx">1</td><td class="idx"><span class="dash">—</span></td><td class="idx">1</td></tr>
+              <tr><td><code>Seller_ID</code></td><td class="idx">2</td><td class="idx">3</td><td class="idx">2</td></tr>
+              <tr><td><code>Buyer_Name</code></td><td class="idx">3</td><td class="idx">4</td><td class="idx"><span class="fixed-val">null</span></td></tr>
+              <tr><td><code>Buyer_ID</code></td><td class="idx">4</td><td class="idx">5</td><td class="idx"><span class="fixed-val">0000000000</span></td></tr>
+              <tr><td><code>Buyer_Mark</code></td><td class="idx">5</td><td class="idx">6</td><td class="idx"><span class="dash">—</span></td></tr>
+              <tr><td><code>Customs_Clearance_Mark</code></td><td class="idx">6</td><td class="idx">7</td><td class="idx"><span class="fixed-val">null</span></td></tr>
+              <tr><td><code>Customer_ID</code></td><td class="idx">7</td><td class="idx">8</td><td class="idx">3</td></tr>
+              <tr><td><code>Contact_Name</code></td><td class="idx">8</td><td class="idx">9</td><td class="idx"><span class="dash">—</span></td></tr>
+              <tr><td><code>EMail</code></td><td class="idx">9</td><td class="idx">10</td><td class="idx"><span class="fixed-val">←Id1(8)</span></td></tr>
+              <tr><td><code>Address</code></td><td class="idx">10</td><td class="idx">11</td><td class="idx"><span class="dash">—</span></td></tr>
+              <tr><td><code>Phone</code></td><td class="idx">11</td><td class="idx">12</td><td class="idx"><span class="dash">—</span></td></tr>
+              <tr><td><code>Sales_Amount</code></td><td class="idx">12</td><td class="idx">13</td><td class="idx">4</td></tr>
+              <tr><td><code>Free_Tax_Sales_Amount</code></td><td class="idx">13</td><td class="idx">14</td><td class="idx"><span class="fixed-val">null</span></td></tr>
+              <tr><td><code>Zero_Tax_Sales_Amount</code></td><td class="idx">14</td><td class="idx">15</td><td class="idx"><span class="fixed-val">null</span></td></tr>
+              <tr><td><code>Invoice_Type</code></td><td class="idx">15</td><td class="idx">16</td><td class="idx"><span class="fixed-val">一般稅額</span></td></tr>
+              <tr><td><code>Tax_Type</code></td><td class="idx">16</td><td class="idx">17</td><td class="idx"><span class="fixed-val">應稅</span></td></tr>
+              <tr><td><code>Tax_Rate</code></td><td class="idx">17</td><td class="idx">18</td><td class="idx"><span class="fixed-val">0.05</span></td></tr>
+              <tr><td><code>Tax_Amount</code></td><td class="idx">18</td><td class="idx">19</td><td class="idx">5</td></tr>
+              <tr><td><code>Total_Amount</code></td><td class="idx">19</td><td class="idx">20</td><td class="idx">6</td></tr>
+              <tr><td><code>Currency</code></td><td class="idx">20</td><td class="idx">21</td><td class="idx">7</td></tr>
+              <tr><td><code>Print_Mark</code></td><td class="idx">21</td><td class="idx">22</td><td class="idx"><span class="fixed-val">N</span></td></tr>
+              <tr><td><code>Carrier_Type</code></td><td class="idx">22</td><td class="idx">23</td><td class="idx"><span class="fixed-val">5G0001</span></td></tr>
+              <tr><td><code>Carrier_Id1</code></td><td class="idx">23</td><td class="idx">24</td><td class="idx">8</td></tr>
+              <tr><td><code>Carrier_Id2</code></td><td class="idx">24</td><td class="idx">25</td><td class="idx"><span class="fixed-val">null</span></td></tr>
+              <tr><td><code>Donate_Mark</code></td><td class="idx">25</td><td class="idx">26</td><td class="idx"><span class="fixed-val">0</span></td></tr>
+              <tr><td><code>NPOBAN</code></td><td class="idx">26</td><td class="idx">27</td><td class="idx"><span class="fixed-val">null</span></td></tr>
+              <tr><td><code>Random_Number</code></td><td class="idx">27</td><td class="idx">28</td><td class="idx"><span class="fixed-val">ffff</span></td></tr>
+              <tr><td><code>Main_Remark</code></td><td class="idx">28</td><td class="idx">29</td><td class="idx">9</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 05 -->
+      <section id="rules">
+        <h2><span class="num">05</span>逐項檢核規則</h2>
+        <div class="section-rule"></div>
+
+        <h3>1. 賣方 / 買方 <span class="tag">checkBusiness()</span></h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>檢核項</th><th>規則</th><th>錯誤代碼</th></tr></thead>
+            <tbody>
+              <tr><td>賣方統編</td><td>依 <code>SellerID()</code> 查得 Organization，查無則錯誤</td><td><span class="msg-key">AlertInvalidSeller</span></td></tr>
+              <tr><td>代理開立</td><td>有 _owner 且賣方非本人、未登記為代理開立人</td><td><span class="msg-key">InvalidSellerOrAgent</span></td></tr>
+              <tr><td>賣方狀態</td><td>賣方被註記停用（Mark_To_Delete）</td><td><span class="chip hard">硬編字串</span></td></tr>
+              <tr><td>買方統編為空</td><td>自動補 0000000000（B2C）</td><td><span class="dash">—</span></td></tr>
+              <tr><td>買方統編格式</td><td>非 0000000000 時須符合 <code>^[0-9]{8}$</code></td><td><span class="msg-key">InvalidBuyerId</span></td></tr>
+              <tr><td>買方統編檢核碼</td><td>賣方啟用 EnableBuyerIDValidation 時須通過 CheckRegno()</td><td><span class="msg-key">InvalidReceiptNo</span></td></tr>
+              <tr><td>買方名稱長度</td><td>BuyerName().Length &gt; 60</td><td><span class="msg-key">InvalidBuyerNameLengthLimit</span></td></tr>
+              <tr><td>隨機碼</td><td>空則自動產生；有值須符合 <code>^[0-9]{4}$</code></td><td><span class="msg-key">InvalidRandomNumber</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>2. 單據號碼 <span class="tag">checkDataNumber()</span> — 僅自動配號模式</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>檢核項</th><th>規則</th><th>錯誤代碼</th></tr></thead>
+            <tbody>
+              <tr><td>單據號碼必填</td><td>DataID() 為空</td><td><span class="msg-key">AlertDataNumber</span></td></tr>
+              <tr><td>單據號碼長度</td><td>&gt; 60 碼</td><td><span class="msg-key">AlertDataNumberLimitedLength</span></td></tr>
+              <tr><td>強制查核號重複</td><td>賣方 ForcedAuditNo() 建立稽核號失敗</td><td><span class="msg-key">AlertDataNumberDuplicated</span></td></tr>
+              <tr><td>單據號碼重複</td><td>同賣方已存在相同 OrderNo</td><td><span class="msg-key">AlertDataNumberDuplicated</span></td></tr>
+              <tr><td>單據日期必填</td><td>DataDate() 無值</td><td><span class="msg-key">AlertDataDate</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">自帶發票號模式改走 <code>buildDataNumber()</code>：僅在 DataID() 有值時建立單據，不做上述檢核。</div>
+
+        <h3>3. 金額 / 課稅 / 幣別 <span class="tag">checkAmount()</span></h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>檢核項</th><th>規則</th><th>錯誤代碼</th></tr></thead>
+            <tbody>
+              <tr><td>應稅銷售額</td><td>SalesAmount() &lt; 0</td><td><span class="msg-key">InvalidSellingPrice</span></td></tr>
+              <tr><td>免稅銷售額</td><td>FreeTaxSalesAmount() &lt; 0</td><td><span class="msg-key">InvalidFreeTaxAmount</span></td></tr>
+              <tr><td>零稅率銷售額</td><td>ZeroTaxSalesAmount() &lt; 0</td><td><span class="msg-key">InvalidZeroTaxAmount</span></td></tr>
+              <tr><td>稅額</td><td>TaxAmount() &lt; 0</td><td><span class="msg-key">InvalidTaxAmount</span></td></tr>
+              <tr><td>總金額</td><td>TotalAmount() &lt; 0</td><td><span class="msg-key">InvalidTotalAmount</span></td></tr>
+              <tr><td>課稅別</td><td>須為 TaxTypeDefinition 定義值（1/2/3/4/9）</td><td><span class="msg-key">InvalidTaxType</span></td></tr>
+              <tr><td>稅率</td><td>TaxRate() &lt; 0</td><td><span class="msg-key">InvalidTaxRate</span></td></tr>
+              <tr><td>零稅率通關方式</td><td>課稅別 = 零稅率時 CustomsClearanceMark 必填</td><td><span class="msg-key">AlertClearanceMarkZeroTax</span></td></tr>
+              <tr><td>通關方式值</td><td>有值時僅允許 1（非經海關）或 2（經海關）</td><td><span class="msg-key">AlertClearanceMarkExport</span></td></tr>
+              <tr><td>幣別</td><td>Currency() 有值但查無對應 CurrencyType</td><td><span class="chip hard">硬編字串</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>4. 交付方式（列印 / 載具 / 捐贈） <span class="tag">checkInvoiceDelivery()</span></h3>
+        <p>以 4 個布林維度查 <code>_deliveryCheck[列印, 載具, B2C, 捐贈]</code> 決策表決定檢核函式。</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>情境</th><th>錯誤代碼 / 行為</th></tr></thead>
+            <tbody>
+              <tr><td>列印 + 有載具（B2C）</td><td><span class="msg-key">AlertPrintedInvoiceCarrierType</span>（列印時載具須留空）</td></tr>
+              <tr><td>列印 + 有載具 + 捐贈（B2B）</td><td><span class="msg-key">AlertDonationInvoiceCarryType</span>（捐贈時載具須留空）</td></tr>
+              <tr><td>列印 + 捐贈（B2C）</td><td><span class="msg-key">AlertPrintedInvoiceDonation</span>（列印不得捐贈）</td></tr>
+              <tr><td>未列印 + 捐贈（B2C）</td><td>NPOBAN 空或長度不在 3~7 → <span class="msg-key">InvalidDonationTaker</span></td></tr>
+              <tr><td>未列印 + 有載具</td><td>載具驗證失敗 → <span class="msg-key">InvalidPublicCarrierType</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--muted)">載具驗證（usePublicCarrier / checkPublicCarrier）</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>載具類別</th><th>規則</th><th>失敗代碼</th></tr></thead>
+            <tbody>
+              <tr><td><code>3J0002</code> 手機條碼</td><td>長度 8、開頭 /、符合 <code>^/[A-Z0-9+-.]{7}$</code></td><td><span class="msg-key">InvalidPublicCarrierType</span></td></tr>
+              <tr><td><code>CQ0001</code> 自然人憑證</td><td>符合 <code>^[A-Z]{2}[0-9]{14}$</code></td><td><span class="msg-key">InvalidPublicCarrierType</span></td></tr>
+              <tr><td><code>5G0001</code> 跨境電商載具</td><td>有 CarrierId1 或 CarrierId2 即可</td><td><span class="msg-key">InvalidPublicCarrierType</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13.5px;color:var(--muted)">載具完整性（checkCarrierDataIsComplete）</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>檢核項</th><th>錯誤代碼</th></tr></thead>
+            <tbody>
+              <tr><td>載具類別空、或顯碼 / 隱碼皆空</td><td><span class="msg-key">AlertInvoiceCarrierComplete</span></td></tr>
+              <tr><td>載具類別 &gt; 6 碼、顯碼 / 隱碼 &gt; 64 碼</td><td><span class="msg-key">AlertInvoiceCarrierLength</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>5. 必填欄位 <span class="tag">checkMandatoryFields()</span></h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>檢核項</th><th>規則</th><th>錯誤代碼</th></tr></thead>
+            <tbody>
+              <tr><td>捐贈註記</td><td>B2C 時 DonateMark 僅允許 0 / 1</td><td><span class="msg-key">InvalidDonationMark</span></td></tr>
+              <tr><td>列印註記</td><td>空則補 N；有值須為 Y / N</td><td><span class="msg-key">InvalidPrintMark</span></td></tr>
+              <tr><td>發票類別</td><td>須為有效類別（僅 07 一般稅額、08 特種稅額）</td><td><span class="msg-key">InvalidInvoiceType</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>6. 品項明細 <span class="tag">checkInvoiceProductItems()</span></h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>檢核項</th><th>規則</th><th>錯誤代碼</th></tr></thead>
+            <tbody>
+              <tr><td>明細筆數</td><td>_details 為空</td><td><span class="msg-key">InvalidInvoiceDetails</span></td></tr>
+              <tr><td>品名</td><td>空或 &gt; 256 碼</td><td><span class="msg-key">InvalidProductDescription</span></td></tr>
+              <tr><td>單位</td><td>有值且 &gt; 6 碼</td><td><span class="msg-key">InvalidPieceUnit</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">單價 / 金額格式、金額 = 單價 × 數量 等檢核目前為註解停用狀態。</div>
+
+        <h3>7. 發票號碼 / 日期 / 重複 <span class="tag">checkInvoice()</span></h3>
+        <p style="font-size:13.5px;color:var(--muted)">自動配號模式：由 TrackNoManager 取號，取號失敗 → <span class="msg-key">AlertNullTrackNoInterval</span>。</p>
+        <p style="font-size:13.5px;color:var(--muted)">自帶號碼模式：</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>檢核項</th><th>規則</th><th>錯誤代碼</th></tr></thead>
+            <tbody>
+              <tr><td>發票日期</td><td>InvoiceDate() 無值</td><td><span class="msg-key">AlertInvoiceDate</span></td></tr>
+              <tr><td>發票號碼格式</td><td>須符合 <code>^[a-zA-Z]{2}[0-9]{8}$</code></td><td><span class="msg-key">AlertInvoiceNumber</span></td></tr>
+              <tr><td>字軌檢核</td><td>CheckInvoiceNo()（啟用時查 InvoiceTrackCode）</td><td><span class="msg-key">InvalidTrackCode</span></td></tr>
+              <tr><td>發票重複</td><td>同字軌號碼於同期別已存在</td><td><span class="msg-key">AlertInvoiceDuplicated</span></td></tr>
+              <tr><td>字軌區間</td><td>啟用 EnableTrackCodeInvoiceNoValidation 時查無核配區間</td><td><span class="chip hard">硬編字串</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 06 -->
+      <section id="codes">
+        <h2><span class="num">06</span>錯誤訊息代碼總表</h2>
+        <div class="section-rule"></div>
+        <div class="legend">
+          <span><span class="chip cat">類別</span> 檢核歸屬</span>
+          <span><span class="chip err">Alert</span> 提示 / 業務規則</span>
+          <span><span class="chip warn">Invalid</span> 格式 / 資料無效</span>
+        </div>
+        <div class="note"><code>{0}…{n}</code> 為執行期帶入的實際上傳值；TAG 標示對應的資料欄位。</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>代碼（Resource Key）</th><th>類別</th><th>訊息內容</th></tr></thead>
+            <tbody>
+              <tr><td><span class="chip err">AlertInvalidSeller</span></td><td><span class="chip cat">賣方</span></td><td>賣方為非註冊營業人,開立人統一編號:{0}，TAG:&lt;SellerId/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidSellerOrAgent</span></td><td><span class="chip cat">賣方</span></td><td>發票開立人為非註冊營業人:{0}…也未註冊於機構:{1}，代理發票傳送</td></tr>
+              <tr><td><span class="chip warn">InvalidBuyerId</span></td><td><span class="chip cat">買方</span></td><td>買方識別碼錯誤，傳送資料：{0}，TAG:&lt;BuyerId/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidReceiptNo</span></td><td><span class="chip cat">買方</span></td><td>公司統一編號錯誤: {0}, Incorrect TAG:&lt;BuyerId/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidBuyerNameLengthLimit</span></td><td><span class="chip cat">買方</span></td><td>B2B買方名稱不能空白，長度最多60碼，傳送資料：{0}，TAG:&lt;BuyerName/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidRandomNumber</span></td><td><span class="chip cat">買方</span></td><td>交易隨機碼應由4位數值構成，上傳資料：{0}，TAG:&lt;RandomNumber/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertDataNumber</span></td><td><span class="chip cat">單據</span></td><td>單據號碼錯誤，TAG:&lt;DataNumber/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertDataNumberLimitedLength</span></td><td><span class="chip cat">單據</span></td><td>單據號碼資料長度最長為60碼；傳送資料:{0}，TAG:&lt;DataNumber/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertDataNumberDuplicated</span></td><td><span class="chip cat">單據</span></td><td>單據號碼不可重複；傳送資料:{0}，TAG:&lt;DataNumber/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertDataDate</span></td><td><span class="chip cat">單據</span></td><td>單據日期錯誤，TAG:&lt;DataDate/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidSellingPrice</span></td><td><span class="chip cat">金額</span></td><td>應稅銷售額合計(新台幣)不可為負數且為整數，上傳資料：{0},TAG:&lt;SalesAmount/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidFreeTaxAmount</span></td><td><span class="chip cat">金額</span></td><td>免稅銷售額合計(新台幣)不可為負數且為整數，上傳資料：{0},TAG:&lt;FreeTaxSalesAmount/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidZeroTaxAmount</span></td><td><span class="chip cat">金額</span></td><td>零稅率銷售額合計(新台幣)不可為負數且為整數，上傳資料：{0},TAG:&lt;ZeroTaxSalesAmount/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidTaxAmount</span></td><td><span class="chip cat">金額</span></td><td>營業稅額不可為負數且為整數，上傳資料：{0},TAG:&lt;TaxAmount/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidTotalAmount</span></td><td><span class="chip cat">金額</span></td><td>總金額不可為負數且為整數，上傳資料：{0},TAG:&lt;TaxAmount/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidTaxType</span></td><td><span class="chip cat">課稅</span></td><td>課稅別格式錯誤，上傳資料：{0},TAG:&lt;TaxType/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidTaxRate</span></td><td><span class="chip cat">課稅</span></td><td>稅率格式錯誤，上傳資料：{0},TAG:&lt;TaxRate/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertClearanceMarkZeroTax</span></td><td><span class="chip cat">課稅</span></td><td>若為零稅率發票，通關方式註記為必填欄位，上傳資料：{0},TAG:&lt;CustomsClearanceMark/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertClearanceMarkExport</span></td><td><span class="chip cat">課稅</span></td><td>通關方式註記格式錯誤，限填 "1"(非經海關) 或 "2"(經海關)，上傳資料：{0},TAG:&lt;CustomsClearanceMark/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertPrintedInvoiceCarrierType</span></td><td><span class="chip cat">交付</span></td><td>註記列印時載具類別請留空白，傳送資料：{0}，TAG:&lt;CarrierType/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertDonationInvoiceCarryType</span></td><td><span class="chip cat">交付</span></td><td>註記捐贈時載具類別請留空白，傳送資料：{0}，TAG:&lt;CarrierType/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertPrintedInvoiceDonation</span></td><td><span class="chip cat">交付</span></td><td>列印或設定全列印時，不得標註捐贈，傳送資料：{0}，TAG:&lt;DonateMark/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidDonationTaker</span></td><td><span class="chip cat">交付</span></td><td>發票捐贈對象錯誤，傳送資料：{0}，TAG:&lt;NPOBAN/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidPublicCarrierType</span></td><td><span class="chip cat">載具</span></td><td>載具資料檢查（1.非共通性載具 2.顯碼/隱碼開頭為'/' 3.含'/'共8碼），TAG:&lt;CarrierType/CarrierId1/CarrierId2/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertInvoiceCarrierComplete</span></td><td><span class="chip cat">載具</span></td><td>上傳載具資料不完全（1.載具類別 2.顯碼或隱碼至少填一）</td></tr>
+              <tr><td><span class="chip err">AlertInvoiceCarrierLength</span></td><td><span class="chip cat">載具</span></td><td>載具類別(6碼)或顯碼/隱碼ID(64碼)長度超出限制，載具類別{0}、顯碼{1}、隱碼{2}</td></tr>
+              <tr><td><span class="chip warn">InvalidDonationMark</span></td><td><span class="chip cat">必填</span></td><td>捐贈註記錯誤，上傳資料：{0}，TAG:&lt;DonateMark/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidPrintMark</span></td><td><span class="chip cat">必填</span></td><td>電子發票證明聯已列印註記錯誤，TAG:&lt;PrintMark/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidInvoiceType</span></td><td><span class="chip cat">必填</span></td><td>發票類別格式錯誤，請填相應代號「07」或「08」，上傳資料：{0}，TAG:&lt;InvoiceType/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidInvoiceDetails</span></td><td><span class="chip cat">明細</span></td><td>無發票品項明細，TAG:&lt;InvoiceItem/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidProductDescription</span></td><td><span class="chip cat">明細</span></td><td>品項名稱不可空白且長度不得大於256，傳送資料：{0}，TAG:&lt;Description/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidPieceUnit</span></td><td><span class="chip cat">明細</span></td><td>單位格式錯誤，傳送資料：{0}，TAG:&lt;Unit/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertNullTrackNoInterval</span></td><td><span class="chip cat">發票號</span></td><td>未設定發票字軌或發票號碼已用完，發票開立人統編：{0}</td></tr>
+              <tr><td><span class="chip err">AlertInvoiceDate</span></td><td><span class="chip cat">發票號</span></td><td>發票日期，TAG：&lt;InvoiceDate/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertInvoiceNumber</span></td><td><span class="chip cat">發票號</span></td><td>發票號碼，傳送資料:{0}，TAG：&lt;InvoicNumber/&gt;</td></tr>
+              <tr><td><span class="chip warn">InvalidTrackCode</span></td><td><span class="chip cat">發票號</span></td><td>發票號碼字軌錯誤，傳送資料:{0}，TAG：&lt;InvoicNumber/&gt;</td></tr>
+              <tr><td><span class="chip err">AlertInvoiceDuplicated</span></td><td><span class="chip cat">發票號</span></td><td>發票號碼重複，已存在的發票資料。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>硬編（未走 Resource）之錯誤訊息</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>觸發位置</th><th>訊息</th></tr></thead>
+            <tbody>
+              <tr><td><code>checkBusiness()</code> 賣方停用</td><td>開立人已註記停用,開立人統一編號:{0}，TAG:&lt;SellerId/&gt;</td></tr>
+              <tr><td><code>checkAmount()</code> 幣別</td><td>Invalid currency code：{0}，TAG：&lt;Currency/&gt;</td></tr>
+              <tr><td><code>checkInvoice()</code> 字軌區間</td><td>發票號碼錯誤:{0}，TAG:&lt;InvoicNumber/&gt;</td></tr>
+              <tr><td><code>checkPrintAll()</code> 跨境載具</td><td>EMail as Carrier ID limits to 64 characters, "{0}"</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 07 -->
+      <section id="formatspec">
+        <h2><span class="num">07</span>關鍵格式規則（Regex / 常數）</h2>
+        <div class="section-rule"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>項目</th><th>規則</th></tr></thead>
+            <tbody>
+              <tr><td>買方統編</td><td><code>^[0-9]{8}$</code>（另有 CheckRegno() 檢核碼驗證）</td></tr>
+              <tr><td>隨機碼</td><td><code>^[0-9]{4}$</code></td></tr>
+              <tr><td>發票號碼</td><td><code>^[a-zA-Z]{2}[0-9]{8}$</code>（2 碼字軌 + 8 碼號碼）</td></tr>
+              <tr><td>手機條碼載具</td><td><code>^/[A-Z0-9+-.]{7}$</code>，長度 8、開頭 /（3J0002）</td></tr>
+              <tr><td>自然人憑證載具</td><td><code>^[A-Z]{2}[0-9]{14}$</code>（CQ0001）</td></tr>
+              <tr><td>跨境電商載具</td><td>常數 5G0001</td></tr>
+              <tr><td>捐贈碼 NPOBAN</td><td>長度 3~7 碼</td></tr>
+              <tr><td>單據號碼</td><td>最長 60 碼</td></tr>
+              <tr><td>買方名稱</td><td>最長 60 碼</td></tr>
+              <tr><td>品名</td><td>最長 256 碼</td></tr>
+              <tr><td>單位</td><td>最長 6 碼</td></tr>
+              <tr><td>載具類別 / 載具號</td><td>類別最長 6 碼；載具號最長 64 碼</td></tr>
+              <tr><td>有效發票類別</td><td>07（一般稅額）、08（特種稅額）</td></tr>
+              <tr><td>有效課稅別</td><td>1 應稅、2 零稅率、3 免稅、4 特種稅率、9 混合稅率</td></tr>
+              <tr><td>通關方式</td><td>1 非經海關、2 經海關（零稅率時必填）</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    EIVO2025 · InvoiceDataSetValidator 檢核規則說明 · 內容依原始碼與 MessageResources.resx 產生
+  </footer>
+</div>

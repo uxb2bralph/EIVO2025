@@ -238,6 +238,8 @@ namespace ModelCore.InvoiceManagement
                 {
                     DiscountAmount = invItem.DiscountAmount,
                     SalesAmount = invItem.SalesAmount,
+                    FreeTaxSalesAmount = invItem.FreeTaxSalesAmount,
+                    ZeroTaxSalesAmount = invItem.ZeroTaxSalesAmount,
                     TaxAmount = invItem.TaxAmount,
                     TaxType = invItem.TaxType,
                     TotalAmount = invItem.TotalAmount,

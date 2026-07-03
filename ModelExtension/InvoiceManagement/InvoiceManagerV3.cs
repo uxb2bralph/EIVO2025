@@ -30,20 +30,7 @@ namespace ModelCore.InvoiceManagement
 
         protected void PushProcessExceptionNotification(ProcessRequest requestItem, Organization notified)
         {
-            if (requestItem != null && notified != null)
-            {
-                if (!this.GetTable<ProcessExceptionNotification>().Any(n => n.TaskID == requestItem.TaskID && n.CompanyID == notified.CompanyID))
-                {
-                    this.GetTable<ProcessExceptionNotification>().InsertOnSubmit(
-                        new ProcessExceptionNotification
-                        {
-                            TaskID = requestItem.TaskID,
-                            CompanyID = notified.CompanyID,
-                        }
-                        );
-                    this.SubmitChanges();
-                }
-            }
+            this.PushProcessExceptionNotification(requestItem, notified);
         }
     }
 }

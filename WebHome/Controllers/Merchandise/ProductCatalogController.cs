@@ -37,13 +37,18 @@ namespace WebHome.Controllers.Merchandise
                 viewModel.ProductID = viewModel.DecryptKeyValue();
             }
 
-            IQueryable<ProductCatalog> items = models.FilterProductCatalogByRole(profile, models.GetTable<ProductCatalog>());
+            IQueryable<ProductCatalog> items = models!.FilterProductCatalogByRole(profile, models!.GetTable<ProductCatalog>());
 
             if(viewModel.SupplierID.HasValue)
             {
                 items = items.Where(p => p.ProductSupplier.Any(s => s.SupplierID == viewModel.SupplierID));
             }
-                
+
+            if (viewModel.SellerID.HasValue)
+            {
+                items = items.Where(p => p.ProductSupplier.Any(s => s.SupplierID == viewModel.SellerID));
+            }
+
             if (viewModel.ProductID.HasValue)
             {
                 items = items.Where(p => p.ProductID == viewModel.ProductID);

@@ -902,7 +902,7 @@ namespace ModelCore.Helper
                     BondedAreaConfirm = item.BondedAreaConfirm?.ToString(),
                     CustomsClearanceMark = (CustomsClearanceMarkEnum?)item.CustomsClearanceMark,
                     CustomsClearanceMarkSpecified = item.CustomsClearanceMark.HasValue,
-                    InvoiceType = (InvoiceTypeEnum?)((int?)item.InvoiceType) ?? InvoiceTypeEnum.Item07,
+                    InvoiceType = item.InvoiceType == (byte)InvoiceTypeEnum.Item08 ? InvoiceTypeEnum.Item08 : InvoiceTypeEnum.Item07,
                     //DonateMark = (Schema.TurnKey.C0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
                     DonateMark = string.IsNullOrEmpty(item.DonateMark) ? DonateMarkEnum.Item0 : (DonateMarkEnum)(int.Parse(item.DonateMark)),
                     CarrierType = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierType : "",

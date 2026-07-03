@@ -280,7 +280,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 //    .Where(p => p.No == i.OriginalSequenceNumber).FirstOrDefault();
                 if (invProductItem != null)
                 {
-                    allowanceItem.ItemID = invProductItem.ItemID;
+                    allowanceItem.ProductItemID = invProductItem.ItemID;
                 }
 
                 if (allowanceBuyer == null)

@@ -1,0 +1,922 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using CommonLib.Utility;
+using ModelCore.DataEntity;
+using ModelCore.DTOs;
+using ModelCore.Helper;
+using ModelCore.Locale;
+using ModelCore.Models.ViewModel;
+using TaskCenter.Core.DTOs;
+using TaskCenter.Core.Interfaces;
+
+namespace TaskCenter.Core.Controllers
+{
+    /// <summary>
+    /// 營業人資料查詢 API（遷移自 WebHome OrganizationQueryController）。
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    [Produces("application/json")]
+    public class OrganizationQueryController : ApiBaseController
+    {
+        private readonly IOrganizationQueryService _organizationQueryService;
+
+        public OrganizationQueryController(
+            IOrganizationQueryService organizationQueryService,
+            IServiceProvider serviceProvider,
+            ILoggerFactory loggerFactory) : base(serviceProvider, loggerFactory)
+        {
+            _organizationQueryService = organizationQueryService;
+        }
+
+        /// <summary>
+        /// 查詢營業人資料（分頁）。
+        /// </summary>
+        /// <param name="queryDto">查詢條件</param>
+        [HttpGet]
+        [ProducesResponseType(typeof(ResponseDto<PagedResultDto<OrganizationDatatableDto>>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 500)]
+        public async Task<IActionResult> GetList([FromQuery] OrganizationQueryDto queryDto)
+        {
+            try
+            {
+                var result = await _organizationQueryService.GetPagedAsync(queryDto);
+                return CreateSuccessResponse(result, "Common.Retrieved");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error retrieving organizations");
+                return CreateErrorResponse(500, "Common.RetrieveError");
+            }
+        }
+
+        /// <summary>
+        /// 載入單一營業人編輯資料（遷移自 OrganizationController.EditItem）。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        [HttpGet("EditItem")]
+        [ProducesResponseType(typeof(ResponseDto<OrganizationEditDto>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult EditItem([FromQuery] string keyId)
+        {
+            if (string.IsNullOrWhiteSpace(keyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            int companyId;
+            try
+            {
+                companyId = keyId.DecryptKeyValue();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Invalid organization keyId");
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            var item = models!.GetTable<Organization>()
+                .Where(o => o.CompanyID == companyId)
+                .FirstOrDefault();
+
+            if (item == null)
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            // 重用舊版 ApplyFromModel 將實體攤平到 ViewModel，再投影為前端 DTO。
+            var viewModel = new OrganizationViewModel().ApplyFromModel(item);
+            var dto = MapToEditDto(viewModel, keyId);
+            return CreateSuccessResponse(dto, "Common.Retrieved");
+        }
+
+        /// <summary>
+        /// 儲存營業人編輯資料（遷移自 OrganizationController.CommitItem）。
+        /// 重用舊版 CommitOrganizationViewModel 的驗證與寫入邏輯。
+        /// </summary>
+        [HttpPost("CommitItem")]
+        [ProducesResponseType(typeof(BaseResponseDto), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        public IActionResult CommitItem([FromBody] OrganizationEditDto dto)
+        {
+            if (dto == null)
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            var viewModel = MapToViewModel(dto);
+            var item = viewModel.CommitOrganizationViewModel(models!, ModelState);
+
+            if (item == null)
+            {
+                var errors = ModelState
+                    .Where(kv => kv.Value != null && kv.Value.Errors.Count > 0)
+                    .SelectMany(kv => kv.Value!.Errors.Select(e => e.ErrorMessage))
+                    .Where(m => !string.IsNullOrWhiteSpace(m))
+                    .ToList();
+                return CreateBadRequestResponse("Common.SaveError", errors);
+            }
+
+            return CreateSuccessResponse("Common.Saved");
+        }
+
+        /// <summary>
+        /// 停用營業人（遷移自 WebHome HandlingController.DisableCompany）。
+        /// 將營業人狀態註記為停用（Mark_To_Delete）。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        [HttpPost("DisableItem")]
+        [ProducesResponseType(typeof(BaseResponseDto), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult DisableItem([FromQuery] string keyId)
+        {
+            if (string.IsNullOrWhiteSpace(keyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            int companyId;
+            try
+            {
+                companyId = keyId.DecryptKeyValue();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Invalid organization keyId");
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            // 沿用舊版 updateCompanyStatus：僅更新營業人狀態的 CurrentLevel。
+            var status = models!.GetTable<Organization>()
+                .Where(o => o.CompanyID == companyId)
+                .Select(o => o.OrganizationStatus)
+                .FirstOrDefault();
+
+            if (status == null)
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            status.CurrentLevel = (int)Naming.MemberStatusDefinition.Mark_To_Delete;
+            models.SubmitChanges();
+
+            return CreateSuccessResponse("Common.Saved");
+        }
+
+        /// <summary>
+        /// 啟用營業人：將已註記停用（Mark_To_Delete）的營業人狀態改回啟用（Checked）。
+        /// 沿用停用做法，以加密 KeyID 傳遞 CompanyID。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        [HttpPost("EnableItem")]
+        [ProducesResponseType(typeof(BaseResponseDto), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult EnableItem([FromQuery] string keyId)
+        {
+            if (string.IsNullOrWhiteSpace(keyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            int companyId;
+            try
+            {
+                companyId = keyId.DecryptKeyValue();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Invalid organization keyId");
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            // 沿用舊版 updateCompanyStatus：僅更新營業人狀態的 CurrentLevel。
+            var status = models!.GetTable<Organization>()
+                .Where(o => o.CompanyID == companyId)
+                .Select(o => o.OrganizationStatus)
+                .FirstOrDefault();
+
+            if (status == null)
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            status.CurrentLevel = (int)Naming.MemberStatusDefinition.Checked;
+            models.SubmitChanges();
+
+            return CreateSuccessResponse("Common.Saved");
+        }
+
+        /// <summary>
+        /// 載入用戶端 G/W 設定（遷移自 OrganizationController.GatewaySettings）。
+        /// 目前僅回傳「傳送 Excel 發票開立方式」（InvoiceClientDefaultProcessType）。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        [HttpGet("GatewaySettings")]
+        [ProducesResponseType(typeof(ResponseDto<GatewaySettingsDto>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult GatewaySettings([FromQuery] string keyId)
+        {
+            if (string.IsNullOrWhiteSpace(keyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            int companyId;
+            try
+            {
+                companyId = keyId.DecryptKeyValue();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Invalid organization keyId");
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            var settings = models!.GetTable<Organization>()
+                .Where(o => o.CompanyID == companyId)
+                .Select(o => new
+                {
+                    o.OrganizationStatus,
+                    CertificateKeyID = o.OrganizationToken != null ? o.OrganizationToken.KeyID : null,
+                })
+                .FirstOrDefault();
+
+            if (settings?.OrganizationStatus == null)
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            var dto = new GatewaySettingsDto
+            {
+                KeyId = keyId,
+                DefaultProcessType = settings.OrganizationStatus.InvoiceClientDefaultProcessType,
+                CertificateKeyId = settings.CertificateKeyID?.ToString(),
+            };
+            return CreateSuccessResponse(dto, "Common.Retrieved");
+        }
+
+        /// <summary>
+        /// 儲存用戶端 G/W 之「傳送 Excel 發票開立方式」
+        /// （遷移自 OrganizationController.CommitDefaultProcessType）。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        /// <param name="defaultProcessType">Naming.InvoiceProcessType 之 Xlsx 系列值</param>
+        [HttpPost("CommitDefaultProcessType")]
+        [ProducesResponseType(typeof(BaseResponseDto), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult CommitDefaultProcessType([FromQuery] string keyId, [FromQuery] int defaultProcessType)
+        {
+            if (string.IsNullOrWhiteSpace(keyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            int companyId;
+            try
+            {
+                companyId = keyId.DecryptKeyValue();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Invalid organization keyId");
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            var status = models!.GetTable<Organization>()
+                .Where(o => o.CompanyID == companyId)
+                .Select(o => o.OrganizationStatus)
+                .FirstOrDefault();
+
+            if (status == null)
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            // 沿用舊版 CommitDefaultProcessType：僅更新 InvoiceClientDefaultProcessType。
+            status.InvoiceClientDefaultProcessType = defaultProcessType;
+            models.SubmitChanges();
+
+            return CreateSuccessResponse("Common.Saved");
+        }
+
+        /// <summary>
+        /// 上載並更新營業人 PKCS12(PFX) 憑證（遷移自 WebHome CertificateIdentityController.CommitItemAsync）。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法；以 multipart/form-data 上傳憑證檔與 PIN Code。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        /// <param name="pin">PFX 憑證的 PIN Code（保護密碼）</param>
+        /// <param name="pfxFile">PKCS12(PFX) 憑證檔</param>
+        [HttpPost("CommitCertificate")]
+        [ProducesResponseType(typeof(BaseResponseDto), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public async Task<IActionResult> CommitCertificate(
+            [FromForm] string keyId,
+            [FromForm] string? pin,
+            IFormFile? pfxFile)
+        {
+            if (string.IsNullOrWhiteSpace(keyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            if (pfxFile == null || pfxFile.Length == 0)
+            {
+                return CreateBadRequestResponse("未選取檔案或檔案上傳失敗");
+            }
+
+            int companyId;
+            try
+            {
+                companyId = keyId.DecryptKeyValue();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Invalid organization keyId");
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            var item = models!.GetTable<Organization>()
+                .Where(o => o.CompanyID == companyId)
+                .FirstOrDefault();
+
+            if (item == null)
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            try
+            {
+                // 沿用舊版：讀入 PFX bytes、以 PIN 開啟憑證（可匯出），再更新 OrganizationToken。
+                using var input = pfxFile.OpenReadStream();
+                using var ms = new MemoryStream();
+                await input.CopyToAsync(ms);
+                var buf = ms.ToArray();
+
+                var cert = new X509Certificate2(buf, pin, X509KeyStorageFlags.Exportable);
+
+                if (item.OrganizationToken == null)
+                {
+                    item.OrganizationToken = new OrganizationToken { CompanyID = item.CompanyID };
+                }
+
+                var newKeyID = Guid.NewGuid();
+                item.OrganizationToken.X509Certificate = Convert.ToBase64String(cert.RawData);
+                item.OrganizationToken.Thumbprint = cert.Thumbprint;
+                item.OrganizationToken.KeyID = newKeyID;
+                item.OrganizationToken.PKCS12 = Convert.ToBase64String(
+                    cert.Export(X509ContentType.Pkcs12, newKeyID.ToString().Substring(0, 8)));
+
+                models.SubmitChanges();
+                return CreateSuccessResponse(
+                    item.OrganizationToken.KeyID.ToString(),
+                    $"更新憑證金鑰:{item.OrganizationToken.KeyID}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error committing organization certificate");
+                return CreateErrorResponse(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 載入店家 POS 機清單（遷移自 WebHome InvoiceBusinessController.ApplyPOSDevice）。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        [HttpGet("POSDevices")]
+        [ProducesResponseType(typeof(ResponseDto<List<POSDeviceDto>>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult POSDevices([FromQuery] string keyId)
+        {
+            if (!TryResolveCompany(keyId, out var companyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            if (!models!.GetTable<Organization>().Any(o => o.CompanyID == companyId))
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            var devices = models.GetTable<POSDevice>()
+                .Where(p => p.CompanyID == companyId)
+                .OrderBy(p => p.DeviceID)
+                .Select(p => new POSDeviceDto { DeviceId = p.DeviceID, PosNo = p.POSNo })
+                .ToList();
+
+            return CreateSuccessResponse(devices, "Common.Retrieved");
+        }
+
+        /// <summary>
+        /// 新增或編輯店家 POS 機編號（遷移自 WebHome InvoiceBusinessController.CommitPOS）。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法；DeviceId 為 null 時視為新增。
+        /// </summary>
+        [HttpPost("CommitPOS")]
+        [ProducesResponseType(typeof(ResponseDto<POSDeviceDto>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult CommitPOS([FromBody] CommitPOSDeviceDto dto)
+        {
+            if (dto == null || !TryResolveCompany(dto.KeyId, out var companyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            if (!models!.GetTable<Organization>().Any(o => o.CompanyID == companyId))
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            var posNo = dto.PosNo.GetEfficientString();
+            if (posNo == null)
+            {
+                return CreateBadRequestResponse("POS機編號錯誤!!");
+            }
+
+            var deviceId = dto.DeviceId;
+
+            // 沿用舊版：同一營業人下不得有重複的 POS 機編號（編輯時排除自身）。
+            var duplicated = models.GetTable<POSDevice>()
+                .Any(p => p.CompanyID == companyId && p.POSNo == posNo && p.DeviceID != deviceId);
+            if (duplicated)
+            {
+                return CreateBadRequestResponse("已存在相同的POS機編號!!");
+            }
+
+            var item = deviceId.HasValue
+                ? models.GetTable<POSDevice>()
+                    .FirstOrDefault(p => p.CompanyID == companyId && p.DeviceID == deviceId.Value)
+                : null;
+
+            if (item == null)
+            {
+                item = new POSDevice { CompanyID = companyId };
+                models.GetTable<POSDevice>().Add(item);
+            }
+            item.POSNo = posNo;
+
+            models.SubmitChanges();
+
+            var result = new POSDeviceDto { DeviceId = item.DeviceID, PosNo = item.POSNo };
+            return CreateSuccessResponse(result, "Common.Saved");
+        }
+
+        /// <summary>
+        /// 刪除店家 POS 機（遷移自 WebHome InvoiceBusinessController.DeletePOS）。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        /// <param name="deviceId">要刪除的 POS 機序號</param>
+        [HttpPost("DeletePOS")]
+        [ProducesResponseType(typeof(BaseResponseDto), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        public IActionResult DeletePOS([FromQuery] string keyId, [FromQuery] int deviceId)
+        {
+            if (!TryResolveCompany(keyId, out var companyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            var item = models!.DeleteAny<POSDevice>(d => d.CompanyID == companyId && d.DeviceID == deviceId);
+            if (item == null)
+            {
+                return CreateBadRequestResponse("POS機編號錯誤!!");
+            }
+
+            return CreateSuccessResponse("Common.Saved");
+        }
+
+        /// <summary>
+        /// 載入發票經銷商候選清單（遷移自 OrganizationController.ApplyIssuerAgent）。
+        /// 回傳所有「發票開立代理」類別的營業人，並標示是否已指派給指定開立人。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+        /// </summary>
+        /// <param name="keyId">加密後的開立人 CompanyID（來自列表 keyId 欄位）</param>
+        [HttpGet("IssuerAgents")]
+        [ProducesResponseType(typeof(ResponseDto<List<IssuerAgentDto>>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult IssuerAgents([FromQuery] string keyId)
+        {
+            if (!TryResolveCompany(keyId, out var issuerId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            if (!models!.GetTable<Organization>().Any(o => o.CompanyID == issuerId))
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            // 已指派給此開立人的經銷商 CompanyID 集合。
+            var assignedAgentIds = models.GetTable<InvoiceIssuerAgent>()
+                .Where(a => a.IssuerID == issuerId)
+                .Select(a => a.AgentID)
+                .ToHashSet();
+
+            // 所有「發票開立代理」類別的候選經銷商（沿用舊版 ApplyIssuerAgent.cshtml 之查詢）。
+            var candidates = models.GetTable<Organization>()
+                .Where(o => o.OrganizationCategory.Any(c => c.CategoryID == (int)Naming.CategoryID.COMP_INVOICE_AGENT))
+                .OrderBy(o => o.ReceiptNo)
+                .Select(o => new { o.CompanyID, o.ReceiptNo, o.CompanyName })
+                .ToList();
+
+            // EncryptKey 無法於 EF 查詢中翻譯，故 materialize 後再投影為 DTO。
+            var result = candidates
+                .Select(o => new IssuerAgentDto
+                {
+                    KeyId = o.CompanyID.EncryptKey(),
+                    ReceiptNo = o.ReceiptNo,
+                    CompanyName = o.CompanyName,
+                    Selected = assignedAgentIds.Contains(o.CompanyID),
+                })
+                .ToList();
+
+            return CreateSuccessResponse(result, "Common.Retrieved");
+        }
+
+        /// <summary>
+        /// 設定發票經銷商（遷移自 OrganizationController.CommitIssuerAgent）。
+        /// 沿用舊版循環經銷檢查；開立人與各經銷商均以加密 KeyID 傳遞 CompanyID。
+        /// </summary>
+        [HttpPost("CommitIssuerAgent")]
+        [ProducesResponseType(typeof(BaseResponseDto), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult CommitIssuerAgent([FromBody] CommitIssuerAgentDto dto)
+        {
+            if (dto == null || !TryResolveCompany(dto.KeyId, out var issuerId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            if (!models!.GetTable<Organization>().Any(o => o.CompanyID == issuerId))
+            {
+                return CreateNotFoundResponse("Organization.NotFound");
+            }
+
+            // 解密每個經銷商 KeyID → CompanyID（沿用舊版以加密 KeyID 傳遞的做法）。
+            var agentIds = new List<int>();
+            if (dto.AgentKeyIds != null)
+            {
+                foreach (var agentKeyId in dto.AgentKeyIds)
+                {
+                    if (!TryResolveCompany(agentKeyId, out var agentId))
+                    {
+                        return CreateBadRequestResponse("Common.InvalidParameter");
+                    }
+                    agentIds.Add(agentId);
+                }
+            }
+            agentIds = agentIds.Distinct().ToList();
+
+            // 循環經銷檢查（沿用舊版 CheckAgentCycle）。
+            foreach (var agentId in agentIds)
+            {
+                if (CheckAgentCycle(issuerId, agentId, out var cycleAgent))
+                {
+                    var offender = models.GetTable<Organization>()
+                        .Where(o => o.CompanyID == cycleAgent!.IssuerID)
+                        .Select(o => new { o.ReceiptNo, o.CompanyName })
+                        .FirstOrDefault();
+                    return CreateBadRequestResponse($"發生循環經銷({offender?.ReceiptNo}, {offender?.CompanyName})!!");
+                }
+            }
+
+            // 沿用舊版 INSERT WHERE NOT EXISTS 語意：只刪除取消勾選的、只新增尚未存在的，
+            // 避免同一 SaveChanges 內對相同複合鍵 (AgentID, IssuerID) 既刪又增造成追蹤衝突。
+            var existing = models.GetTable<InvoiceIssuerAgent>()
+                .Where(a => a.IssuerID == issuerId)
+                .ToList();
+
+            var toRemove = existing.Where(a => !agentIds.Contains(a.AgentID)).ToList();
+            if (toRemove.Count > 0)
+            {
+                models.GetTable<InvoiceIssuerAgent>().RemoveRange(toRemove);
+            }
+
+            var existingAgentIds = existing.Select(a => a.AgentID).ToHashSet();
+            foreach (var agentId in agentIds.Where(id => !existingAgentIds.Contains(id)))
+            {
+                models.GetTable<InvoiceIssuerAgent>().Add(new InvoiceIssuerAgent
+                {
+                    AgentID = agentId,
+                    IssuerID = issuerId,
+                });
+            }
+
+            models.SubmitChanges();
+
+            return CreateSuccessResponse("Common.Saved");
+        }
+
+        /// <summary>
+        /// 循環經銷檢查（沿用舊版 OrganizationController.CheckAgentCycle）。
+        /// 沿著「經銷商的經銷商」關係遞迴，若開立人本身出現在鏈上即形成循環。
+        /// </summary>
+        private bool CheckAgentCycle(int issuerId, int agentId, out InvoiceIssuerAgent? cycleAgent)
+        {
+            cycleAgent = null;
+            var agentItems = models!.GetTable<InvoiceIssuerAgent>()
+                .Where(a => a.IssuerID == agentId)
+                .ToList();
+
+            foreach (var agent in agentItems)
+            {
+                if (agent.AgentID == agent.IssuerID)
+                {
+                    continue;
+                }
+
+                if (agent.AgentID == issuerId)
+                {
+                    cycleAgent = agent;
+                    return true;
+                }
+
+                if (CheckAgentCycle(issuerId, agent.AgentID, out cycleAgent))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 設定為 B2B 營業人（遷移自 WebHome HandlingController.ApplyRelationship）。
+        /// 將營業人加入企業群組（網際優勢股份有限公司）成為 B2B 營業人。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        [HttpPost("ApplyRelationship")]
+        [ProducesResponseType(typeof(BaseResponseDto), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        public IActionResult ApplyRelationship([FromQuery] string keyId)
+        {
+            if (!TryResolveCompany(keyId, out var companyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            if (!models!.GetTable<Organization>().Any(o => o.CompanyID == companyId))
+            {
+                return CreateNotFoundResponse("資料不存在!!");
+            }
+
+            // 沿用舊版 IsEnterpriseGroupMember 判斷（org.EnterpriseGroupMember.Any()）：
+            // 直接查詢會員表避免依賴 EF 延遲載入，已是企業群組成員即不重複加入。
+            if (models.GetTable<EnterpriseGroupMember>().Any(m => m.CompanyID == companyId))
+            {
+                return CreateSuccessResponse("該開立人已是B2B營業人!!");
+            }
+
+            models.GetTable<EnterpriseGroupMember>().Add(new EnterpriseGroupMember
+            {
+                EnterpriseID = (int)Naming.EnterpriseGroup.網際優勢股份有限公司,
+                CompanyID = companyId,
+            });
+            models.SubmitChanges();
+
+            return CreateSuccessResponse("設定完成!!");
+        }
+
+        /// <summary>
+        /// 切換主機構設定（遷移自 WebHome HandlingController.CommitMasterOrganization）。
+        /// 沿用舊版切換邏輯：尚未設定則建立 MasterOrganization，已設定則移除。
+        /// 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法；回傳切換後是否為主機構。
+        /// </summary>
+        /// <param name="keyId">加密後的 CompanyID（來自列表 keyId 欄位）</param>
+        [HttpPost("CommitMaster")]
+        [ProducesResponseType(typeof(ResponseDto<bool>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 404)]
+        [ProducesResponseType(typeof(BaseResponseDto), 500)]
+        public IActionResult CommitMaster([FromQuery] string keyId)
+        {
+            if (!TryResolveCompany(keyId, out var companyId))
+            {
+                return CreateBadRequestResponse("Common.InvalidParameter");
+            }
+
+            var org = models!.GetTable<Organization>()
+                .Where(o => o.CompanyID == companyId)
+                .Select(o => new { o.CompanyID, o.CompanyName })
+                .FirstOrDefault();
+
+            if (org == null)
+            {
+                return CreateNotFoundResponse("資料不存在!!");
+            }
+
+            // 沿用舊版切換邏輯：直接查詢 MasterOrganization 避免依賴 EF 延遲載入。
+            var existing = models.GetTable<MasterOrganization>()
+                .FirstOrDefault(m => m.MasterID == companyId);
+
+            bool isMaster;
+            try
+            {
+                if (existing == null)
+                {
+                    // 沿用舊版：以營業人名稱作為機關名稱建立主機構。
+                    models.GetTable<MasterOrganization>().Add(new MasterOrganization
+                    {
+                        MasterID = companyId,
+                        EnterpriseName = org.CompanyName,
+                    });
+                    isMaster = true;
+                }
+                else
+                {
+                    models.GetTable<MasterOrganization>().Remove(existing);
+                    isMaster = false;
+                }
+                models.SubmitChanges();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error toggling master organization");
+                return CreateErrorResponse(500, ex.Message);
+            }
+
+            return CreateSuccessResponse(isMaster, isMaster ? "已設定為主機構!!" : "已取消主機構設定!!");
+        }
+
+        /// <summary>
+        /// 解密 KeyID 取得 CompanyID；解密失敗回傳 false 並記錄警告。
+        /// </summary>
+        private bool TryResolveCompany(string? keyId, out int companyId)
+        {
+            companyId = 0;
+            if (string.IsNullOrWhiteSpace(keyId))
+            {
+                return false;
+            }
+
+            try
+            {
+                companyId = keyId.DecryptKeyValue();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Invalid organization keyId");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 將載入後的 OrganizationViewModel 投影為前端編輯 DTO。
+        /// </summary>
+        private static OrganizationEditDto MapToEditDto(OrganizationViewModel vm, string keyId)
+        {
+            return new OrganizationEditDto
+            {
+                KeyId = keyId,
+                CompanyId = vm.CompanyID,
+                ReceiptNo = vm.ReceiptNo,
+                CompanyName = vm.CompanyName,
+                Addr = vm.Addr,
+                Phone = vm.Phone,
+                Fax = vm.Fax,
+                UndertakerName = vm.UndertakerName,
+                CategoryId = (int?)vm.CategoryID,
+                CustomerNo = vm.CustomerNo,
+                ContactName = vm.ContactName,
+                ContactTitle = vm.ContactTitle,
+                ContactPhone = vm.ContactPhone,
+                ContactMobilePhone = vm.ContactMobilePhone,
+                ContactEmail = vm.ContactEmail,
+                CreationDate = vm.CreationDate,
+                ExpirationDate = vm.ExpirationDate,
+                AuthorizationNotBefore = vm.AuthorizationNotBefore,
+                AuthorizationNotAfter = vm.AuthorizationNotAfter,
+                InvoiceRequestNotBefore = vm.InvoiceRequestNotBefore,
+                InvoiceRequestNotAfter = vm.InvoiceRequestNotAfter,
+                TaxNo = vm.TaxNo,
+                SetToPrintInvoice = vm.SetToPrintInvoice,
+                InvoicePrintView = vm.InvoicePrintView,
+                C0401POSView = vm.C0401POSView,
+                AllowancePrintView = vm.AllowancePrintView,
+                AuthorizationNo = vm.AuthorizationNo,
+                EntrustToPrint = vm.EntrustToPrint,
+                DownloadDataNumber = vm.DownloadDataNumber,
+                UploadBranchTrackBlank = vm.UploadBranchTrackBlank,
+                AutoBlankTrack = vm.AutoBlankTrack,
+                AutoBlankTrackEmittance = vm.AutoBlankTrackEmittance,
+                PrintAll = vm.PrintAll,
+                SettingInvoiceType = (int?)vm.SettingInvoiceType,
+                SubscribeB2BInvoicePDF = vm.SubscribeB2BInvoicePDF,
+                EnableTrackCodeInvoiceNoValidation = vm.EnableTrackCodeInvoiceNoValidation,
+                SetToOutsourcingCS = vm.SetToOutsourcingCS,
+                DownloadDispatch = vm.DownloadDispatch,
+                SetToNotifyCounterpartBySMS = vm.SetToNotifyCounterpartBySMS,
+                UseB2BStandalone = vm.UseB2BStandalone,
+                Settings = vm.Settings,
+                NoticeStatus = DecomposeNoticeSetting(vm.NoticeSetting),
+                BusinessContactPhone = vm.BusinessContactPhone,
+                CustomNotificationView = vm.CustomNotificationView,
+                CustomNotification = vm.CustomNotification,
+                LogoUrl = vm.LogoURL,
+            };
+        }
+
+        /// <summary>
+        /// 將前端編輯 DTO 還原為 OrganizationViewModel，供 CommitOrganizationViewModel 使用。
+        /// </summary>
+        private static OrganizationViewModel MapToViewModel(OrganizationEditDto dto)
+        {
+            return new OrganizationViewModel
+            {
+                KeyID = dto.KeyId,
+                CompanyID = dto.CompanyId,
+                ReceiptNo = dto.ReceiptNo,
+                CompanyName = dto.CompanyName,
+                Addr = dto.Addr,
+                Phone = dto.Phone,
+                Fax = dto.Fax,
+                UndertakerName = dto.UndertakerName,
+                CategoryID = (CategoryDefinition.CategoryEnum?)dto.CategoryId,
+                CustomerNo = dto.CustomerNo,
+                ContactName = dto.ContactName,
+                ContactTitle = dto.ContactTitle,
+                ContactPhone = dto.ContactPhone,
+                ContactMobilePhone = dto.ContactMobilePhone,
+                ContactEmail = dto.ContactEmail,
+                CreationDate = dto.CreationDate,
+                ExpirationDate = dto.ExpirationDate,
+                AuthorizationNotBefore = dto.AuthorizationNotBefore,
+                AuthorizationNotAfter = dto.AuthorizationNotAfter,
+                InvoiceRequestNotBefore = dto.InvoiceRequestNotBefore,
+                InvoiceRequestNotAfter = dto.InvoiceRequestNotAfter,
+                TaxNo = dto.TaxNo,
+                SetToPrintInvoice = dto.SetToPrintInvoice,
+                InvoicePrintView = dto.InvoicePrintView,
+                C0401POSView = dto.C0401POSView,
+                AllowancePrintView = dto.AllowancePrintView,
+                AuthorizationNo = dto.AuthorizationNo,
+                EntrustToPrint = dto.EntrustToPrint,
+                DownloadDataNumber = dto.DownloadDataNumber,
+                UploadBranchTrackBlank = dto.UploadBranchTrackBlank,
+                AutoBlankTrack = dto.AutoBlankTrack,
+                AutoBlankTrackEmittance = dto.AutoBlankTrackEmittance,
+                PrintAll = dto.PrintAll,
+                SettingInvoiceType = (Naming.InvoiceTypeDefinition?)dto.SettingInvoiceType,
+                SubscribeB2BInvoicePDF = dto.SubscribeB2BInvoicePDF,
+                EnableTrackCodeInvoiceNoValidation = dto.EnableTrackCodeInvoiceNoValidation,
+                SetToOutsourcingCS = dto.SetToOutsourcingCS,
+                DownloadDispatch = dto.DownloadDispatch,
+                SetToNotifyCounterpartBySMS = dto.SetToNotifyCounterpartBySMS,
+                UseB2BStandalone = dto.UseB2BStandalone,
+                Settings = dto.Settings,
+                NoticeStatus = dto.NoticeStatus,
+                BusinessContactPhone = dto.BusinessContactPhone,
+                CustomNotificationView = dto.CustomNotificationView,
+                CustomNotification = dto.CustomNotification,
+            };
+        }
+
+        /// <summary>
+        /// 將 InvoiceNoticeSetting 位元遮罩拆解為已啟用的個別旗標位元值清單，
+        /// 供前端勾選對應的通知 checkbox。
+        /// </summary>
+        private static int[] DecomposeNoticeSetting(Naming.InvoiceNoticeStatus? noticeSetting)
+        {
+            if (!noticeSetting.HasValue)
+            {
+                return Array.Empty<int>();
+            }
+
+            var mask = (int)noticeSetting.Value;
+            var result = new List<int>();
+            foreach (Naming.InvoiceNoticeStatus flag in Enum.GetValues(typeof(Naming.InvoiceNoticeStatus)))
+            {
+                if ((mask & (int)flag) != 0)
+                {
+                    result.Add((int)flag);
+                }
+            }
+            return result.ToArray();
+        }
+    }
+}

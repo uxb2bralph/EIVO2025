@@ -93,15 +93,12 @@
                         ProcessType = Naming.InvoiceProcessType.F0401_Xlsx,
                     });
 
-                if (_profile.IsSystemAdmin() || _orgItem?.OrganizationStatus?.InvoiceClientDefaultProcessType == (int)Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC)
-                {
-                    await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
-                        new InvoiceRequestViewModel
-                        {
-                            Comment = "【加值中心配號—存證】",
-                            ProcessType = Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC,
-                        });
-                }
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
+                    new InvoiceRequestViewModel
+                    {
+                        Comment = "【加值中心配號—存證】",
+                        ProcessType = Naming.InvoiceProcessType.F0401_Xlsx_Allocation_ByVAC,
+                    });
 
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoice.cshtml",
                     new InvoiceRequestViewModel

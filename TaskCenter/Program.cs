@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using CommonLib.Core.Utility;
+﻿using CommonLib.Core.Utility;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
+using Microsoft.AspNetCore.SpaServices;
+
 using ModelCore.DataEntity;
 // Add Swagger/OpenAPI usings
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -69,6 +70,20 @@ namespace TaskCenter
                     ValidateIssuerSigningKey = true,
                     ClockSkew = TimeSpan.FromMinutes(5)
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    // refresh token 與 access token 使用相同簽章，這裡擋掉 refresh token 被當成
+                    // access token 來通過 [Authorize]。
+                    OnTokenValidated = context =>
+                    {
+                        var tokenType = context.Principal?.FindFirst("token_type")?.Value;
+                        if (string.Equals(tokenType, "refresh", StringComparison.Ordinal))
+                        {
+                            context.Fail("Refresh token cannot be used for authentication.");
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             // 註冊 CORS
@@ -100,7 +115,7 @@ namespace TaskCenter
 
             builder.Services.AddMvc(config =>
             {
-                config.Filters.Add(new ExceptionFilter());
+                config.Filters.Add<ExceptionFilter>();
             }).ConfigureApiBehaviorOptions(options =>
             {
                 options.SuppressMapClientErrors = true;
@@ -112,7 +127,7 @@ namespace TaskCenter
             builder.Services
                 .AddControllersWithViews(configure =>
                     {
-                        configure.Filters.Add(new ExceptionFilter());
+                        configure.Filters.Add<ExceptionFilter>();
                     }
                 )
                 .AddRazorRuntimeCompilation();
@@ -181,18 +196,7 @@ namespace TaskCenter
 
             // Services
             builder.Services.AddScoped<IElementaryService, ElementaryService>();
-
-            // AutoMapper
-            builder.Services.AddAutoMapper(cfg =>
-            {
-                cfg.LicenseKey = AppSettings.Default.License.AutoMapperLicenseKey;
-                cfg.AddMaps(typeof(Program).Assembly);
-                cfg.AddMaps(typeof(ApplicationDbContext).Assembly);
-                //cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
-            });
-
-            // Register AutoMapper scanning all assemblies
-            //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            builder.Services.AddScoped<IOrganizationQueryService, OrganizationQueryService>();
 
             var app = builder.Build();
 
@@ -235,10 +239,40 @@ namespace TaskCenter
 
 
             app.MapStaticAssets();
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-                .WithStaticAssets();
+
+            // Execute endpoints EXPLICITLY here so that matched API/MVC endpoints run at this
+            // point in the pipeline. In minimal hosting, calling MapControllers()/MapControllerRoute()
+            // alone defers endpoint execution to an auto-appended terminal middleware placed AFTER
+            // everything below (including UseSpa). Because the SPA dev-server proxy is itself a
+            // terminal middleware, it would short-circuit the request before that auto-appended
+            // endpoint execution runs, so /api/* requests matched a controller but never executed
+            // it (returning an empty 500). Using an explicit UseEndpoints block fixes the ordering:
+            // matched endpoints execute here, and only unmatched routes fall through to the SPA.
+            app.UseEndpoints(endpoints =>
+            {
+                // Attribute-routed API controllers (e.g. AuthController -> /api/Auth/...).
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}")
+                    .WithStaticAssets();
+            });
+
+            // The SPA fallback runs LAST and only handles requests that were NOT matched by the
+            // API/MVC endpoints above.
+            if (app.Environment.IsDevelopment())
+            {
+                // In development, proxy SPA (non-API) requests to the Vite dev server.
+                app.UseSpa(spa =>
+                {
+                    spa.Options.SourcePath = "ClientApp";
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:5173");
+                });
+            }
+            else
+            {
+                app.MapFallbackToFile("index.html");
+            }
 
             app.Run();
         }

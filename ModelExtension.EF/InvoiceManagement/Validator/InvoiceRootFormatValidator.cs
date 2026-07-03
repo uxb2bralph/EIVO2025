@@ -528,6 +528,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     exceptions.Add(new Exception(String.Format(MessageResources.InvalidPieceUnit, product.PieceUnit)));
                 }
 
+                product.Product.InvoiceProductItem.Add(product);
 
                 //if (!product.UnitCost.HasValue || product.UnitCost == 0)
                 //{

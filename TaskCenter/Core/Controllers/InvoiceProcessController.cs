@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ModelCore.DataEntity;
 using ModelCore.Models.ViewModel;
 using ModelCore.InvoiceManagement;
@@ -26,10 +27,10 @@ namespace TaskCenter.Core.Controllers
 
         private Organization? ValidateAndGetOrganization(InvoiceDataQueryViewModel viewModel)
         {
-            /// TODO: Validate organization and authentication, ¤U­z¤èªk¾Ü¤@
-            /// 1. ¨Ï¥Î viewModel ¤¤ªº¸ê®Æ¶i¦æÅçÃÒ
-            /// 2. ¨Ï¥Î HttpContext ¤¤ªº»{ÃÒ¸ê°T¶i¦æÅçÃÒ
-            /// 3. Header ¤¤ªº API Key ÅçÃÒ, Authorization: Bearer {token}
+            /// TODO: Validate organization and authentication, ï¿½Uï¿½zï¿½ï¿½kï¿½Ü¤@
+            /// 1. ï¿½Ï¥ï¿½ viewModel ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            /// 2. ï¿½Ï¥ï¿½ HttpContext ï¿½ï¿½ï¿½ï¿½ï¿½{ï¿½Ò¸ï¿½Tï¿½iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            /// 3. Header ï¿½ï¿½ï¿½ï¿½ API Key ï¿½ï¿½ï¿½ï¿½, Authorization: Bearer {token}
             return null;
         }
 
@@ -94,8 +95,8 @@ namespace TaskCenter.Core.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateF0401(true)).ToList();
-                
+                var dataItems = items.AsNoTracking().ToList().Select(c => c.CreateF0401(true)).ToList();
+
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
@@ -172,8 +173,8 @@ namespace TaskCenter.Core.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateCancelInvoiceMIG(true)).ToList();
-                
+                var dataItems = items.AsNoTracking().ToList().Select(c => c.CreateCancelInvoiceMIG(true)).ToList();
+
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
@@ -249,8 +250,8 @@ namespace TaskCenter.Core.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateAllowanceMIG(models, true)).ToList();
-                
+                var dataItems = items.AsNoTracking().ToList().Select(c => c.CreateAllowanceMIG(models, true)).ToList();
+
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
@@ -327,7 +328,7 @@ namespace TaskCenter.Core.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateCancelAllowanceMIG(true)).ToList();
+                var dataItems = items.AsNoTracking().ToList().Select(c => c.CreateCancelAllowanceMIG(true)).ToList();
 
                 return Ok(new ResponseDto<object>
                 {
@@ -416,7 +417,7 @@ namespace TaskCenter.Core.Controllers
                 assignments = assignments.Where(a => trackItems.Any(x => x.TrackID == a.TrackID));
                 items = items.Where(i => assignments.Any(a => a.SellerID == i.SellerID && a.TrackID == i.TrackID));
 
-                var dataItems = items.ToList();
+                var dataItems = items.AsNoTracking().ToList();
 
                 return Ok(new ResponseDto<object>
                 {

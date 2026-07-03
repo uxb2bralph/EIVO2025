@@ -442,18 +442,18 @@ namespace InvoiceClient.Agent
             return docInv;
         }
 
-        protected virtual void processError(string message, XmlDocument docInv, string fileName)
+        protected virtual void processError(string message, XmlDocument? docInv, string fileName)
         {
             Logger.Warn(String.Format("在上傳發票檔({0})時,傳送失敗!!原因如下:\r\n{1}", fileName, message));
-            if (docInv?.DocumentElement?["SourceLog"] != null && docInv?.DocumentElement?["ToFail"] != null)
+            if (docInv?.DocumentElement?["SourceLog"]?.InnerText != null && docInv?.DocumentElement?["LogFault"]?.InnerText != null)
             {
-                ToFail(docInv.DocumentElement["SourceLog"].InnerText, docInv.DocumentElement["ToFail"].InnerText);
+                LogFault(docInv.DocumentElement["SourceLog"]!.InnerText!, docInv.DocumentElement["LogFault"]!.InnerText!, fileName);
             }
         }
 
-        private void ToFail(string logItem, string failedPath)
+        protected virtual void LogFault(string fault, string failedPath, String fileName)
         {
-            var items = logItem.Split(';')
+            var items = fault.Split(';')
                 .Select(i => i.GetEfficientString())
                 .Where(i => i != null).ToArray();
 

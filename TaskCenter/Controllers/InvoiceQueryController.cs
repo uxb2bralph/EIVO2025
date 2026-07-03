@@ -14,19 +14,29 @@ using TaskCenter.Properties;
 using ModelCore.InvoiceManagement;
 using ModelCore.Security;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using CommonLib.Utility;
 
 namespace TaskCenter.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
+    [Produces("application/json")]
     public class InvoiceQueryController : SampleController
     {
         public InvoiceQueryController(IServiceProvider serviceProvider, ILoggerFactory loggerFactory) : base(serviceProvider, loggerFactory)
         {
         }
 
-        public ActionResult Inquire([FromBody] InvoiceDataQueryViewModel viewModel)
+        [HttpPost("Inquire")]
+        public async Task<ActionResult> InquireAsync([FromBody] InvoiceDataQueryViewModel viewModel)
         {
-            Organization item = viewModel.CheckRequest(this);
+            if(viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InvoiceDataQueryViewModel>();
+            }
+
+            Organization? item = viewModel.CheckRequest(this);
 
             if (item != null)
             {
@@ -34,19 +44,19 @@ namespace TaskCenter.Controllers
                 {
                     case DataQueryType.Invoice:
                     case DataQueryType.CountInvoice:
-                        return JsonInvoice(viewModel, item);
+                        return await JsonInvoiceAsync(viewModel, item);
 
                     case DataQueryType.VoidInvoice:
                     case DataQueryType.CountVoidInvoice:
-                        return JsonVoidInvoice(viewModel, item);
+                        return await JsonVoidInvoiceAsync(viewModel, item);
 
                     case DataQueryType.Allowance:
                     case DataQueryType.CountAllowance:
-                        return JsonAllowance(viewModel, item);
+                        return await JsonAllowanceAsync(viewModel, item);
 
                     case DataQueryType.VoidAllowance:
                     case DataQueryType.CountVoidAllowance:
-                        return JsonVoidAllowance(viewModel, item);
+                        return await JsonVoidAllowanceAsync(viewModel, item);
 
                     case DataQueryType.InovoiceNoAllocation:
                         return JsonInvoiceNoAllocation(viewModel, item);
@@ -62,7 +72,7 @@ namespace TaskCenter.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult JsonInvoiceNoAllocation([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
+        private ActionResult JsonInvoiceNoAllocation(InvoiceDataQueryViewModel viewModel, Organization agent)
         {
             IQueryable<InvoiceTrackCodeAssignment> assignments = models!.GetTable<InvoiceTrackCodeAssignment>();
             IQueryable<InvoiceNoInterval> items = models.GetTable<InvoiceNoInterval>();
@@ -101,8 +111,13 @@ namespace TaskCenter.Controllers
         }
 
 
-        public ActionResult JsonInvoice([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
+        private async Task<ActionResult> JsonInvoiceAsync(InvoiceDataQueryViewModel viewModel, Organization agent)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InvoiceDataQueryViewModel>();
+            }
+
             IQueryable<InvoiceItem> items = models!.GetInvoiceByAgent(models!.GetTable<InvoiceItem>(), agent.CompanyID);
 
             bool effective = false;
@@ -120,13 +135,18 @@ namespace TaskCenter.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateF0401(true)).ToList();
+                var dataItems = items.AsNoTracking().ToList().Select(c => c.CreateF0401(true)).ToList();
                 return Content(dataItems.JsonStringify(), "application/json");
             }
         }
 
-        public ActionResult JsonVoidInvoice([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
+        private async Task<ActionResult> JsonVoidInvoiceAsync(InvoiceDataQueryViewModel viewModel, Organization agent)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InvoiceDataQueryViewModel>();
+            }
+
             IQueryable<InvoiceItem> items = models!.GetInvoiceByAgent(models!.GetTable<InvoiceItem>(), agent.CompanyID);
 
             bool effective = false;
@@ -144,13 +164,18 @@ namespace TaskCenter.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateCancelInvoiceMIG(true)).ToList();
+                var dataItems = items.AsNoTracking().ToList().Select(c => c.CreateF0501(true)).ToList();
                 return Content(dataItems.JsonStringify(), "application/json");
             }
         }
 
-        public ActionResult JsonAllowance([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
+        private async Task<ActionResult> JsonAllowanceAsync(InvoiceDataQueryViewModel viewModel, Organization agent)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InvoiceDataQueryViewModel>();
+            }
+
             IQueryable<InvoiceAllowance> items = models!.GetAllowanceByAgent(agent.CompanyID);
             bool effective = false;
             items = items.InquireAllowance(viewModel, models!, ref effective);
@@ -166,13 +191,18 @@ namespace TaskCenter.Controllers
                     items = items.Skip((viewModel.PageIndex.Value - 1) * viewModel.PageSize.Value)
                         .Take(viewModel.PageSize.Value);
                 }
-                var dataItems = items.Select(c => c.CreateAllowanceMIG(models, true)).ToList();
+                var dataItems = items.AsNoTracking().ToList().Select(c => c.CreateG0401(models, true)).ToList();
                 return Content(dataItems.JsonStringify().Replace(".00000", ""), "application/json");
             }
         }
 
-        public ActionResult JsonVoidAllowance([FromBody] InvoiceDataQueryViewModel viewModel, Organization agent)
+        private async Task<ActionResult> JsonVoidAllowanceAsync(InvoiceDataQueryViewModel viewModel, Organization agent)
         {
+            if (viewModel == null)
+            {
+                viewModel = await PrepareViewModelAsync<InvoiceDataQueryViewModel>();
+            }
+
             IQueryable<InvoiceAllowance> items = models!.GetAllowanceByAgent(agent.CompanyID);
 
             bool effective = false;
@@ -190,7 +220,7 @@ namespace TaskCenter.Controllers
                         .Take(viewModel.PageSize.Value);
                 }
 
-                var dataItems = items.Select(c => c.CreateCancelAllowanceMIG(true)).ToList();
+                var dataItems = items.AsNoTracking().ToList().Select(c => c.CreateG0501(true)).ToList();
                 return Content(dataItems.JsonStringify(), "application/json");
 
             }

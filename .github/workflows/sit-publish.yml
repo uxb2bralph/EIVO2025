@@ -1,0 +1,47 @@
+name: Publish Artifact for SIT Deployment
+
+on:
+  push:
+    branches: [ "staged" ]
+
+  workflow_dispatch:
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore Dependencies
+        run: dotnet restore Web/Web.csproj
+
+      - name: Build and Verify
+        # 這裡執行編譯，驗證代碼沒有問題
+        run: dotnet build Web/Web.csproj -c Release --no-restore
+
+      - name: Publish to target folder
+        # 將產物輸出到專門的目錄
+        run: dotnet publish Web/Web.csproj -c Release -o ./publish_output
+
+      - name: Set Artifact Name
+        id: info
+        run: |
+          PROJECT_NAME=$(basename $(pwd))
+          DATE=$(date +'%Y%m%d-%H%M')
+          echo "ZIP_NAME=${PROJECT_NAME}-${DATE}-sit" >> $GITHUB_ENV
+
+      - name: Upload to Github Artifact (For SIT)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ZIP_NAME }}
+          path: publish_output/ 
+          retention-days: 7 # 設定 7 天後移除

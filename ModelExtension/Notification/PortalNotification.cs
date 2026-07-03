@@ -1,4 +1,5 @@
 ﻿using CommonLib.Core.Utility;
+using CommonLib.DataAccess;
 using ModelCore.DataEntity;
 using ModelExtension.Properties;
 using System;
@@ -45,6 +46,25 @@ namespace ModelCore.Notification
             }
 
             return null;
+        }
+
+        public static void PushProcessExceptionNotification(this GenericManager<EIVOEntityDataContext> models, ProcessRequest requestItem, Organization notified, DateTime? bookingTime = null)
+        {
+            if (requestItem != null && notified != null)
+            {
+                if (!models.GetTable<ProcessExceptionNotification>().Any(n => n.TaskID == requestItem.TaskID && n.CompanyID == notified.CompanyID))
+                {
+                    models.GetTable<ProcessExceptionNotification>().InsertOnSubmit(
+                            new ProcessExceptionNotification
+                            {
+                                TaskID = requestItem.TaskID,
+                                CompanyID = notified.CompanyID,
+                                BookingTime = bookingTime
+                            }
+                        );
+                    models.SubmitChanges();
+                }
+            }
         }
     }
 }

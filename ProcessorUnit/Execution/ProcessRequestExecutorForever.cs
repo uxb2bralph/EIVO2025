@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CommonLib.Utility;
 using CommonLib.Core.Utility;
+using ModelCore.Notification;
 
 namespace ProcessorUnit.Execution
 {
@@ -41,8 +42,11 @@ namespace ProcessorUnit.Execution
                         DataContent = ex.Message
                     };
                     queueItem.ProcessRequest.ProcessComplete = DateTime.Now;
+                    models.PushProcessExceptionNotification(queueItem.ProcessRequest, queueItem.ProcessRequest.Organization, DateTime.Now);
+
                     models.GetTable<ProcessRequestQueue>().DeleteOnSubmit(queueItem);
                     models.SubmitChanges();
+
                 }
             }
 
@@ -83,8 +87,11 @@ namespace ProcessorUnit.Execution
                         DataContent = ex.Message
                     };
                     queueItem.ProcessRequest.ProcessComplete = DateTime.Now;
+                    models.PushProcessExceptionNotification(queueItem.ProcessRequest, queueItem.ProcessRequest.Organization, DateTime.Now);
+
                     models.GetTable<ProcessRequestQueue>().DeleteOnSubmit(queueItem);
                     models.SubmitChanges();
+
                 }
             }
 

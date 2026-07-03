@@ -15,10 +15,9 @@ using ModelCore.InvoiceManagement;
 using Microsoft.AspNetCore.Mvc;
 using CommonLib.Core.Utility;
 using CommonLib.Utility;
-using System.Globalization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using System.Threading.Tasks;
+using TaskCenter.Core.DTOs;
 
 namespace TaskCenter.Controllers
 {
@@ -153,20 +152,67 @@ namespace TaskCenter.Controllers
                 items = items.Where(p => p.Sender == viewModel.Sender);
             }
 
-            return Json(new
+            var list = items.ToList();
+            return Json(new NotifyRequestCompletionResultDto
             {
-                result = items.Count() > 0,
-                data = items.Select(q =>
-                        new
-                        {
-                            q.TaskID,
-                            q.ProcessTypeNavigation!.ChannelName,
-                            q.ProcessTypeNavigation!.ChannelResponse,
-                            ResponseName = Path.GetFileName(q.ResponsePath),
-                            TxnPath = q.ViewModel != null ? JsonConvert.DeserializeObject<InvoiceRequestViewModel>(q.ViewModel).StoragePath : null
-                        }).ToArray()
+                result = list.Count > 0,
+                data = [.. list.Select(q => new ProcessRequestNotificationItemDto
+                {
+                    TaskID = q.TaskID,
+                    ChannelName = q.ProcessTypeNavigation!.ChannelName,
+                    ChannelResponse = q.ProcessTypeNavigation!.ChannelResponse,
+                    ResponseName = Path.GetFileName(q.ResponsePath),
+                    TxnPath = q.ViewModel != null ? JsonConvert.DeserializeObject<InvoiceRequestViewModel>(q.ViewModel)?.StoragePath : null
+                })]
             });
 
+        }
+
+        public async Task<ActionResult> NotifyRequestException()
+        {
+            InvoiceRequestViewModel? viewModel = await PrepareViewModelAsync<InvoiceRequestViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            var authResult = CheckAuth(viewModel);
+            if (authResult != null)
+            {
+                return authResult;
+            }
+
+            var items = models!.GetTable<ProcessExceptionNotification>()
+                                .Where(q => q.BookingTime.HasValue)
+                                .Where(q => q.Task.AgentID == viewModel.AgentID)
+                                .Select(q => q.Task)
+                                .ToList();
+
+            return Json(new NotifyRequestExceptionResultDto
+            {
+                result = items.Count > 0,
+                data = [.. items.Select(q => new ProcessExceptionNotificationItemDto
+                {
+                    TaskID = q.TaskID,
+                    ChannelName = q.ProcessTypeNavigation!.ChannelName,
+                    RequestName = q.RequestPath != null ? Path.GetFileName(q.RequestPath) : null,
+                    ExceptionMessage = q.Log != null ? q.Log.DataContent : null,
+                    OriginalData = GetProcessRequestContent(q)
+                })]
+            });
+        }
+
+        private String? GetProcessRequestContent(ProcessRequest requestItem)
+        {
+            if (requestItem?.RequestPath == null)
+            {
+                return null;
+            }
+            String requestPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, requestItem.RequestPath!);
+            return requestItem.RequestPath != null && System.IO.File.Exists(requestPath)
+                                    ? Convert.ToBase64String(System.IO.File.ReadAllBytes(requestPath))
+                                    : null;
         }
 
         public async Task<ActionResult> CommitProcessResponseAsync()
@@ -184,7 +230,7 @@ namespace TaskCenter.Controllers
                 return authResult;
             }
 
-            var result = models.ExecuteCommand(@"
+            var result = models!.ExecuteCommand(@"
                         DELETE FROM [proc].ProcessCompletionNotification
                         FROM              [proc].ProcessCompletionNotification INNER JOIN
                                                     [proc].ProcessRequest ON [proc].ProcessCompletionNotification.TaskID = [proc].ProcessRequest.TaskID
@@ -202,6 +248,30 @@ namespace TaskCenter.Controllers
             }
             return new EmptyResult { };
         }
+
+        public async Task<ActionResult> CommitProcessExceptionAsync()
+        {
+            InvoiceRequestViewModel? viewModel = await PrepareViewModelAsync<InvoiceRequestViewModel>();
+
+            if (viewModel == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            var authResult = CheckAuth(viewModel);
+            if (authResult != null)
+            {
+                return authResult;
+            }
+
+            var result = models!.ExecuteCommand(@"
+                        DELETE FROM [proc].ProcessExceptionNotification
+                        FROM              [proc].ProcessExceptionNotification INNER JOIN
+                                                    [proc].ProcessRequest ON [proc].ProcessExceptionNotification.TaskID = [proc].ProcessRequest.TaskID
+                        WHERE          ([proc].ProcessExceptionNotification.TaskID = {0}) AND ([proc].ProcessRequest.AgentID = {1})", viewModel.TaskID, viewModel.AgentID);
+
+            return Json(new { result = result > 0 });
+        }        
 
         private readonly static String[] _DeleteMIGQ = {
             @"DELETE FROM [proc].DataProcessQueue

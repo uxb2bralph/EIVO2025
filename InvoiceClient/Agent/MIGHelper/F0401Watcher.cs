@@ -25,6 +25,8 @@ namespace InvoiceClient.Agent.MIGHelper
             PreferredProcessType = Naming.InvoiceProcessType.F0401;
         }
 
+        public Naming.NotificationIndication? DefaultNotification { get; set; }
+
         protected override XmlDocument prepareInvoiceDocument(string invoiceFile)
         {
             XmlDocument docInv = new XmlDocument();
@@ -37,7 +39,7 @@ namespace InvoiceClient.Agent.MIGHelper
                                 ? (short)Naming.NotificationIndication.Deferred
                                 : invoiceFile.Contains("_C")
                                     ? (short)Naming.NotificationIndication.None
-                                    : (short)Naming.NotificationIndication.Immediate,
+                                    : (short)(DefaultNotification ?? Naming.NotificationIndication.Immediate),
                 ProcessType = $"{PreferredProcessType}",
             };
 

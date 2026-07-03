@@ -386,7 +386,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "帳號資料錯誤!!");
             }
 
-            return View("~/Views/Account/Module/DataItem.ascx", item);
+            return View("~/Views/Account/Module/DataItem.cshtml", item);
 
         }
 

@@ -141,7 +141,7 @@
                 if ($.isPlainObject(data)) {
                     if (data.result) {
                         $inquiryAgent.dataItem(data.keyID, $tr, function () {
-                            $inquiryAgent.loadItem({ 'displayType':@((int)Naming.FieldDisplayType.Create), 'keyID': '@((-1).EncryptKey())' }, function (d) {
+                            $inquiryAgent.loadItem({ 'displayType':@((int)Naming.FieldDisplayType.Create), 'keyID': '@Html.Raw((-1).EncryptKey())' }, function (d) {
                                 $parent.append(d);
                             });
                         });

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Localization;
+﻿using Microsoft.Extensions.Localization;
 
 namespace TaskCenter.Core.Interfaces
 {
@@ -12,11 +11,6 @@ namespace TaskCenter.Core.Interfaces
         /// Gets the unit of work for data access and transaction management.
         /// </summary>
         IUnitOfWork UnitOfWork { get; }
-
-        /// <summary>
-        /// Gets the AutoMapper instance for object mapping operations.
-        /// </summary>
-        IMapper Mapper { get; }
 
         /// <summary>
         /// Gets the logger instance for logging operations.

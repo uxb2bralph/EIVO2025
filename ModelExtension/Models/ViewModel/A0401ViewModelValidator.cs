@@ -152,7 +152,9 @@ namespace ModelCore.Models.ViewModel
                 InvoiceAmountType = new InvoiceAmountType
                 {
                     DiscountAmount = _invItem.DiscountAmount,
-                    SalesAmount = _invItem.SalesAmount,
+                    SalesAmount = _invItem.TaxType == 1 ? _invItem.SalesAmount : 0,
+                    ZeroTaxSalesAmount = _invItem.TaxType == 2 ? _invItem.SalesAmount : 0,
+                    FreeTaxSalesAmount = _invItem.TaxType == 3 ? _invItem.SalesAmount : 0,
                     TaxAmount = _invItem.TaxAmount,
                     TaxRate = _invItem.TaxRate,
                     TaxType = _invItem.TaxType,

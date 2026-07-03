@@ -1,8 +1,17 @@
-using System;
-using System.Collections.Generic;
+using ModelCore.DataEntity;
 
 namespace ModelCore.DTOs
 {
+    public static class OrganizationCategoryMappingExtensions
+    {
+        public static OrganizationCategoryDto ToDto(this OrganizationCategory src) => new()
+        {
+            OrgaCateID = src.OrgaCateID,
+            CompanyID = src.CompanyID,
+            CategoryID = src.CategoryID,
+        };
+    }
+
     public class OrganizationCategoryDto
     {
         public int OrgaCateID { get; set; }

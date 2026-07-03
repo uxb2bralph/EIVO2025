@@ -347,12 +347,10 @@
                     <th>
                         <input type="checkbox" value="@($"{true}")" name="EnableTrackCodeInvoiceNoValidation" @(_viewModel.EnableTrackCodeInvoiceNoValidation == true ? "checked" : null) /> 開立發票字軌號碼檢核
                     </th>
-                    <th>
-                        <input type="checkbox" value="HybridB2B" name="Settings" checked="@(_viewModel.HybridB2B)" />以A0401開立B2B發票
-                    </th>
                     <td>
                         <input type="checkbox" value="InvoiceExchange" name="Settings" checked="@(_viewModel.InvoiceExchange)" />啟用發票交換
                     </td>
+                    <td></td>
                 </tr>
                 <tr>
                     <th>
@@ -483,6 +481,12 @@
                     <th>
                         <input type="checkbox" value="@((int)Naming.InvoiceNoticeStatus.NoInvoiceIssued)" name="NoticeStatus" checked="@(_viewModel.NoticeSetting.HasValue && ((_viewModel.NoticeSetting.Value & Naming.InvoiceNoticeStatus.NoInvoiceIssued) > 0))" />每日寄送未開立通知
                     </th>
+                </tr>
+                <tr>
+                    <th>
+                        <input type="checkbox" value="HybridB2B" name="Settings" checked="@(_viewModel.HybridB2B)" />以A0401格式寄送B2B發票
+                    </th>
+                    <td colspan="3"></td>
                 </tr>
                 <tr>
                     <th>

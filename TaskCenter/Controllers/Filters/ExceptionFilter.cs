@@ -13,11 +13,9 @@ namespace TaskCenter.Controllers.Filters
     {
         private readonly ILogger<ExceptionFilter> _logger;
 
-        public ExceptionFilter()
+        public ExceptionFilter(ILogger<ExceptionFilter> logger)
         {
-            _logger = LoggerFactory
-                .Create(config => { })
-                .CreateLogger<ExceptionFilter>();
+            _logger = logger;
         }
 
         public void OnException(ExceptionContext filterContext)
@@ -32,7 +30,7 @@ namespace TaskCenter.Controllers.Filters
 
             if (filterContext.Exception != null)
             {
-                _logger.LogError(filterContext.Exception, filterContext.Exception.Message);
+                _logger.LogError(filterContext.Exception, filterContext.Exception.ToString());
 
                 //ViewDataDictionary viewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary())
                 //{

@@ -30,6 +30,7 @@ namespace TaskCenter.Controllers
     {
         public InvoiceServiceController(IServiceProvider serviceProvider, ILoggerFactory loggerFactory) : base(serviceProvider, loggerFactory)
         {
+            DumpRequest = AppSettings.Default.EnableRequestDump;
         }
 
         [HttpPost("UploadInvoiceAutoTrackNo")]
@@ -39,12 +40,25 @@ namespace TaskCenter.Controllers
             Root result = createMessageToken();
             if (invoice != null)
             {
-                using (InvoiceManagerV3 manager = new InvoiceManagerV3 { InvoiceClientID = viewModel.ClientID, ProcessType = viewModel.ProcessType })
+                if (viewModel.ProcessType == Naming.InvoiceProcessType.F0401_Json_CBE)
                 {
-                    OrganizationToken token = viewModel.CheckRequestToken(this);
-                    manager.ApplyInvoiceDate = viewModel?.ApplyInvoiceDate;
-                    manager.UploadInvoiceAutoTrackNo(invoice, result, token);
+                    using (InvoiceManagerForCBE manager = new InvoiceManagerForCBE { InvoiceClientID = viewModel.ClientID, ProcessType = viewModel.ProcessType })
+                    {
+                        OrganizationToken token = viewModel.CheckRequestToken(this);
+                        manager.ApplyInvoiceDate = viewModel?.ApplyInvoiceDate;
+                        manager.UploadInvoiceAutoTrackNo(invoice, result, token);
+                    }
                 }
+                else
+                {
+                    using (InvoiceManagerV3 manager = new InvoiceManagerV3 { InvoiceClientID = viewModel.ClientID, ProcessType = viewModel.ProcessType })
+                    {
+                        OrganizationToken token = viewModel.CheckRequestToken(this);
+                        manager.ApplyInvoiceDate = viewModel?.ApplyInvoiceDate;
+                        manager.UploadInvoiceAutoTrackNo(invoice, result, token);
+                    }
+                }
+
             }
             return Content(result.JsonStringify(), "application/json");
         }
@@ -56,10 +70,21 @@ namespace TaskCenter.Controllers
             InvoiceRoot? invoice = FromJsonBody<InvoiceRequestViewModel>()?.InvoiceRoot;
             if (invoice != null)
             {
-                using (InvoiceManagerV3 manager = new InvoiceManagerV3 { InvoiceClientID = viewModel?.ClientID, ProcessType = viewModel?.ProcessType })
+                if (viewModel.ProcessType == Naming.InvoiceProcessType.F0401_Json_CBE)
                 {
-                    OrganizationToken token = viewModel.CheckRequestToken(this);
-                    manager.UploadInvoice(invoice, result, token);
+                    using (InvoiceManagerForCBE manager = new InvoiceManagerForCBE { InvoiceClientID = viewModel?.ClientID, ProcessType = viewModel?.ProcessType })
+                    {
+                        OrganizationToken token = viewModel.CheckRequestToken(this);
+                        manager.UploadInvoice(invoice, result, token);
+                    }
+                }
+                else
+                {
+                    using (InvoiceManagerV3 manager = new InvoiceManagerV3 { InvoiceClientID = viewModel?.ClientID, ProcessType = viewModel?.ProcessType })
+                    {
+                        OrganizationToken token = viewModel.CheckRequestToken(this);
+                        manager.UploadInvoice(invoice, result, token);
+                    }
                 }
             }
 
