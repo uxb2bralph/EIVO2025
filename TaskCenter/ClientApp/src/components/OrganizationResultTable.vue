@@ -3,7 +3,9 @@
   抽離自 OrganizationQueryIndex.vue，為純呈現元件：資料與動作皆由父層透過 props / events 提供。
 -->
 <script setup lang="ts">
+import { toRef, watch } from 'vue'
 import type { OrganizationDatatable } from '../services/organization-api'
+import { useTableSelection } from '../composables/useTableSelection'
 
 /** 每列管理選單可觸發的動作 */
 export type OrgRowAction =
@@ -21,7 +23,7 @@ export type OrgRowAction =
 // 對應後端 Naming.MemberStatusDefinition.Mark_To_Delete（1101 註記停用）
 const MEMBER_STATUS_MARK_TO_DELETE = 1101
 
-defineProps<{
+const props = defineProps<{
   /** 查詢結果列表 */
   items: OrganizationDatatable[]
   /** 目前展開管理選單的列（以 companyId 為鍵），null 表示皆關閉 */
@@ -35,6 +37,39 @@ const emit = defineEmits<{
   (e: 'action', action: OrgRowAction, org: OrganizationDatatable): void
 }>()
 
+/** 勾選結果（以 keyId 為鍵），父層以 v-model:selected 取得 */
+const selected = defineModel<string[]>('selected', { default: () => [] })
+
+// 勾選邏輯：全選 / 半選 / 單選皆由響應式狀態推導，不再直接操作 DOM
+const {
+  selected: selectedKeys,
+  allChecked,
+  indeterminate,
+  toggleAll,
+  toggle,
+  isChecked,
+  clear,
+} = useTableSelection(toRef(props, 'items'), (org) => org.keyId)
+
+// composable 內部選取變動時回寫 v-model，讓父層取得選取結果
+watch(selectedKeys, (keys) => {
+  selected.value = [...keys]
+})
+
+// 換頁 / 重新查詢載入新資料列時清空選取，避免殘留舊 key 造成錯誤的半選狀態
+watch(
+  () => props.items,
+  () => clear(),
+)
+
+function onToggleAll(event: Event) {
+  toggleAll((event.target as HTMLInputElement).checked)
+}
+
+function onToggleItem(org: OrganizationDatatable, event: Event) {
+  toggle(org, (event.target as HTMLInputElement).checked)
+}
+
 // 選單項目點擊：先關閉選單再觸發動作（父層 action 處理器負責關閉）
 function onAction(action: OrgRowAction, org: OrganizationDatatable) {
   emit('action', action, org)
@@ -46,6 +81,15 @@ function onAction(action: OrgRowAction, org: OrganizationDatatable) {
     <table class="result-table">
       <thead>
         <tr>
+          <th>
+            <input
+              name="checkAll"
+              type="checkbox"
+              :checked="allChecked"
+              :indeterminate="indeterminate"
+              @change="onToggleAll"
+            />
+          </th>
           <th>營業人名稱</th>
           <th>統編</th>
           <th>負責人</th>
@@ -59,6 +103,15 @@ function onAction(action: OrgRowAction, org: OrganizationDatatable) {
       </thead>
       <tbody>
         <tr v-for="org in items" :key="org.companyId">
+          <td>
+            <input
+              type="checkbox"
+              name="checkItem"
+              :value="org.keyId"
+              :checked="isChecked(org)"
+              @change="onToggleItem(org, $event)"
+            />
+          </td>
           <td>{{ org.companyName }}</td>
           <td>{{ org.receiptNo }}</td>
           <td>{{ org.undertakerName }}</td>

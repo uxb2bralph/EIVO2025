@@ -54,7 +54,7 @@
                 <div class="col-md-8 input-group">
                     選擇主機構：
                     @{
-                        await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml",new InquireInvoiceViewModel { UrlAction = Url.Action("SearchHeadquarter", "Home") });
+                        await Html.RenderPartialAsync("~/Views/Home/Module/CompanyQuickSearch.cshtml", new InquireInvoiceViewModel { UrlAction = Url.Action("SearchHeadquarter", "Home"), FieldName = "SellerID" });
                     }
                 </div>
             </td>

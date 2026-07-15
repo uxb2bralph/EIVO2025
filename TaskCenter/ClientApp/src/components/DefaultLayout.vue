@@ -6,6 +6,19 @@ import { useAuthStore } from '@/auth'
 const auth = useAuthStore()
 const router = useRouter()
 
+// 側邊選單連結分三種狀態：
+//  - SPA 路由（已遷移）→ <router-link>，客戶端導航，部署 base 自動帶入。
+//  - 外部連結（http/https）→ 一般 <a>，另開分頁。
+//  - 其餘（尚未遷移、無對應頁面）→ 停用並標示「未上線」。
+// 是否可用以 router 能否解析為準；某模組完成遷移（新增路由）後，選單會自動亮起，毋須改選單設定。
+function isExternal(href) {
+  return typeof href === 'string' && /^(https?:)?\/\//.test(href)
+}
+function isSpaRoute(href) {
+  if (typeof href !== 'string' || !href.startsWith('/')) return false
+  return router.resolve(href).matched.length > 0
+}
+
 // Sidebar collapse state
 const sidebarOpen = ref(true)
 
@@ -20,172 +33,19 @@ function handleLogout() {
   router.push('/Login')
 }
 
-// ─── Role-based menu definitions ────────────────────────────────────────────
-// Map roleId → array of menu groups { label, icon, items: [{label, href}] }
-
-const ROLE_SYS = 1
-const ROLE_SELLER = 51
-const ROLE_BUYER = 52
-const ROLE_GUEST = 53
-const ROLE_NETWORKSELLER = 54
-const ROLE_GOOGLETW = 55
-const ROLE_GROUP_MEMBER = 61
-const ROLE_RELATIVE_ENTITY = 62
-const ROLE_BRANCH_ENTITY = 63
-const ROLE_DATA_AUDITOR = 64
-
-const menusByRole = {
-  [ROLE_SYS]: [
-    {
-      label: '系統管理維護', icon: 'fa-cogs',
-      items: [
-        { label: '電子發票字軌維護', href: '/TrackCode/Index' },
-        { label: '電子發票中獎號碼維護', href: '/WinningNumber/Index' },
-        { label: '登錄掛號郵件號碼', href: '/Handling/MailTracking' },
-      ]
-    },
-    {
-      label: '會員管理維護', icon: 'fa-users',
-      items: [
-        { label: '使用者帳號管理', href: '/Account/AccountIndex' },
-        { label: '營業人資料管理', href: '/OrganizationQuery' },
-        { label: '相對營業人資料管理', href: '/BusinessRelationship/MaintainRelationship' },
-        { label: '新登錄營業人資料受理', href: '/InvoiceNumberApply/QueryIndex' },
-      ]
-    },
-    {
-      label: '發票作業', icon: 'fa-file-text-o',
-      items: [
-        { label: '電子發票號碼維護', href: '/InvoiceNo/MaintainInvoiceNoInterval' },
-        { label: '資料查詢／列印／匯出', href: '/InvoiceProcess/Index' },
-        { label: '線上開立發票', href: '/InvoiceBusiness/CreateInvoice' },
-        { label: '線上作廢發票', href: '/InvoiceProcess/InquireToCancel' },
-        { label: '線上開立折讓證明', href: '/InvoiceProcess/InquireToIssueAllowance' },
-        { label: '上期發票空白號碼查詢', href: '/InvoiceNo/VacantNoIndex' },
-        { label: '下載MIG檔案', href: '/InvoiceProcess/InquireToMIG' },
-        { label: '核准重印發票', href: '/InvoiceProcess/InquireToAuthorize' },
-        { label: '註銷發票', href: '/InvoiceProcess/InquireToVoid' },
-        { label: '核准註銷發票', href: '/InvoiceProcess/AllowToVoid' },
-      ]
-    },
-    {
-      label: '發票通知', icon: 'fa-bell-o',
-      items: [
-        { label: '重送開立發票通知', href: '/InvoiceProcess/IssuingNotice' },
-        { label: '重送發票中獎通知', href: '/InvoiceProcess/InquireToNotifyWinning' },
-      ]
-    },
-    {
-      label: '統計報表', icon: 'fa-bar-chart',
-      items: [
-        { label: '發票明細查詢', href: '/InvoiceQuery/InvoiceReport' },
-        { label: '發票統計表', href: '/InvoiceQuery/InvoiceSummary' },
-        { label: '中獎統計表', href: '/WinningInvoice/ReportIndex' },
-        { label: '捐贈統計表', href: '/DonatedInvoice/ReportIndex' },
-        { label: '媒體申報檔匯出', href: '/InvoiceQuery/InvoiceMediaReport' },
-        { label: '下載發票月報表', href: '/InvoiceQuery/MonthlyReport' },
-      ]
-    },
-  ],
-
-  [ROLE_SELLER]: [
-    {
-      label: '系統使用設定', icon: 'fa-wrench',
-      items: [
-        { label: '帳號管理', href: '/UserProfile/EditMySelf' },
-        { label: '營業人資料管理', href: '/UserProfile/EditMyBusiness' },
-        { label: '使用者管理', href: '/Account/AccountIndex' },
-        { label: '相對營業人資料維護', href: '/BusinessRelationship/MaintainRelationship' },
-        { label: '常用品項維護', href: '/ProductCatalog/QueryIndex' },
-      ]
-    },
-    {
-      label: '發票開立', icon: 'fa-pencil-square-o',
-      items: [
-        { label: '電子發票號碼維護', href: '/InvoiceNo/MaintainInvoiceNoInterval' },
-        { label: '線上開立發票', href: '/InvoiceBusiness/CreateInvoice' },
-        { label: '線上作廢發票', href: '/InvoiceProcess/InquireToCancel' },
-        { label: '線上開立折讓證明', href: '/InvoiceProcess/InquireToIssueAllowance' },
-        { label: '線上註銷發票', href: '/InvoiceProcess/InquireToVoid' },
-        { label: 'A0101接收待確認', href: '/InvoiceProcess/DealReceivedA0101' },
-        { label: 'A0301退回待確認', href: '/InvoiceProcess/DealReceivedA0301' },
-        { label: 'A0201接收待確認', href: '/InvoiceProcess/DealReceivedA0201' },
-        { label: 'B0101接收待確認', href: '/AllowanceProcess/DealReceivedB0101' },
-        { label: 'B0201接收待確認', href: '/AllowanceProcess/DealReceivedB0201' },
-      ]
-    },
-    {
-      label: '查詢與報表', icon: 'fa-search',
-      items: [
-        { label: '資料查詢／列印／匯出', href: '/InvoiceProcess/Index' },
-        { label: '上期發票空白號碼查詢', href: '/InvoiceNo/VacantNoIndex' },
-        { label: '發票媒體申報檔查詢', href: '/InvoiceQuery/InvoiceMediaReport' },
-        { label: '下載MIG檔案', href: '/InvoiceProcess/InquireToMIG' },
-        { label: '發票統計表', href: '/InvoiceQuery/InvoiceSummary' },
-      ]
-    },
-    {
-      label: '訊息通知', icon: 'fa-envelope-o',
-      items: [
-        { label: '重送開立發票通知', href: '/InvoiceProcess/IssuingNotice' },
-        { label: '核准重印發票', href: '/InvoiceProcess/InquireToAuthorize' },
-        { label: '工作清單', href: '/ProcessRequest/QueryIndex' },
-      ]
-    },
-  ],
-
-  [ROLE_BUYER]: [
-    {
-      label: '帳號管理', icon: 'fa-user',
-      items: [
-        { label: '帳號管理', href: '/UserProfile/EditMySelf' },
-      ]
-    },
-    {
-      label: '查詢', icon: 'fa-search',
-      items: [
-        { label: '資料查詢／列印／匯出', href: '/InvoiceProcess/InquireForIncoming' },
-      ]
-    },
-  ],
-
-  [ROLE_DATA_AUDITOR]: [
-    {
-      label: '稽核查詢', icon: 'fa-eye',
-      items: [
-        { label: '資料查詢', href: '/InvoiceAudit/QueryIndex' },
-      ]
-    },
-  ],
-}
-
-// ROLE_NETWORKSELLER, ROLE_GOOGLETW and group roles share the Member menu
-const memberMenu = [
-  {
-    label: '帳號設定', icon: 'fa-user',
-    items: [
-      { label: '帳號管理', href: '/UserProfile/EditMySelf' },
-      { label: '營業人資料管理', href: '/UserProfile/EditMyBusiness' },
-    ]
-  },
-  {
-    label: '查詢與報表', icon: 'fa-search',
-    items: [
-      { label: '資料查詢／列印／匯出', href: '/InvoiceProcess/Index' },
-      { label: '上期發票空白號碼查詢', href: '/InvoiceNo/VacantNoIndex' },
-      { label: '發票媒體申報檔查詢', href: '/InvoiceQuery/InvoiceMediaReport' },
-      { label: '下載MIG檔案', href: '/InvoiceProcess/InquireToMIG' },
-      { label: '發票統計表', href: '/InvoiceQuery/InvoiceSummary' },
-    ]
-  },
-]
-;[ROLE_NETWORKSELLER, ROLE_GOOGLETW, ROLE_GROUP_MEMBER, ROLE_RELATIVE_ENTITY, ROLE_BRANCH_ENTITY]
-  .forEach(id => { menusByRole[id] = memberMenu })
-
-const menuGroups = computed(() => {
-  const roleId = auth.user.value?.roleId
-  return roleId != null ? (menusByRole[roleId] ?? []) : []
-})
+// ─── Role-based menu ────────────────────────────────────────────────────────
+// 選單改由後台 appSettings（MenusByRole）設定，登入時依角色回傳並存入 auth store。
+// 為每個項目預先算好導航方式（spa=客戶端路由 / 否則伺服器 URL），避免在 template 內重複解析。
+const menuGroups = computed(() =>
+  (auth.menuGroups.value ?? []).map((group) => ({
+    ...group,
+    items: (group.items ?? []).map((item) => {
+      const external = isExternal(item.href)
+      const spa = !external && isSpaRoute(item.href)
+      return { ...item, external, spa, available: external || spa }
+    }),
+  })),
+)
 
 const userName = computed(() => auth.user.value?.userName ?? auth.user.value?.pid ?? '')
 const roleName = computed(() => auth.user.value?.roleName ?? '')
@@ -202,10 +62,10 @@ function toggleGroup(label) {
     <!-- ── Sidebar ─────────────────────────────────── -->
     <nav class="sidebar" aria-label="主選單">
       <div class="sidebar-header">
-        <a href="/MainPage" class="brand">
+        <router-link to="/MainPage" class="brand">
           <i class="fa fa-bolt brand-icon"></i>
           <span class="brand-text">電子發票系統</span>
-        </a>
+        </router-link>
         <button class="collapse-btn" @click="sidebarOpen = !sidebarOpen" :aria-label="sidebarOpen ? '收起選單' : '展開選單'">
           <i class="fa" :class="sidebarOpen ? 'fa-angle-left' : 'fa-angle-right'"></i>
         </button>
@@ -226,10 +86,30 @@ function toggleGroup(label) {
           <transition name="slide">
             <ul v-if="expanded[group.label]" class="nav-sub">
               <li v-for="item in group.items" :key="item.href">
-                <a :href="item.href" class="nav-sub-link">
+                <router-link v-if="item.spa" :to="item.href" class="nav-sub-link">
                   <i class="fa fa-hand-o-right sub-icon"></i>
-                  {{ item.label }}
+                  <span class="nav-sub-label">{{ item.label }}</span>
+                </router-link>
+                <a
+                  v-else-if="item.external"
+                  :href="item.href"
+                  class="nav-sub-link"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <i class="fa fa-hand-o-right sub-icon"></i>
+                  <span class="nav-sub-label">{{ item.label }}</span>
                 </a>
+                <span
+                  v-else
+                  class="nav-sub-link is-disabled"
+                  aria-disabled="true"
+                  title="功能尚未上線"
+                >
+                  <i class="fa fa-hand-o-right sub-icon"></i>
+                  <span class="nav-sub-label">{{ item.label }}</span>
+                  <span class="soon-badge">未上線</span>
+                </span>
               </li>
             </ul>
           </transition>
@@ -378,6 +258,23 @@ function toggleGroup(label) {
   text-overflow: ellipsis;
 }
 .nav-sub-link:hover { color: var(--color-text); background: rgba(59, 199, 255, 0.05); }
+.nav-sub-label { overflow: hidden; text-overflow: ellipsis; }
+
+/* 尚未上線：停用外觀，不可點擊 */
+.nav-sub-link.is-disabled { color: var(--color-muted); opacity: 0.5; cursor: not-allowed; }
+.nav-sub-link.is-disabled:hover { color: var(--color-muted); background: transparent; }
+.soon-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  line-height: 1;
+  padding: 0.15rem 0.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  color: var(--color-muted);
+  background: rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+}
 .sub-icon { font-size: 0.65rem; opacity: 0.6; flex-shrink: 0; }
 .nav-empty { padding: 1rem; color: var(--color-muted); font-size: 0.85rem; }
 

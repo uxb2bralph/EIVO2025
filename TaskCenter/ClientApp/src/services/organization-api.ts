@@ -116,6 +116,76 @@ export function queryOrganizations(
   })
 }
 
+/** 所屬經銷商下拉選項（對應後端 OrganizationAgentDto） */
+export interface OrganizationAgent {
+  /** 經銷商 CompanyID（作為 agentId 查詢值） */
+  companyId: number
+  receiptNo: string | null
+  companyName: string | null
+}
+
+/**
+ * 依關鍵字搜尋所屬經銷商候選清單（類別為經銷商的營業人），供查詢條件的 autocomplete 使用
+ * （對應後端 OrganizationQuery/Agents，遷移自舊版 InquireOrganization.cshtml 之 AgentID 下拉）。
+ * keyword 為統編前綴或名稱關鍵字；後端限制回傳筆數。
+ */
+export function getOrganizationAgents(keyword?: string): Promise<ApiResponse<OrganizationAgent[]>> {
+  return apiRequest<OrganizationAgent[]>('/OrganizationQuery/Agents', {
+    method: 'GET',
+    params: keyword ? { keyword } : {},
+  })
+}
+
+/** 主機構下拉選項（對應後端 HeadquarterDto） */
+export interface Headquarter {
+  /** 加密後的主機構 CompanyID（沿用舊版 KeyID 做法），供設為分支機構時傳遞 */
+  keyId: string | null
+  receiptNo: string | null
+  companyName: string | null
+}
+
+/**
+ * 依關鍵字搜尋主機構候選清單（已設定為主機構的營業人），供「設為分支機構」的 autocomplete 使用
+ * （對應後端 OrganizationQuery/Headquarters，遷移自舊版 Home/SearchHeadquarter）。
+ * keyword 為統編前綴或名稱關鍵字；為空時後端回傳空集合。
+ */
+export function searchHeadquarters(keyword: string): Promise<ApiResponse<Headquarter[]>> {
+  return apiRequest<Headquarter[]>('/OrganizationQuery/Headquarters', {
+    method: 'GET',
+    params: { keyword },
+  })
+}
+
+/**
+ * 將勾選的營業人設為指定主機構的分支機構
+ * （對應後端 OrganizationQuery/ApplyHeadquarter，遷移自舊版 Organization/ApplyHeadquarter）。
+ * 主機構與各分支機構均以加密 KeyID 傳遞 CompanyID。
+ */
+export function applyHeadquarter(
+  headquarterKeyId: string,
+  branchKeyIds: string[],
+): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/OrganizationQuery/ApplyHeadquarter', {
+    method: 'POST',
+    data: { headquarterKeyId, branchKeyIds },
+  })
+}
+
+/**
+ * 將來源營業人的收費標準複製到勾選的目標營業人
+ * （對應後端 OrganizationQuery/CloneBillingPlan，遷移自舊版 Organization/CloneBillingPlan）。
+ * 目標營業人原有的收費設定將被取代；來源與各目標均以加密 KeyID 傳遞 CompanyID。
+ */
+export function cloneBillingPlan(
+  sourceKeyId: string,
+  targetKeyIds: string[],
+): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/OrganizationQuery/CloneBillingPlan', {
+    method: 'POST',
+    data: { sourceKeyId, targetKeyIds },
+  })
+}
+
 /**
  * 載入單一營業人編輯資料（對應後端 OrganizationQuery/EditItem）。
  * 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
@@ -317,6 +387,62 @@ export function setB2BRelationship(keyId: string): Promise<ApiResponse<void>> {
  */
 export function commitMasterOrganization(keyId: string): Promise<ApiResponse<boolean>> {
   return apiRequest<boolean>('/OrganizationQuery/CommitMaster', {
+    method: 'POST',
+    params: { keyId },
+  })
+}
+
+/** 客製化服務設定 — SMTP 郵件伺服器（對應後端 CustomSmtpSettingsDto） */
+export interface CustomSmtpSettings {
+  keyId: string | null
+  /** 是否已有啟用中的 SMTP 設定（Disabled 視為未設定） */
+  configured: boolean
+  host: string | null
+  port: number | null
+  enableSsl: boolean | null
+  userName: string | null
+  mailFrom: string | null
+  /** 是否已設定登入密碼（密碼本身不回傳） */
+  hasPassword: boolean
+}
+
+/**
+ * 載入客製化 SMTP 設定
+ * （對應後端 OrganizationQuery/CustomSmtpSettings，遷移自舊版 Organization/CustomSettings）。
+ * 沿用舊版以加密 KeyID 傳遞 CompanyID 的做法。
+ */
+export function getCustomSmtpSettings(keyId: string): Promise<ApiResponse<CustomSmtpSettings>> {
+  return apiRequest<CustomSmtpSettings>('/OrganizationQuery/CustomSmtpSettings', {
+    method: 'GET',
+    params: { keyId },
+  })
+}
+
+/**
+ * 儲存客製化 SMTP 設定（對應後端 OrganizationQuery/CommitCustomSmtp）。
+ * password 留空表示不變更原密碼；沿用舊版以加密 KeyID 傳遞 CompanyID。
+ */
+export function commitCustomSmtp(payload: {
+  keyId: string
+  host: string
+  port: number | null
+  enableSsl: boolean
+  userName: string | null
+  password: string | null
+  mailFrom: string
+}): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/OrganizationQuery/CommitCustomSmtp', {
+    method: 'POST',
+    data: payload,
+  })
+}
+
+/**
+ * 停用客製化 SMTP 設定（對應後端 OrganizationQuery/DisableCustomSmtp）。
+ * 沿用舊版以加密 KeyID 傳遞 CompanyID。
+ */
+export function disableCustomSmtp(keyId: string): Promise<ApiResponse<void>> {
+  return apiRequest<void>('/OrganizationQuery/DisableCustomSmtp', {
     method: 'POST',
     params: { keyId },
   })

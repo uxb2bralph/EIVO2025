@@ -32,18 +32,6 @@ const invoiceTypeOptions = [
   { value: 8, label: '特種稅額計算之電子發票' },
 ]
 
-// 設定旗標（對應舊版 name="Settings" 複選）
-const settingFlags = [
-  { value: 'DisableC0401Template', label: '停用C0401系統樣板' },
-  { value: 'ForcedAuditNo', label: '單據號碼強制唯一' },
-  { value: 'IgnoreDuplicatedNo', label: '傳輸開立忽略檢核發票號碼重複' },
-  { value: 'InvoiceExchange', label: '啟用發票交換' },
-  { value: 'AllB2B', label: '只開立B2B發票' },
-  { value: 'SendAllowanceMIGManually', label: '手動傳送折讓單MIG' },
-  { value: 'InvoiceNotUploadedAlert', label: '通知發票未傳送' },
-  { value: 'HybridB2B', label: '以A0401格式寄送B2B發票' },
-]
-
 // 訊息通知旗標（對應舊版 name="NoticeStatus" 複選，值為 Naming.InvoiceNoticeStatus 位元值）
 const noticeFlags = [
   { value: 0x02, label: '寄送開立通知' }, // Issuing
@@ -85,7 +73,7 @@ function cloneToForm(src: OrganizationEdit): OrganizationEdit {
     noticeStatus: src.noticeStatus ? [...src.noticeStatus] : [],
   }
   // 以 Record 投影避免跨 union key 指派的型別問題
-  const rec = copy as Record<string, string | null>
+  const rec = copy as unknown as Record<string, string | null>
   for (const f of dateFields) {
     rec[f] = toDateInput(src[f])
   }
@@ -105,7 +93,7 @@ watch(
 function onSubmit() {
   // 日期空字串還原為 null，避免後端解析失敗
   const payload: OrganizationEdit = { ...form }
-  const rec = payload as Record<string, string | null>
+  const rec = payload as unknown as Record<string, string | null>
   for (const f of dateFields) {
     rec[f] = rec[f] ? rec[f] : null
   }

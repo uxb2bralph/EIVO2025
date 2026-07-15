@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +101,70 @@ namespace TaskCenter.Core.Services
                 PageNumber = queryDto.Page,
                 PageSize = queryDto.PageSize,
             };
+        }
+
+        public async Task<List<OrganizationAgentDto>> SearchAgentsAsync(string? keyword)
+        {
+            // autocomplete 一次最多回傳的候選筆數（避免關鍵字過短時撈回全部經銷商）。
+            const int maxResults = 20;
+
+            // 對應舊版 InquireOrganization.cshtml：取類別為「經銷商」的營業人。
+            var dealerCategory = (int)CategoryDefinition.CategoryEnum.經銷商;
+
+            var query = _unitOfWork.Context.Set<Organization>()
+                .AsNoTracking()
+                .Where(o => o.OrganizationCategory.Any(c => c.CategoryID == dealerCategory));
+
+            // 關鍵字：統編前綴或名稱包含比對（沿用查詢列表的比對慣例）。
+            var trimmed = keyword?.Trim();
+            if (!string.IsNullOrEmpty(trimmed))
+            {
+                query = query.Where(o =>
+                    o.ReceiptNo!.StartsWith(trimmed) || o.CompanyName!.Contains(trimmed));
+            }
+
+            return await query
+                .OrderBy(o => o.ReceiptNo)
+                .Take(maxResults)
+                .Select(o => new OrganizationAgentDto
+                {
+                    CompanyId = o.CompanyID,
+                    ReceiptNo = o.ReceiptNo,
+                    CompanyName = o.CompanyName,
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<HeadquarterDto>> SearchHeadquartersAsync(string? keyword)
+        {
+            // autocomplete 一次最多回傳的候選筆數。
+            const int maxResults = 20;
+
+            // 沿用舊版 Home/SearchHeadquarter：關鍵字為空時回傳空集合（items.Where(f => false)）。
+            var trimmed = keyword?.Trim();
+            if (string.IsNullOrEmpty(trimmed))
+                return new List<HeadquarterDto>();
+
+            // 對應舊版：僅取已設定為主機構（MasterOrganization != null）的營業人，
+            // 以統編前綴或名稱包含比對。
+            var items = await _unitOfWork.Context.Set<Organization>()
+                .AsNoTracking()
+                .Where(o => o.MasterOrganization != null)
+                .Where(o => o.ReceiptNo!.StartsWith(trimmed) || o.CompanyName!.Contains(trimmed))
+                .OrderBy(o => o.ReceiptNo)
+                .Take(maxResults)
+                .Select(o => new { o.CompanyID, o.ReceiptNo, o.CompanyName })
+                .ToListAsync();
+
+            // EncryptKey() 為記憶體運算，無法在 EF 查詢中翻譯，故 materialize 後逐筆填入加密 KeyID。
+            return items
+                .Select(o => new HeadquarterDto
+                {
+                    KeyId = o.CompanyID.EncryptKey(),
+                    ReceiptNo = o.ReceiptNo,
+                    CompanyName = o.CompanyName,
+                })
+                .ToList();
         }
     }
 }

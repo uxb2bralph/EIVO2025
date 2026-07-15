@@ -1,4 +1,5 @@
 ﻿using ModelCore.DTOs;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace TaskCenter.Core.DTOs
@@ -38,5 +39,11 @@ namespace TaskCenter.Core.DTOs
         /// </summary>
         [JsonPropertyName("user")]
         public UserProfileDto User { get; set; } = new();
+
+        /// <summary>
+        /// 依使用者角色解析出的側邊選單群組（供前端 DefaultLayout 直接渲染）。
+        /// </summary>
+        [JsonPropertyName("menuGroups")]
+        public List<MenuGroupDto> MenuGroups { get; set; } = new();
     }
 }

@@ -197,6 +197,14 @@ namespace TaskCenter
             // Services
             builder.Services.AddScoped<IElementaryService, ElementaryService>();
             builder.Services.AddScoped<IOrganizationQueryService, OrganizationQueryService>();
+            builder.Services.AddScoped<IUserAccountService, UserAccountService>();
+            builder.Services.AddScoped<ITrackCodeService, TrackCodeService>();
+            builder.Services.AddScoped<IWinningNumberService, WinningNumberService>();
+            builder.Services.AddScoped<IPeriodicalExchangeRateService, PeriodicalExchangeRateService>();
+            builder.Services.AddScoped<IBusinessRelationshipService, BusinessRelationshipService>();
+            builder.Services.AddScoped<IInvoiceNumberApplyService, InvoiceNumberApplyService>();
+            builder.Services.AddScoped<IInvoiceNoIntervalService, InvoiceNoIntervalService>();
+            builder.Services.AddScoped<IInvoiceProcessQueryService, InvoiceProcessQueryService>();
 
             var app = builder.Build();
 
@@ -238,6 +246,43 @@ namespace TaskCenter
                 });
 
 
+            // Serve the SPA shell (index.html) with a <base href> injected at runtime
+            // from Request.PathBase (the IIS sub-application path, e.g. "/TaskCenter").
+            // This makes the build path-agnostic: the same wwwroot works under any
+            // sub-path or the site root with no rebuild. PathBase is "" at the root,
+            // giving <base href="/" />.
+            async Task WriteSpaShellAsync(HttpContext context)
+            {
+                var pathBase = context.Request.PathBase.HasValue ? context.Request.PathBase.Value! : string.Empty;
+                var indexPath = Path.Combine(app.Environment.WebRootPath, "index.html");
+                var html = await File.ReadAllTextAsync(indexPath, Encoding.UTF8);
+                if (html.IndexOf("<base ", StringComparison.OrdinalIgnoreCase) < 0)
+                {
+                    html = html.Replace("<head>", $"<head>\r\n  <base href=\"{pathBase}/\" />");
+                }
+                context.Response.ContentType = "text/html; charset=utf-8";
+                await context.Response.WriteAsync(html, Encoding.UTF8);
+            }
+
+            // In production, intercept the shell document requests BEFORE static-file
+            // serving so the raw (un-injected) index.html is never returned. Deep links
+            // are handled by the SPA fallback below. (In development the Vite dev server
+            // serves the shell via the proxy, so no injection is needed.)
+            if (!app.Environment.IsDevelopment())
+            {
+                app.Use(async (context, next) =>
+                {
+                    var path = context.Request.Path.Value ?? string.Empty;
+                    if (HttpMethods.IsGet(context.Request.Method) &&
+                        (path == "/" || path.Equals("/index.html", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        await WriteSpaShellAsync(context);
+                        return;
+                    }
+                    await next();
+                });
+            }
+
             app.MapStaticAssets();
 
             // Execute endpoints EXPLICITLY here so that matched API/MVC endpoints run at this
@@ -271,7 +316,10 @@ namespace TaskCenter
             }
             else
             {
-                app.MapFallbackToFile("index.html");
+                // Client-side routes (e.g. /OrganizationQuery) fall through to the SPA
+                // shell, also with the runtime-injected <base href>.
+                app.MapFallback(WriteSpaShellAsync);
+                // app.MapFallbackToFile("index.html");
             }
 
             app.Run();

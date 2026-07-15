@@ -12,6 +12,7 @@ import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 
 import type { ApiResponse } from '@/interfaces/api-response'
 import { getAccessToken, isExpired } from '@/utils/token-utils'
 import { isExpiringSoon, refreshAccessToken, redirectToLogin } from '@/utils/auth-utils'
+import { appBase } from '@/utils/app-base'
 
 // 擴充 Axios 請求設定，追蹤 401 重試狀態（避免無限迴圈）
 declare module 'axios' {
@@ -27,7 +28,10 @@ declare module 'axios' {
  * 通常不直接使用，請透過 `apiRequest` / `apiDownloadBlob` 呼叫。
  */
 export const $api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? '/api',
+  // appBase is '/' in dev and the injected sub-path (e.g. '/TaskCenter/') in the
+  // IIS build, so the API base tracks the deployment path automatically
+  // (→ '/api' or '/TaskCenter/api'). appBase always ends with '/'.
+  baseURL: import.meta.env.VITE_API_BASE_URL ?? `${appBase}api`,
   timeout: 30000,
   withCredentials: true, // 傳送 HttpOnly cookie（後端優先讀取 Authorization header）
   headers: {
@@ -118,7 +122,7 @@ export async function apiRequest<T = unknown>(
   try {
     const { data: response } = await $api<ApiResponse<T>>(url, options)
     response.success = response.success ?? true // 預設 success=true（適用於非 ApiResponse 的純資料回應）
-    console.debug('[api-service] Response:', { url, method: options?.method ?? 'GET', response: response })
+    console.debug('[api-service] Response:', { url, method: options?.method ?? 'GET', response })
     return response
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.data) {

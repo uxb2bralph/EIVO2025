@@ -5,7 +5,11 @@ import { resolve } from 'path'
 
 
 export default defineConfig(({ command }) => ({
-  base: './',
+  // Path-agnostic deployment: build with a relative base so asset URLs resolve
+  // against the <base href> the server injects at runtime (from Request.PathBase).
+  // This lets the same build run under any IIS sub-path (/TaskCenter/, /Foo/, or
+  // the site root) with no rebuild. Dev server stays at root for the /api proxy.
+  base: command === 'build' ? './' : '/',
   plugins: [vue(), ...(command === 'serve' ? [VueDevTools()] : [])],
   root: '.',
   resolve: {

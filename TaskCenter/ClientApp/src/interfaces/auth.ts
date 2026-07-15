@@ -23,6 +23,21 @@ export interface LoginResultDto {
   refreshToken: string
   expiresAt: string
   user: BackendUserProfile
+  /** 後端依角色回傳的側邊選單（camelCase，可直接渲染） */
+  menuGroups: MenuGroup[]
+}
+
+/** 選單項目（對應後端 MenuItemDto） */
+export interface MenuItem {
+  label: string
+  href: string
+}
+
+/** 選單群組（對應後端 MenuGroupDto） */
+export interface MenuGroup {
+  label: string
+  icon: string
+  items: MenuItem[]
 }
 
 /** 後端 UserProfileDto（PascalCase 欄位，僅列出前端會用到的部分） */

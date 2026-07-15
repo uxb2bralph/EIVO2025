@@ -105,7 +105,24 @@ namespace TaskCenter.Core.Handlers
                 RefreshToken = refreshToken,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(GetTokenExpirationMinutes()),
                 User = userDto,
+                MenuGroups = ResolveMenus(userDto.RoleID),
             };
+        }
+
+        /// <summary>
+        /// 依角色 ID 從 <see cref="AppSettings"/> 取出對應的側邊選單設定；找不到則回傳空清單。
+        /// </summary>
+        private static List<MenuGroupDto> ResolveMenus(int? roleId)
+        {
+            if (roleId is null)
+            {
+                return new List<MenuGroupDto>();
+            }
+
+            var menus = AppSettings.Default.MenusByRole;
+            return menus != null && menus.TryGetValue(roleId.Value.ToString(), out var groups)
+                ? groups
+                : new List<MenuGroupDto>();
         }
 
         private static string HashRefreshToken(string refreshToken)
@@ -166,6 +183,7 @@ namespace TaskCenter.Core.Handlers
                     RefreshToken = newRefreshToken,
                     ExpiresAt = DateTime.UtcNow.AddMinutes(GetTokenExpirationMinutes()),
                     User = userDto,
+                    MenuGroups = ResolveMenus(userDto.RoleID),
                 };
             }
             catch (Exception ex)
@@ -218,6 +236,21 @@ namespace TaskCenter.Core.Handlers
                 new("pid", user.PID ?? string.Empty),
             };
 
+            // 角色識別：帶入使用者主要角色（UserRole）與其所屬營業人 / 類別，供 API 端做角色與資料範圍判斷。
+            // 以明確查詢取回（不依賴導覽屬性延遲載入），與 UserProfileDto.ToDto 的「第一筆角色」語意一致。
+            var roleInfo = _unitOfWork.Context.Set<UserRole>()
+                .Where(r => r.UID == user.UID)
+                .OrderBy(r => r.OrgaCateID)
+                .Select(r => new { r.RoleID, r.OrgaCate.CompanyID, r.OrgaCate.CategoryID })
+                .FirstOrDefault();
+
+            if (roleInfo != null)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, roleInfo.RoleID.ToString()));
+                claims.Add(new Claim("roleId", roleInfo.RoleID.ToString()));
+                claims.Add(new Claim("companyId", roleInfo.CompanyID.ToString()));
+                claims.Add(new Claim("categoryId", roleInfo.CategoryID.ToString()));
+            }
 
             var claimsIdentity = new ClaimsIdentity(claims);
 

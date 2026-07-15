@@ -464,9 +464,9 @@ namespace ModelCore.Helper
             {
                 Main = new Schema.TurnKey.E0402.Main
                 {
-                    HeadBan = item.Organization.Headquarter?.ReceiptNo ?? item.Organization.ReceiptNo,
+                    HeadBan = item.Organization.Headquarter?.ReceiptNo ?? item.Organization.AsInvoiceIssuer?.Where(a => a.RelationType == (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch).FirstOrDefault()?.InvoiceAgent.ReceiptNo ?? item.Organization.ReceiptNo,
                     BranchBan = item.Organization.ReceiptNo,
-                    InvoiceType = item.InvoiceTrackCode .InvoiceType == (byte)Schema.TurnKey.E0402.InvoiceTypeEnum.Item08 ? Schema.TurnKey.E0402.InvoiceTypeEnum.Item08 : Schema.TurnKey.E0402.InvoiceTypeEnum.Item07,
+                    InvoiceType = item.InvoiceTrackCode.InvoiceType == (byte)Schema.TurnKey.E0402.InvoiceTypeEnum.Item08 ? Schema.TurnKey.E0402.InvoiceTypeEnum.Item08 : Schema.TurnKey.E0402.InvoiceTypeEnum.Item07,
                     YearMonth = String.Format("{0:000}{1:00}", item.InvoiceTrackCode.Year - 1911, item.InvoiceTrackCode.PeriodNo * 2),
                     InvoiceTrack = item.InvoiceTrackCode.TrackCode
                 },

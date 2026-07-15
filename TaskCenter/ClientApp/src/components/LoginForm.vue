@@ -118,7 +118,7 @@ const onSubmit = async () => {
                   <label class="form-check-label" for="rememberMe">記住我</label>
                 </div>
                 <a href="/Account/ForgotPassword" class="text-decoration-none">
-                  Forgot password
+                  忘記密碼
                 </a>
               </div>
 
@@ -127,9 +127,8 @@ const onSubmit = async () => {
                 type="submit"
                 class="btn btn-primary w-100"
                 :disabled="state === 'submitting'"
-                @click="console.log('test...'); debugger"
               >
-                <span v-if="state !== 'submitting'">Sign In</span>
+                <span v-if="state !== 'submitting'">登入</span>
                 <span v-else class="d-inline-flex align-items-center gap-2">
                   <span
                     class="spinner-border spinner-border-sm"

@@ -206,7 +206,7 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        private int CommitIssuerAgent(Organization item, List<int>? agentID, bool masterBranch = false)
+        private int CommitIssuerAgent(Organization item, List<int>? agentID)
         {
             int result = 0;
             if (agentID != null && agentID.Count > 0)
@@ -224,9 +224,9 @@ namespace WebHome.Controllers
             if (ModelState.IsValid)
             {
                 //models!.ExecuteCommand("delete InvoiceIssuerAgent where IssuerID = {0}", item.CompanyID);
-                //if (agentID != null && agentID.Length > 0)
+                //if (issuerID != null && issuerID.Length > 0)
                 //{
-                //    foreach (var id in agentID)
+                //    foreach (var id in issuerID)
                 //    {
                 //        models.ExecuteCommand("insert InvoiceIssuerAgent (AgentID,IssuerID) values ({0},{1})", id, item.CompanyID);
                 //    }
@@ -243,12 +243,52 @@ namespace WebHome.Controllers
                         WHERE (NOT EXISTS
                                  (SELECT NULL FROM InvoiceIssuerAgent
                         WHERE (AgentID = {0}) AND (IssuerID = {1})))", id, item.CompanyID);
+                }
+            }
 
-                    if (masterBranch)
+            return result;
+        }
+
+        private int CommitIssuerMaster(Organization item, List<int>? issuerID)
+        {
+            int result = 0;
+            if (issuerID != null && issuerID.Count > 0)
+            {
+                foreach (var id in issuerID)
+                {
+                    InvoiceIssuerAgent? cycleAgent = null;
+                    if (CheckAgentCycle(id, item.CompanyID, out cycleAgent))
                     {
-                        models.ExecuteCommand(@"Update InvoiceIssuerAgent set RelationType = {2}
-                            WHERE AgentID = {0} AND IssuerID = {1}", id, item.CompanyID, (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch);
+                        ModelState.AddModelError("Message", $"發生循環經銷({cycleAgent!.InvoiceIssuer.ReceiptNo}, {cycleAgent.InvoiceIssuer.CompanyName})!!");
                     }
+                }
+            }
+
+            if (ModelState.IsValid)
+            {
+                //models!.ExecuteCommand("delete InvoiceIssuerAgent where IssuerID = {0}", item.CompanyID);
+                //if (issuerID != null && issuerID.Length > 0)
+                //{
+                //    foreach (var id in issuerID)
+                //    {
+                //        models.ExecuteCommand("insert InvoiceIssuerAgent (AgentID,IssuerID) values ({0},{1})", id, item.CompanyID);
+                //    }
+                //}
+
+                models!.ExecuteCommand(@"DELETE FROM InvoiceIssuerAgent
+                        WHERE IssuerID = {0}", item.CompanyID);
+
+                foreach (var id in issuerID!)
+                {
+                    result += models!.ExecuteCommand(@"INSERT INTO InvoiceIssuerAgent
+                             (AgentID, IssuerID)
+                        SELECT {0}, {1}
+                        WHERE (NOT EXISTS
+                                 (SELECT NULL FROM InvoiceIssuerAgent
+                        WHERE (AgentID = {0}) AND (IssuerID = {1})))", item.CompanyID, id);
+
+                    models.ExecuteCommand(@"Update InvoiceIssuerAgent set RelationType = {2}
+                            WHERE AgentID = {0} AND IssuerID = {1}", item.CompanyID, id, (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch);
                 }
             }
 
@@ -492,7 +532,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "請勾選分支機構營業人!!");
             }
 
-            int result = CommitIssuerAgent(item, viewModel.ChkItem!, true);
+            int result = CommitIssuerMaster(item, viewModel.ChkItem!);
 
             return Json(new { result = true, message = result });
         }

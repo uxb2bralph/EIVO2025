@@ -24,6 +24,7 @@ import {
 import { setTokens, clearTokens, getAccessToken } from '@/utils/token-utils'
 
 const STORAGE_KEY = 'eivo_user'
+const MENU_STORAGE_KEY = 'eivo_menu'
 
 function loadFromStorage() {
   try {
@@ -34,8 +35,19 @@ function loadFromStorage() {
   }
 }
 
+function loadMenusFromStorage() {
+  try {
+    const raw = localStorage.getItem(MENU_STORAGE_KEY)
+    const parsed = raw ? JSON.parse(raw) : null
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
 const state = reactive({
   user: loadFromStorage(),
+  menuGroups: loadMenusFromStorage(),
   loading: false,
 })
 
@@ -65,6 +77,16 @@ export function useAuthStore() {
     }
   }
 
+  /** 儲存 / 清除依角色取得的側邊選單 */
+  function setMenuGroups(groups) {
+    state.menuGroups = Array.isArray(groups) ? groups : []
+    if (state.menuGroups.length) {
+      localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(state.menuGroups))
+    } else {
+      localStorage.removeItem(MENU_STORAGE_KEY)
+    }
+  }
+
   /**
    * 登入。成功時儲存 token 與使用者資料。
    * @returns {Promise<{success: boolean, message: string, redirectUrl?: string}>}
@@ -76,6 +98,7 @@ export function useAuthStore() {
       if (res.success && res.data) {
         setTokens(res.data.accessToken, res.data.refreshToken, res.data.expiresAt)
         setUser(res.data.user)
+        setMenuGroups(res.data.menuGroups)
         return {
           success: true,
           message: res.message,
@@ -110,14 +133,17 @@ export function useAuthStore() {
     }
     clearTokens()
     setUser(null)
+    setMenuGroups([])
   }
 
   return {
     state,
     user: computed(() => state.user),
+    menuGroups: computed(() => state.menuGroups),
     isLoggedIn,
     loading: computed(() => state.loading),
     setUser,
+    setMenuGroups,
     login,
     getMe,
     logout,

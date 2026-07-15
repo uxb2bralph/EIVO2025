@@ -15,12 +15,15 @@ import {
   setTokens,
   clearTokens,
 } from '@/utils/token-utils'
+import { appBase } from '@/utils/app-base'
 
 /** token 提前刷新閾值：到期前 2 分鐘 */
 const EXPIRING_SOON_MS = 2 * 60 * 1000
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '/api'
-const LOGIN_PATH = '/Login'
+// appBase 為部署根路徑（'/' 或 '/TaskCenter2025/'），API 與登入頁 URL 都要帶上它。
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? `${appBase}api`
+/** 登入頁的「應用內」路由路徑（不含部署 base）。 */
+const LOGIN_ROUTE = '/Login'
 
 /** access token 是否即將過期（到期前 2 分鐘內）。到期時間未知時回傳 false。 */
 export function isExpiringSoon(): boolean {
@@ -84,8 +87,17 @@ async function doRefresh(): Promise<boolean> {
 export function redirectToLogin(): void {
   clearTokens()
   if (typeof window === 'undefined') return
-  if (window.location.pathname === LOGIN_PATH) return
 
-  const returnUrl = encodeURIComponent(window.location.pathname + window.location.search)
-  window.location.assign(`${LOGIN_PATH}?returnUrl=${returnUrl}`)
+  // 目前網址去掉部署 base，還原成「應用內」路由路徑（例如 /OrganizationQuery）。
+  const baseNoSlash = appBase.replace(/\/$/, '') // '' 或 '/TaskCenter2025'
+  let route = window.location.pathname
+  if (baseNoSlash && route.startsWith(baseNoSlash)) {
+    route = route.slice(baseNoSlash.length) || '/'
+  }
+  // 已在登入頁 → 不重複導向，避免迴圈。
+  if (route === LOGIN_ROUTE) return
+
+  const returnUrl = encodeURIComponent(route + window.location.search)
+  // 硬導向須帶上部署 base（appBase 結尾必為 '/'），否則會打到站台根 → 404。
+  window.location.assign(`${appBase}Login?returnUrl=${returnUrl}`)
 }
