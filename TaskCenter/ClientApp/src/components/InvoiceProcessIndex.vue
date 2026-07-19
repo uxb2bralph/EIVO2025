@@ -6,7 +6,10 @@
   延後：列印（需 QRCode 金鑰）、逐列作業（修改買受人 / 附件檔管理）。
 -->
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useInvoiceProcessIndex } from '../composables/useInvoiceProcessIndex'
+import { useTableSelection } from '../composables/useTableSelection'
+import type { InvoiceItemDatatable } from '@/services/invoice-process-api'
 import Pager from './Pager.vue'
 
 const {
@@ -58,6 +61,29 @@ const {
 function sortArrow(key: string): string {
   if (sortName.value !== key || !sortType.value) return ''
   return sortType.value === 1 ? ' ▲' : ' ▼'
+}
+
+// ── 列勾選 ──────────────────────────────────────────────────
+// 以 keyId（後端作業使用的加密鍵）為選取鍵；keyId 為 null 的列不可選。
+const { selected, allChecked, indeterminate, toggleAll, toggle, isChecked, clear } =
+  useTableSelection<InvoiceItemDatatable, string>(items, (row) => row.keyId)
+
+// 換頁 / 重新查詢後清空選取，避免殘留舊 key。
+watch(items, () => clear())
+
+function onToggleAll(e: Event) {
+  toggleAll((e.target as HTMLInputElement).checked)
+}
+function onToggleItem(row: InvoiceItemDatatable, e: Event) {
+  toggle(row, (e.target as HTMLInputElement).checked)
+}
+
+function onBatchProcess() {
+  const keys = [...selected.value]
+  if (!keys.length) return
+  // TODO: 串接後端批次處理 API（需確認 endpoint 與作業類型）。目前先顯示選取結果。
+  console.log('批次處理選取的發票 keyId：', keys)
+  window.alert(`已選取 ${keys.length} 筆，批次 API 待接。`)
 }
 </script>
 
@@ -234,10 +260,23 @@ function sortArrow(key: string): string {
       <div v-if="error" class="alert-error">{{ error }}</div>
       <div v-if="loading" class="state-msg">資料載入中…</div>
 
-      <div v-else class="table-wrap">
+      <div v-else>
+        <div class="batch-bar">
+          <span class="batch-count">已選 {{ selected.length }} 筆</span>
+          <button class="btn ghost sm" :disabled="!selected.length" @click="onBatchProcess">批次處理</button>
+        </div>
+        <div class="table-wrap">
         <table class="result-table">
           <thead>
             <tr>
+              <th class="check-col">
+                <input
+                  type="checkbox"
+                  :checked="allChecked"
+                  :indeterminate="indeterminate"
+                  @change="onToggleAll"
+                />
+              </th>
               <th class="sortable" @click="toggleSort('CompanyName')">開立發票營業人{{ sortArrow('CompanyName') }}</th>
               <th class="sortable" @click="toggleSort('ReceiptNo')">營業人統編{{ sortArrow('ReceiptNo') }}</th>
               <th class="sortable" @click="toggleSort('InvoiceNo')">發票號碼{{ sortArrow('InvoiceNo') }}</th>
@@ -267,6 +306,14 @@ function sortArrow(key: string): string {
           </thead>
           <tbody>
             <tr v-for="row in items" :key="row.invoiceId">
+              <td class="check-col">
+                <input
+                  type="checkbox"
+                  :checked="isChecked(row)"
+                  :disabled="!row.keyId"
+                  @change="onToggleItem(row, $event)"
+                />
+              </td>
               <td>{{ row.sellerName }}</td>
               <td>{{ row.sellerReceiptNo }}</td>
               <td><a class="link" @click="openDetail(row.keyId)">{{ row.invoiceNo }}</a></td>
@@ -294,10 +341,11 @@ function sortArrow(key: string): string {
               <td v-if="isAdmin">{{ row.buyerContact }}</td>
             </tr>
             <tr v-if="searched && !items.length" class="empty-row">
-              <td :colspan="isAdmin ? 25 : 23" class="state-msg">查無資料!!</td>
+              <td :colspan="isAdmin ? 26 : 24" class="state-msg">查無資料!!</td>
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- 幣別統計 -->
@@ -413,7 +461,11 @@ function sortArrow(key: string): string {
 .btn.ghost { background: transparent; border: 1px solid var(--color-border); color: var(--color-text); }
 .btn.ghost:hover:not(:disabled) { border-color: var(--color-accent); }
 .btn.sm { font-size: 0.8rem; padding: 0.3rem 0.7rem; }
+.batch-bar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.batch-count { font-size: 0.85rem; color: var(--color-muted); }
 .table-wrap { overflow-x: auto; }
+.result-table th.check-col, .result-table td.check-col { width: 1%; text-align: center; padding-right: 0.4rem; }
+.result-table td.check-col input, .result-table th.check-col input { cursor: pointer; }
 .result-table { width: 100%; border-collapse: collapse; color: var(--color-text); }
 .result-table th, .result-table td {
   padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--color-border);

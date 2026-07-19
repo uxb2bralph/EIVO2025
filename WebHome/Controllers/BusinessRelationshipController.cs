@@ -160,7 +160,7 @@ namespace WebHome.Controllers
                 }
 
                 return View("~/Views/Shared/Module/PromptFileDownload.cshtml",
-                    File(fileName, "application/octet-stream", "相對營業人(回應).xlsx"));
+                    PhysicalFile(fileName, "application/octet-stream", "相對營業人(回應).xlsx"));
 
             }
             catch (Exception ex)
