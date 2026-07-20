@@ -7,4 +7,4 @@
  *
  * 前端不需知道實際子路徑名稱，換部署路徑無須重新 build。
  */
-export const appBase = new URL(document.baseURI).pathname
+export const appBase = import.meta.env.VITE_BASE_URL ?? new URL(document.baseURI).pathname

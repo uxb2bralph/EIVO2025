@@ -82,6 +82,13 @@ const routes = [
         component: () => import('@/components/InvoiceProcessIndex.vue'),
         alias: ['/InvoiceProcessIndex'],
       },
+      // ── CreateInvoice 線上開立發票 (migrated from InvoiceBusinessController.CreateInvoice) ──
+      {
+        path: 'InvoiceBusiness/CreateInvoice',
+        name: 'CreateInvoice',
+        component: () => import('@/components/CreateInvoiceIndex.vue'),
+        alias: ['/CreateInvoice'],
+      },
       // ── OrganizationQuery (migrated from OrganizationQueryController) ──
       {
         path: 'OrganizationQuery',

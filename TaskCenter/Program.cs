@@ -205,6 +205,7 @@ namespace TaskCenter
             builder.Services.AddScoped<IInvoiceNumberApplyService, InvoiceNumberApplyService>();
             builder.Services.AddScoped<IInvoiceNoIntervalService, InvoiceNoIntervalService>();
             builder.Services.AddScoped<IInvoiceProcessQueryService, InvoiceProcessQueryService>();
+            builder.Services.AddScoped<ICreateInvoiceService, CreateInvoiceService>();
 
             var app = builder.Build();
 
