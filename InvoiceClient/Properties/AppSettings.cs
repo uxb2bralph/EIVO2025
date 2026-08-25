@@ -113,9 +113,8 @@ namespace InvoiceClient.Properties
         public string TrackCodeFolder { get; set; } = "InvoiceTrackCode";
         public string[]? TransferManager { get; set; } =
             [
-                "InvoiceClient.TransferManagement.CsvInvoiceTransferManagerV2, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
                 "InvoiceClient.TransferManagement.POSInvoiceTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* POS機整合 */
-                "InvoiceClient.TransferManagement.MIGInvoiceTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* MIG格式 */
+                "InvoiceClient.TransferManagement.MIGInvoiceTransferManagerV2, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* MIG格式 */
                 "InvoiceClient.TransferManagement.CsvInvoiceTransferManagerV2, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* CSV格式 */
                 "InvoiceClient.TransferManagement.InvoiceTransferManagerForAgent, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* XML格式 */
                 "InvoiceClient.TransferManagement.InvoiceBusinessTransferManager, InvoiceClient, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",	/* B2B相對營業人CSV格式 */

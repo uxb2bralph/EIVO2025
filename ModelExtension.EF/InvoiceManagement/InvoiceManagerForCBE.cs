@@ -48,7 +48,7 @@ namespace ModelCore.InvoiceManagement
                         if (!validator.DuplicateProcess)
                         {
                             this.EntityList.Add(newItem);
-                            //newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                            //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                             newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
                             this.SubmitChanges();

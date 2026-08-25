@@ -570,7 +570,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_DataProcessQueue_DataNotice");
         });
 
-        modelBuilder.Entity<DerivedDocument>(entity =>
+        modelBuilder.Entity<DerivedDocument>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<DerivedDocument>>)(entity =>
         {
             entity.HasKey(e => e.DocID);
 
@@ -578,15 +578,15 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.DocID).ValueGeneratedNever();
 
-            entity.HasOne(d => d.Doc).WithOne(p => p.DerivedDocumentDoc)
+            entity.HasOne(d => d.CDS_Document).WithOne(p => p.DerivedDocument)
                 .HasForeignKey<DerivedDocument>(d => d.DocID)
                 .HasConstraintName("FK_DerivedDocument_CDS_Document");
 
-            entity.HasOne(d => d.Source).WithMany(p => p.DerivedDocumentSource)
+            entity.HasOne((System.Linq.Expressions.Expression<Func<DerivedDocument, CDS_Document?>>?)(d => d.ParentDocument)).WithMany(p => p.ChildDocument)
                 .HasForeignKey(d => d.SourceID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DerivedDocument_CDS_Document1");
-        });
+        }));
 
         modelBuilder.Entity<DocumentAuthorization>(entity =>
         {
@@ -594,7 +594,7 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.DocID).ValueGeneratedNever();
 
-            entity.HasOne(d => d.Doc).WithOne(p => p.DocumentAuthorization)
+            entity.HasOne(d => d.CDS_Document).WithOne(p => p.DocumentAuthorization)
                 .HasForeignKey<DocumentAuthorization>(d => d.DocID)
                 .HasConstraintName("FK_DocumentAuthorization_CDS_Document");
         });
@@ -1041,7 +1041,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_InboxItems_MessageType");
         });
 
-        modelBuilder.Entity<InvoiceAllowance>(entity =>
+        modelBuilder.Entity<InvoiceAllowance>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<InvoiceAllowance>>)(entity =>
         {
             entity.HasKey(e => e.AllowanceID);
 
@@ -1057,13 +1057,13 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.AllowanceDate)
                 .HasComment("折讓證明單日期")
                 .HasColumnType("datetime");
-            entity.Property(e => e.AllowanceNumber)
+            entity.Property((System.Linq.Expressions.Expression<Func<InvoiceAllowance, string?>>)(e => e.AllowanceNumber))
                 .HasMaxLength(64)
                 .HasComment("折讓證明單號碼");
             entity.Property(e => e.AllowanceType).HasComment("折讓種類\r\n1:買方開立折讓證明單\r\n2:賣方折讓證明單通知\r\n");
-            entity.Property(e => e.BuyerId).HasMaxLength(10);
+            entity.Property((System.Linq.Expressions.Expression<Func<InvoiceAllowance, string?>>)(e => e.BuyerId)).HasMaxLength(10);
             entity.Property(e => e.IssueDate).HasColumnType("datetime");
-            entity.Property(e => e.SellerId).HasMaxLength(10);
+            entity.Property((System.Linq.Expressions.Expression<Func<InvoiceAllowance, string?>>)(e => e.SellerId)).HasMaxLength(10);
             entity.Property(e => e.TaxAmount)
                 .HasComment("營業稅額合計")
                 .HasColumnType("decimal(18, 5)");
@@ -1071,7 +1071,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasComment("金額(不含稅之進貨額)合計")
                 .HasColumnType("decimal(18, 5)");
 
-            entity.HasOne(d => d.Allowance).WithOne(p => p.InvoiceAllowance)
+            entity.HasOne(d => d.CDS_Document).WithOne(p => p.InvoiceAllowance)
                 .HasForeignKey<InvoiceAllowance>(d => d.AllowanceID)
                 .HasConstraintName("FK_InvoiceAllowance_CDS_Document");
 
@@ -1083,7 +1083,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.InvoiceID)
                 .HasConstraintName("FK_InvoiceAllowance_InvoiceItem");
 
-            entity.HasMany(d => d.Item).WithMany(p => p.Allowance)
+            entity.HasMany((System.Linq.Expressions.Expression<Func<InvoiceAllowance, IEnumerable<InvoiceAllowanceItem>?>>?)(d => d.InvoiceAllowanceDetails)).WithMany(p => p.Allowance)
                 .UsingEntity<Dictionary<string, object>>(
                     "InvoiceAllowanceDetails",
                     r => r.HasOne<InvoiceAllowanceItem>().WithMany()
@@ -1098,7 +1098,7 @@ public partial class ApplicationDbContext : DbContext
                         j.HasKey("AllowanceID", "ItemID");
                         j.ToTable(tb => tb.HasComment("折讓證明單明細檔"));
                     });
-        });
+        }));
 
         modelBuilder.Entity<InvoiceAllowanceBuyer>(entity =>
         {
@@ -1477,7 +1477,7 @@ public partial class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_InvoiceIssurerAgent_Organization");
 
-            entity.HasOne(d => d.Issuer).WithMany(p => p.InvoiceIssuerAgentIssuer)
+            entity.HasOne(d => d.Issuer).WithMany(p => p.AsInvoiceIssuer)
                 .HasForeignKey(d => d.IssuerID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_InvoiceIssurerAgent_Organization1");
@@ -1553,11 +1553,11 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.DonationID)
                 .HasConstraintName("FK_InvoiceItem_Organization1");
 
-            entity.HasOne(d => d.Invoice).WithOne(p => p.InvoiceItem)
+            entity.HasOne(d => d.CDS_Document).WithOne(p => p.InvoiceItem)
                 .HasForeignKey<InvoiceItem>(d => d.InvoiceID)
                 .HasConstraintName("FK_InvoiceItem_CDS_Document");
 
-            entity.HasOne(d => d.Seller).WithMany(p => p.InvoiceItemSeller)
+            entity.HasOne(d => d.Seller).WithMany(p => p.InvoiceItems)
                 .HasForeignKey(d => d.SellerID)
                 .HasConstraintName("FK_InvoiceItem_Organization");
 
@@ -2649,7 +2649,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_ReceiptDetail_ReceiptItem");
         });
 
-        modelBuilder.Entity<ReceiptItem>(entity =>
+        modelBuilder.Entity<ReceiptItem>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ReceiptItem>>)(entity =>
         {
             entity.HasKey(e => e.ReceiptID);
 
@@ -2671,7 +2671,7 @@ public partial class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ReceiptItem_Organization1");
 
-            entity.HasOne(d => d.Receipt).WithOne(p => p.ReceiptItem)
+            entity.HasOne((System.Linq.Expressions.Expression<Func<ReceiptItem, CDS_Document?>>?)(d => d.CDS_Document)).WithOne(p => p.ReceiptItem)
                 .HasForeignKey<ReceiptItem>(d => d.ReceiptID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ReceiptItem_CDS_Document");
@@ -2680,7 +2680,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.SellerID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ReceiptItem_Organization");
-        });
+        }));
 
         modelBuilder.Entity<ReplicationNotification>(entity =>
         {
@@ -2789,7 +2789,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.WinningNO).HasMaxLength(16);
         });
 
-        modelBuilder.Entity<UserAuth>(entity =>
+        modelBuilder.Entity<UserAuth>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<UserAuth>>)(entity =>
         {
             entity.HasKey(e => e.AuthID);
 
@@ -2797,10 +2797,10 @@ public partial class ApplicationDbContext : DbContext
 
             entity.Property(e => e.Thumbprint).HasMaxLength(256);
 
-            entity.HasOne(d => d.UIDNavigation).WithMany(p => p.UserAuth)
+            entity.HasOne((System.Linq.Expressions.Expression<Func<UserAuth, UserProfile?>>?)(d => d.UserProfile)).WithMany(p => p.UserAuth)
                 .HasForeignKey(d => d.UID)
                 .HasConstraintName("FK_UserAuth_UserProfile");
-        });
+        }));
 
         modelBuilder.Entity<UserInbox>(entity =>
         {
@@ -2956,7 +2956,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasConstraintName("FK_UserProfileProperty_UserProfile");
         });
 
-        modelBuilder.Entity<UserProfileStatus>(entity =>
+        modelBuilder.Entity<UserProfileStatus>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<UserProfileStatus>>)(entity =>
         {
             entity.HasKey(e => e.UID);
 
@@ -2968,28 +2968,28 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.CurrentLevel)
                 .HasConstraintName("FK_UserProfileStatus_LevelExpression");
 
-            entity.HasOne(d => d.UIDNavigation).WithOne(p => p.UserProfileStatus)
+            entity.HasOne((System.Linq.Expressions.Expression<Func<UserProfileStatus, UserProfile?>>?)(d => d.UserProfile)).WithOne(p => p.UserProfileStatus)
                 .HasForeignKey<UserProfileStatus>(d => d.UID)
                 .HasConstraintName("FK_UserProfileStatus_UserProfile");
-        });
+        }));
 
-        modelBuilder.Entity<UserRole>(entity =>
+        modelBuilder.Entity<UserRole>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<UserRole>>)(entity =>
         {
             entity.HasKey(e => new { e.UID, e.RoleID, e.OrgaCateID });
 
-            entity.HasOne(d => d.OrgaCate).WithMany(p => p.UserRole)
+            entity.HasOne(d => d.OrganizationCategory).WithMany(p => p.UserRole)
                 .HasForeignKey(d => d.OrgaCateID)
                 .HasConstraintName("FK_UserRole_OrganizationCategory");
 
-            entity.HasOne(d => d.Role).WithMany(p => p.UserRole)
+            entity.HasOne(d => d.UserRoleDefinition).WithMany(p => p.UserRole)
                 .HasForeignKey(d => d.RoleID)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserRole_UserRoleDefinition");
 
-            entity.HasOne(d => d.UIDNavigation).WithMany(p => p.UserRole)
+            entity.HasOne((System.Linq.Expressions.Expression<Func<UserRole, UserProfile?>>?)(d => d.UserProfile)).WithMany(p => p.UserRole)
                 .HasForeignKey(d => d.UID)
                 .HasConstraintName("FK_UserRole_UserProfile");
-        });
+        }));
 
         modelBuilder.Entity<UserRoleDefinition>(entity =>
         {
@@ -3002,7 +3002,7 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.SiteMenu).HasMaxLength(64);
         });
 
-        modelBuilder.Entity<UserToken>(entity =>
+        modelBuilder.Entity<UserToken>((Action<Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<UserToken>>)(entity =>
         {
             entity.HasKey(e => e.Token);
 
@@ -3010,12 +3010,12 @@ public partial class ApplicationDbContext : DbContext
             entity.Property(e => e.LogonTime)
                 .HasDefaultValueSql("(getdate())", "DF_UserToken_LogonTime")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Thumbprint).HasMaxLength(256);
+            entity.Property((System.Linq.Expressions.Expression<Func<UserToken, string?>>)(e => e.Thumbprint)).HasMaxLength(256);
 
-            entity.HasOne(d => d.UIDNavigation).WithMany(p => p.UserToken)
+            entity.HasOne((System.Linq.Expressions.Expression<Func<UserToken, UserProfile?>>?)(d => d.UserProfile)).WithMany(p => p.UserToken)
                 .HasForeignKey(d => d.UID)
                 .HasConstraintName("FK_UserToken_UserProfile");
-        });
+        }));
 
         modelBuilder.Entity<VacantInvoiceNo>(entity =>
         {

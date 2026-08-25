@@ -177,12 +177,13 @@ namespace WebHome.Controllers
 
             IQueryable<BusinessRelationship> items;
             IQueryable<Organization> masterItems, orgItems;
-            viewModel.PromptBusinessRelationship(models, out items, out masterItems, out orgItems);
+            viewModel.PromptBusinessRelationship(models!, out items, out masterItems, out orgItems);
 
             var profile = HttpContext.GetUser();
             if (!profile.IsSystemAdmin())
             {
-                items = items.Where(r => r.MasterID == profile.CurrentUserRole.OrganizationCategory.CompanyID);
+                var sellerItems = profile.InitializeOrganizationQuery(models!);
+                masterItems = masterItems.Where(i => sellerItems.Any(s => s.CompanyID == i.CompanyID));
             }
 
             viewModel.CompanyName = viewModel.CompanyName.GetEfficientString();
@@ -410,7 +411,7 @@ namespace WebHome.Controllers
 
             if (!viewModel.CompanyID.HasValue)
             {
-                ModelState.AddModelError("CompanyID", "請先建立集團成員!!");
+                ModelState.AddModelError("CompanyID", "請先建立主營業人!!");
             }
             else if (!viewModel.BusinessType.HasValue)
             {
@@ -450,7 +451,7 @@ namespace WebHome.Controllers
 
             if (!viewModel.CompanyID.HasValue)
             {
-                ModelState.AddModelError("CompanyID", "請先建立集團成員!!");
+                ModelState.AddModelError("CompanyID", "請先建立主營業人!!");
             }
             else if (!viewModel.BusinessType.HasValue)
             {
@@ -486,7 +487,7 @@ namespace WebHome.Controllers
 
             if (!viewModel.CompanyID.HasValue)
             {
-                ModelState.AddModelError("CompanyID", "請先建立集團成員!!");
+                ModelState.AddModelError("CompanyID", "請先建立主營業人!!");
             }
             else if (!viewModel.BusinessType.HasValue)
             {

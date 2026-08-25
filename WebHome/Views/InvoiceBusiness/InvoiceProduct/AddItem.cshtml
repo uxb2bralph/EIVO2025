@@ -28,21 +28,44 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
 
     IQueryable<ProductCatalog> items = models.FilterProductCatalogByRole(_profile, models.GetTable<ProductCatalog>());
+    String? _quickSearch = items.Count() > 0 ? "uiInvoice.quickSearch(this);" : null;
 
+    // 編輯時由 InvoiceViewModel 帶入既有明細列；無資料時維持單一空白列（開立流程原行為）
+    InvoiceViewModel? _inv = ViewBag.ViewModel as InvoiceViewModel;
+    int _rowCount = _inv?.Brief?.Length ?? 0;
+    bool _hasData = _rowCount > 0;
+    int _renderCount = _hasData ? _rowCount : 1;
+
+    Func<int, object?> _itemNo = i => _hasData && _inv!.ItemNo != null && i < _inv.ItemNo.Length ? _inv.ItemNo[i] : null;
+    Func<int, object?> _brief = i => _hasData && _inv!.Brief != null && i < _inv.Brief.Length ? _inv.Brief[i] : null;
+    Func<int, object> _piece = i => _hasData && _inv!.Piece != null && i < _inv.Piece.Length && _inv.Piece[i].HasValue ? _inv.Piece[i]! : (object)1;
+    Func<int, object> _unitCost = i => _hasData && _inv!.UnitCost != null && i < _inv.UnitCost.Length && _inv.UnitCost[i].HasValue ? _inv.UnitCost[i]! : (object)1;
+    Func<int, object?> _costAmount = i => _hasData && _inv!.CostAmount != null && i < _inv.CostAmount.Length ? _inv.CostAmount[i] : null;
+    Func<int, object?> _itemRemark = i => _hasData && _inv!.ItemRemark != null && i < _inv.ItemRemark.Length ? _inv.ItemRemark[i] : null;
 }
 
-<tr>
-    <td><input class="form-control" name="ItemNo" type="text" /></td>
-    <td>
-        <input class="form-control" name="Brief" onclick="@(items.Count()>0 ? "uiInvoice.quickSearch(this);" : null)" required type="text" placeholder="請輸入品名!!" />
-    </td>
-    <td><input class="form-control" name="Piece" type="number" required min="1" step="1" value="1" placeholder="請輸入件數!!" /></td>
-    <td><input class="form-control" name="UnitCost" type="number" required min="1" step="1" value="1" placeholder="請輸入單價!!" /></td>
-    <td><input class="form-control" name="CostAmount" type="number" /></td>
-    <td><input class="form-control" name="ItemRemark" type="text" /></td>
-    <td>
-        <button type="button" class="btn" onclick="uiInvoice.addRow();">新增</button>
-    </td>
-</tr>
+@for (int i = 0; i < _renderCount; i++)
+{
+    <tr>
+        <td><input class="form-control" name="ItemNo" type="text" value="@(_itemNo(i))" /></td>
+        <td>
+            <input class="form-control" name="Brief" onclick="@_quickSearch" required type="text" placeholder="請輸入品名!!" value="@(_brief(i))" />
+        </td>
+        <td><input class="form-control" name="Piece" type="number" required min="1" step="1" value="@(_piece(i))" placeholder="請輸入件數!!" /></td>
+        <td><input class="form-control" name="UnitCost" type="number" required min="1" step="1" value="@(_unitCost(i))" placeholder="請輸入單價!!" /></td>
+        <td><input class="form-control" name="CostAmount" type="number" value="@(_costAmount(i))" /></td>
+        <td><input class="form-control" name="ItemRemark" type="text" value="@(_itemRemark(i))" /></td>
+        <td>
+            @if (i == _renderCount - 1)
+            {
+                <button type="button" class="btn" onclick="uiInvoice.addRow();">新增</button>
+            }
+            else
+            {
+                <a class="btn" onclick="uiInvoice.deleteRow();">刪除</a>
+            }
+        </td>
+    </tr>
+}
 
 

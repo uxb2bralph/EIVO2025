@@ -206,7 +206,7 @@
                     this.clear();
                     var $formData = $form.serializeObject();
                     $formData.buyerReceiptNo = '@(_viewModel.BuyerReceiptNo)';
-                    $formData.buyerName = '@(_viewModel.BuyerName)';
+                    $formData.buyerName = '@Html.Raw(_viewModel.BuyerName)';
                     $formData.ProcessType = '@(_viewModel.ProcessType)';
                     $formData.KeyID = '@Html.Raw(seller.CompanyID.EncryptKey())';
                     toArrayField($formData, 'OriginalInvoiceDate');

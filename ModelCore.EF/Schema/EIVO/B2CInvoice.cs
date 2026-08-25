@@ -24,23 +24,68 @@ namespace ModelCore.Schema.EIVO {
     [System.Xml.Serialization.XmlRootAttribute(Namespace="", IsNullable=false)]
     public partial class InvoiceRoot {
         
-        /// <remarks/>
-        public string CompanyBan;
+        private string companyBanField;
+        
+        private InvoiceRootInvoice[] invoiceField;
+        
+        private System.Nullable<short> notificationField;
+        
+        private bool notificationFieldSpecified;
+        
+        private string processTypeField;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Invoice")]
-        public InvoiceRootInvoice[] Invoice;
+        public string CompanyBan {
+            get {
+                return this.companyBanField;
+            }
+            set {
+                this.companyBanField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
+        public InvoiceRootInvoice[] Invoice {
+            get {
+                return this.invoiceField;
+            }
+            set {
+                this.invoiceField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<short> Notification;
+        public System.Nullable<short> Notification {
+            get {
+                return this.notificationField;
+            }
+            set {
+                this.notificationField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool NotificationSpecified;
+        public bool NotificationSpecified {
+            get {
+                return this.notificationFieldSpecified;
+            }
+            set {
+                this.notificationFieldSpecified = value;
+            }
+        }
         
         /// <remarks/>
-        public string ProcessType;
+        public string ProcessType {
+            get {
+                return this.processTypeField;
+            }
+            set {
+                this.processTypeField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -51,159 +96,595 @@ namespace ModelCore.Schema.EIVO {
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
     public partial class InvoiceRootInvoice {
         
-        /// <remarks/>
-        public string InvoiceNumber;
+        private System.Nullable<int> invoiceIDField;
         
-        /// <remarks/>
-        public string InvoiceDate;
+        private string invoiceNumberField;
         
-        /// <remarks/>
-        public string InvoiceTime;
+        private string invoiceDateField;
         
-        /// <remarks/>
-        public string DataNumber;
+        private string invoiceTimeField;
         
-        /// <remarks/>
-        public string DataDate;
+        private string dataNumberField;
         
-        /// <remarks/>
-        public string GoogleId;
+        private string dataDateField;
         
-        /// <remarks/>
-        public string SellerId;
+        private string googleIdField;
         
-        /// <remarks/>
-        public string BuyerName;
+        private string sellerIdField;
         
-        /// <remarks/>
-        public string BuyerId;
+        private string buyerNameField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<byte> BuyerMark;
+        private string buyerIdField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<byte> CustomsClearanceMark;
+        private System.Nullable<byte> buyerMarkField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool CustomsClearanceMarkSpecified;
+        private System.Nullable<byte> customsClearanceMarkField;
         
-        /// <remarks/>
-        public string InvoiceType;
+        private bool customsClearanceMarkFieldSpecified;
         
-        /// <remarks/>
-        public string DonateMark;
+        private string invoiceTypeField;
         
-        /// <remarks/>
-        public string CarrierType;
+        private string donateMarkField;
         
-        /// <remarks/>
-        public string CarrierId1;
+        private string carrierTypeField;
         
-        /// <remarks/>
-        public string CarrierId2;
+        private string carrierId1Field;
         
-        /// <remarks/>
-        public string PrintMark;
+        private string carrierId2Field;
         
-        /// <remarks/>
-        public string NPOBAN;
+        private string printMarkField;
         
-        /// <remarks/>
-        public string RandomNumber;
+        private string nPOBANField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Invoice")]
-        public InvoiceRootInvoiceInvoiceItem[] InvoiceItem;
+        private string randomNumberField;
         
-        /// <remarks/>
-        public decimal SalesAmount;
+        private InvoiceRootInvoiceInvoiceItem[] invoiceItemField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<decimal> FreeTaxSalesAmount;
+        private decimal salesAmountField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool FreeTaxSalesAmountSpecified;
+        private System.Nullable<decimal> freeTaxSalesAmountField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<decimal> ZeroTaxSalesAmount;
+        private bool freeTaxSalesAmountFieldSpecified;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool ZeroTaxSalesAmountSpecified;
+        private System.Nullable<decimal> zeroTaxSalesAmountField;
         
-        /// <remarks/>
-        public byte TaxType;
+        private bool zeroTaxSalesAmountFieldSpecified;
         
-        /// <remarks/>
-        public decimal TaxRate;
+        private byte taxTypeField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool TaxRateSpecified;
+        private decimal taxRateField;
         
-        /// <remarks/>
-        public decimal TaxAmount;
+        private bool taxRateFieldSpecified;
         
-        /// <remarks/>
-        public decimal TotalAmount;
+        private decimal taxAmountField;
         
-        /// <remarks/>
-        public string Currency;
+        private decimal totalAmountField;
         
-        /// <remarks/>
-        public decimal DiscountAmount;
+        private string currencyField;
         
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool DiscountAmountSpecified;
+        private decimal discountAmountField;
         
-        /// <remarks/>
-        public string CustomerID;
+        private bool discountAmountFieldSpecified;
         
-        /// <remarks/>
-        public string DataSequenceNo;
+        private string customerIDField;
         
-        /// <remarks/>
-        public string ContactName;
+        private string dataSequenceNoField;
         
-        /// <remarks/>
-        public string EMail;
+        private string contactNameField;
         
-        /// <remarks/>
-        public string Address;
+        private string eMailField;
         
-        /// <remarks/>
-        public string Phone;
+        private string addressField;
         
-        /// <remarks/>
-        public string MainRemark;
+        private string phoneField;
         
-        /// <remarks/>
-        public InvoiceRootInvoiceContact Contact;
+        private string mainRemarkField;
         
-        /// <remarks/>
-        public InvoiceRootInvoiceCustomerDefined CustomerDefined;
+        private InvoiceRootInvoiceContact contactField;
+        
+        private InvoiceRootInvoiceCustomerDefined customerDefinedField;
+        
+        private System.Nullable<int> lineNoField;
+        
+        private bool lineNoFieldSpecified;
+        
+        private System.Nullable<byte> bondedAreaConfirmField;
+        
+        private string zeroTaxRateReasonField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<int> LineNo;
+        public System.Nullable<int> InvoiceID {
+            get {
+                return this.invoiceIDField;
+            }
+            set {
+                this.invoiceIDField = value;
+            }
+        }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool LineNoSpecified;
+        public string InvoiceNumber {
+            get {
+                return this.invoiceNumberField;
+            }
+            set {
+                this.invoiceNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string InvoiceDate {
+            get {
+                return this.invoiceDateField;
+            }
+            set {
+                this.invoiceDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string InvoiceTime {
+            get {
+                return this.invoiceTimeField;
+            }
+            set {
+                this.invoiceTimeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DataNumber {
+            get {
+                return this.dataNumberField;
+            }
+            set {
+                this.dataNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DataDate {
+            get {
+                return this.dataDateField;
+            }
+            set {
+                this.dataDateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string GoogleId {
+            get {
+                return this.googleIdField;
+            }
+            set {
+                this.googleIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string SellerId {
+            get {
+                return this.sellerIdField;
+            }
+            set {
+                this.sellerIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string BuyerName {
+            get {
+                return this.buyerNameField;
+            }
+            set {
+                this.buyerNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string BuyerId {
+            get {
+                return this.buyerIdField;
+            }
+            set {
+                this.buyerIdField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<byte> BondedAreaConfirm;
+        public System.Nullable<byte> BuyerMark {
+            get {
+                return this.buyerMarkField;
+            }
+            set {
+                this.buyerMarkField = value;
+            }
+        }
         
         /// <remarks/>
-        public string ZeroTaxRateReason;
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<byte> CustomsClearanceMark {
+            get {
+                return this.customsClearanceMarkField;
+            }
+            set {
+                this.customsClearanceMarkField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool CustomsClearanceMarkSpecified {
+            get {
+                return this.customsClearanceMarkFieldSpecified;
+            }
+            set {
+                this.customsClearanceMarkFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string InvoiceType {
+            get {
+                return this.invoiceTypeField;
+            }
+            set {
+                this.invoiceTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DonateMark {
+            get {
+                return this.donateMarkField;
+            }
+            set {
+                this.donateMarkField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CarrierType {
+            get {
+                return this.carrierTypeField;
+            }
+            set {
+                this.carrierTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CarrierId1 {
+            get {
+                return this.carrierId1Field;
+            }
+            set {
+                this.carrierId1Field = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CarrierId2 {
+            get {
+                return this.carrierId2Field;
+            }
+            set {
+                this.carrierId2Field = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PrintMark {
+            get {
+                return this.printMarkField;
+            }
+            set {
+                this.printMarkField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string NPOBAN {
+            get {
+                return this.nPOBANField;
+            }
+            set {
+                this.nPOBANField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string RandomNumber {
+            get {
+                return this.randomNumberField;
+            }
+            set {
+                this.randomNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("InvoiceItem")]
+        public InvoiceRootInvoiceInvoiceItem[] InvoiceItem {
+            get {
+                return this.invoiceItemField;
+            }
+            set {
+                this.invoiceItemField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public decimal SalesAmount {
+            get {
+                return this.salesAmountField;
+            }
+            set {
+                this.salesAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<decimal> FreeTaxSalesAmount {
+            get {
+                return this.freeTaxSalesAmountField;
+            }
+            set {
+                this.freeTaxSalesAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool FreeTaxSalesAmountSpecified {
+            get {
+                return this.freeTaxSalesAmountFieldSpecified;
+            }
+            set {
+                this.freeTaxSalesAmountFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<decimal> ZeroTaxSalesAmount {
+            get {
+                return this.zeroTaxSalesAmountField;
+            }
+            set {
+                this.zeroTaxSalesAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool ZeroTaxSalesAmountSpecified {
+            get {
+                return this.zeroTaxSalesAmountFieldSpecified;
+            }
+            set {
+                this.zeroTaxSalesAmountFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        public byte TaxType {
+            get {
+                return this.taxTypeField;
+            }
+            set {
+                this.taxTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public decimal TaxRate {
+            get {
+                return this.taxRateField;
+            }
+            set {
+                this.taxRateField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool TaxRateSpecified {
+            get {
+                return this.taxRateFieldSpecified;
+            }
+            set {
+                this.taxRateFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        public decimal TaxAmount {
+            get {
+                return this.taxAmountField;
+            }
+            set {
+                this.taxAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public decimal TotalAmount {
+            get {
+                return this.totalAmountField;
+            }
+            set {
+                this.totalAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Currency {
+            get {
+                return this.currencyField;
+            }
+            set {
+                this.currencyField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public decimal DiscountAmount {
+            get {
+                return this.discountAmountField;
+            }
+            set {
+                this.discountAmountField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool DiscountAmountSpecified {
+            get {
+                return this.discountAmountFieldSpecified;
+            }
+            set {
+                this.discountAmountFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string CustomerID {
+            get {
+                return this.customerIDField;
+            }
+            set {
+                this.customerIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string DataSequenceNo {
+            get {
+                return this.dataSequenceNoField;
+            }
+            set {
+                this.dataSequenceNoField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ContactName {
+            get {
+                return this.contactNameField;
+            }
+            set {
+                this.contactNameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string EMail {
+            get {
+                return this.eMailField;
+            }
+            set {
+                this.eMailField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Address {
+            get {
+                return this.addressField;
+            }
+            set {
+                this.addressField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Phone {
+            get {
+                return this.phoneField;
+            }
+            set {
+                this.phoneField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string MainRemark {
+            get {
+                return this.mainRemarkField;
+            }
+            set {
+                this.mainRemarkField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public InvoiceRootInvoiceContact Contact {
+            get {
+                return this.contactField;
+            }
+            set {
+                this.contactField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public InvoiceRootInvoiceCustomerDefined CustomerDefined {
+            get {
+                return this.customerDefinedField;
+            }
+            set {
+                this.customerDefinedField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<int> LineNo {
+            get {
+                return this.lineNoField;
+            }
+            set {
+                this.lineNoField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool LineNoSpecified {
+            get {
+                return this.lineNoFieldSpecified;
+            }
+            set {
+                this.lineNoFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
+        public System.Nullable<byte> BondedAreaConfirm {
+            get {
+                return this.bondedAreaConfirmField;
+            }
+            set {
+                this.bondedAreaConfirmField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string ZeroTaxRateReason {
+            get {
+                return this.zeroTaxRateReasonField;
+            }
+            set {
+                this.zeroTaxRateReasonField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -214,37 +695,127 @@ namespace ModelCore.Schema.EIVO {
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
     public partial class InvoiceRootInvoiceInvoiceItem {
         
-        /// <remarks/>
-        public string Description;
+        private string descriptionField;
+        
+        private decimal quantityField;
+        
+        private string unitField;
+        
+        private decimal unitPriceField;
+        
+        private decimal amountField;
+        
+        private short sequenceNumberField;
+        
+        private string itemField;
+        
+        private string remarkField;
+        
+        private System.Nullable<byte> taxTypeField;
+        
+        private bool taxTypeFieldSpecified;
         
         /// <remarks/>
-        public decimal Quantity;
+        public string Description {
+            get {
+                return this.descriptionField;
+            }
+            set {
+                this.descriptionField = value;
+            }
+        }
         
         /// <remarks/>
-        public string Unit;
+        public decimal Quantity {
+            get {
+                return this.quantityField;
+            }
+            set {
+                this.quantityField = value;
+            }
+        }
         
         /// <remarks/>
-        public decimal UnitPrice;
+        public string Unit {
+            get {
+                return this.unitField;
+            }
+            set {
+                this.unitField = value;
+            }
+        }
         
         /// <remarks/>
-        public decimal Amount;
+        public decimal UnitPrice {
+            get {
+                return this.unitPriceField;
+            }
+            set {
+                this.unitPriceField = value;
+            }
+        }
         
         /// <remarks/>
-        public short SequenceNumber;
+        public decimal Amount {
+            get {
+                return this.amountField;
+            }
+            set {
+                this.amountField = value;
+            }
+        }
         
         /// <remarks/>
-        public string Item;
+        public short SequenceNumber {
+            get {
+                return this.sequenceNumberField;
+            }
+            set {
+                this.sequenceNumberField = value;
+            }
+        }
         
         /// <remarks/>
-        public string Remark;
+        public string Item {
+            get {
+                return this.itemField;
+            }
+            set {
+                this.itemField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Remark {
+            get {
+                return this.remarkField;
+            }
+            set {
+                this.remarkField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<byte> TaxType;
+        public System.Nullable<byte> TaxType {
+            get {
+                return this.taxTypeField;
+            }
+            set {
+                this.taxTypeField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool TaxTypeSpecified;
+        public bool TaxTypeSpecified {
+            get {
+                return this.taxTypeFieldSpecified;
+            }
+            set {
+                this.taxTypeFieldSpecified = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -255,17 +826,53 @@ namespace ModelCore.Schema.EIVO {
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
     public partial class InvoiceRootInvoiceContact {
         
-        /// <remarks/>
-        public string Name;
+        private string nameField;
+        
+        private string addressField;
+        
+        private string tELField;
+        
+        private string emailField;
         
         /// <remarks/>
-        public string Address;
+        public string Name {
+            get {
+                return this.nameField;
+            }
+            set {
+                this.nameField = value;
+            }
+        }
         
         /// <remarks/>
-        public string TEL;
+        public string Address {
+            get {
+                return this.addressField;
+            }
+            set {
+                this.addressField = value;
+            }
+        }
         
         /// <remarks/>
-        public string Email;
+        public string TEL {
+            get {
+                return this.tELField;
+            }
+            set {
+                this.tELField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string Email {
+            get {
+                return this.emailField;
+            }
+            set {
+                this.emailField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -276,23 +883,68 @@ namespace ModelCore.Schema.EIVO {
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
     public partial class InvoiceRootInvoiceCustomerDefined {
         
-        /// <remarks/>
-        public string ProjectNo;
+        private string projectNoField;
+        
+        private string purchaseNoField;
+        
+        private System.Nullable<short> stampDutyFlagField;
+        
+        private bool stampDutyFlagFieldSpecified;
+        
+        private InvoiceRootInvoiceCustomerDefinedPayment[] paymentField;
         
         /// <remarks/>
-        public string PurchaseNo;
+        public string ProjectNo {
+            get {
+                return this.projectNoField;
+            }
+            set {
+                this.projectNoField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public string PurchaseNo {
+            get {
+                return this.purchaseNoField;
+            }
+            set {
+                this.purchaseNoField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(IsNullable=true)]
-        public System.Nullable<short> StampDutyFlag;
+        public System.Nullable<short> StampDutyFlag {
+            get {
+                return this.stampDutyFlagField;
+            }
+            set {
+                this.stampDutyFlagField = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool StampDutyFlagSpecified;
+        public bool StampDutyFlagSpecified {
+            get {
+                return this.stampDutyFlagFieldSpecified;
+            }
+            set {
+                this.stampDutyFlagFieldSpecified = value;
+            }
+        }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("Payment")]
-        public InvoiceRootInvoiceCustomerDefinedPayment[] Payment;
+        public InvoiceRootInvoiceCustomerDefinedPayment[] Payment {
+            get {
+                return this.paymentField;
+            }
+            set {
+                this.paymentField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -303,10 +955,28 @@ namespace ModelCore.Schema.EIVO {
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
     public partial class InvoiceRootInvoiceCustomerDefinedPayment {
         
-        /// <remarks/>
-        public string Method;
+        private string methodField;
+        
+        private decimal amountField;
         
         /// <remarks/>
-        public decimal Amount;
+        public string Method {
+            get {
+                return this.methodField;
+            }
+            set {
+                this.methodField = value;
+            }
+        }
+        
+        /// <remarks/>
+        public decimal Amount {
+            get {
+                return this.amountField;
+            }
+            set {
+                this.amountField = value;
+            }
+        }
     }
 }

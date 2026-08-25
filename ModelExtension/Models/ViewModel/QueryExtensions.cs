@@ -346,6 +346,7 @@ namespace ModelCore.Models.ViewModel
         public static IQueryable<InvoiceItem> QueryEffective(this IQueryable<InvoiceItem> items, InquireInvoiceViewModel? viewModel, GenericManager<EIVOEntityDataContext> models, ref bool effective)
         {
             viewModel ??= new InquireInvoiceViewModel { };
+            items = items.Where(i => i.CDS_Document.DocType == (int)Naming.DocumentTypeDefinition.E_Invoice);
             if (viewModel.Cancelled.HasValue)
             {
                 if (viewModel.Cancelled == true)

@@ -98,7 +98,10 @@ namespace InvoiceClient.Agent.POSHelper
                 };
 
                 var preparedDoc = prepared.ConvertToXml();
-                preparedDoc.Save(Path.Combine(POSReady.Settings.PreparedInvoice, $"{Guid.NewGuid()}.xml"));
+                if(POSReady.Settings.UserPOSPrinter)
+                {
+                    preparedDoc.Save(Path.Combine(POSReady.Settings.PreparedInvoice, $"{Guid.NewGuid()}.xml"));
+                }
                 preparedDoc.Save(Path.Combine(POSReady.Settings.SellerInvoice, $"{Guid.NewGuid()}.xml"));
 
             }
@@ -167,7 +170,7 @@ namespace InvoiceClient.Agent.POSHelper
                                     invItem.CarrierType = InvoiceRootInvoiceValidator.__CELLPHONE_BARCODE;
                                 }
                             }
-                            else
+                            else if(invItem.RandomNumber == null || POSReady.Settings.UserPOSPrinter)
                             {
                                 invItem.RandomNumber = issue.random;
                             }

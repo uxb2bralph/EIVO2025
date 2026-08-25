@@ -65,6 +65,34 @@ namespace WebHome.Controllers
         public ActionResult ByInvoiceDate(InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
+
+            if (!viewModel.InvoiceDateFrom.HasValue)
+            {
+                ModelState.AddModelError("InvoiceDateFrom", "請輸入查詢起日");
+            }
+
+            if (!viewModel.InvoiceDateTo.HasValue)
+            {
+                ModelState.AddModelError("InvoiceDateTo", "請輸入查詢迄日");
+            }
+
+            if (viewModel.InvoiceDateFrom.HasValue && viewModel.InvoiceDateTo.HasValue)
+            {
+                if (viewModel.InvoiceDateFrom > viewModel.InvoiceDateTo)
+                {
+                    ModelState.AddModelError("InvoiceDateFrom", "查詢起日不可晚於查詢迄日");
+                }
+                else if (viewModel.InvoiceDateTo > viewModel.InvoiceDateFrom.Value.AddYears(2))
+                {
+                    ModelState.AddModelError("InvoiceDateFrom", "查詢區間最長不可超過2年");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("~/Views/Shared/ReportInputError.cshtml");
+            }
+
             return View();
         }
 

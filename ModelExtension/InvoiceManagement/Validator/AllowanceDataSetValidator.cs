@@ -276,7 +276,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
                     .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, t => t.ProductID, (p, t) => t)
                     .Where(t => t.No == originalSeqNo).FirstOrDefault();
-                //var invProductItem = originalInvoice.InvoiceDetails.Join(_mgr.GetTable<InvoiceProductItem>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+                //var invProductItem = originalInvoice.InvoiceDetails.Join(_models.GetTable<InvoiceProductItem>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
                 //    .Where(p => p.No == i.OriginalSequenceNumber).FirstOrDefault();
                 if (invProductItem != null)
                 {

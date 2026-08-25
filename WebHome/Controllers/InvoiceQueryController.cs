@@ -655,15 +655,6 @@ namespace WebHome.Controllers
             return View("InvoiceReport", DataSource.Inquiry);
         }
 
-        public static readonly int[] AvailableMemberCategory = new int[]
-        {
-            (int)CategoryDefinition.CategoryEnum.發票開立營業人,
-            (int)CategoryDefinition.CategoryEnum.GoogleTaiwan,
-            (int)CategoryDefinition.CategoryEnum.營業人發票自動配號,
-            (int)CategoryDefinition.CategoryEnum.經銷商,
-            (int)CategoryDefinition.CategoryEnum.境外電商,
-        };
-
         public ActionResult InquireSummary(InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
@@ -687,11 +678,8 @@ namespace WebHome.Controllers
             DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
             DataSource.BuildQuery();
 
-            var orgaCate = models.GetTable<OrganizationCategory>().Where(c => AvailableMemberCategory.Contains(c.CategoryID));
-            IQueryable<Organization> sellerItems = models.GetTable<Organization>()
-                    .Where(o => orgaCate.Any(c => c.CompanyID == o.CompanyID));
-
-            sellerItems = models.FilterOrganizationByRole(profile, sellerItems);
+            IQueryable<Organization> sellerItems = models!.GetTable<Organization>();
+            sellerItems = models!.FilterOrganizationByRole(profile, sellerItems);
 
             if (viewModel.SellerID.HasValue)
             {

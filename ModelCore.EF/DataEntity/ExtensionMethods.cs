@@ -203,7 +203,7 @@ namespace ModelCore.DataEntity
             return models.ExecuteCommand(@"INSERT INTO DocumentSubscriptionQueue
                                                                 (DocID)
                                     SELECT          DocID
-                                    FROM              Doc
+                                    FROM              CDS_Document
                                     WHERE          (DocID = {0}) AND (NOT EXISTS
                                             (SELECT          NULL
                                                 FROM               DocumentSubscriptionQueue
@@ -263,7 +263,7 @@ namespace ModelCore.DataEntity
         public EIVOEntityManager() : base() { }
         public EIVOEntityManager(GenericDbContext<ApplicationDbContext>? manager) : base(manager) { }
 
-        //protected virtual void applyProcessFlow(Doc doc, int ownerID, Naming.B2BInvoiceDocumentTypeDefinition typeID, Naming.InvoiceCenterBusinessType businessID)
+        //protected virtual void applyProcessFlow(CDS_Document doc, int ownerID, Naming.B2BInvoiceDocumentTypeDefinition typeID, Naming.InvoiceCenterBusinessType businessID)
         //{
         //    var flow = this.GetTable<DocumentTypeFlow>().Where(f => f.TypeID == (int)typeID
         //        && f.CompanyID == ownerID && f.BusinessID == (int)businessID).FirstOrDefault();
@@ -280,7 +280,7 @@ namespace ModelCore.DataEntity
         //    }
         //}
 
-        //protected virtual void applyProcessFlow(Doc doc, Naming.B2BInvoiceDocumentTypeDefinition typeID)
+        //protected virtual void applyProcessFlow(CDS_Document doc, Naming.B2BInvoiceDocumentTypeDefinition typeID)
         //{
         //    var flow = this.GetTable<CommonDocumentTypeFlow>().Where(f => f.TypeID == (int)typeID).FirstOrDefault();
 

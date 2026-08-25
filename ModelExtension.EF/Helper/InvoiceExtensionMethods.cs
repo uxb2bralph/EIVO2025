@@ -313,7 +313,7 @@ namespace ModelCore.Helper
                 NPOBAN = i.InvoiceDonation?.AgencyCode,
                 Random_Number = i.RandomNo,
                 Main_Remark = i.Remark,
-                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+                //Process_Type = ((Naming.InvoiceProcessType?)i.CDS_Document.ProcessType).ToString(),
             });
 
             var detailItems = productItems.ToList().Select(d => new
@@ -332,7 +332,7 @@ namespace ModelCore.Helper
             DataSet ds = new DataSet();
 
             DataTable table = dataItems.ToDataTable();
-            table.TableName = "Invoice";
+            table.TableName = "CDS_Document";
             ds.Tables.Add(table);
 
             table = detailItems.ToDataTable();
@@ -382,7 +382,7 @@ namespace ModelCore.Helper
             DataSet ds = new DataSet();
 
             DataTable table = dataItems.ToDataTable();
-            table.TableName = "Allowance";
+            table.TableName = "CDS_Document";
             ds.Tables.Add(table);
 
             table = detailItems.ToDataTable();
@@ -427,7 +427,7 @@ namespace ModelCore.Helper
                 NPOBAN = i.InvoiceDonation?.AgencyCode,
                 Random_Number = i.RandomNo,
                 Main_Remark = i.Remark,
-                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+                //Process_Type = ((Naming.InvoiceProcessType?)i.CDS_Document.ProcessType).ToString(),
             });
 
             var detailItems = productItems.ToArray().Select(d => new
@@ -445,7 +445,7 @@ namespace ModelCore.Helper
             DataSet ds = new DataSet();
 
             DataTable table = dataItems.ToDataTable();
-            table.TableName = "Invoice";
+            table.TableName = "CDS_Document";
             ds.Tables.Add(table);
 
             table = detailItems.ToDataTable();
@@ -491,7 +491,7 @@ namespace ModelCore.Helper
                 NPOBAN = i.InvoiceDonation?.AgencyCode,
                 Random_Number = i.RandomNo,
                 Main_Remark = i.Remark,
-                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+                //Process_Type = ((Naming.InvoiceProcessType?)i.CDS_Document.ProcessType).ToString(),
             });
 
             var detailItems = productItems.ToArray().Select(d => new
@@ -509,7 +509,7 @@ namespace ModelCore.Helper
             DataSet ds = new DataSet();
 
             DataTable table = dataItems.ToDataTable();
-            table.TableName = "Invoice";
+            table.TableName = "CDS_Document";
             ds.Tables.Add(table);
 
             table = detailItems.ToDataTable();
@@ -550,7 +550,7 @@ namespace ModelCore.Helper
             DataSet ds = new DataSet();
 
             DataTable table = dataItems.ToDataTable();
-            table.TableName = "Invoice";
+            table.TableName = "CDS_Document";
             ds.Tables.Add(table);
 
             table = detailItems.ToDataTable();
@@ -565,7 +565,7 @@ namespace ModelCore.Helper
             var dataItems = items.ToArray().Select(i => new
             {
                 Void_Invoice_No = $"{i.Invoice.TrackCode}{i.Invoice.No}",
-                //Buyer_ID = i.Invoice.InvoiceBuyer?.ReceiptNo,
+                //Buyer_ID = i.CDS_Document.InvoiceBuyer?.ReceiptNo,
                 Seller_ID = i.Invoice.InvoiceSeller?.ReceiptNo,
                 Invoice_Date = i.Invoice.InvoiceDate,
                 Void_Date = i.CancelDate,
@@ -591,13 +591,13 @@ namespace ModelCore.Helper
                 Data_No = $"{i.TrackCode}{i.No}",
                 Seller_ID = i.InvoiceSeller?.ReceiptNo,
                 Allowance_No = "",
-                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+                //Process_Type = ((Naming.InvoiceProcessType?)i.CDS_Document.ProcessType).ToString(),
             });
 
             DataSet ds = new DataSet();
 
             DataTable table = dataItems.ToDataTable();
-            table.TableName = "Allowance";
+            table.TableName = "CDS_Document";
             ds.Tables.Add(table);
 
             return ds;
@@ -609,13 +609,13 @@ namespace ModelCore.Helper
             var dataItems = items.ToArray().Select(i => new
             {
                 Void_AllowanceNo = i.Allowance.AllowanceNumber,
-                //Buyer_ID = i.Allowance.InvoiceAllowanceBuyer?.ReceiptNo,
+                //Buyer_ID = i.CDS_Document.InvoiceAllowanceBuyer?.ReceiptNo,
                 Seller_ID = i.Allowance.InvoiceAllowanceSeller?.ReceiptNo,
                 Allowance_Date = i.Allowance.AllowanceDate,
                 Reason = i.CancelReason,
                 Void_Date = i.CancelDate,
                 Remark = i.Remark,
-                //Process_Type = ((Naming.InvoiceProcessType?)i.Doc.ProcessType).ToString(),
+                //Process_Type = ((Naming.InvoiceProcessType?)i.CDS_Document.ProcessType).ToString(),
             });
 
             DataSet ds = new DataSet();
@@ -667,7 +667,7 @@ namespace ModelCore.Helper
             else
             {
                 doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.G0501);
-                //doc.Doc.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0501);
+                //doc.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0501);
             }
 
             return voidItem;
@@ -717,7 +717,7 @@ namespace ModelCore.Helper
             else
             {
                 doc.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0501);
-                //doc.Doc.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
+                //doc.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
             }
 
             return voidItem;
@@ -868,14 +868,14 @@ namespace ModelCore.Helper
                 {
                     doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done,processType: processType);
                     models.SubmitChanges();
-                    //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.Allowance.AllowanceNumber}) => C");
+                    //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.CDS_Document.AllowanceNumber}) => C");
                     return doc.DocID;
                 }
                 else if (code == "E")
                 {
                     doc.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
                     models.SubmitChanges();
-                    //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.Allowance.AllowanceNumber}) => E");
+                    //Console.WriteLine($"AllowanceCancellation:({cancelAllowance.AllowanceID},{cancelAllowance.CDS_Document.AllowanceNumber}) => E");
                     return doc.DocID;
                 }
             }
@@ -910,14 +910,14 @@ namespace ModelCore.Helper
                 {
                     allowance.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done, processType: processType);
                     models.SubmitChanges();
-                    //Console.WriteLine($"Allowance:({allowance.AllowanceID},{allowance.AllowanceNumber}) => C");
+                    //Console.WriteLine($"CDS_Document:({allowance.AllowanceID},{allowance.AllowanceNumber}) => C");
                     return allowance.AllowanceID;
                 }
                 else if (code == "E")
                 {
                     allowance.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
                     models.SubmitChanges();
-                    //Console.WriteLine($"Allowance:({allowance.AllowanceID},{allowance.AllowanceNumber}) => E");
+                    //Console.WriteLine($"CDS_Document:({allowance.AllowanceID},{allowance.AllowanceNumber}) => E");
                     return allowance.AllowanceID;
                 }
             }
@@ -970,14 +970,14 @@ namespace ModelCore.Helper
                     {
                         invoice.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done, processType: processType);
                         models.SubmitChanges();
-                        //Console.WriteLine($"Invoice:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => C");
+                        //Console.WriteLine($"CDS_Document:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => C");
                         return  invoice.InvoiceID;
                     }
                     else if (code == "E")
                     {
                         invoice.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_E, Naming.DataProcessStatus.Done, processType: processType);
                         models.SubmitChanges();
-                        //Console.WriteLine($"Invoice:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => E");
+                        //Console.WriteLine($"CDS_Document:({invoice.InvoiceID},{invoice.TrackCode}{invoice.No}) => E");
                         return  invoice.InvoiceID;
                     }
                 }
@@ -1032,9 +1032,9 @@ namespace ModelCore.Helper
 
                 if (mode == Naming.VoidActionMode.註銷作廢)
                 {
-                    models.ExecuteCommand(@"DELETE FROM Doc
+                    models.ExecuteCommand(@"DELETE FROM CDS_Document
                         FROM    DerivedDocument INNER JOIN
-                                Doc ON DerivedDocument.DocID = Doc.DocID
+                                CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
                         WHERE   (DerivedDocument.SourceID = {0})", item.InvoiceID);
                     models.DeleteAny<InvoiceCancellation>(d => d.InvoiceID == item.InvoiceID);
                 }
@@ -1055,11 +1055,11 @@ namespace ModelCore.Helper
             request.Doc.DocType = (int)Naming.DocumentTypeDefinition.E_InvoiceVoid;
             models.SubmitChanges();
 
-            models.ExecuteCommand(@"DELETE FROM Doc
+            models.ExecuteCommand(@"DELETE FROM CDS_Document
                         FROM    DerivedDocument INNER JOIN
-                                Doc ON DerivedDocument.DocID = Doc.DocID
+                                CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
                         WHERE   (DerivedDocument.SourceID = {0})", item!.InvoiceID);
-            models.ExecuteCommand("delete Invoice where InvoiceID={0}", item!.InvoiceID);
+            models.ExecuteCommand("delete CDS_Document where InvoiceID={0}", item!.InvoiceID);
         }
     }
 }

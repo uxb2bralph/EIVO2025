@@ -48,7 +48,7 @@ namespace TaskCenter.Core.DTOs
         [JsonPropertyName("keyId")]
         public string? KeyId { get; set; }
 
-        /// <summary>所屬營業人名稱（UserRole.OrgaCate.Company.CompanyName）</summary>
+        /// <summary>所屬營業人名稱（UserRole.OrganizationCategory.Company.CompanyName）</summary>
         [JsonPropertyName("companyName")]
         public string? CompanyName { get; set; }
 

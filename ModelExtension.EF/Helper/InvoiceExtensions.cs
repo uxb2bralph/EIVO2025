@@ -19,12 +19,12 @@ namespace ModelCore.Helper
 {
     public static class InvoiceExtensions
     {
-        //public static ModelCore.Schema.TurnKey.A0101.Invoice BuildA0101(this Invoice item)
+        //public static ModelCore.Schema.TurnKey.A0101.CDS_Document BuildA0101(this CDS_Document item)
         //{
         //    Company seller = item.Company;
         //    InvoiceAmountType amount = item.InvoiceAmountType;
 
-        //    var result = new ModelCore.Schema.TurnKey.A0101.Invoice
+        //    var result = new ModelCore.Schema.TurnKey.A0101.CDS_Document
         //    {
         //        Main = new ModelCore.Schema.TurnKey.A0101.Main
         //        {
@@ -114,7 +114,7 @@ namespace ModelCore.Helper
         //    return result;
         //}
 
-        //private static ModelCore.Schema.TurnKey.A0101.DetailsProductItem[] buildA0101Details(Invoice item)
+        //private static ModelCore.Schema.TurnKey.A0101.DetailsProductItem[] buildA0101Details(CDS_Document item)
         //{
         //    List<ModelCore.Schema.TurnKey.A0101.DetailsProductItem> items = new List<ModelCore.Schema.TurnKey.A0101.DetailsProductItem>();
         //    foreach (var detailItem in item.Product)

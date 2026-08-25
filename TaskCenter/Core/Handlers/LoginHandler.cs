@@ -241,7 +241,7 @@ namespace TaskCenter.Core.Handlers
             var roleInfo = _unitOfWork.Context.Set<UserRole>()
                 .Where(r => r.UID == user.UID)
                 .OrderBy(r => r.OrgaCateID)
-                .Select(r => new { r.RoleID, r.OrgaCate.CompanyID, r.OrgaCate.CategoryID })
+                .Select(r => new { r.RoleID, r.OrganizationCategory.CompanyID, r.OrganizationCategory.CategoryID })
                 .FirstOrDefault();
 
             if (roleInfo != null)

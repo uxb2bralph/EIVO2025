@@ -27,23 +27,23 @@ namespace ModelCore.InvoiceManagement.enUS
             allowance = mgr.GetTable<InvoiceAllowance>().Where(a => a.AllowanceNumber == item.CancelAllowanceNumber).FirstOrDefault();
             if (allowance == null)
             {
-                return new Exception(String.Format("Allowance Number does not exist，Allowance Number:{0}，TAG：< CancelAllowanceNumber />", item.CancelAllowanceNumber));
+                return new Exception(String.Format("CDS_Document Number does not exist，CDS_Document Number:{0}，TAG：< CancelAllowanceNumber />", item.CancelAllowanceNumber));
             }
 
             if (allowance.InvoiceAllowanceCancellation != null)
             {
-                return new Exception(String.Format("Cancel Allowance Number already exists,Allowance Number:{0}", item.CancelAllowanceNumber));
+                return new Exception(String.Format("Cancel CDS_Document Number already exists,CDS_Document Number:{0}", item.CancelAllowanceNumber));
             }
 
 
             DateTime allowanceDate;
             if (String.IsNullOrEmpty(item.AllowanceDate))
             {
-                return new Exception("Allowance Date，TAG：< AllowanceDate />");
+                return new Exception("CDS_Document Date，TAG：< AllowanceDate />");
             }
             if (!DateTime.TryParseExact(item.AllowanceDate, "yyyy/MM/dd", CultureInfo.CurrentCulture, DateTimeStyles.None, out allowanceDate))
             {
-                return new Exception(String.Format("Format of Original Allowance Date error(YYYY/MM/DD)；Incorrect:{0}", item.AllowanceDate));
+                return new Exception(String.Format("Format of Original CDS_Document Date error(YYYY/MM/DD)；Incorrect:{0}", item.AllowanceDate));
             }
 
 
@@ -111,18 +111,18 @@ namespace ModelCore.InvoiceManagement.enUS
             InvoiceAllowance allowance = models.GetTable<InvoiceAllowance>().Where(a => a.AllowanceNumber == item.GetString((int)VoidAllowanceField.Void_AllowanceNo)).FirstOrDefault();
             if (allowance == null)
             {
-                return new Exception(String.Format("Allowance Number does not exist，Allowance Number:{0}，TAG：< CancelAllowanceNumber />", item.GetString((int)VoidAllowanceField.Void_AllowanceNo)));
+                return new Exception(String.Format("CDS_Document Number does not exist，CDS_Document Number:{0}，TAG：< CancelAllowanceNumber />", item.GetString((int)VoidAllowanceField.Void_AllowanceNo)));
             }
 
             if (allowance.InvoiceAllowanceCancellation != null)
             {
-                return new Exception(String.Format("Cancel Allowance Number already exists,Allowance Number:{0}", item.GetString((int)VoidAllowanceField.Void_AllowanceNo)));
+                return new Exception(String.Format("Cancel CDS_Document Number already exists,CDS_Document Number:{0}", item.GetString((int)VoidAllowanceField.Void_AllowanceNo)));
             }
 
             DateTime? allowanceDate = item.GetData<DateTime>((int)VoidAllowanceField.Allowance_Date);
             if (!allowanceDate.HasValue)
             {
-                return new Exception("Invalid Allowance Date");
+                return new Exception("Invalid CDS_Document Date");
             }
 
             Organization seller = models.GetTable<Organization>().Where(o => o.ReceiptNo == item.GetString((int)VoidAllowanceField.Seller_ID)).FirstOrDefault();

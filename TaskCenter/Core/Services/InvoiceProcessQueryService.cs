@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using CommonLib.Core.DataWork;
 using CommonLib.Utility;
 using Microsoft.EntityFrameworkCore;
@@ -47,56 +50,13 @@ namespace TaskCenter.Core.Services
         {
             models = new GenericDbContext<ApplicationDbContext>(_unitOfWork.Context);
 
-            var profile = new UserProfileManager(models).GetUserProfile(uid);
+            var profile = InvoiceQueryPipeline.GetProfile(models, uid);
             if (profile?.CurrentUserRole == null)
             {
                 return null;
             }
 
-            var vm = MapToViewModel(dto);
-            var ms = new ModelSource<InvoiceItem>(models);
-            ms.BuildInvoiceQuery(vm, profile, "Common");
-            return ms.Items;
-        }
-
-        /// <summary>DTO → InquireInvoiceViewModel（欄位對應舊版查詢表單）。</summary>
-        private static InquireInvoiceViewModel MapToViewModel(InvoiceProcessQueryDto dto)
-        {
-            var vm = new InquireInvoiceViewModel
-            {
-                BuyerReceiptNo = dto.BuyerReceiptNo.GetEfficientString(),
-                BuyerName = dto.BuyerName.GetEfficientString(),
-                CustomerID = dto.CustomerId.GetEfficientString(),
-                DateFrom = dto.DateFrom,
-                DateTo = dto.DateTo,
-                InvoiceNo = dto.InvoiceNo.GetEfficientString(),
-                EndNo = dto.EndNo.GetEfficientString(),
-                DataNo = dto.DataNo.GetEfficientString(),
-                Attachment = dto.Attachment,
-                Winning = dto.Winning,
-                Cancelled = dto.Cancelled,
-                PrintMark = dto.PrintMark.GetEfficientString(),
-                Printed = dto.Printed,
-                HasAddr = dto.HasAddr,
-                CarrierType = dto.CarrierType.GetEfficientString(),
-                CarrierNo = dto.CarrierNo.GetEfficientString(),
-                IsNoticed = dto.IsNoticed,
-            };
-
-            if (!string.IsNullOrEmpty(dto.SellerKey))
-            {
-                vm.SellerID = dto.SellerKey.DecryptKeyValue();
-            }
-            if (!string.IsNullOrEmpty(dto.AgentKey))
-            {
-                vm.AgentID = dto.AgentKey.DecryptKeyValue();
-            }
-            if (dto.BusinessType.HasValue)
-            {
-                vm.BusinessType = (Naming.InvoiceCenterBusinessType)dto.BusinessType.Value;
-            }
-
-            return vm;
+            return InvoiceQueryPipeline.BuildQuery(models, dto, profile);
         }
 
         /// <summary>排序（移植自 ItemListSorting.cshtml 之 SortName → 運算式；預設依日期新到舊）。</summary>
@@ -155,7 +115,7 @@ namespace TaskCenter.Core.Services
                     i.InvoiceDate,
                     i.Remark,
                     i.PrintMark,
-                    ProcessType = i.Invoice.ProcessType,
+                    ProcessType = i.CDS_Document.ProcessType,
                     SellerName = i.InvoiceSeller!.CustomerName,
                     SellerReceiptNo = i.InvoiceSeller!.ReceiptNo,
                     BuyerName = i.InvoiceBuyer!.CustomerName,
@@ -483,6 +443,126 @@ namespace TaskCenter.Core.Services
             }
 
             return sb.ToString();
+        }
+
+        // ── 下載：MIG XML 壓縮檔 ────────────────────────────────────
+        // 遷移自舊版 DownloadF0401 / DownloadF0701 / DownloadF0501 + zipItems，
+        // 差異：改在記憶體組壓縮檔（不落地 ~/temp），且作業對象先以角色範圍限縮。
+
+        /// <summary>支援下載的 MIG 格式（對應舊版 DownloadMIG.cshtml 的三個按鈕）。</summary>
+        public static readonly string[] MigDocTypes = { "F0401", "F0701", "F0501" };
+
+        public async Task<MigZipResultDto> BuildMigZipAsync(string docType, IEnumerable<string> keyIds, int uid)
+        {
+            var result = new MigZipResultDto { DocType = docType };
+
+            // 解密請求鍵；保留原鍵以便回報查無 / 越權者。
+            var requested = (keyIds ?? Enumerable.Empty<string>())
+                .Where(k => !string.IsNullOrWhiteSpace(k))
+                .Distinct()
+                .Select(k => new { KeyId = k, InvoiceId = TryDecryptKey(k) })
+                .ToList();
+            result.RequestedCount = requested.Count;
+            if (requested.Count == 0)
+            {
+                return result;
+            }
+
+            // 以空條件建立角色範圍查詢，再限縮至選取的發票（越權者自動落空）。
+            var query = BuildFilteredQuery(new InvoiceProcessQueryDto(), uid, out _);
+            if (query == null)
+            {
+                result.SkippedNos.AddRange(requested.Select(r => r.KeyId));
+                return result;
+            }
+
+            var ids = requested.Where(r => r.InvoiceId.HasValue).Select(r => r.InvoiceId!.Value).ToList();
+            // 明確載入 MIG 轉檔所需導覽屬性（對應原版 DataLoadOptions），避免逐筆 lazy loading；
+            // 其餘較少用到的導覽屬性仍由 lazy loading proxies 補齊。
+            var items = ids.Count > 0
+                ? await query.Where(i => ids.Contains(i.InvoiceID))
+                    .Include(i => i.InvoiceBuyer)
+                    .Include(i => i.InvoiceSeller)
+                    .Include(i => i.InvoiceAmountType!).ThenInclude(a => a.Currency)
+                    .Include(i => i.Seller)
+                    .Include(i => i.InvoiceCarrier)
+                    .Include(i => i.InvoiceDonation)
+                    .Include(i => i.InvoiceCancellation)
+                    .Include(i => i.Product).ThenInclude(p => p.InvoiceProductItem)
+                    .AsSplitQuery()
+                    .OrderBy(i => i.TrackCode).ThenBy(i => i.No)
+                    .ToListAsync()
+                : new List<InvoiceItem>();
+
+            var found = new HashSet<int>(items.Select(i => i.InvoiceID));
+            foreach (var r in requested)
+            {
+                if (!r.InvoiceId.HasValue || !found.Contains(r.InvoiceId.Value))
+                {
+                    result.SkippedNos.Add(r.KeyId);
+                }
+            }
+
+            using var ms = new MemoryStream();
+            using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, leaveOpen: true))
+            {
+                foreach (var item in items)
+                {
+                    var invoiceNo = $"{item.TrackCode}{item.No}";
+                    XmlDocument? doc = null;
+                    try
+                    {
+                        doc = CreateMigDocument(docType, item);
+                    }
+                    catch (Exception ex)
+                    {
+                        // 單筆轉檔失敗不影響其他發票（原版 zipItems 亦以 null 略過）。
+                        _logger.LogError(ex, "Error creating {DocType} for invoice {InvoiceNo}", docType, invoiceNo);
+                    }
+
+                    if (doc == null)
+                    {
+                        result.SkippedNos.Add(invoiceNo);
+                        continue;
+                    }
+
+                    var entry = zip.CreateEntry($"{docType}_{invoiceNo}.xml");
+                    using var outStream = entry.Open();
+                    doc.Save(outStream);
+                    result.IncludedCount++;
+                }
+            }
+
+            if (result.IncludedCount > 0)
+            {
+                result.Content = ms.ToArray();
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 產生單張發票的 MIG XML（重用 ModelExtension.EF 之 CreateF0401 / CreateF0701 / CreateF0501）。
+        /// 回傳 null 表示該發票不適用此格式。
+        /// </summary>
+        private static XmlDocument? CreateMigDocument(string docType, InvoiceItem item) => docType switch
+        {
+            "F0401" => item.CreateF0401(),
+            "F0701" => item.CreateF0701(),
+            // F0501（作廢）僅適用已作廢發票；未作廢者無作廢資料可轉出。
+            "F0501" => item.InvoiceCancellation != null ? item.CreateF0501() : null,
+            _ => null,
+        };
+
+        private static int? TryDecryptKey(string keyId)
+        {
+            try
+            {
+                return keyId.DecryptKeyValue();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         // ── 選擇器 ──────────────────────────────────────────────────

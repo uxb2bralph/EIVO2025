@@ -13,10 +13,9 @@ using CommonLib.Utility;
 
 namespace ModelCore.Models.ViewModel
 {
-    public partial class A0101ViewModelValidator<TEntity> : A0401ViewModelValidator<TEntity>
-        where TEntity : class, new()
+    public partial class A0101ViewModelValidator : A0401ViewModelValidator
     {
-        public A0101ViewModelValidator(ModelSource<TEntity> mgr, Organization owner) : base(mgr, owner)
+        public A0101ViewModelValidator(ModelSource models, Organization owner) : base(models, owner)
         {
 
         }

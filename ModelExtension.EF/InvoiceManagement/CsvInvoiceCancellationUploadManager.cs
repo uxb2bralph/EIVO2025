@@ -149,7 +149,7 @@ namespace ModelCore.InvoiceManagement
                 else
                 {
                     doc.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0501);
-                    //doc.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
+                    //doc.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
                 }
 
                 item.Entity.InvoiceCancellation.Upload.Add(_uploadItem);

@@ -50,7 +50,7 @@ namespace ModelCore.InvoiceManagement
             return _signerCert;
         }
 
-        //protected virtual void ApplyProcessFlow(Doc doc, Naming.InvoiceCenterBusinessType? businessType = null)
+        //protected virtual void ApplyProcessFlow(CDS_Document doc, Naming.InvoiceCenterBusinessType? businessType = null)
         //{
         //    switch (ProcessType)
         //    {
@@ -79,16 +79,16 @@ namespace ModelCore.InvoiceManagement
         //{
         //    Dictionary<int, Exception> result = new Dictionary<int, Exception>();
 
-        //    if (item != null && item.Invoice != null && item.Invoice.Length > 0)
+        //    if (item != null && item.CDS_Document != null && item.CDS_Document.Length > 0)
         //    {
-        //        List<Invoice> eventItems = new List<Invoice>();
+        //        List<CDS_Document> eventItems = new List<CDS_Document>();
         //        InvoiceRootInvoiceValidator validator = new InvoiceRootInvoiceValidator(this, owner?.Company);
 
-        //        for (int idx = 0; idx < item.Invoice.Length; idx++)
+        //        for (int idx = 0; idx < item.CDS_Document.Length; idx++)
         //        {
         //            try
         //            {
-        //                var invItem = item.Invoice[idx];
+        //                var invItem = item.CDS_Document[idx];
 
         //                Exception? ex;
         //                if ((ex = validator.Validate(invItem)) != null)
@@ -97,12 +97,12 @@ namespace ModelCore.InvoiceManagement
         //                    continue;
         //                }
 
-        //                Invoice newItem = validator.Invoice;
+        //                CDS_Document newItem = validator.CDS_Document;
 
         //                if (!validator.DuplicateProcess)
         //                {
         //                    this.EntityList.Add(newItem);
-        //                    ApplyProcessFlow(newItem.Doc);
+        //                    ApplyProcessFlow(newItem.CDS_Document);
 
         //                    this.SubmitChanges();
         //                }
@@ -388,7 +388,7 @@ namespace ModelCore.InvoiceManagement
             return cancelItem;
         }
 
-        //public Invoice ConvertToInvoiceItem(OrganizationToken owner, ModelCore.Schema.TurnKey.A1101.Invoice invoice)
+        //public CDS_Document ConvertToInvoiceItem(OrganizationToken owner, ModelCore.Schema.TurnKey.A1101.CDS_Document invoice)
         //{
         //    Company buyer = this.GetTable<Company>().Where(o => o.ReceiptNo == invoice.Main.Buyer.Identifier).FirstOrDefault();
         //    if (buyer == null)
@@ -423,9 +423,9 @@ namespace ModelCore.InvoiceManagement
         //    String invNo, trackCode;
         //    getInvoiceNo(invoice.Main.InvoiceNumber, out invNo, out trackCode);
 
-        //    Invoice newItem = new Invoice
+        //    CDS_Document newItem = new CDS_Document
         //    {
-        //        Doc = new Doc
+        //        CDS_Document = new CDS_Document
         //        {
         //            DocDate = DateTime.Now,
         //            DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
@@ -467,7 +467,7 @@ namespace ModelCore.InvoiceManagement
         //            Company = seller
         //        },
         //        InvoiceDate = DateTime.ParseExact(String.Format("{0}", invoice.Main.InvoiceDate), "yyyyMMdd", System.Globalization.CultureInfo.CurrentCulture).Add(invoice.Main.InvoiceTimeSpecified ? invoice.Main.InvoiceTime.TimeOfDay : TimeSpan.Zero),
-        //        InvoiceType = (byte)((int)invoice.Main.Invoice),
+        //        InvoiceType = (byte)((int)invoice.Main.CDS_Document),
         //        No = invNo,
         //        TrackCode = trackCode,
         //        SellerID = seller.CompanyID,
@@ -525,7 +525,7 @@ namespace ModelCore.InvoiceManagement
         //    return newItem;
         //}
 
-        //public Invoice ConvertToInvoiceItem(OrganizationToken owner, ModelCore.Schema.TurnKey.A1401.Invoice invoice)
+        //public CDS_Document ConvertToInvoiceItem(OrganizationToken owner, ModelCore.Schema.TurnKey.A1401.CDS_Document invoice)
         //{
         //    Company buyer = this.GetTable<Company>().Where(o => o.ReceiptNo == invoice.Main.Buyer.Identifier).FirstOrDefault();
         //    if (buyer == null)
@@ -571,9 +571,9 @@ namespace ModelCore.InvoiceManagement
         //    String invNo, trackCode;
         //    getInvoiceNo(invoice.Main.InvoiceNumber, out invNo, out trackCode);
 
-        //    Invoice newItem = new Invoice
+        //    CDS_Document newItem = new CDS_Document
         //    {
-        //        Doc = new Doc
+        //        CDS_Document = new CDS_Document
         //        {
         //            DocDate = DateTime.Now,
         //            DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
@@ -673,25 +673,25 @@ namespace ModelCore.InvoiceManagement
         //    return newItem;
         //}
 
-        //public void SaveA1101(ModelCore.Schema.TurnKey.A1101.Invoice invoice, OrganizationToken owner)
+        //public void SaveA1101(ModelCore.Schema.TurnKey.A1101.CDS_Document invoice, OrganizationToken owner)
         //{
-        //    Invoice newItem = ConvertToInvoiceItem(owner, invoice);
+        //    CDS_Document newItem = ConvertToInvoiceItem(owner, invoice);
         //    this.EntityList.Add(newItem);
         //    this.SubmitChanges();
         //}
 
-        //public void SaveA1401(ModelCore.Schema.TurnKey.A1401.Invoice invoice, OrganizationToken owner)
+        //public void SaveA1401(ModelCore.Schema.TurnKey.A1401.CDS_Document invoice, OrganizationToken owner)
         //{
-        //    Invoice newItem = ConvertToInvoiceItem(owner, invoice);
-        //    applyProcessFlow(newItem.Doc, Naming.B2BInvoiceDocumentTypeDefinition.電子發票); 
+        //    CDS_Document newItem = ConvertToInvoiceItem(owner, invoice);
+        //    applyProcessFlow(newItem.CDS_Document, Naming.B2BInvoiceDocumentTypeDefinition.電子發票); 
         //    this.EntityList.Add(newItem);
         //    this.SubmitChanges();
         //}
 
-        //public void SaveB1101(Schema.TurnKey.B1101.Allowance allowance, OrganizationToken owner)
+        //public void SaveB1101(Schema.TurnKey.B1101.CDS_Document allowance, OrganizationToken owner)
         //{
-        //    Allowance newItem = ConvertToInvoiceAllowance(owner, allowance);
-        //    this.GetTable<Allowance>().Add(newItem);
+        //    CDS_Document newItem = ConvertToInvoiceAllowance(owner, allowance);
+        //    this.GetTable<CDS_Document>().Add(newItem);
         //    this.SubmitChanges();
         //}
 
@@ -701,11 +701,11 @@ namespace ModelCore.InvoiceManagement
         }
 
 
-        //public void SaveB1401(Schema.TurnKey.B1401.Allowance allowance, OrganizationToken owner)
+        //public void SaveB1401(Schema.TurnKey.B1401.CDS_Document allowance, OrganizationToken owner)
         //{
-        //    Allowance newItem = ConvertToInvoiceAllowance(owner, allowance);
-        //    applyProcessFlow(newItem.Doc, Naming.B2BInvoiceDocumentTypeDefinition.發票折讓);
-        //    this.GetTable<Allowance>().Add(newItem);
+        //    CDS_Document newItem = ConvertToInvoiceAllowance(owner, allowance);
+        //    applyProcessFlow(newItem.CDS_Document, Naming.B2BInvoiceDocumentTypeDefinition.發票折讓);
+        //    this.GetTable<CDS_Document>().Add(newItem);
         //    this.SubmitChanges();
         //}
 

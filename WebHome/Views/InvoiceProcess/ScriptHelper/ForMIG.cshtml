@@ -23,7 +23,7 @@
         if (!window.uiInvoiceQuery) {
             window.uiInvoiceQuery = {};
         }
-        window.uiInvoiceQuery.C0401 = function () {
+        window.uiInvoiceQuery.F0401 = function () {
 
             if (!$('input[name="chkItem"]').is(':checked')) {
                 alert('請選擇重送資料!!');
@@ -32,12 +32,12 @@
 
             var $formData = $('input[name="chkItem"]:checked').serializeObject();
             toArrayField($formData, 'chkItem');
-            $('').launchDownload('@(Url.Action("DownloadC0401", "InvoiceProcess"))', $formData);
+            $('').launchDownload('@(Url.Action("DownloadF0401", "InvoiceProcess"))', $formData);
 
             //showLoading();
         };
 
-        window.uiInvoiceQuery.C0701 = function () {
+        window.uiInvoiceQuery.F0701 = function () {
             if (!$('input[name="chkItem"]').is(':checked')) {
                 alert('請選擇重送資料!!');
                 return false;
@@ -45,11 +45,11 @@
 
             var $formData = $('input[name="chkItem"]:checked').serializeObject();
             toArrayField($formData, 'chkItem');
-            $('').launchDownload('@(Url.Action("DownloadC0701", "InvoiceProcess"))', $formData);
+            $('').launchDownload('@(Url.Action("DownloadF0701", "InvoiceProcess"))', $formData);
 
             //showLoading();
         };
-        window.uiInvoiceQuery.C0501 = function () {
+        window.uiInvoiceQuery.F0501 = function () {
             if (!$('input[name="chkItem"]').is(':checked')) {
                 alert('請選擇重送資料!!');
                 return false;
@@ -57,7 +57,7 @@
 
             var $formData = $('input[name="chkItem"]:checked').serializeObject();
             toArrayField($formData, 'chkItem');
-            $('').launchDownload('@(Url.Action("DownloadC0501", "InvoiceProcess"))', $formData);
+            $('').launchDownload('@(Url.Action("DownloadF0501", "InvoiceProcess"))', $formData);
 
             //showLoading();
         };

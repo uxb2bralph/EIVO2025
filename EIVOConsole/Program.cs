@@ -46,6 +46,7 @@ namespace EIVOConsole
                         ModelExtension.Properties.AppSettings.Default.Save();
                         JobHelper.Properties.AppSettings.Default.Save();
                         InvoiceClient.Properties.AppSettings.Default.Save();
+                        InvoiceClient.Agent.TurnkeyProcess.TurnkeyProcessResultSettings.Default.Save();
                         ProcessorUnit.Properties.AppSettings.Default.Save();
                         Console.WriteLine(InvoiceClient.Properties.AppSettings.AllSettings.JsonStringify());
                         break; // Placeholder for future functionality
@@ -64,6 +65,7 @@ Use command:
             }
             else
             {
+                System.Diagnostics.Debugger.Launch();
                 Application.Run(new MyApplicationContext(() =>
                 {
                     //Console.WriteLine("Hello, World!");

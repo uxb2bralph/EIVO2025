@@ -118,11 +118,11 @@ public partial class Organization
 
     public virtual ICollection<InvoiceIssuerAgent> InvoiceIssuerAgentAgent { get; set; } = new List<InvoiceIssuerAgent>();
 
-    public virtual ICollection<InvoiceIssuerAgent> InvoiceIssuerAgentIssuer { get; set; } = new List<InvoiceIssuerAgent>();
+    public virtual ICollection<InvoiceIssuerAgent> AsInvoiceIssuer { get; set; } = new List<InvoiceIssuerAgent>();
 
     public virtual ICollection<InvoiceItem> InvoiceItemDonation { get; set; } = new List<InvoiceItem>();
 
-    public virtual ICollection<InvoiceItem> InvoiceItemSeller { get; set; } = new List<InvoiceItem>();
+    public virtual ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
 
     public virtual ICollection<InvoicePurchaseOrderAudit> InvoicePurchaseOrderAudit { get; set; } = new List<InvoicePurchaseOrderAudit>();
 

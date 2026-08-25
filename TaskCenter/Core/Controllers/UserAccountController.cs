@@ -99,7 +99,7 @@ namespace TaskCenter.Core.Controllers
                     u.MobilePhone,
                     u.Phone2,
                     Role = u.UserRole
-                        .Select(r => new { r.RoleID, CompanyName = r.OrgaCate.Company.CompanyName })
+                        .Select(r => new { r.RoleID, CompanyName = r.OrganizationCategory.Company.CompanyName })
                         .FirstOrDefault(),
                 })
                 .FirstOrDefault();
@@ -415,7 +415,7 @@ namespace TaskCenter.Core.Controllers
             if (categoryId == null || companyId == null) return false;
 
             var allowed = OrganizationScope.AllowedOrganizations(models!, categoryId.Value, companyId.Value);
-            var userCompanyIds = models!.GetTable<UserRole>().Where(r => r.UID == uid).Select(r => r.OrgaCate.CompanyID);
+            var userCompanyIds = models!.GetTable<UserRole>().Where(r => r.UID == uid).Select(r => r.OrganizationCategory.CompanyID);
             return allowed.Any(o => userCompanyIds.Contains(o.CompanyID));
         }
 

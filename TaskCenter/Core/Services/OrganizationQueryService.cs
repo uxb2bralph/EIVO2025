@@ -58,12 +58,12 @@ namespace TaskCenter.Core.Services
                 if (queryDto.BranchRelation == true)
                 {
                     var masterBranch = (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch;
-                    query = query.Where(o => o.InvoiceIssuerAgentIssuer
+                    query = query.Where(o => o.AsInvoiceIssuer
                         .Any(a => a.AgentID == agentId && a.RelationType == masterBranch));
                 }
                 else
                 {
-                    query = query.Where(o => o.InvoiceIssuerAgentIssuer.Any(a => a.AgentID == agentId));
+                    query = query.Where(o => o.AsInvoiceIssuer.Any(a => a.AgentID == agentId));
                 }
             }
 

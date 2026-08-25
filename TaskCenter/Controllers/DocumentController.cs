@@ -80,7 +80,7 @@ namespace TaskCenter.Controllers
                 {
                     var target = nav.TargetEntityType;
 
-                    // 跳過會回到上層 entity 的 navigation（例如 Attachment->Doc）。
+                    // 跳過會回到上層 entity 的 navigation（例如 Attachment->CDS_Document）。
                     // no-tracking 查詢不允許 Include 路徑形成循環。
                     if (ancestors.Contains(target))
                     {

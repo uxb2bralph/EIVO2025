@@ -31,10 +31,10 @@ namespace TaskCenter.Core.Services
         {
             var companyId = queryDto.CompanyId;
 
-            // 限定於指定營業人（對應舊版 FilterByOrganization：UserRole → OrgaCate.CompanyID）。
+            // 限定於指定營業人（對應舊版 FilterByOrganization：UserRole → OrganizationCategory.CompanyID）。
             var query = _unitOfWork.Context.Set<UserProfile>()
                 .AsNoTracking()
-                .Where(u => u.UserRole.Any(r => r.OrgaCate.CompanyID == companyId));
+                .Where(u => u.UserRole.Any(r => r.OrganizationCategory.CompanyID == companyId));
 
             // 帳號（PID）：前綴比對
             var pid = queryDto.Pid?.Trim();
@@ -69,7 +69,7 @@ namespace TaskCenter.Core.Services
                     u.LevelID,
                     // 首個 UserRole 之角色與所屬營業人名稱（沿用舊版 First() 取法）。
                     Role = u.UserRole
-                        .Select(r => new { r.RoleID, CompanyName = r.OrgaCate.Company.CompanyName })
+                        .Select(r => new { r.RoleID, CompanyName = r.OrganizationCategory.Company.CompanyName })
                         .FirstOrDefault(),
                 })
                 .ToListAsync();

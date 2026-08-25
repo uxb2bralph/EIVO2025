@@ -43,7 +43,7 @@ namespace ModelCore.Helper
                             
                             using (TrackNoIntervalManager models = new TrackNoIntervalManager())
                             {
-                                //models.SettleVacantInvoiceNo(year, period);
+                                //_models.SettleVacantInvoiceNo(year, period);
                                 var assignments =
                                     models.PromptTrackCodeAssignment(viewModel.Year.Value, viewModel.PeriodNo.Value)
                                         .Where(a => a.Seller.OrganizationExtension.InvoiceNoSafetyStock.HasValue);

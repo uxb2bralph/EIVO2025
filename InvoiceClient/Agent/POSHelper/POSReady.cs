@@ -111,9 +111,9 @@ namespace InvoiceClient.Agent.POSHelper
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
     public class InvoiceIssue
     {
-        public string sn { get; set; }
-        public string random { get; set; }
-        public string aesbase64 { get; set; }
+        public string sn { get; set; } = null!;
+        public string random { get; set; } = null!;
+        public string aesbase64 { get; set; } = null!;
     }
 
     public class InvoiceNoRoot
@@ -121,7 +121,7 @@ namespace InvoiceClient.Agent.POSHelper
         public int? SellerID { get; set; }
         public int? Year { get; set; }
         public int? PeriodNo { get; set; }
-        public List<InvoiceIssue> invoice_issue { get; set; }
+        public List<InvoiceIssue>? invoice_issue { get; set; }
     }
 
 

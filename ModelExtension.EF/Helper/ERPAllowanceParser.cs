@@ -74,7 +74,7 @@ namespace ModelCore.Helper
                 //_root.Add(new XElement("ProcessType", PreferredProcessType.ToString()));
             }
 
-            _invoice = new XElement("Allowance",
+            _invoice = new XElement("CDS_Document",
                             new XElement("AllowanceNumber", column[1]),
                             new XElement("AllowanceDate", column[2]),
                             new XElement("BuyerId", column[3]),

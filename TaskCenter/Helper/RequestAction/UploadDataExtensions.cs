@@ -76,10 +76,10 @@ namespace TaskCenter.Helper.RequestAction
 
         }
 
-        public static OrganizationToken CheckRequestToken(this AuthQueryViewModel viewModel, SampleController controller)
+        public static OrganizationToken? CheckRequestToken(this AuthQueryViewModel viewModel, SampleController controller)
         {
             var item = viewModel.CheckRequest(controller);
-            OrganizationToken token = item?.OrganizationToken;
+            OrganizationToken? token = item?.OrganizationToken;
             if (token == null)
             {
                 controller.ModelState.AddModelError("E1003", ErrorMessage.E1003);

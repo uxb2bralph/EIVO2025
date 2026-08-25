@@ -44,7 +44,7 @@ namespace ModelCore.InvoiceManagement.enUS
 
                 if (invoice == null)
                 {
-                    return new MarkToRetryException(String.Format("Invoice No. does not exist:{0}", invItem.CancelInvoiceNumber));
+                    return new MarkToRetryException(String.Format("CDS_Document No. does not exist:{0}", invItem.CancelInvoiceNumber));
                 }
             }
             else
@@ -56,7 +56,7 @@ namespace ModelCore.InvoiceManagement.enUS
 
                 if (invoice == null)
                 {
-                    return new MarkToRetryException(String.Format("Invoice Data number does not exist:{0}", invItem.CancelDataNumber));
+                    return new MarkToRetryException(String.Format("CDS_Document Data number does not exist:{0}", invItem.CancelDataNumber));
                 }
 
             }
@@ -78,12 +78,12 @@ namespace ModelCore.InvoiceManagement.enUS
 
             if (invoice.SellerID != owner.CompanyID)
             {
-                return new Exception(String.Format("Non-original invoice voided invoice Liren,Cancel Invoice Number:{0}", invItem.CancelInvoiceNumber));
+                return new Exception(String.Format("Non-original invoice voided invoice Liren,Cancel CDS_Document Number:{0}", invItem.CancelInvoiceNumber));
             }
 
             if (invoice.InvoiceCancellation != null)
             {
-                return new Exception(String.Format("Cancel Invoice already exists,Cancel Invoice Number:{0}", invItem.CancelInvoiceNumber));
+                return new Exception(String.Format("Cancel CDS_Document already exists,Cancel CDS_Document Number:{0}", invItem.CancelInvoiceNumber));
             }
 
 
@@ -156,7 +156,7 @@ namespace ModelCore.InvoiceManagement.enUS
             DateTime? invoiceDate = item.GetData<DateTime>((int)VoidInvoiceField.Invoice_Date);
             if (!invoiceDate.HasValue)
             {
-                return new Exception("Invalid Invoice Date");
+                return new Exception("Invalid CDS_Document Date");
             }
 
             String sellerID = item.GetString((int)VoidInvoiceField.Seller_ID);
@@ -172,7 +172,7 @@ namespace ModelCore.InvoiceManagement.enUS
 
             if (invoice == null)
             {
-                return new MarkToRetryException(String.Format("Invoice No. does not exist:{0}", item.GetString((int)VoidInvoiceField.Void_Invoice_No)));
+                return new MarkToRetryException(String.Format("CDS_Document No. does not exist:{0}", item.GetString((int)VoidInvoiceField.Void_Invoice_No)));
             }
             else if (invoice.Seller.ReceiptNo != sellerID)
             {
@@ -202,7 +202,7 @@ namespace ModelCore.InvoiceManagement.enUS
                 .Where(a => a.Allowance.Any(d => d.InvoiceAllowanceSeller != null && d.InvoiceAllowanceSeller.SellerID == invoice.SellerID))
                 .Any())
             {
-                return new Exception(String.Format("Allowance existed for void invoice number：{0}", item.GetString((int)VoidInvoiceField.Void_Invoice_No)));
+                return new Exception(String.Format("CDS_Document existed for void invoice number：{0}", item.GetString((int)VoidInvoiceField.Void_Invoice_No)));
             }
 
             //if (item.CancelReason.Length > 256)

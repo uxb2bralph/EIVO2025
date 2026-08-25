@@ -41,7 +41,7 @@ namespace ModelCore.InvoiceManagement
 
                             using (TrackNoIntervalManager models = new TrackNoIntervalManager())
                             {
-                                //models.SettleVacantInvoiceNo(year, period);
+                                //_models.SettleVacantInvoiceNo(year, period);
                                 var assignments = models.PromptTrackCodeAssignment(year, period);
                                 var autoBlankItems = models.GetTable<Organization>()
                                         .Join(models.GetTable<OrganizationExtension>().Where(x => x.AutoBlankTrack == true),

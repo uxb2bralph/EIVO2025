@@ -368,7 +368,7 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult VoidAllowance(InquireInvoiceViewModel viewModel)
+        public ActionResult VoidAllowance([FromBody] InquireInvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             var chkItem = viewModel.ChkItem;

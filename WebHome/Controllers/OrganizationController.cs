@@ -275,11 +275,14 @@ namespace WebHome.Controllers
                 //    }
                 //}
 
-                models!.ExecuteCommand(@"DELETE FROM InvoiceIssuerAgent
-                        WHERE IssuerID = {0}", item.CompanyID);
+                //models!.ExecuteCommand(@"DELETE FROM InvoiceIssuerAgent
+                //        WHERE IssuerID = {0}", item.CompanyID);
 
                 foreach (var id in issuerID!)
                 {
+                    models!.ExecuteCommand(@"DELETE FROM InvoiceIssuerAgent
+                        WHERE IssuerID = {0} and AgentID = {1}", item.CompanyID, id);
+
                     result += models!.ExecuteCommand(@"INSERT INTO InvoiceIssuerAgent
                              (AgentID, IssuerID)
                         SELECT {0}, {1}

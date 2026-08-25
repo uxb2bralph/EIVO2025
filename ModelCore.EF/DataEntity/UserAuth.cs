@@ -13,5 +13,5 @@ public partial class UserAuth
 
     public string X509Certificate { get; set; } = null!;
 
-    public virtual UserProfile UIDNavigation { get; set; } = null!;
+    public virtual UserProfile UserProfile { get; set; } = null!;
 }

@@ -20,8 +20,8 @@ namespace ModelCore.Schema.TurnKey
     //{
 
     //    /// <remarks/>
-    //    [System.Xml.Serialization.XmlElementAttribute("Allowance", Order = 1)]
-    //    public ModelCore.Schema.TurnKey.B1401.Allowance[] Allowance;
+    //    [System.Xml.Serialization.XmlElementAttribute("CDS_Document", Order = 1)]
+    //    public ModelCore.Schema.TurnKey.B1401.CDS_Document[] CDS_Document;
     //}
 
     //[System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.1")]
@@ -46,7 +46,7 @@ namespace ModelCore.Schema.TurnKey
     {
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Invoice", Order = 1)]
+        [System.Xml.Serialization.XmlElementAttribute("CDS_Document", Order = 1)]
         public ModelCore.Schema.TurnKey.A1401.Invoice Invoice;
 
         /// <remarks/>

@@ -9,7 +9,7 @@ public partial class DerivedDocument
 
     public int SourceID { get; set; }
 
-    public virtual CDS_Document Doc { get; set; } = null!;
+    public virtual CDS_Document CDS_Document { get; set; } = null!;
 
-    public virtual CDS_Document Source { get; set; } = null!;
+    public virtual CDS_Document ParentDocument { get; set; } = null!;
 }

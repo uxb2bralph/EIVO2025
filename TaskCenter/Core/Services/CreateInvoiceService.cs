@@ -164,7 +164,7 @@ namespace TaskCenter.Core.Services
         public Task<CreateInvoiceCommitResult> CommitAsync(CreateInvoiceRequestDto dto, int sellerId)
         {
             var models = new GenericDbContext<ApplicationDbContext>(_unitOfWork.Context);
-            var ds = new ModelSource<InvoiceItem>(models);
+            var ds = new ModelSource(models);
 
             var seller = ds.GetTable<Organization>().Where(o => o.CompanyID == sellerId).FirstOrDefault();
             if (seller == null)
@@ -182,14 +182,14 @@ namespace TaskCenter.Core.Services
 
                 if (processType == Naming.InvoiceProcessType.A0101)
                 {
-                    var validator = new A0101ViewModelValidator<InvoiceItem>(ds, seller);
+                    var validator = new A0101ViewModelValidator(ds, seller);
                     ex = validator.Validate(vm);
                     if (ex != null) return Task.FromResult(CreateInvoiceCommitResult.Error(ex.Message));
                     newItem = validator.InvoiceItem;
                 }
                 else
                 {
-                    var validator = new InvoiceViewModelValidator<InvoiceItem>(ds, seller);
+                    var validator = new InvoiceViewModelValidator(ds, seller);
                     ex = validator.Validate(vm);
                     if (ex != null) return Task.FromResult(CreateInvoiceCommitResult.Error(ex.Message));
                     newItem = validator.InvoiceItem;

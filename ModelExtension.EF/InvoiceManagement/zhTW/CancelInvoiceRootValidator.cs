@@ -154,7 +154,7 @@ namespace ModelCore.InvoiceManagement.zhTW
             return null;
         }
 
-        //public static Exception CheckMandatoryFields_Proxy(this CancelInvoiceRootCancelInvoice invItem, GenericDbContext<ApplicationDbContext> mgr, OrganizationToken owner, out Invoice invoice, out DateTime cancelDate)
+        //public static Exception CheckMandatoryFields_Proxy(this CancelInvoiceRootCancelInvoice invItem, GenericDbContext<ApplicationDbContext> mgr, OrganizationToken owner, out CDS_Document invoice, out DateTime cancelDate)
         //{
         //    invoice = null;
         //    cancelDate = default(DateTime);
@@ -177,7 +177,7 @@ namespace ModelCore.InvoiceManagement.zhTW
         //        return new Exception(String.Format("發票日期格式錯誤(YYYY/MM/DD)，傳送資料：{0}，TAG：< InvoiceDate/>", invItem.InvoiceDate));
         //    }
 
-        //    invoice = mgr.GetTable<Invoice>().Where(i => i.No == invNo && i.TrackCode == trackCode).FirstOrDefault();
+        //    invoice = mgr.GetTable<CDS_Document>().Where(i => i.No == invNo && i.TrackCode == trackCode).FirstOrDefault();
             
         //    if (invoice == null)
         //    {

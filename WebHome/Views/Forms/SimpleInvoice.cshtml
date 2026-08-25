@@ -13,15 +13,24 @@
 
     InvoiceViewModel _viewModel;
 
-
     ViewBag.ActionName = "首頁 > 電子發票開立";
     _viewModel = (InvoiceViewModel)ViewBag.ViewModel;
+
+    // 提交動作：預設為開立(CommitInvoice)，編輯改開立(EditInvoice)時由控制器指定 CommitEditInvoice
+    String _commitAction = (ViewBag.CommitAction as String) ?? "CommitInvoice";
 }
 
 @{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "電子發票開立");}
 
 <form role="form" method="post" id="invoiceForm">
-    @{ await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/InvoiceProcessTypeDirection.cshtml");}
+    @if (!String.IsNullOrEmpty(_viewModel.KeyID))
+    {
+        <input type="hidden" name="KeyID" value="@(_viewModel.KeyID)" />
+    }
+    @if (_viewModel.KeyID == null)
+    {
+        await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/InvoiceProcessTypeDirection.cshtml");
+    }
 
     <div class="border_gray">
         <!--表格 開始-->
@@ -33,7 +42,14 @@
                 </th>
                 <td class="tdleft">
                     @{
-                        @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new InquireInvoiceViewModel { FieldName = "EncSellerID", Encrypt = true }));
+                        var _sellerSelector = new InquireInvoiceViewModel { FieldName = "EncSellerID", Encrypt = true };
+                        if (_viewModel.SellerID.HasValue)
+                        {
+                            // 編輯時預先帶入原發票開立人（下拉選單預選 / 檢索框顯示名稱）
+                            _sellerSelector.SellerID = _viewModel.SellerID;
+                            _sellerSelector.Title = String.Format("{0} {1}", _viewModel.SellerReceiptNo, _viewModel.SellerName).Trim();
+                        }
+                        @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), _sellerSelector));
                     }
                 </td>
                 <th nowrap="nowrap" width="120">
@@ -44,8 +60,8 @@
                     @{ ViewBag.FieldID = "SearchBuyer";
                         await Html.RenderPartialAsync("~/Views/DataFlow/CounterpartBusinessSelector.cshtml");}
 
-                    <input name="BuyerReceiptNo" type="hidden" />
-                    <input class="form-control" name="CustomerID" id="CustomerID" type="text" />
+                    <input name="BuyerReceiptNo" type="hidden" value="@(_viewModel.BuyerReceiptNo)" />
+                    <input class="form-control" name="CustomerID" id="CustomerID" type="text" value="@(_viewModel.CustomerID)" />
                     <div id="forCounterpart" style="display:none;">
                         @*相對營業人：
                             <input type="radio" name="counterPart" value="@($"{true}")" />是&nbsp;
@@ -144,7 +160,7 @@
                 <td class="tdleft">
                     <select id="CarrierType" name="CarrierType">
                         <option value="">不使用</option>
-                        <option value="3J0002">手機條碼</option>
+                        <option value="3J0002" selected="@(_viewModel.CarrierType == "3J0002")">手機條碼</option>
                         @*<option value="1K0001">悠遊卡</option>
         <option value="BJ0001">行動 X 卡</option>
         <option value="2G0001">iCash</option>
@@ -152,9 +168,9 @@
         <option value="1K0002">台灣智慧卡</option>
         <option value="BK0001">SmartPay金融卡</option>
         <option value="1H0001">一卡通</option>*@
-                        <option value="CQ0001">自然人憑證條碼</option>
-                        <option value="3J0001">網際優勢會員條碼</option>
-                        <option value="5G0001">境外電商</option>
+                        <option value="CQ0001" selected="@(_viewModel.CarrierType == "CQ0001")">自然人憑證條碼</option>
+                        <option value="3J0001" selected="@(_viewModel.CarrierType == "3J0001")">網際優勢會員條碼</option>
+                        <option value="5G0001" selected="@(_viewModel.CarrierType == "5G0001")">境外電商</option>
                     </select>
                     @*<script>
                             $('#CarrierType').on('change', function (evt) {
@@ -178,7 +194,7 @@
                     愛心碼
                 </th>
                 <td class="tdleft">
-                    <input class="form-control" name="NPOBAN" type="text" value="" maxlength="7" />
+                    <input class="form-control" name="NPOBAN" type="text" value="@(_viewModel.NPOBAN)" maxlength="7" />
                 </td>
                 <th>備註</th>
                 <td class="tdleft">
@@ -203,8 +219,8 @@
                 </th>
                 <td class="tdleft" colspan="3">
                     <select class="form-control" name="InvoiceType">
-                        <option value="@((int)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)">@(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)</option>
-                        <option value="@((int)Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)">@(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)</option>
+                        <option value="@((int)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)" selected="@(_viewModel.InvoiceType == (byte)Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)">@(Naming.InvoiceTypeDefinition.一般稅額計算之電子發票)</option>
+                        <option value="@((int)Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)" selected="@(_viewModel.InvoiceType == (byte)Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)">@(Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)</option>
                     </select>
                 </td>
             </tr>
@@ -214,10 +230,10 @@
                 </th>
                 <td class="tdleft">
                     <select class="form-control" name="TaxType" onchange="uiInvoice.onTaxTypeChange(this.value);">
-                        <option value="1">應稅</option>
-                        <option value="2">零稅率</option>
-                        <option value="3">免稅</option>
-                        <option value="4">特種稅率</option>
+                        <option value="1" selected="@(_viewModel.TaxType == 1)">應稅</option>
+                        <option value="2" selected="@(_viewModel.TaxType == 2)">零稅率</option>
+                        <option value="3" selected="@(_viewModel.TaxType == 3)">免稅</option>
+                        <option value="4" selected="@(_viewModel.TaxType == 4)">特種稅率</option>
                     </select>
                 </td>
                 <th nowrap="nowrap" width="150">
@@ -226,9 +242,9 @@
                 <td class="tdleft">
                     <select class="form-control" name="CustomsClearanceMark">
                         <option value="">無</option>
-                        <option value="1">買受人為園區事業</option>
-                        <option value="2">買受人為遠洋漁業</option>
-                        <option value="3">買受人為保稅區(自由貿易港區)</option>
+                        <option value="1" selected="@(_viewModel.CustomsClearanceMark == 1)">買受人為園區事業</option>
+                        <option value="2" selected="@(_viewModel.CustomsClearanceMark == 2)">買受人為遠洋漁業</option>
+                        <option value="3" selected="@(_viewModel.CustomsClearanceMark == 3)">買受人為保稅區(自由貿易港區)</option>
                     </select>
                 </td>
             </tr>
@@ -237,13 +253,13 @@
                     稅率
                 </th>
                 <td class="tdleft">
-                    <input class="form-control" name="TaxRate" type="text" value="0.05" />
+                    <input class="form-control" name="TaxRate" type="text" value="@(_viewModel.TaxRate ?? 0.05m)" />
                 </td>
                 <th nowrap="nowrap">
                     銷售額合計(新台幣)
                 </th>
                 <td class="tdleft">
-                    <input class="form-control" name="SalesAmount" type="text" value="" />
+                    <input class="form-control" name="SalesAmount" type="text" value="@(_viewModel.SalesAmount)" />
                 </td>
             </tr>
             <tr>
@@ -251,13 +267,13 @@
                     營業稅額
                 </th>
                 <td class="tdleft">
-                    <input class="form-control" name="TaxAmount" type="text" value="" />
+                    <input class="form-control" name="TaxAmount" type="text" value="@(_viewModel.TaxAmount)" />
                 </td>
                 <th nowrap="nowrap" width="150">
                     總計(含稅)
                 </th>
                 <td class="tdleft">
-                    <input class="form-control" name="TotalAmount" type="text" value="" />
+                    <input class="form-control" name="TotalAmount" type="text" value="@(_viewModel.TotalAmount)" />
                 </td>
             </tr>
         </table>
@@ -323,7 +339,7 @@
                     var $formData = $form.serializeObject();
                     $formData.ForPreview = forPreview;
                     showLoading();
-                    $.post('@Html.Raw(Url.Action("CommitInvoice","InvoiceBusiness",new { _viewModel.InvoiceProcessType }))', $formData, function (data) {
+                    $.post('@Html.Raw(Url.Action(_commitAction, "InvoiceBusiness", new { _viewModel.InvoiceProcessType }))', $formData, function (data) {
                         hideLoading();
                         if ($.isPlainObject(data)) {
                             alert(data.message);

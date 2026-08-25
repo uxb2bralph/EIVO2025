@@ -149,7 +149,7 @@ namespace ModelCore.InvoiceManagement
                 else
                 {
                     item.Entity.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.G0401);
-                    //item.Entity.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
+                    //item.Entity.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
                 }
             }
 

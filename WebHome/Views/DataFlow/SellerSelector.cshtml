@@ -55,7 +55,7 @@ else
         }
         @foreach (var o in _model.OrderBy(o => o.ReceiptNo))
         {
-            <option value="@(_viewModel.Encrypt==true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString())">@(String.Format("{0} {1}", o.ReceiptNo, o.CompanyName))</option>
+            <option value="@(_viewModel.Encrypt==true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString())" selected="@(_viewModel.SellerID.HasValue && o.CompanyID == _viewModel.SellerID)">@(String.Format("{0} {1}", o.ReceiptNo, o.CompanyName))</option>
         }
     </select>
 }

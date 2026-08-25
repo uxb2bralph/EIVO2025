@@ -48,7 +48,7 @@ namespace ModelCore.InvoiceManagement
         //        var notify = mgr.GetTable<ReplicationNotification>();
         //        var items = notify.ToList();
 
-        //        var toIssue = mgr.GetTable<Doc>().Where(d => d.CurrentStep == (int)Naming.B2BInvoiceStepDefinition.待開立);
+        //        var toIssue = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.B2BInvoiceStepDefinition.待開立);
 
         //        var notifyToIssue = toIssue
         //                .Join(mgr.EntityList, d => d.DocID, i => i.InvoiceID, (d, i) => i)
@@ -60,12 +60,12 @@ namespace ModelCore.InvoiceManagement
         //                .Join(notify, t => t.InvoiceID, s => s.DocID, (t, s) => new _key { a = t.InvoiceSeller.SellerID, b = t.InvoiceBuyer.BuyerID })
         //                .Join(mgr.GetTable<BusinessRelationship>(), k => k, r => new _key { a = r.RelativeID, b = r.MasterID }, (k, r) => k.a))
         //            .Concat(toIssue
-        //                .Join(mgr.GetTable<Allowance>(), d => d.DocID, i => i.AllowanceID, (d, i) => i)
+        //                .Join(mgr.GetTable<CDS_Document>(), d => d.DocID, i => i.AllowanceID, (d, i) => i)
         //                .Join(notify, t => t.AllowanceID, s => s.DocID, (t, s) => new _key { a = t.InvoiceAllowanceSeller.SellerID, b = t.InvoiceAllowanceBuyer.BuyerID })
         //                .Join(mgr.GetTable<BusinessRelationship>(), k => k, r => new _key { a = r.MasterID, b = r.RelativeID }, (k, r) => k.b))
         //            .Concat(toIssue
         //                .Join(mgr.GetTable<DerivedDocument>(), t => t.DocID, d => d.DocID, (t, d) => d)
-        //                .Join(mgr.GetTable<Allowance>(), d => d.SourceID, i => i.AllowanceID, (d, i) => i)
+        //                .Join(mgr.GetTable<CDS_Document>(), d => d.SourceID, i => i.AllowanceID, (d, i) => i)
         //                .Join(notify, t => t.AllowanceID, s => s.DocID, (t, s) => new _key { a = t.InvoiceAllowanceSeller.SellerID, b = t.InvoiceAllowanceBuyer.BuyerID })
         //                .Join(mgr.GetTable<BusinessRelationship>(), k => k, r => new _key { a = r.MasterID, b = r.RelativeID }, (k, r) => k.b))
         //            .Concat(toIssue
@@ -79,7 +79,7 @@ namespace ModelCore.InvoiceManagement
         //                .Join(mgr.GetTable<BusinessRelationship>(), k => k, r => new _key { a = r.RelativeID, b = r.MasterID }, (k, r) => k.a))
         //            .Distinct();
 
-        //        var toReceive = mgr.GetTable<Doc>().Where(d => d.CurrentStep == (int)Naming.B2BInvoiceStepDefinition.待接收);
+        //        var toReceive = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.B2BInvoiceStepDefinition.待接收);
 
         //        var notifyToReceive = toReceive
         //                .Join(mgr.EntityList, d => d.DocID, i => i.InvoiceID, (d, i) => i)
@@ -91,12 +91,12 @@ namespace ModelCore.InvoiceManagement
         //                .Join(notify, t => t.InvoiceID, s => s.DocID, (t, s) => new _key { a = t.InvoiceSeller.SellerID, b = t.InvoiceBuyer.BuyerID })
         //                .Join(mgr.GetTable<BusinessRelationship>(), k => k, r => new _key { a = r.MasterID, b = r.RelativeID }, (k, r) => k.b))
         //            .Concat(toReceive
-        //                .Join(mgr.GetTable<Allowance>(), d => d.DocID, i => i.AllowanceID, (d, i) => i)
+        //                .Join(mgr.GetTable<CDS_Document>(), d => d.DocID, i => i.AllowanceID, (d, i) => i)
         //                .Join(notify, t => t.AllowanceID, s => s.DocID, (t, s) => new _key { a = t.InvoiceAllowanceSeller.SellerID, b = t.InvoiceAllowanceBuyer.BuyerID })
         //                .Join(mgr.GetTable<BusinessRelationship>(), k => k, r => new _key { a = r.RelativeID, b = r.MasterID }, (k, r) => k.a))
         //            .Concat(toReceive
         //                .Join(mgr.GetTable<DerivedDocument>(), t => t.DocID, d => d.DocID, (t, d) => d)
-        //                .Join(mgr.GetTable<Allowance>(), d => d.SourceID, i => i.AllowanceID, (d, i) => i)
+        //                .Join(mgr.GetTable<CDS_Document>(), d => d.SourceID, i => i.AllowanceID, (d, i) => i)
         //                .Join(notify, t => t.AllowanceID, s => s.DocID, (t, s) => new _key { a = t.InvoiceAllowanceSeller.SellerID, b = t.InvoiceAllowanceBuyer.BuyerID })
         //                .Join(mgr.GetTable<BusinessRelationship>(), k => k, r => new _key { a = r.RelativeID, b = r.MasterID }, (k, r) => k.a))
         //            .Concat(toReceive
@@ -151,7 +151,7 @@ namespace ModelCore.InvoiceManagement
         //    ModelExtension.Properties.AppSettings.Default.B0501Outbound.CheckStoredPath();
         //    int allowanceCancellationCounter = Directory.GetFiles(ModelExtension.Properties.AppSettings.Default.B0501Outbound).Length;
 
-        //    var items = mgr.GetTable<Doc>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待傳送);
+        //    var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待傳送);
 
         //    if (items.Count() > 0)
         //    {
@@ -163,36 +163,36 @@ namespace ModelCore.InvoiceManagement
         //                switch ((Naming.DocumentTypeDefinition)item.DocType.Value)
         //                {
         //                    case Naming.DocumentTypeDefinition.E_Invoice:
-        //                        //if (item.Invoice.InvoiceSeller.Company.OrganizationStatus != null && item.Invoice.InvoiceSeller.Company.OrganizationStatus.IronSteelIndustry == true)
+        //                        //if (item.CDS_Document.InvoiceSeller.Company.OrganizationStatus != null && item.CDS_Document.InvoiceSeller.Company.OrganizationStatus.IronSteelIndustry == true)
         //                        //{
         //                        //    fileName = Path.Combine(Settings.Default.A1401Outbound, String.Format("A1401-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, invoiceCounter++));
-        //                        //    item.Invoice.CreateA1401().ConvertToXml().Save(fileName);
+        //                        //    item.CDS_Document.CreateA1401().ConvertToXml().Save(fileName);
         //                        //}
         //                        //else
         //                        {
-        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0401Outbound, $"A0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.Invoice.TrackCode}{item.Invoice.No}.xml");
-        //                            item.Invoice.CreateB2BInvoiceMIG().ConvertToXml().Save(fileName);
+        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0401Outbound, $"A0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.CDS_Document.TrackCode}{item.CDS_Document.No}.xml");
+        //                            item.CDS_Document.CreateB2BInvoiceMIG().ConvertToXml().Save(fileName);
         //                        }
         //                        break;
         //                    case Naming.DocumentTypeDefinition.E_Allowance:
-        //                        //if (item.Allowance.InvoiceAllowanceSeller.Company.OrganizationStatus != null && item.Allowance.InvoiceAllowanceSeller.Company.OrganizationStatus.IronSteelIndustry == true)
+        //                        //if (item.CDS_Document.InvoiceAllowanceSeller.Company.OrganizationStatus != null && item.CDS_Document.InvoiceAllowanceSeller.Company.OrganizationStatus.IronSteelIndustry == true)
         //                        //{
         //                        //    fileName = Path.Combine(Settings.Default.B1401Outbound, String.Format("B1401-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, allowanceCounter++));
-        //                        //    item.Allowance.CreateB1401().ConvertToXml().Save(fileName);
+        //                        //    item.CDS_Document.CreateB1401().ConvertToXml().Save(fileName);
         //                        //}
         //                        //else
         //                        {
-        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0401Outbound, $"B0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.Allowance.AllowanceNumber}.xml");
-        //                            item.Allowance.CreateG0401().ConvertToXml().Save(fileName);
+        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0401Outbound, $"B0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.CDS_Document.AllowanceNumber}.xml");
+        //                            item.CDS_Document.CreateG0401().ConvertToXml().Save(fileName);
         //                        }
         //                        break;
         //                    case Naming.DocumentTypeDefinition.E_InvoiceCancellation:
         //                        fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0501Outbound, String.Format("A0501-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, cancellationCounter++));
-        //                        item.DerivedDocument.ParentDocument.Invoice.CreateF0501().ConvertToXml().Save(fileName);
+        //                        item.DerivedDocument.ParentDocument.CDS_Document.CreateF0501().ConvertToXml().Save(fileName);
         //                        break;
         //                    case Naming.DocumentTypeDefinition.E_AllowanceCancellation:
         //                        fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0501Outbound, String.Format("B0501-{0:yyyyMMddHHmmssf}-{1:00000}.xml", DateTime.Now, allowanceCancellationCounter++));
-        //                        item.DerivedDocument.ParentDocument.Allowance.CreateG0501().ConvertToXml().Save(fileName);
+        //                        item.DerivedDocument.ParentDocument.CDS_Document.CreateG0501().ConvertToXml().Save(fileName);
         //                        break;
         //                }
 
@@ -210,7 +210,7 @@ namespace ModelCore.InvoiceManagement
         //{
         //    using (InvoiceManager mgr = new InvoiceManager())
         //    {
-        //        var items = mgr.GetTable<Doc>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待接收);
+        //        var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待接收);
 
         //        if (items.Count() > 0)
         //        {
@@ -225,20 +225,20 @@ namespace ModelCore.InvoiceManagement
         //                    {
         //                        case Naming.B2BInvoiceDocumentTypeDefinition.電子發票:
 
-        //                            if (item.Invoice.InvoiceBuyer.Company.OrganizationStatus.Entrusting == true)
+        //                            if (item.CDS_Document.InvoiceBuyer.Company.OrganizationStatus.Entrusting == true)
         //                            {
         //                                sb.Clear();
-        //                                if (item.Invoice.InvoiceBuyer.Company.IsEnterpriseGroupMember())
+        //                                if (item.CDS_Document.InvoiceBuyer.Company.IsEnterpriseGroupMember())
         //                                {
-        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.Invoice.InvoiceBuyer.Company);
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.CDS_Document.InvoiceBuyer.Company);
         //                                    if (cert != null)
         //                                    {
-        //                                        bSigned = item.Invoice.SignAndCheckToReceiveInvoiceItem(cert, sb);
+        //                                        bSigned = item.CDS_Document.SignAndCheckToReceiveInvoiceItem(cert, sb);
         //                                    }
         //                                }
         //                                else
         //                                {
-        //                                    bSigned = item.Invoice.SignAndCheckToReceiveInvoiceItem(null, sb);
+        //                                    bSigned = item.CDS_Document.SignAndCheckToReceiveInvoiceItem(null, sb);
         //                                }
         //                                if (bSigned)
         //                                {
@@ -247,27 +247,27 @@ namespace ModelCore.InvoiceManagement
         //                            }
         //                            break;
         //                        case Naming.B2BInvoiceDocumentTypeDefinition.發票折讓:
-        //                            if (item.Allowance.InvoiceAllowanceSeller.Company.OrganizationStatus.Entrusting == true)
+        //                            if (item.CDS_Document.InvoiceAllowanceSeller.Company.OrganizationStatus.Entrusting == true)
         //                            {
         //                                sb.Clear();
-        //                                if (item.Allowance.InvoiceAllowanceSeller.Company.IsEnterpriseGroupMember())
+        //                                if (item.CDS_Document.InvoiceAllowanceSeller.Company.IsEnterpriseGroupMember())
         //                                {
-        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.Allowance.InvoiceAllowanceSeller.Company);
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.CDS_Document.InvoiceAllowanceSeller.Company);
         //                                    if (cert != null)
         //                                    {
-        //                                        bSigned = item.Allowance.SignAndCheckToReceiveInvoiceAllowance(cert, sb);
+        //                                        bSigned = item.CDS_Document.SignAndCheckToReceiveInvoiceAllowance(cert, sb);
         //                                    }
         //                                }
         //                                else
         //                                {
-        //                                    bSigned = item.Allowance.SignAndCheckToReceiveInvoiceAllowance(null, sb);
+        //                                    bSigned = item.CDS_Document.SignAndCheckToReceiveInvoiceAllowance(null, sb);
         //                                }
         //                                if (bSigned)
         //                                {
         //                                    var businessID = new DocumentQueryViewModel
         //                                    {
-        //                                        MailToID = item.Allowance.InvoiceAllowanceBuyer.BuyerID,
-        //                                        Seller = item.Allowance.InvoiceAllowanceSeller.Company,
+        //                                        MailToID = item.CDS_Document.InvoiceAllowanceBuyer.BuyerID,
+        //                                        Seller = item.CDS_Document.InvoiceAllowanceSeller.Company,
         //                                        DocID = item.DocID
         //                                    };
         //                                    EIVONotificationFactory.NotifyCommissionedToReceive(this, new EventArgs<DocumentQueryViewModel> { Argument = businessID });
@@ -275,20 +275,20 @@ namespace ModelCore.InvoiceManagement
         //                            }
         //                            break;
         //                        case Naming.B2BInvoiceDocumentTypeDefinition.作廢發票:
-        //                            if (item.DerivedDocument.ParentDocument.Invoice.InvoiceBuyer.Company.OrganizationStatus.Entrusting == true)
+        //                            if (item.DerivedDocument.ParentDocument.CDS_Document.InvoiceBuyer.Company.OrganizationStatus.Entrusting == true)
         //                            {
         //                                sb.Clear();
-        //                                if (item.DerivedDocument.ParentDocument.Invoice.InvoiceBuyer.Company.IsEnterpriseGroupMember())
+        //                                if (item.DerivedDocument.ParentDocument.CDS_Document.InvoiceBuyer.Company.IsEnterpriseGroupMember())
         //                                {
-        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.Invoice.InvoiceBuyer.Company);
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.CDS_Document.InvoiceBuyer.Company);
         //                                    if (cert != null)
         //                                    {
-        //                                        bSigned = item.DerivedDocument.ParentDocument.Invoice.SignAndCheckToReceiveInvoiceCancellation(cert, sb, item.DocID);
+        //                                        bSigned = item.DerivedDocument.ParentDocument.CDS_Document.SignAndCheckToReceiveInvoiceCancellation(cert, sb, item.DocID);
         //                                    }
         //                                }
         //                                else
         //                                {
-        //                                    bSigned = item.DerivedDocument.ParentDocument.Invoice.SignAndCheckToReceiveInvoiceCancellation(null, sb, item.DocID);
+        //                                    bSigned = item.DerivedDocument.ParentDocument.CDS_Document.SignAndCheckToReceiveInvoiceCancellation(null, sb, item.DocID);
         //                                }
         //                                if (bSigned)
         //                                {
@@ -301,27 +301,27 @@ namespace ModelCore.InvoiceManagement
         //                            }
         //                            break;
         //                        case Naming.B2BInvoiceDocumentTypeDefinition.作廢折讓:
-        //                            if (item.DerivedDocument.ParentDocument.Allowance.InvoiceAllowanceSeller.Company.OrganizationStatus.Entrusting == true)
+        //                            if (item.DerivedDocument.ParentDocument.CDS_Document.InvoiceAllowanceSeller.Company.OrganizationStatus.Entrusting == true)
         //                            {
         //                                sb.Clear();
-        //                                if (item.DerivedDocument.ParentDocument.Allowance.InvoiceAllowanceSeller.Company.IsEnterpriseGroupMember())
+        //                                if (item.DerivedDocument.ParentDocument.CDS_Document.InvoiceAllowanceSeller.Company.IsEnterpriseGroupMember())
         //                                {
-        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.Allowance.InvoiceAllowanceSeller.Company);
+        //                                    var cert = (new B2BInvoiceManager(mgr)).PrepareSignerCertificate(item.DerivedDocument.ParentDocument.CDS_Document.InvoiceAllowanceSeller.Company);
         //                                    if (cert != null)
         //                                    {
-        //                                        bSigned = item.DerivedDocument.ParentDocument.Allowance.SignAndCheckToReceiveAllowanceCancellation(cert, sb, item.DocID);
+        //                                        bSigned = item.DerivedDocument.ParentDocument.CDS_Document.SignAndCheckToReceiveAllowanceCancellation(cert, sb, item.DocID);
         //                                    }
         //                                }
         //                                else
         //                                {
-        //                                    bSigned = item.DerivedDocument.ParentDocument.Allowance.SignAndCheckToReceiveAllowanceCancellation(null, sb, item.DocID);
+        //                                    bSigned = item.DerivedDocument.ParentDocument.CDS_Document.SignAndCheckToReceiveAllowanceCancellation(null, sb, item.DocID);
         //                                }
         //                                if (bSigned)
         //                                {
         //                                    var businessID = new DocumentQueryViewModel
         //                                    {
-        //                                        MailToID = item.DerivedDocument.ParentDocument.Allowance.InvoiceAllowanceBuyer.BuyerID,
-        //                                        Seller = item.DerivedDocument.ParentDocument.Allowance.InvoiceAllowanceSeller.Company,
+        //                                        MailToID = item.DerivedDocument.ParentDocument.CDS_Document.InvoiceAllowanceBuyer.BuyerID,
+        //                                        Seller = item.DerivedDocument.ParentDocument.CDS_Document.InvoiceAllowanceSeller.Company,
         //                                        DocID = item.DocID
         //                                    };
         //                                    EIVONotificationFactory.NotifyCommissionedToReceive(this, new EventArgs<DocumentQueryViewModel> { Argument = businessID });

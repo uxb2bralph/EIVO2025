@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc;
+using ModelCore.DTOs;
 using TaskCenter.Models;
-using System.Diagnostics;
 
 namespace TaskCenter.Controllers.Filters
 {
@@ -47,11 +48,15 @@ namespace TaskCenter.Controllers.Filters
                 //};
                 filterContext.ExceptionHandled = true;
                 filterContext.Result = new JsonResult
-                    (new
+                    (new BaseResponseDto
                     {
-                        result = false,
-                        message = filterContext.Exception?.Message,
-                    });
+                        Success = false,
+                        Result = false,
+                        Message = filterContext.Exception?.Message ?? "An unexpected error occurred.",
+                    })
+                    {
+                        StatusCode = StatusCodes.Status500InternalServerError
+                    };
             }
         }
     }

@@ -1,7 +1,16 @@
-﻿using CommonLib.Core.Utility;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using CommonLib.Core.Utility;
 using CommonLib.DataAccess;
 using CommonLib.Utility;
 using DocumentFormat.OpenXml.Office.CustomUI;
+using DocumentFormat.OpenXml.Presentation;
+using DocumentFormat.OpenXml.Spreadsheet;
 using ModelCore.DataEntity;
 using ModelCore.InvoiceManagement;
 using ModelCore.InvoiceManagement.InvoiceProcess;
@@ -9,13 +18,6 @@ using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
 using ModelCore.Schema.TurnKey;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ModelCore.Helper
 {
@@ -858,6 +860,9 @@ namespace ModelCore.Helper
                     case "B0201":
                     case "B0202":
                         return PushAllowanceCancellationTurnkeyLog(models, code, no, Enum.Parse<Naming.InvoiceProcessType>(msgType));
+
+                    default:
+                        return -1;
                 }
             }
             catch (Exception ex)
@@ -1056,7 +1061,7 @@ namespace ModelCore.Helper
             else if (mode == Naming.VoidActionMode.註銷重開)
             {
                 String storedPath = Path.Combine(Logger.LogPath, "Archive").CheckStoredPath();
-                c0401.Save(Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
+                c0401.Save(Path.Combine(storedPath, $"F0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
 
                 CommitToVoidInvoice(models, request);
             }
@@ -1073,7 +1078,45 @@ namespace ModelCore.Helper
                         FROM    DerivedDocument INNER JOIN
                                 CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
                         WHERE   (DerivedDocument.SourceID = {0})", item.InvoiceID);
-            models.ExecuteCommand("delete InvoiceItem where InvoiceID={0}", item.InvoiceID);
+            //models.ExecuteCommand("delete InvoiceItem where InvoiceID={0}", item.InvoiceID);
+
+            // 原發票的號碼配置（若存在則轉移到新發票）
+            var assignment = models.GetTable<InvoiceNoAssignment>()
+                .Where(a => a.InvoiceID == item.InvoiceID)
+                .FirstOrDefault();
+
+            // 3. 號碼配置轉移：先刪除原發票的 InvoiceNoAssignment（DeleteAny 立即送出，避免與唯一索引衝突），再以新 InvoiceID 重建一筆
+            if (assignment != null)
+            {
+                models.GetTable<InvoiceNoAssignment>().DeleteOnSubmit(assignment);
+                var newItem = models.GetTable<InvoiceItem>()
+                    .Where(i => i.TrackCode == item.TrackCode && i.No == item.No)
+                    .Where(i => i.SellerID == item.SellerID)
+                    .Where(i => i.InvoiceID > item.InvoiceID) // 確保是新發票
+                    .OrderByDescending(i => i.InvoiceID)
+                    .FirstOrDefault();
+
+                if (newItem != null)
+                {
+                    models.GetTable<InvoiceNoAssignment>().InsertOnSubmit(new InvoiceNoAssignment
+                    {
+                        InvoiceID = newItem.InvoiceID,
+                        IntervalID = assignment.IntervalID,
+                        InvoiceNo = assignment.InvoiceNo,
+                    });
+                }
+
+            }
+
+            // 4. 原發票號結尾加星號，標記為已被取代
+            item.No = item.No + "*";
+
+            if (item.InvoiceTrackCode != null)
+            {
+                item.InvoiceTrackCode = null;
+            }
+
+            models.SubmitChanges();
         }
     }
 }

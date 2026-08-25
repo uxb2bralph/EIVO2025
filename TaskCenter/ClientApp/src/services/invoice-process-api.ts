@@ -184,6 +184,22 @@ export function searchAgents(
   })
 }
 
+/** 作廢發票結果（對應後端 CancelInvoiceResultDto） */
+export interface CancelInvoiceResult {
+  requestedCount: number
+  cancelledCount: number
+  cancelledNos: string[]
+  skippedNos: string[]
+}
+
+/** 作廢選取的發票。對應後端 POST /api/InvoiceProcessAction/Cancel。 */
+export function cancelInvoices(keyIds: string[]): Promise<ApiResponse<CancelInvoiceResult>> {
+  return apiRequest<CancelInvoiceResult>('/InvoiceProcessAction/Cancel', {
+    method: 'POST',
+    data: { keyIds },
+  })
+}
+
 /** 下載發票資料明細 Excel。對應後端 POST /api/InvoiceProcessQuery/ExportXlsx。 */
 export function exportXlsx(query: InvoiceProcessQuery): Promise<Blob> {
   return apiDownloadBlob('/InvoiceProcessQuery/ExportXlsx', { method: 'POST', body: toParams(query) })

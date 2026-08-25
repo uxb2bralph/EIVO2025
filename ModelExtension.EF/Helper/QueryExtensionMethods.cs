@@ -174,12 +174,12 @@ namespace ModelCore.Helper
             }
         }
 
-        //public static DataSet GetDataSetResult<T>(this ModelSource<T> models, IQueryable items,DataTable table)
+        //public static DataSet GetDataSetResult<T>(this ModelSource<T> _models, IQueryable items,DataTable table)
         //    where T : class, new()
         //{
-        //    using (SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items))
+        //    using (SqlCommand sqlCmd = (SqlCommand)_models.GetCommand(items))
         //    {
-        //        return models.GetDataSetResult(sqlCmd, table);
+        //        return _models.GetDataSetResult(sqlCmd, table);
         //    }
         //}
 
@@ -191,10 +191,10 @@ namespace ModelCore.Helper
             }
         }
 
-        //public static DataSet GetDataSetResult<T>(this ModelSource<T> models, SqlCommand sqlCmd, DataTable table)
+        //public static DataSet GetDataSetResult<T>(this ModelSource<T> _models, SqlCommand sqlCmd, DataTable table)
         //    where T : class, new()
         //{
-        //    sqlCmd.Connection = (SqlConnection)models.GetDataContext().Connection;
+        //    sqlCmd.Connection = (SqlConnection)_models.GetDataContext().Connection;
         //    using (SqlDataAdapter adapter = new SqlDataAdapter(sqlCmd))
         //    {
         //        int colCount = table.Columns.Count;

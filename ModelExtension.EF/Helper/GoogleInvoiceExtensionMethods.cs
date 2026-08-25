@@ -59,9 +59,9 @@ namespace ModelCore.Helper
                                 models.ExecuteCommand(@"
                                         DELETE FROM CustomerDefined
                                         FROM              CustomerDefined INNER JOIN
-                                                                    Doc ON CustomerDefined.DocID = Doc.DocID INNER JOIN
-                                                                    Attachment ON Doc.DocID = Attachment.DocID
-                                        WHERE          (Doc.ChannelID = {0})", (int)Naming.ChannelIDType.ForGoogleTerms);
+                                                                    CDS_Document ON CustomerDefined.DocID = CDS_Document.DocID INNER JOIN
+                                                                    Attachment ON CDS_Document.DocID = Attachment.DocID
+                                        WHERE          (CDS_Document.ChannelID = {0})", (int)Naming.ChannelIDType.ForGoogleTerms);
 
                             } while (Interlocked.Decrement(ref __MatchingBusyCount) > 0);
 

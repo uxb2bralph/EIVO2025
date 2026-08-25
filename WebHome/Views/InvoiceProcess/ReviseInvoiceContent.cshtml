@@ -39,16 +39,16 @@
                         foreach (var item in db.Items.ToList())
                         {
                             db.ProcessVoidInvoiceRequest(Naming.VoidActionMode.修改營業人資料, viewModel, item);
-                            item.CreateF0701().Save(System.IO.Path.Combine(stageF0701, "INV0701_" + item.TrackCode + item.No + ".xml"));
+                            item.CreateF0701().Save(System.IO.Path.Combine(stageF0701, "F0701_" + item.TrackCode + item.No + ".xml"));
 
                             item.InvoiceSeller.CustomerName = viewModel.ReviseContent?.SellerName;
                             item.InvoiceSeller.Name = viewModel.ReviseContent?.SellerName;
                             db.SubmitChanges();
 
-                            item.CreateF0401().ConvertToXml().Save(System.IO.Path.Combine(stageF0401, "INV0401_" + item.TrackCode + item.No + ".xml"));
+                            item.CreateF0401().ConvertToXml().Save(System.IO.Path.Combine(stageF0401, "F0401_" + item.TrackCode + item.No + ".xml"));
                             if (item.InvoiceCancellation != null)
                             {
-                                item.CreateF0501().ConvertToXml().Save(System.IO.Path.Combine(stageF0501, "INV0501_" + item.TrackCode + item.No + ".xml"));
+                                item.CreateF0501().ConvertToXml().Save(System.IO.Path.Combine(stageF0501, "F0501_" + item.TrackCode + item.No + ".xml"));
                             }
                         }
                     }

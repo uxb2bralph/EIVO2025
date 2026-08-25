@@ -10,7 +10,7 @@ namespace ModelCore.DTOs
     /// <summary>
     /// Base DTO for paged results
     /// </summary>
-    /// <typeparam name="T">Item type</typeparam>
+    /// <typeparam name="T">InvoiceAllowanceDetails type</typeparam>
     public class PagedResultDto<T>
     {
         /// <summary>
@@ -68,6 +68,13 @@ namespace ModelCore.DTOs
         public bool Success { get; set; }
 
         /// <summary>
+        /// Whether the operation was successful
+        /// </summary>
+        [JsonPropertyName("result")]
+        public bool Result { get; set; }
+
+
+        /// <summary>
         /// Response message
         /// </summary>
         [JsonPropertyName("message")]
@@ -75,7 +82,7 @@ namespace ModelCore.DTOs
 
         /// <summary>
         /// Error details if any
-        /// </summary>
+        /// </summary>  
         [JsonPropertyName("errors")]
         public IEnumerable<string>? Errors { get; set; }
     }

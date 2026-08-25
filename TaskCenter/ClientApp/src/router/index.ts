@@ -82,6 +82,48 @@ const routes = [
         component: () => import('@/components/InvoiceProcessIndex.vue'),
         alias: ['/InvoiceProcessIndex'],
       },
+      // ── InvoiceSummary 發票統計表 (migrated from InvoiceQueryController.InvoiceSummary) ──
+      {
+        path: 'InvoiceQuery/InvoiceSummary',
+        name: 'InvoiceSummary',
+        component: () => import('@/components/InvoiceSummaryIndex.vue'),
+        alias: ['/InvoiceSummaryIndex'],
+      },
+      // ── InvoiceReport 發票明細查詢 (migrated from InvoiceQueryController.InvoiceReport) ──
+      {
+        path: 'InvoiceQuery/InvoiceReport',
+        name: 'InvoiceReport',
+        component: () => import('@/components/InvoiceReportIndex.vue'),
+        alias: ['/InvoiceReportIndex'],
+      },
+      // ── WinningInvoiceReport 中獎統計表 (migrated from WinningInvoiceController.ReportIndex) ──
+      {
+        path: 'WinningInvoice/ReportIndex',
+        name: 'WinningInvoiceReport',
+        component: () => import('@/components/WinningInvoiceReportIndex.vue'),
+        alias: ['/WinningInvoiceReportIndex'],
+      },
+      // ── MonthlyReport 下載發票月報表 (migrated from InvoiceQueryController.MonthlyReport) ──
+      {
+        path: 'InvoiceQuery/MonthlyReport',
+        name: 'MonthlyReport',
+        component: () => import('@/components/MonthlyReportIndex.vue'),
+        alias: ['/MonthlyReportIndex'],
+      },
+      // ── InvoiceCancel 線上作廢發票 (migrated from InvoiceProcessController.InquireToCancel) ──
+      {
+        path: 'InvoiceProcess/InquireToCancel',
+        name: 'InvoiceProcessCancel',
+        component: () => import('@/components/InvoiceCancelIndex.vue'),
+        alias: ['/InvoiceCancelIndex'],
+      },
+      // ── InvoiceMig 下載MIG檔案 (migrated from InvoiceProcessController.InquireToMIG) ──
+      {
+        path: 'InvoiceProcess/InquireToMIG',
+        name: 'InvoiceProcessMig',
+        component: () => import('@/components/InvoiceMigIndex.vue'),
+        alias: ['/InvoiceMigIndex'],
+      },
       // ── CreateInvoice 線上開立發票 (migrated from InvoiceBusinessController.CreateInvoice) ──
       {
         path: 'InvoiceBusiness/CreateInvoice',

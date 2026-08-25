@@ -7,7 +7,7 @@ namespace TaskCenter.Core.Interfaces
 {
     /// <summary>
     /// 電子發票配號區間查詢服務（遷移自舊版 InvoiceNoController.InquireInterval 及其選擇器）。
-    /// 寫入（新增 / 修改 / 刪除 / 鎖定）沿用 TaskCenter 慣例，於 Controller 內以 models 直接處理。
+    /// 寫入（新增 / 修改 / 刪除 / 鎖定）沿用 TaskCenter 慣例，於 Controller 內以 _models 直接處理。
     /// </summary>
     public interface IInvoiceNoIntervalService
     {

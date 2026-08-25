@@ -171,7 +171,7 @@ namespace ModelCore.Helper
             })).ToArray<AllowanceRootAllowance>();
         }
 
-        //private static XmlNode[] buildAllowanceExtraRemark(Allowance item)
+        //private static XmlNode[] buildAllowanceExtraRemark(CDS_Document item)
         //{
         //    if (item.InvoiceAllowanceItemExtension == null)
         //        return (XmlNode[])null;

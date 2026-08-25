@@ -28,9 +28,9 @@ namespace ModelCore.Helper
             return decVal.HasValue ? Math.Round(decVal.Value, decimals) : 0;
         }
 
-        //public static ModelCore.Schema.TurnKey.C0401.Invoice CreateC0401(this Invoice item, bool withExtension = false)
+        //public static ModelCore.Schema.TurnKey.C0401.CDS_Document CreateC0401(this CDS_Document item, bool withExtension = false)
         //{
-        //    var result = new ModelCore.Schema.TurnKey.C0401.Invoice
+        //    var result = new ModelCore.Schema.TurnKey.C0401.CDS_Document
         //    {
         //        Main = new Schema.TurnKey.C0401.Main
         //        {
@@ -64,7 +64,7 @@ namespace ModelCore.Helper
         //            //CarrierTypeSpecified = item.InvoiceCarrier != null ? true : false,
         //            CarrierId1 = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierNo : "",
         //            CarrierId2 = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierNo2 : "",
-        //            //PrintMark = item.Doc.DocumentPrintLogs.Any(l => l.TypeID == (int)Model.Locale.Naming.DocumentTypeDefinition.E_Invoice) ? "Y"  : "N"
+        //            //PrintMark = item.CDS_Document.DocumentPrintLogs.Any(l => l.TypeID == (int)Model.Locale.Naming.DocumentTypeDefinition.E_Invoice) ? "Y"  : "N"
         //            PrintMark = item.PrintMark,
         //            NPOBAN = item.InvoiceDonation != null ? item.InvoiceDonation.AgencyCode : "",
         //            RandomNumber = item.RandomNo,
@@ -120,15 +120,15 @@ namespace ModelCore.Helper
         //    {
         //        result.Main.DataNumber = item.InvoicePurchaseOrder?.OrderNo;
         //        result.TxnCode = Naming.GovTurnkeyTransaction.I.ToString();
-        //        if (item.Doc.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C))
+        //        if (item.CDS_Document.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C))
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.C.ToString();
         //        }
-        //        else if (item.Doc.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E))
+        //        else if (item.CDS_Document.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E))
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.E.ToString();
         //        }
-        //        else if (item.Doc.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立))
+        //        else if (item.CDS_Document.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立))
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.P.ToString();
         //        }
@@ -158,7 +158,7 @@ namespace ModelCore.Helper
         //    return result;
         //}
 
-        //private static Schema.TurnKey.C0401.DetailsProductItem[] buildC0401Details(Invoice item)
+        //private static Schema.TurnKey.C0401.DetailsProductItem[] buildC0401Details(CDS_Document item)
         //{
         //    List<ModelCore.Schema.TurnKey.C0401.DetailsProductItem> items = new List<Schema.TurnKey.C0401.DetailsProductItem>();
         //    foreach (var detailItem in item.Product)
@@ -182,7 +182,7 @@ namespace ModelCore.Helper
         //    return items.ToArray();
         //}
 
-        //public static ModelCore.Schema.TurnKey.C0501.CancelInvoice CreateC0501(this Invoice item, bool withExtension = false)
+        //public static ModelCore.Schema.TurnKey.C0501.CancelInvoice CreateC0501(this CDS_Document item, bool withExtension = false)
         //{
         //    InvoiceCancellation cancellation = item.InvoiceCancellation;
         //    if (cancellation == null)
@@ -206,15 +206,15 @@ namespace ModelCore.Helper
         //    if (withExtension)
         //    {
         //        result.TxnCode = Naming.GovTurnkeyTransaction.I.ToString();
-        //        if (item.Doc.ChildDocument.FirstOrDefault()?.Doc?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
+        //        if (item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.C.ToString();
         //        }
-        //        else if (item.Doc.ChildDocument.FirstOrDefault()?.Doc?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
+        //        else if (item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.E.ToString();
         //        }
-        //        else if (item.Doc.ChildDocument.FirstOrDefault()?.Doc?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立) == true)
+        //        else if (item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.P.ToString();
         //        }
@@ -244,11 +244,11 @@ namespace ModelCore.Helper
         //    return result;
         //}
 
-        //public static ModelCore.Schema.TurnKey.D0401.Allowance CreateD0401(this Allowance item, GenericDbContext<ApplicationDbContext> models = null, bool withExtension = false)
+        //public static ModelCore.Schema.TurnKey.D0401.CDS_Document CreateD0401(this CDS_Document item, GenericDbContext<ApplicationDbContext> _models = null, bool withExtension = false)
         //{
-        //    //bool isCBM = models.IsCrossBorderMerchant(item.InvoiceAllowanceSeller.SellerID);
+        //    //bool isCBM = _models.IsCrossBorderMerchant(item.InvoiceAllowanceSeller.SellerID);
 
-        //    var result = new Schema.TurnKey.D0401.Allowance
+        //    var result = new Schema.TurnKey.D0401.CDS_Document
         //    {
         //        Main = new Schema.TurnKey.D0401.Main
         //        {
@@ -347,7 +347,7 @@ namespace ModelCore.Helper
         //            String trackCode = d.OriginalInvoiceNumber.Substring(0, 2);
         //            String no = d.OriginalInvoiceNumber.Substring(2);
 
-        //            var invItem = models.GetTable<Invoice>()
+        //            var invItem = _models.GetTable<CDS_Document>()
         //                .Where(i => i.TrackCode == trackCode && i.No == no)
         //                .Where(i => i.SellerID == item.InvoiceAllowanceSeller.SellerID)
         //                .FirstOrDefault();
@@ -356,15 +356,15 @@ namespace ModelCore.Helper
         //        }
 
         //        result.TxnCode = Naming.GovTurnkeyTransaction.I.ToString();
-        //        if (item.Doc.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
+        //        if (item.CDS_Document.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.C.ToString();
         //        }
-        //        else if (item.Doc.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
+        //        else if (item.CDS_Document.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.E.ToString();
         //        }
-        //        else if (item.Doc.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立) == true)
+        //        else if (item.CDS_Document.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.P.ToString();
         //        }
@@ -396,7 +396,7 @@ namespace ModelCore.Helper
         //}
 
 
-        //public static ModelCore.Schema.TurnKey.D0501.CancelAllowance CreateD0501(this Allowance item, bool withExtension = false)
+        //public static ModelCore.Schema.TurnKey.D0501.CancelAllowance CreateD0501(this CDS_Document item, bool withExtension = false)
         //{
         //    InvoiceAllowanceCancellation cancelledItem = item.InvoiceAllowanceCancellation;
         //    if (cancelledItem == null)
@@ -419,15 +419,15 @@ namespace ModelCore.Helper
         //    if (withExtension)
         //    {
         //        result.TxnCode = Naming.GovTurnkeyTransaction.I.ToString();
-        //        if (item.Doc.ChildDocument.FirstOrDefault()?.Doc?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
+        //        if (item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_C) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.C.ToString();
         //        }
-        //        else if (item.Doc.ChildDocument.FirstOrDefault()?.Doc?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
+        //        else if (item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.MIG_E) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.E.ToString();
         //        }
-        //        else if (item.Doc.ChildDocument.FirstOrDefault()?.Doc?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立) == true)
+        //        else if (item.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document?.DataProcessLog.Any(d => d.StepID == (int)Naming.InvoiceStepDefinition.已開立) == true)
         //        {
         //            result.TxnCode = Naming.GovTurnkeyTransaction.P.ToString();
         //        }
@@ -491,7 +491,7 @@ namespace ModelCore.Helper
             return items.ToArray();
         }
 
-        //public static ModelCore.Schema.TurnKey.C0701.VoidInvoice CreateC0701(this Invoice item)
+        //public static ModelCore.Schema.TurnKey.C0701.VoidInvoice CreateC0701(this CDS_Document item)
         //{
         //    return new ModelCore.Schema.TurnKey.C0701.VoidInvoice
         //    {
@@ -637,7 +637,7 @@ namespace ModelCore.Helper
 
         public static ModelCore.Schema.TurnKey.Allowance.Allowance CreateAllowanceMIG(this InvoiceAllowance item, GenericDbContext<ApplicationDbContext>? models = null, bool withExtension = false)
         {
-            //bool isCBM = models.IsCrossBorderMerchant(item.InvoiceAllowanceSeller.SellerID);
+            //bool isCBM = _models.IsCrossBorderMerchant(item.InvoiceAllowanceSeller.SellerID);
 
             var result = new Schema.TurnKey.Allowance.Allowance
             {
@@ -645,7 +645,7 @@ namespace ModelCore.Helper
                 {
                     AllowanceNumber = item.TurnkeyAllowanceNo,
                     AllowanceDate = String.Format("{0:yyyyMMdd}", item.AllowanceDate),
-                    AllowanceType = Schema.TurnKey.Allowance.AllowanceTypeEnum.Item2,   //(Schema.TurnKey.Allowance.AllowanceTypeEnum)((int)item.AllowanceType),
+                    AllowanceType = Schema.TurnKey.Allowance.AllowanceTypeEnum.Item2,   //(Schema.TurnKey.CDS_Document.AllowanceTypeEnum)((int)item.AllowanceType),
                     Buyer = new RoleDescription
                     {
                         //Address = string.IsNullOrEmpty(item.InvoiceAllowanceBuyer.Address) ?
@@ -909,7 +909,7 @@ namespace ModelCore.Helper
                     //CarrierTypeSpecified = item.InvoiceCarrier != null ? true : false,
                     CarrierId1 = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierNo : "",
                     CarrierId2 = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierNo2 : "",
-                    //PrintMark = item.Doc.DocumentPrintLogs.Any(l => l.TypeID == (int)Model.Locale.Naming.DocumentTypeDefinition.E_Invoice) ? "Y"  : "N"
+                    //PrintMark = item.CDS_Document.DocumentPrintLogs.Any(l => l.TypeID == (int)Model.Locale.Naming.DocumentTypeDefinition.E_Invoice) ? "Y"  : "N"
                     PrintMark = item.PrintMark,
                     NPOBAN = item.InvoiceDonation != null ? item.InvoiceDonation.AgencyCode : "",
                     RandomNumber = item.RandomNo,

@@ -19,5 +19,5 @@ public partial class UserToken
 
     public virtual ICollection<OrganizationStatus> OrganizationStatus { get; set; } = new List<OrganizationStatus>();
 
-    public virtual UserProfile UIDNavigation { get; set; } = null!;
+    public virtual UserProfile UserProfile { get; set; } = null!;
 }

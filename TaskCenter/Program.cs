@@ -16,6 +16,7 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 using System.Text;
 using System.Text.Json;
 using TaskCenter.Controllers.Filters;
+using TaskCenter.Core;
 using TaskCenter.Core.Interfaces;
 using TaskCenter.Core.Services;
 using TaskCenter.Properties;
@@ -116,10 +117,32 @@ namespace TaskCenter
             builder.Services.AddMvc(config =>
             {
                 config.Filters.Add<ExceptionFilter>();
+
+                // 對外收單 API（InvoiceService）以 Newtonsoft.Json 解析請求內容，維持與舊版
+                // FromJsonBody<T>() 相同的寬鬆行為；僅對 InvoiceRequestViewModel 生效，
+                // SPA 專用的 DTO 仍由 System.Text.Json 處理。
+                config.InputFormatters.Insert(0, new LegacyJsonInputFormatter());
+
+                // 模型繫結產生的錯誤訊息在地化（型別轉換失敗、缺值、必須為數值等）。
+                var messages = config.ModelBindingMessageProvider;
+                messages.SetValueIsInvalidAccessor(value => $"值 {value} 格式不正確!!");
+                messages.SetValueMustNotBeNullAccessor(value => $"值 {value} 不可為空白!!");
+                messages.SetAttemptedValueIsInvalidAccessor((value, field) => $"{field} 的值 {value} 格式不正確!!");
+                messages.SetNonPropertyAttemptedValueIsInvalidAccessor(value => $"值 {value} 格式不正確!!");
+                messages.SetUnknownValueIsInvalidAccessor(field => $"{field} 的值格式不正確!!");
+                messages.SetNonPropertyUnknownValueIsInvalidAccessor(() => "值格式不正確!!");
+                messages.SetMissingBindRequiredValueAccessor(field => $"未提供 {field} 的資料!!");
+                messages.SetMissingRequestBodyRequiredValueAccessor(() => "請求內容不可為空白!!");
+                messages.SetMissingKeyOrValueAccessor(() => "資料不可為空白!!");
+                messages.SetValueMustBeANumberAccessor(field => $"{field} 必須為數值!!");
+                messages.SetNonPropertyValueMustBeANumberAccessor(() => "必須為數值!!");
             }).ConfigureApiBehaviorOptions(options =>
             {
-                options.SuppressMapClientErrors = true;
-                options.SuppressModelStateInvalidFilter = true;
+                // [ApiController] 自動模型驗證失敗時，改回傳在地化且與 BaseResponseDto 一致的內容，
+                // 取代預設英文的 ValidationProblemDetails。
+                // 註：自動驗證只在 SPA API 生效；對外收單 API（InvoiceService）須維持 HTTP 200 + Root
+                // 的回應格式，改以 [SuppressModelStateInvalidFilter] 逐一停用（見該控制器）。
+                options.InvalidModelStateResponseFactory = ApiValidationResponse.Create;
             })
             .AddRazorRuntimeCompilation();
 
@@ -205,6 +228,11 @@ namespace TaskCenter
             builder.Services.AddScoped<IInvoiceNumberApplyService, InvoiceNumberApplyService>();
             builder.Services.AddScoped<IInvoiceNoIntervalService, InvoiceNoIntervalService>();
             builder.Services.AddScoped<IInvoiceProcessQueryService, InvoiceProcessQueryService>();
+            builder.Services.AddScoped<IInvoiceProcessActionService, InvoiceProcessActionService>();
+            builder.Services.AddScoped<IInvoiceSummaryService, InvoiceSummaryService>();
+            builder.Services.AddScoped<IInvoiceReportService, InvoiceReportService>();
+            builder.Services.AddScoped<IMonthlyReportService, MonthlyReportService>();
+            builder.Services.AddScoped<IWinningInvoiceReportService, WinningInvoiceReportService>();
             builder.Services.AddScoped<ICreateInvoiceService, CreateInvoiceService>();
 
             var app = builder.Build();

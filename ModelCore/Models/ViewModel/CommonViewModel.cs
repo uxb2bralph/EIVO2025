@@ -126,6 +126,8 @@ namespace ModelCore.Models.ViewModel
     {
         public int? CompanyStatus { get; set; }
         public int? BusinessType { get; set; }
+
+        [JsonIgnore]
         public int? MasterID
         {
             get => CompanyID;

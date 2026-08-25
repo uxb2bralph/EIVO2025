@@ -364,6 +364,14 @@ namespace ModelCore.InvoiceManagement.Validator
                     };
                 }
             }
+            else if (_seller!.IgnoreDuplicatedNo() || processType.IgnoreDuplicatedNo())
+            {
+
+            }
+            else
+            {
+                item.TrackID = 0;
+            }
 
             return null;
         }

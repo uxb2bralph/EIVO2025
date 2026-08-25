@@ -25,7 +25,7 @@ namespace ModelCore.Schema.EIVO.B2B {
     public partial class ReceiptRoot {
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Receipt", Order=0)]
+        [System.Xml.Serialization.XmlElementAttribute("CDS_Document", Order=0)]
         public ReceiptRootReceipt[] Receipt;
     }
     

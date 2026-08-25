@@ -921,9 +921,9 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
         //            EIVOPlatformFactory.NotifyToReceiveA0101(item.DocID);
         //            prepareStep(item, Naming.InvoiceStepDefinition.待接收);
-        //            models.SubmitChanges();
+        //            _models.SubmitChanges();
 
-        //            models.ExecuteCommand("delete [proc].A0101DispatchQueue where DocID={0} and StepID={1}",
+        //            _models.ExecuteCommand("delete [proc].A0101DispatchQueue where DocID={0} and StepID={1}",
         //                item.DocID, item.StepID);
 
         //        }
@@ -953,7 +953,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
         //            EIVOPlatformFactory.NotifyIssuedA0101(item.DocID);
 
-        //            models.ExecuteCommand("delete [proc].A0101DispatchQueue where DocID={0} and StepID={1}",
+        //            _models.ExecuteCommand("delete [proc].A0101DispatchQueue where DocID={0} and StepID={1}",
         //                item.DocID, item.StepID);
 
         //        }
@@ -982,24 +982,24 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
         //        try
         //        {
-        //            //models.ExecuteCommand("Update [proc].A0101DispatchQueue set StepID = {2} where DocID={0} and StepID={1}",
+        //            //_models.ExecuteCommand("Update [proc].A0101DispatchQueue set StepID = {2} where DocID={0} and StepID={1}",
         //            //    item.DocID, item.StepID, (int)Naming.B2BInvoiceStepDefinition.待開立處理中);
 
-        //            if (item.Doc.Invoice.InvoiceSeller.Company.OrganizationStatus.Entrusting == true)
+        //            if (item.CDS_Document.CDS_Document.InvoiceSeller.Company.OrganizationStatus.Entrusting == true)
         //            {
         //                sb.Clear();
         //                bSigned = false;
-        //                if (item.Doc.Invoice.InvoiceSeller.Company.IsEnterpriseGroupMember())
+        //                if (item.CDS_Document.CDS_Document.InvoiceSeller.Company.IsEnterpriseGroupMember())
         //                {
-        //                    var cert = item.Doc.Invoice.InvoiceSeller.Company.PrepareSignerCertificate();
+        //                    var cert = item.CDS_Document.CDS_Document.InvoiceSeller.Company.PrepareSignerCertificate();
         //                    if (cert != null)
         //                    {
-        //                        bSigned = item.Doc.Invoice.SignAndCheckToIssueInvoiceItem(cert, sb);
+        //                        bSigned = item.CDS_Document.CDS_Document.SignAndCheckToIssueInvoiceItem(cert, sb);
         //                    }
         //                }
         //                else
         //                {
-        //                    bSigned = item.Doc.Invoice.SignAndCheckToIssueInvoiceItem(null, sb);
+        //                    bSigned = item.CDS_Document.CDS_Document.SignAndCheckToIssueInvoiceItem(null, sb);
         //                }
 
         //                if (bSigned)
@@ -1012,16 +1012,16 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
         //                    });
 
         //                    prepareStep(item, Naming.InvoiceStepDefinition.已開立);
-        //                    models.SubmitChanges();
+        //                    _models.SubmitChanges();
         //                }
         //            }
         //            else
         //            {
         //                prepareStep(item, Naming.InvoiceStepDefinition.未接收資料待通知);
-        //                models.SubmitChanges();
+        //                _models.SubmitChanges();
         //            }
 
-        //            models.ExecuteCommand("delete [proc].A0101DispatchQueue where DocID={0} and StepID={1}",
+        //            _models.ExecuteCommand("delete [proc].A0101DispatchQueue where DocID={0} and StepID={1}",
         //                item.DocID, item.StepID);
         //        }
         //        catch (Exception ex)

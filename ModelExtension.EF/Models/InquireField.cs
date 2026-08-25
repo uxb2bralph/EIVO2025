@@ -190,7 +190,7 @@ namespace ModelCore.Models
         public override void BuildQueryExpression(ModelSource<ApplicationDbContext,InvoiceItem> models)
         {
             models.Items = models.Items.Where(i => i.PrintMark == "Y" || (i.PrintMark == "N" && i.InvoiceWinningNumber != null)
-                /*&& (!i.Doc.DocumentPrintLog.Any(l => l.TypeID == (int)Naming.DocumentTypeDefinition.E_Invoice) || i.Doc.DocumentAuthorization != null)*/);
+                /*&& (!i.CDS_Document.DocumentPrintLog.Any(l => l.TypeID == (int)Naming.DocumentTypeDefinition.E_Invoice) || i.CDS_Document.DocumentAuthorization != null)*/);
         }
     }
 

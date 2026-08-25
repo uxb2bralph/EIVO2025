@@ -34,7 +34,7 @@ namespace ModelCore.InvoiceManagement
         public DataTable InitializeVoidInvoiceResponseTable()
         {
             DataTable table = new DataTable();
-            table.Columns.Add(new DataColumn("Invoice No", typeof(String)));
+            table.Columns.Add(new DataColumn("CDS_Document No", typeof(String)));
             table.Columns.Add(new DataColumn("Seller ID", typeof(String)));
             table.Columns.Add(new DataColumn("Status Code", typeof(int)));
             table.Columns.Add(new DataColumn("Description", typeof(String)));

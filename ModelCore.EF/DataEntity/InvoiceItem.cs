@@ -133,7 +133,7 @@ public partial class InvoiceItem
 
     public virtual Organization? Donation { get; set; }
 
-    public virtual CDS_Document Invoice { get; set; } = null!;
+    public virtual CDS_Document CDS_Document { get; set; } = null!;
 
     public virtual ICollection<InvoiceAllowance> InvoiceAllowance { get; set; } = new List<InvoiceAllowance>();
 

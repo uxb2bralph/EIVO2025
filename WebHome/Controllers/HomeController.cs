@@ -158,7 +158,7 @@ namespace WebHome.Controllers
 
                 if (item != null)
                 {
-                    return Content(JsonConvert.SerializeObject(item), "application/json");
+                    return Content(item.JsonStringify(), "application/json");
                 }
                 else
                 {
@@ -172,7 +172,7 @@ namespace WebHome.Controllers
 
                 if (item != null)
                 {
-                    return Json(new { item.Counterpart.ReceiptNo, item.CompanyName, item.Addr, item.Phone, item.ContactEmail, item.CustomerNo });
+                    return Content((new { item.Counterpart.ReceiptNo, item.CompanyName, item.Addr, item.Phone, item.ContactEmail, item.CustomerNo }).JsonStringify(), "application/json");
                 }
                 else
                 {

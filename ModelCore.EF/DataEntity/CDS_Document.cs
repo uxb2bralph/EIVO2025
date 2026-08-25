@@ -33,9 +33,9 @@ public partial class CDS_Document
 
     public virtual ICollection<DataProcessQueue> DataProcessQueue { get; set; } = new List<DataProcessQueue>();
 
-    public virtual DerivedDocument? DerivedDocumentDoc { get; set; }
+    public virtual DerivedDocument? DerivedDocument { get; set; }
 
-    public virtual ICollection<DerivedDocument> DerivedDocumentSource { get; set; } = new List<DerivedDocument>();
+    public virtual ICollection<DerivedDocument> ChildDocument { get; set; } = new List<DerivedDocument>();
 
     public virtual DocumentType? DocTypeNavigation { get; set; }
 

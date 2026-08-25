@@ -48,7 +48,7 @@ public partial class InvoiceAllowance
 
     public DateTime? IssueDate { get; set; }
 
-    public virtual CDS_Document Allowance { get; set; } = null!;
+    public virtual CDS_Document CDS_Document { get; set; } = null!;
 
     public virtual CurrencyType? Currency { get; set; }
 
@@ -62,5 +62,5 @@ public partial class InvoiceAllowance
 
     public virtual InvoiceAllowanceSeller? InvoiceAllowanceSeller { get; set; }
 
-    public virtual ICollection<InvoiceAllowanceItem> Item { get; set; } = new List<InvoiceAllowanceItem>();
+    public virtual ICollection<InvoiceAllowanceItem> InvoiceAllowanceDetails { get; set; } = new List<InvoiceAllowanceItem>();
 }

@@ -10,7 +10,7 @@ namespace ModelCore.Helper
 {
     public static class InvoiceProcessExtensions
     {
-        public static VoidInvoiceRequest? ProcessVoidInvoiceRequest(this GenericManager<EIVOEntityDataContext> models, Naming.VoidActionMode? mode, ReviseInvoiceViewModel? viewModel, InvoiceItem item)
+        public static VoidInvoiceRequest? ProcessVoidInvoiceRequestOnSubmit(this GenericManager<EIVOEntityDataContext> models, Naming.VoidActionMode? mode, ReviseInvoiceViewModel? viewModel, InvoiceItem item)
         {
             var request = item.CDS_Document.VoidInvoiceRequest;
             if (request == null)
@@ -28,10 +28,17 @@ namespace ModelCore.Helper
             request.CommitDate = null;
             if (viewModel?.ReviseContent != null)
                 request.ReviseContent = viewModel?.ReviseContent?.JsonStringify();
-            models!.SubmitChanges();
 
             return request;
         }
+
+        public static VoidInvoiceRequest? ProcessVoidInvoiceRequest(this GenericManager<EIVOEntityDataContext> models, Naming.VoidActionMode? mode, ReviseInvoiceViewModel? viewModel, InvoiceItem item)
+        {
+            var request = models.ProcessVoidInvoiceRequestOnSubmit(mode, viewModel, item);
+            models!.SubmitChanges();
+            return request;
+        }
+
 
         public static int CommitProcessRequestQueue(this GenericManager<EIVOEntityDataContext> models, int taskID)
         {

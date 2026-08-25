@@ -110,7 +110,7 @@ namespace ModelCore.InvoiceManagement
                                         newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.文件準備中, Naming.InvoiceProcessType.F0401);
                                         break;
                                     default:
-                                        //newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                                        //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                                         break;
                                 }
                             }
@@ -125,6 +125,73 @@ namespace ModelCore.InvoiceManagement
                                 this.SubmitChanges();
                             }
                         }
+
+                        eventItems.Add(newItem);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                        result.Add(idx, ex);
+                    }
+                }
+
+                if (eventItems.Count > 0)
+                {
+                    HasItem = true;
+                }
+
+                EventItems = eventItems;
+
+            }
+            return result;
+        }
+
+        public virtual Dictionary<int, Exception> ReviseInvoice(InvoiceRoot item, OrganizationToken? owner)
+        {
+            Dictionary<int, Exception> result = new Dictionary<int, Exception>();
+
+            if (item != null && item.Invoice != null && item.Invoice.Length > 0)
+            {
+                List<InvoiceItem> eventItems = new List<InvoiceItem>();
+                InvoiceRootInvoiceValidatorForRevision validator = new InvoiceRootInvoiceValidatorForRevision(this, owner?.Company)
+                {
+
+                };
+
+                for (int idx = 0; idx < item.Invoice.Length; idx++)
+                {
+                    try
+                    {
+                        var invItem = item.Invoice[idx];
+
+                        Exception? ex;
+                        if ((ex = validator.Validate(invItem)) != null)
+                        {
+                            result.Add(idx, ex);
+                            continue;
+
+                        }
+
+                        InvoiceItem newItem = validator.InvoiceItem;
+                        InvoiceItem original = validator.Original!;
+
+                        if (original.Track != null)
+                        {
+                            newItem.TrackID = original.TrackID;
+                            original.Track = null;
+                        }
+
+                        newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+
+                        this.GetTable<InvoiceItem>().Add(newItem);
+                        this.SubmitChanges();
+
+                        // 2. 作廢原發票：ProcessVoidInvoiceRequest + 產出 F0701 至 F0701Outbound
+                        ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
+                        this.ProcessVoidInvoiceRequest(Naming.VoidActionMode.註銷重開, null, original);
+                        original.CreateF0701().Save(System.IO.Path.Combine(
+                            ModelExtension.Properties.AppSettings.Default.F0701Outbound,
+                            "F0701_" + original.TrackCode + original.No + ".xml"));
 
                         eventItems.Add(newItem);
                     }
@@ -352,7 +419,7 @@ namespace ModelCore.InvoiceManagement
                         else
                         {
                             newItem.CDS_Document.PushStepQueueOnSubmit(this, validator.Seller!.StepReadyToAllowanceMIG(), Naming.InvoiceProcessType.G0401);
-                            //newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
+                            //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
                         }
 
                         this.SubmitChanges();
@@ -378,7 +445,7 @@ namespace ModelCore.InvoiceManagement
             return result;
         }
 
-        //public Invoice CreateInvoiceFromShipment(SCMDataEntity.Doc item,int sellerID)
+        //public CDS_Document CreateInvoiceFromShipment(SCMDataEntity.CDS_Document item,int sellerID)
         //{
         //    Company seller = this.GetTable<Company>().Where(o => o.CompanyID == sellerID).FirstOrDefault();
         //    if (seller == null)
@@ -393,9 +460,9 @@ namespace ModelCore.InvoiceManagement
         //            throw new Exception("發票字軌號碼已用完或未設定!!");
         //        }
 
-        //        Invoice newItem = new Invoice
+        //        CDS_Document newItem = new CDS_Document
         //        {
-        //            Doc = new Doc
+        //            CDS_Document = new CDS_Document
         //            {
         //                DocDate = DateTime.Now,
         //                DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
@@ -455,8 +522,8 @@ namespace ModelCore.InvoiceManagement
         //        {
         //            this.EntityList.Add(newItem);
 
-        //            C0401Handler.PushStepQueueOnSubmit(this, newItem.Doc, Naming.InvoiceStepDefinition.已開立);
-        //            C0401Handler.PushStepQueueOnSubmit(this, newItem.Doc, Naming.InvoiceStepDefinition.已接收資料待通知);
+        //            C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已開立);
+        //            C0401Handler.PushStepQueueOnSubmit(this, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
 
         //            this.SubmitChanges();
         //            return newItem;
@@ -505,7 +572,7 @@ namespace ModelCore.InvoiceManagement
             };
             this.GetTable<DerivedDocument>().Add(doc);
             doc.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0501);
-            //doc.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
+            //doc.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0501);
 
             this.SubmitChanges();
             return cancelItem;
@@ -670,7 +737,7 @@ namespace ModelCore.InvoiceManagement
                         this.EntityList.Add(newItem);
 
                         newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
-                        //newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                        //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
 
                         this.SubmitChanges();
                     }

@@ -13,7 +13,7 @@ using ModelCore.Helper;
 namespace TaskCenter.Core.Controllers
 {
     /// <summary>
-    /// Invoice Query API Controller
+    /// CDS_Document Query API Controller
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -37,8 +37,8 @@ namespace TaskCenter.Core.Controllers
         /// <summary>
         /// Query invoice data
         /// </summary>
-        /// <param name="viewModel">Invoice query view model</param>
-        /// <returns>Invoice data result</returns>
+        /// <param name="viewModel">CDS_Document query view model</param>
+        /// <returns>CDS_Document data result</returns>
         [HttpPost("invoice")]
         [ProducesResponseType(typeof(ResponseDto<object>), 200)]
         [ProducesResponseType(typeof(BaseResponseDto), 400)]
@@ -71,7 +71,7 @@ namespace TaskCenter.Core.Controllers
                     });
                 }
 
-                // Get invoice items - using models from SampleController
+                // Get invoice items - using _models from SampleController
                 IQueryable<InvoiceItem> items = models!.GetInvoiceByAgent(models!.GetTable<InvoiceItem>(), agent.CompanyID);
 
                 bool effective = false;
@@ -100,7 +100,7 @@ namespace TaskCenter.Core.Controllers
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
-                    Message = "Invoice data retrieved successfully",
+                    Message = "CDS_Document data retrieved successfully",
                     Data = dataItems
                 });
             }
@@ -119,7 +119,7 @@ namespace TaskCenter.Core.Controllers
         /// <summary>
         /// Query void invoice data
         /// </summary>
-        /// <param name="viewModel">Invoice query view model</param>
+        /// <param name="viewModel">CDS_Document query view model</param>
         /// <returns>Void invoice data result</returns>
         [HttpPost("void-invoice")]
         [ProducesResponseType(typeof(ResponseDto<object>), 200)]
@@ -197,8 +197,8 @@ namespace TaskCenter.Core.Controllers
         /// <summary>
         /// Query allowance data
         /// </summary>
-        /// <param name="viewModel">Invoice query view model</param>
-        /// <returns>Allowance data result</returns>
+        /// <param name="viewModel">CDS_Document query view model</param>
+        /// <returns>CDS_Document data result</returns>
         [HttpPost("allowance")]
         [ProducesResponseType(typeof(ResponseDto<object>), 200)]
         [ProducesResponseType(typeof(BaseResponseDto), 400)]
@@ -255,7 +255,7 @@ namespace TaskCenter.Core.Controllers
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
-                    Message = "Allowance data retrieved successfully",
+                    Message = "CDS_Document data retrieved successfully",
                     Data = dataItems
                 });
             }
@@ -274,7 +274,7 @@ namespace TaskCenter.Core.Controllers
         /// <summary>
         /// Query void allowance data
         /// </summary>
-        /// <param name="viewModel">Invoice query view model</param>
+        /// <param name="viewModel">CDS_Document query view model</param>
         /// <returns>Void allowance data result</returns>
         [HttpPost("void-allowance")]
         [ProducesResponseType(typeof(ResponseDto<object>), 200)]
@@ -352,8 +352,8 @@ namespace TaskCenter.Core.Controllers
         /// <summary>
         /// Query invoice number allocation
         /// </summary>
-        /// <param name="viewModel">Invoice query view model</param>
-        /// <returns>Invoice number allocation result</returns>
+        /// <param name="viewModel">CDS_Document query view model</param>
+        /// <returns>CDS_Document number allocation result</returns>
         [HttpPost("invoice-no-allocation")]
         [ProducesResponseType(typeof(ResponseDto<object>), 200)]
         [ProducesResponseType(typeof(BaseResponseDto), 400)]
@@ -422,7 +422,7 @@ namespace TaskCenter.Core.Controllers
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
-                    Message = "Invoice number allocation retrieved successfully",
+                    Message = "CDS_Document number allocation retrieved successfully",
                     Data = dataItems
                 });
             }

@@ -25,7 +25,7 @@ namespace ModelCore.Schema.EIVO {
     public partial class AllowanceRoot {
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Allowance")]
+        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
         public AllowanceRootAllowance[] Allowance;
         
         /// <remarks/>

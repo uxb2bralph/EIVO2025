@@ -14,5 +14,5 @@ public partial class UserProfileStatus
 
     public virtual LevelExpression? CurrentLevelNavigation { get; set; }
 
-    public virtual UserProfile UIDNavigation { get; set; } = null!;
+    public virtual UserProfile UserProfile { get; set; } = null!;
 }

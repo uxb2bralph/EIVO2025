@@ -128,7 +128,7 @@ namespace ModelCore.Models.ViewModel
         {
             //if (String.IsNullOrEmpty(_allowanceItem.AllowanceNumber))
             //{
-            //    var count = _mgr.GetTable<InvoiceAllowanceSeller>().Where(s => s.SellerID == _seller.CompanyID).Count() + 1;
+            //    var count = _models.GetTable<InvoiceAllowanceSeller>().Where(s => s.SellerID == _seller.CompanyID).Count() + 1;
             //    _allowanceItem.AllowanceNumber = $"{_seller.ReceiptNo}-{count:0000000}";
             //}
 
@@ -231,7 +231,7 @@ namespace ModelCore.Models.ViewModel
                     Amount = _allowanceItem.Amount[i],
                     InvoiceNo = _allowanceItem.OriginalInvoiceNo[i],
                     InvoiceDate = _allowanceItem.OriginalInvoiceDate[i],
-                    //ItemNo = i.Item,
+                    //ItemNo = i.InvoiceAllowanceDetails,
                     OriginalSequenceNo = _allowanceItem.OriginalSequenceNo[i],
                     Piece = _allowanceItem.Piece[i],
                     PieceUnit = _allowanceItem.PieceUnit[i],

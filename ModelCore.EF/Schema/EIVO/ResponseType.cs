@@ -17,7 +17,7 @@ namespace ModelCore.Schema.EIVO
     {
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Invoice")]
+        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
         public Invoice[] Invoice;
     }
 
@@ -44,8 +44,8 @@ namespace ModelCore.Schema.EIVO
     //{
 
     //    /// <remarks/>
-    //    [System.Xml.Serialization.XmlElementAttribute("Allowance")]
-    //    public ModelCore.Schema.TurnKey.B0101.Allowance[] Allowance;
+    //    [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
+    //    public ModelCore.Schema.TurnKey.B0101.CDS_Document[] CDS_Document;
     //}
    
 

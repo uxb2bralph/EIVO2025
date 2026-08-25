@@ -36,18 +36,18 @@ namespace ModelCore.InvoiceManagement
         //{
         //    Dictionary<int, Exception> result = new Dictionary<int, Exception>();
 
-        //    if (item != null && item.Invoice != null && item.Invoice.Length > 0)
+        //    if (item != null && item.CDS_Document != null && item.CDS_Document.Length > 0)
         //    {
         //        EventItems = null;
-        //        List<Invoice> eventItem = new List<Invoice>();
+        //        List<CDS_Document> eventItem = new List<CDS_Document>();
 
         //        //Company donatory = owner.Company.InvoiceWelfareAgency.Select(w => w.WelfareAgency.Company).FirstOrDefault();
 
-        //        for (int idx = 0; idx < item.Invoice.Length; idx++)
+        //        for (int idx = 0; idx < item.CDS_Document.Length; idx++)
         //        {
         //            try
         //            {
-        //                var invItem = item.Invoice[idx];
+        //                var invItem = item.CDS_Document[idx];
 
         //                Exception ex;
         //                Company seller;
@@ -133,7 +133,7 @@ namespace ModelCore.InvoiceManagement
         //                    }
         //                }
 
-        //                Invoice newItem = createInvoiceItem(owner, invItem, seller, null, print_mark, all_printed, carrier, donation, productItems);
+        //                CDS_Document newItem = createInvoiceItem(owner, invItem, seller, null, print_mark, all_printed, carrier, donation, productItems);
         //                newItem.No = invNo;
         //                newItem.TrackCode = trackCode;
         //                newItem.InvoiceDate = invoiceDate;
@@ -219,7 +219,7 @@ namespace ModelCore.InvoiceManagement
                                         newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.文件準備中, Naming.InvoiceProcessType.F0401);
                                         break;
                                     default:
-                                        //newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                                        //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                                         break;
                                 }
                             }
@@ -267,17 +267,17 @@ namespace ModelCore.InvoiceManagement
         //    Dictionary<int, Exception> result = new Dictionary<int, Exception>();
         //    TrackNoManager trackNoMgr = new TrackNoManager(this, owner.CompanyID);
 
-        //    if (item != null && item.Invoice != null && item.Invoice.Length > 0)
+        //    if (item != null && item.CDS_Document != null && item.CDS_Document.Length > 0)
         //    {
         //        //Company donatory = owner.Company.InvoiceWelfareAgency.Select(w => w.WelfareAgency.Company).FirstOrDefault();
         //        EventItems = null;
-        //        List<Invoice> eventItems = new List<Invoice>();
+        //        List<CDS_Document> eventItems = new List<CDS_Document>();
 
-        //        for (int idx = 0; idx < item.Invoice.Length; idx++)
+        //        for (int idx = 0; idx < item.CDS_Document.Length; idx++)
         //        {
         //            try
         //            {
-        //                var invItem = item.Invoice[idx];
+        //                var invItem = item.CDS_Document[idx];
 
         //                Exception ex;
         //                Company seller;
@@ -335,7 +335,7 @@ namespace ModelCore.InvoiceManagement
         //                    continue;
         //                }
 
-        //                Invoice newItem = createInvoiceItem(owner, invItem, seller, order, print_mark, all_printed, carrier, donation, productItems);
+        //                CDS_Document newItem = createInvoiceItem(owner, invItem, seller, order, print_mark, all_printed, carrier, donation, productItems);
 
         //                if (!trackNoMgr.CheckInvoiceNo(newItem))
         //                {
@@ -370,11 +370,11 @@ namespace ModelCore.InvoiceManagement
         //    return result;
         //}
 
-        //protected Invoice createInvoiceItem(OrganizationToken owner, InvoiceRootInvoice invItem, Company seller, InvoicePurchaseOrder order, bool Final_printed, bool all_printed, InvoiceCarrier carrier, InvoiceDonation donation, IEnumerable<InvoiceProductItem> productItems)
+        //protected CDS_Document createInvoiceItem(OrganizationToken owner, InvoiceRootInvoice invItem, Company seller, InvoicePurchaseOrder order, bool Final_printed, bool all_printed, InvoiceCarrier carrier, InvoiceDonation donation, IEnumerable<InvoiceProductItem> productItems)
         //{
-        //    Invoice newItem = new Invoice
+        //    CDS_Document newItem = new CDS_Document
         //    {
-        //        Doc = new Doc
+        //        CDS_Document = new CDS_Document
         //        {
         //            DocDate = DateTime.Now,
         //            DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
@@ -446,23 +446,23 @@ namespace ModelCore.InvoiceManagement
 
         //    if (owner != null)
         //    {
-        //        newItem.Doc.DocumentOwner = new DocumentOwner
+        //        newItem.CDS_Document.DocumentOwner = new DocumentOwner
         //        {
         //            OwnerID = owner.CompanyID,
         //        };
         //    }
 
-        //    newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
-        //    newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+        //    newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+        //    newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
 
         //    return newItem;
         //}
 
 
-        //public Dictionary<int, Exception> SaveUploadInvoice_C0401(ModelCore.Schema.TurnKey.C0401.Invoice invoice, OrganizationToken owner)
+        //public Dictionary<int, Exception> SaveUploadInvoice_C0401(ModelCore.Schema.TurnKey.C0401.CDS_Document invoice, OrganizationToken owner)
         //{
         //    Dictionary<int, Exception> result = new Dictionary<int, Exception>();
-        //    List<Invoice> eventItem = new List<Invoice>();
+        //    List<CDS_Document> eventItem = new List<CDS_Document>();
 
         //    int idx = 0;
         //    try
@@ -545,7 +545,7 @@ namespace ModelCore.InvoiceManagement
 
         //        if (result.Count == 0)
         //        {
-        //            Invoice newItem = ConvertToInvoiceItem(invoice, owner, invoiceDate, carrier, seller, all_printed, print_mark);
+        //            CDS_Document newItem = ConvertToInvoiceItem(invoice, owner, invoiceDate, carrier, seller, all_printed, print_mark);
         //            this.EntityList.Add(newItem);
         //            this.SubmitChanges();
         //            eventItem.Add(newItem);
@@ -566,14 +566,14 @@ namespace ModelCore.InvoiceManagement
         //    return result;
         //}
 
-        //private Invoice ConvertToInvoiceItem(Schema.TurnKey.C0401.Invoice invoice, OrganizationToken owner, DateTime invoiceDate, InvoiceCarrier carrier, Company seller, bool all_printed, bool Final_printed)
+        //private CDS_Document ConvertToInvoiceItem(Schema.TurnKey.C0401.CDS_Document invoice, OrganizationToken owner, DateTime invoiceDate, InvoiceCarrier carrier, Company seller, bool all_printed, bool Final_printed)
         //{
         //    String invNo, trackCode;
         //    getInvoiceNo(invoice.Main.InvoiceNumber, out invNo, out trackCode);
 
-        //    Invoice newItem = new Invoice
+        //    CDS_Document newItem = new CDS_Document
         //    {
-        //        Doc = new Doc
+        //        CDS_Document = new CDS_Document
         //        {
         //            DocDate = DateTime.Now,
         //            DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,

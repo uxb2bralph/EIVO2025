@@ -69,30 +69,30 @@ namespace ModelCore.InvoiceManagement.enUS
 
             if (String.IsNullOrEmpty(item.AllowanceNumber))
             {
-                return new Exception("Allowance Number can not be blank，TAG：< AllowanceNumber />");
+                return new Exception("CDS_Document Number can not be blank，TAG：< AllowanceNumber />");
             }
 
             //折讓證明單號碼
             if (item.AllowanceNumber.Length > 16)
             {
-                return new Exception(String.Format("Maximum length of Allowance Number is 16 digitals; Incorrect Allowance Number:{0}, Incorrect：{0}，TAG：< AllowanceNumber />", item.AllowanceNumber));
+                return new Exception(String.Format("Maximum length of CDS_Document Number is 16 digitals; Incorrect CDS_Document Number:{0}, Incorrect：{0}，TAG：< AllowanceNumber />", item.AllowanceNumber));
             }
 
             var table = mgr.GetTable<InvoiceAllowance>();
             if (table.Any(i => i.AllowanceNumber == item.AllowanceNumber))
             {
-                return new Exception(String.Format("Allowance Data to prove the existence of a single number has been:{0}", item.AllowanceNumber));
+                return new Exception(String.Format("CDS_Document Data to prove the existence of a single number has been:{0}", item.AllowanceNumber));
             }
 
             //折讓證明單日期
             if (String.IsNullOrEmpty(item.AllowanceDate))
             {
-                return new Exception("Allowance Date can not be blank，TAG：< AllowanceDate />");
+                return new Exception("CDS_Document Date can not be blank，TAG：< AllowanceDate />");
             }
 
             if (!DateTime.TryParseExact(item.AllowanceDate, "yyyy/MM/dd", CultureInfo.CurrentCulture, DateTimeStyles.None, out allowanceDate))
             {
-                return new Exception(String.Format("Format of Allowance Date error(YYYY/MM/DD), Incorrect TAG:< AllowanceDate />:{0}", item.AllowanceDate));
+                return new Exception(String.Format("Format of CDS_Document Date error(YYYY/MM/DD), Incorrect TAG:< AllowanceDate />:{0}", item.AllowanceDate));
             }
 
             //折讓種類
@@ -123,12 +123,12 @@ namespace ModelCore.InvoiceManagement.enUS
 
                 if (originalInvoice == null)
                 {
-                    return new Exception(String.Format("Invoice data does not exist，Incorrect：{0}，TAG：< OriginalInvoiceNumber />", i.OriginalInvoiceNumber));
+                    return new Exception(String.Format("CDS_Document data does not exist，Incorrect：{0}，TAG：< OriginalInvoiceNumber />", i.OriginalInvoiceNumber));
                 }
 
                 if (originalInvoice.InvoiceCancellation != null)
                 {
-                    return new Exception("Invoice has been voided, not a discount.");
+                    return new Exception("CDS_Document has been voided, not a discount.");
                 }
 
                 var allowanceDate = String.Format("{0:yyyy/MM/dd}", i.OriginalInvoiceDate);
@@ -136,7 +136,7 @@ namespace ModelCore.InvoiceManagement.enUS
 
                 if (allowanceDate.ToString() != InvDate)
                 {
-                    return new Exception(String.Format("Discount invoice date is not the same as the original data；Invoice Date：{0} 、 Upload Data：{1} ", InvDate, allowanceDate));
+                    return new Exception(String.Format("Discount invoice date is not the same as the original data；CDS_Document Date：{0} 、 Upload Data：{1} ", InvDate, allowanceDate));
                 }
 
                 if (originalInvoice.InvoiceBuyer.ReceiptNo != item.BuyerId && item.BuyerId != "0000000000")
@@ -158,7 +158,7 @@ namespace ModelCore.InvoiceManagement.enUS
                 //折讓證明單明細排列序號
                 if (i.AllowanceSequenceNumber > 1000 || i.AllowanceSequenceNumber < 0)
                 {
-                    return new Exception(String.Format("Allowance Sequence Number on the length up to 3 yards，Incorrect：{0}，TAG：< AllowanceSequenceNumber />", i.AllowanceSequenceNumber));
+                    return new Exception(String.Format("CDS_Document Sequence Number on the length up to 3 yards，Incorrect：{0}，TAG：< AllowanceSequenceNumber />", i.AllowanceSequenceNumber));
                 }
 
                 //原品名
@@ -182,7 +182,7 @@ namespace ModelCore.InvoiceManagement.enUS
                 DateTime invoiceDate;
                 if (String.IsNullOrEmpty(i.OriginalInvoiceDate) || !DateTime.TryParseExact(String.Format("{0}", i.OriginalInvoiceDate), "yyyy/MM/dd", CultureInfo.CurrentCulture, DateTimeStyles.None, out invoiceDate))
                 {
-                    return new Exception(String.Format("Format of Original Invoice Date error(YYYY/MM/DD)；Incorrect:{0}", i.OriginalInvoiceDate));
+                    return new Exception(String.Format("Format of Original CDS_Document Date error(YYYY/MM/DD)；Incorrect:{0}", i.OriginalInvoiceDate));
                 }
 
                 var allowanceItem = new InvoiceAllowanceItem

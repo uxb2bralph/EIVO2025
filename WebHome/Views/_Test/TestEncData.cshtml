@@ -1,0 +1,178 @@
+﻿@using System.IO
+@using System.Linq.Expressions
+@using System.Text
+@using System.Web
+@using WebHome.Helper
+@using ModelCore.Locale
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using WebHome.Controllers
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@{
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+
+    doTask();
+}
+
+<!DOCTYPE html>
+<html>
+<head runat="server">
+    <title></title>
+</head>
+<body>
+    <form method="post">
+        <div>F0401:@(ModelExtension.Properties.AppSettings.Default.F0401Outbound)</div>
+        <div>A0101:@(ModelExtension.Properties.AppSettings.Default.A0101Outbound)</div>
+        <div>
+            Invoice No:
+            <textarea cols="80" rows="10" name="invoiceNo">@(_viewModel?.InvoiceNo)</textarea><br />
+            EndNo No: <input type="text" name="endNo" value="@(_viewModel?.EndNo)" />
+            <button ID="btnCreate" type="submit">OK!!</button>
+        </div>
+        <br />
+        <textarea cols="80" rows="10">@(_item!=null ? _item.ToString() : null)</textarea>
+    </form>
+</body>
+</html>
+@functions
+{
+    protected StringBuilder _item = new StringBuilder();
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+    InquireInvoiceViewModel _viewModel;
+
+    void doTask()
+    {
+        models = new ModelSource<InvoiceItem>();
+
+        _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
+        if (_viewModel == null)
+        {
+            var t = ((SampleController<InvoiceItem>)ViewContext.HttpContext.Items["Controller"]).PrepareViewModelAsync<InquireInvoiceViewModel>();
+            t.Wait();
+            _viewModel = t.Result;
+        }
+
+        String invoiceNo = _viewModel.InvoiceNo.GetEfficientString();
+        String endNo = _viewModel.EndNo.GetEfficientString();
+
+        String storedPath = _viewModel.ProcessType == Naming.InvoiceProcessType.A0101
+            ? ModelExtension.Properties.AppSettings.Default.A0101Outbound
+            : ModelExtension.Properties.AppSettings.Default.F0401Outbound;
+        storedPath.CheckStoredPath();
+
+        IQueryable<InvoiceItem> invoiceItems = models.GetTable<InvoiceItem>();
+
+        if (_viewModel.DateFrom.HasValue)
+        {
+            invoiceItems = invoiceItems.Where(i => i.InvoiceDate >= _viewModel.DateFrom);
+        }
+
+        if (_viewModel.DateTo.HasValue)
+        {
+            invoiceItems = invoiceItems.Where(i => i.InvoiceDate < _viewModel.DateTo.Value.AddDays(1));
+        }
+
+        if (endNo == null)
+        {
+            if (invoiceNo?.Length == 10)
+            {
+                var item = invoiceItems
+                    .Where(i => i.TrackCode == invoiceNo.Substring(0, 2)
+                        && i.No == invoiceNo.Substring(2))
+                    .OrderByDescending(i => i.InvoiceID)
+                    .FirstOrDefault();
+                if (item != null)
+                {
+                    CreateData(item, _viewModel);
+                }
+            }
+            else if (invoiceNo != null)
+            {
+                String[] items = invoiceNo.Split(new String[] { "\r\n", ",", ";", "、" }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var invNo in items)
+                {
+                    if (invNo.Length != 10)
+                        break;
+                    var item = invoiceItems
+                        .Where(i => i.TrackCode == invNo.Substring(0, 2)
+                            && i.No == invNo.Substring(2))
+                        .OrderByDescending(i => i.InvoiceID)
+                        .FirstOrDefault();
+                    if (item != null)
+                    {
+                        CreateData(item, _viewModel);
+                    }
+                }
+            }
+            
+            StoreData();
+            models.Dispose();
+        }
+        else if (invoiceNo.Length == 10 && endNo.Length == 10)
+        {
+            var items = invoiceItems
+                .Where(i => i.TrackCode == invoiceNo.Substring(0, 2))
+                .Where(i => String.Compare(i.No, invoiceNo.Substring(2)) >= 0)
+                .Where(i => String.Compare(i.No, endNo.Substring(2)) <= 0);
+
+            var count = items.Count();
+            if (count > 0)
+            {
+                alert("送出執行註銷筆數:" + count);
+                System.Threading.ThreadPool.QueueUserWorkItem(t =>
+                {
+                    foreach (var item in items)
+                    {
+                        try
+                        {
+                            CreateData(item, _viewModel);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                        }
+                    }
+                    StoreData();
+                    models.Dispose();
+                });
+            }
+        }
+        else
+        {
+            models.Dispose();
+        }
+    }
+}
+
+@functions
+{
+    void alert(String data)
+    {
+        <script>
+        alert('@(HttpUtility.JavaScriptStringEncode(data))');
+        </script>
+    }
+
+    void CreateData(InvoiceItem item, InquireInvoiceViewModel viewModel)
+    {
+        _item.AppendLine($"{item.TrackCode}{item.No}\t{item.BuildEncryptedData()}");
+    }
+
+    void StoreData()
+    {
+        if (_item.Length == 0)
+            return;
+
+        String fullPath = System.IO.Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.txt");
+        File.WriteAllText(fullPath, _item.ToString(), Encoding.UTF8);
+    }
+}

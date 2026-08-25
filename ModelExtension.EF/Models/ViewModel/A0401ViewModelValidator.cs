@@ -15,10 +15,9 @@ using ModelCore.InvoiceManagement;
 
 namespace ModelCore.Models.ViewModel
 {
-    public partial class A0401ViewModelValidator<TEntity> : InvoiceViewModelValidator<TEntity>
-        where TEntity : class, new()
+    public partial class A0401ViewModelValidator : InvoiceViewModelValidator
     {
-        public A0401ViewModelValidator(ModelSource<TEntity> mgr, Organization owner) : base(mgr, owner)
+        public A0401ViewModelValidator(ModelSource models, Organization owner) : base(models, owner)
         {
 
         }
@@ -69,17 +68,17 @@ namespace ModelCore.Models.ViewModel
 
         protected override Exception checkBusiness()
         {
-            _seller = _mgr.GetTable<Organization>().Where(o => o.CompanyID == _invItem.SellerID).FirstOrDefault();
+            _seller = _models.GetTable<Organization>().Where(o => o.CompanyID == _invItem.SellerID).FirstOrDefault();
             if (_seller == null)
             {
-                _seller = _mgr.GetTable<Organization>().Where(o => o.ReceiptNo == _invItem.SellerReceiptNo).FirstOrDefault();
+                _seller = _models.GetTable<Organization>().Where(o => o.ReceiptNo == _invItem.SellerReceiptNo).FirstOrDefault();
             }
             if (_seller == null)
             {
                 return new Exception(String.Format(MessageResources.AlertInvalidSeller, _invItem.SellerReceiptNo));
             }
 
-            if (_seller.CompanyID != _owner.CompanyID && !_mgr.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
+            if (_seller.CompanyID != _owner.CompanyID && !_models.GetTable<InvoiceIssuerAgent>().Any(a => a.AgentID == _owner.CompanyID && a.IssuerID == _seller.CompanyID))
             {
                 return new Exception(String.Format(MessageResources.InvalidSellerOrAgent, _invItem.SellerReceiptNo, _owner.ReceiptNo));
             }
@@ -177,7 +176,7 @@ namespace ModelCore.Models.ViewModel
             {
                 try
                 {
-                    using (TrackNoManager trackNoMgr = new TrackNoManager(_mgr, _seller.CompanyID))
+                    using (TrackNoManager trackNoMgr = new TrackNoManager(_models, _seller.CompanyID))
                     {
                         if (!trackNoMgr.ApplyInvoiceDate(_invItem.InvoiceDate.Value) || !trackNoMgr.CheckInvoiceNo(_newItem))
                         {
@@ -219,7 +218,7 @@ namespace ModelCore.Models.ViewModel
                 EMail = _invItem.EMail
             };
 
-            Organization buyer = _mgr.GetTable<Organization>().Where(o => o.ReceiptNo == _buyer.ReceiptNo).FirstOrDefault();
+            Organization buyer = _models.GetTable<Organization>().Where(o => o.ReceiptNo == _buyer.ReceiptNo).FirstOrDefault();
             if (buyer == null)
             {
                 buyer = new Organization
@@ -252,10 +251,10 @@ namespace ModelCore.Models.ViewModel
 
             if (_invItem.Counterpart == true)
             {
-                if (!_mgr.GetTable<BusinessRelationship>().Any(b => b.MasterID == _seller.CompanyID
+                if (!_models.GetTable<BusinessRelationship>().Any(b => b.MasterID == _seller.CompanyID
                      && b.Relative.ReceiptNo == _buyer.ReceiptNo))
                 {
-                    _mgr.GetTable<BusinessRelationship>().Add
+                    _models.GetTable<BusinessRelationship>().Add
                         (
                             new BusinessRelationship
                             {

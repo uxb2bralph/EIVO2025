@@ -132,6 +132,231 @@ namespace WebHome.Controllers
             return View("~/Views/InvoiceBusiness/CreateInvoice.cshtml");
         }
 
+        [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
+        public ActionResult EditInvoice(DocumentQueryViewModel viewModel)
+        {
+
+            int? invoiceID = viewModel.DocID;
+            if (!String.IsNullOrEmpty(viewModel.KeyID))
+            {
+                invoiceID = viewModel.DecryptKeyValue();
+            }
+
+            var item = models!.GetTable<InvoiceItem>().Where(i => i.InvoiceID == invoiceID).FirstOrDefault();
+            if (item == null)
+            {
+                return View("~/Views/Shared/AlertMessage.cshtml", model: "查無發票資料!!");
+            }
+
+            if (!CanModifyInvoice(HttpContext.GetUser(), item))
+            {
+                return View("~/Views/Shared/AlertMessage.cshtml", model: "無權限修改此發票!!");
+            }
+
+            InvoiceViewModel editModel = BuildInvoiceViewModel(item);
+            editModel.KeyID = item.InvoiceID.EncryptKey();  // 保留原發票識別，供 CommitEditInvoice 還原原發票
+
+            ViewBag.ViewModel = editModel;
+            ViewBag.CommitAction = "CommitEditInvoice";
+            return View("~/Views/InvoiceBusiness/CreateInvoice.cshtml");
+        }
+
+        [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
+        public ActionResult CommitEditInvoice(InvoiceViewModel viewModel)
+        {
+            ViewBag.ViewModel = viewModel;
+
+            if (String.IsNullOrEmpty(viewModel.KeyID))
+            {
+                return Json(new { result = false, message = "發票資料錯誤!!" });
+            }
+
+            int originalID;
+            try
+            {
+                originalID = viewModel.DecryptKeyValue();
+            }
+            catch
+            {
+                return Json(new { result = false, message = "發票資料錯誤!!" });
+            }
+
+            var original = models!.GetTable<InvoiceItem>().Where(i => i.InvoiceID == originalID).FirstOrDefault();
+            if (original == null)
+            {
+                return Json(new { result = false, message = "查無原發票資料!!" });
+            }
+
+            if (!CanModifyInvoice(HttpContext.GetUser(), original))
+            {
+                return Json(new { result = false, message = "無權限修改此發票!!" });
+            }
+
+            var seller = models.GetTable<Organization>().Where(o => o.CompanyID == original.SellerID).FirstOrDefault();
+            if (seller == null)
+            {
+                return Json(new { result = false, message = "發票開立人錯誤!!" });
+            }
+
+            viewModel.SellerID = seller.CompanyID;
+            viewModel.SellerName = seller.CompanyName;
+            viewModel.SellerReceiptNo = seller.ReceiptNo;
+
+            // 沿用原發票號碼，避免驗證器另配新號（TrackCode/No 皆有值時不會呼叫 TrackNoManager）
+            viewModel.TrackCode = original.TrackCode;
+            viewModel.No = original.No;
+            viewModel.InvoiceDate = viewModel.InvoiceDate ?? original.InvoiceDate;
+
+            InvoiceViewModelValidator<InvoiceItem> validator = new InvoiceViewModelValidator<InvoiceItem>(this.DataSource, seller);
+            var exception = validator.Validate(viewModel);
+            if (exception != null)
+            {
+                return Json(new { result = false, message = exception.Message });
+            }
+
+            // 原發票的號碼配置（若存在則轉移到新發票）
+            var assignment = models.GetTable<InvoiceNoAssignment>()
+                .Where(a => a.InvoiceID == originalID)
+                .Select(a => new { a.IntervalID, a.InvoiceNo })
+                .FirstOrDefault();
+
+            var tran = models.EnterTransaction();
+            try
+            {
+                // 1. 建立新發票（沿用原號），取得新的 InvoiceID
+                InvoiceItem newItem = validator.InvoiceItem;
+                newItem.CDS_Document.ProcessType = (int?)viewModel.InvoiceProcessType;
+                if (original.InvoiceTrackCode != null)
+                {
+                    newItem.TrackID = original.TrackID;
+                    original.InvoiceTrackCode = null;
+                    models.SubmitChanges();
+                }
+
+                models!.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+                newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
+                models.SubmitChanges();
+
+                // 2. 作廢原發票：ProcessVoidInvoiceRequest + 產出 F0701 至 F0701Outbound（於加星號前，確保作廢號碼正確）
+                ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
+                models.ProcessVoidInvoiceRequest(Naming.VoidActionMode.註銷重開, null, original);
+                original.CreateF0701().Save(System.IO.Path.Combine(
+                    ModelExtension.Properties.AppSettings.Default.F0701Outbound,
+                    "F0701_" + original.TrackCode + original.No + ".xml"));
+
+                //// 3. 號碼配置轉移：先刪除原發票的 InvoiceNoAssignment（DeleteAny 立即送出，避免與唯一索引衝突），再以新 InvoiceID 重建一筆
+                //if (assignment != null)
+                //{
+                //    models.DeleteAny<InvoiceNoAssignment>(a => a.InvoiceID == originalID);
+                //    models.GetTable<InvoiceNoAssignment>().InsertOnSubmit(new InvoiceNoAssignment
+                //    {
+                //        InvoiceID = newItem.InvoiceID,
+                //        IntervalID = assignment.IntervalID,
+                //        InvoiceNo = assignment.InvoiceNo,
+                //    });
+                //    models.SubmitChanges();
+                //}
+
+                //// 4. 原發票號結尾加星號，標記為已被取代
+                //original.No = original.No + "*";
+                //models.SubmitChanges();
+
+                tran.Commit();
+
+                viewModel.TrackCode = newItem.TrackCode;
+                viewModel.No = newItem.No;
+                return View("~/Views/InvoiceBusiness/Module/InvoiceCreated.cshtml", newItem);
+            }
+            catch (Exception ex)
+            {
+                tran.Rollback();
+                CommonLib.Core.Utility.FileLogger.Logger.Error(ex);
+                return Json(new { result = false, message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// 發票修改權限：ROLE_SYS 可修改所有發票；ROLE_SELLER 僅可修改本身營業人或代理項下營業人所開立之發票。
+        /// </summary>
+        private bool CanModifyInvoice(UserProfile profile, InvoiceItem item)
+        {
+            if (profile == null)
+            {
+                return false;
+            }
+
+            if (profile.IsSystemAdmin())
+            {
+                return true;
+            }
+
+            // InitializeOrganizationQuery 依角色類別回傳可存取的開立人範圍（自身 / 代理項下）
+            return profile.InitializeOrganizationQuery(models!).Any(o => o.CompanyID == item.SellerID);
+        }
+
+        /// <summary>
+        /// 由既有 InvoiceItem 還原為 InvoiceViewModel，供編輯畫面帶入。
+        /// </summary>
+        private InvoiceViewModel BuildInvoiceViewModel(InvoiceItem item)
+        {
+            var viewModel = new InvoiceViewModel
+            {
+                SellerID = item.SellerID,
+                SellerName = item.InvoiceSeller?.Name,
+                SellerReceiptNo = item.InvoiceSeller?.ReceiptNo,
+                No = item.No,
+                TrackCode = item.TrackCode,
+                InvoiceDate = item.InvoiceDate,
+                InvoiceType = item.InvoiceType,
+                CustomsClearanceMark = item.CustomsClearanceMark,
+                RandomNo = String.IsNullOrEmpty(item.RandomNo) ? String.Format("{0:0000}", (DateTime.Now.Ticks % 10000)) : item.RandomNo,
+                DonateMark = item.InvoiceDonation == null ? "0" : "1",
+                NPOBAN = item.InvoiceDonation?.AgencyCode,
+                InvoiceProcessType = (Naming.InvoiceProcessType?)item.CDS_Document?.ProcessType,
+            };
+
+            var amount = item.InvoiceAmountType;
+            if (amount != null)
+            {
+                viewModel.TaxType = amount.TaxType;
+                viewModel.TaxRate = amount.TaxRate;
+                viewModel.TaxAmount = amount.TaxAmount;
+                viewModel.TotalAmount = amount.TotalAmount;
+                viewModel.DiscountAmount = amount.DiscountAmount;
+                viewModel.SalesAmount = (amount.SalesAmount ?? 0) + (amount.ZeroTaxSalesAmount ?? 0) + (amount.FreeTaxSalesAmount ?? 0);
+            }
+
+            var buyer = item.InvoiceBuyer;
+            if (buyer != null)
+            {
+                viewModel.BuyerReceiptNo = buyer.ReceiptNo == "0000000000" ? null : buyer.ReceiptNo;
+                viewModel.BuyerName = buyer.CustomerName ?? buyer.Name;
+                viewModel.CustomerID = buyer.CustomerID;
+                viewModel.Phone = buyer.Phone;
+                viewModel.Address = buyer.Address;
+                viewModel.EMail = buyer.EMail;
+                viewModel.BuyerMark = (byte?)buyer.BuyerMark;
+            }
+
+            var carrier = item.InvoiceCarrier;
+            if (carrier != null)
+            {
+                viewModel.CarrierType = carrier.CarrierType;
+                viewModel.CarrierId1 = carrier.CarrierNo;
+                viewModel.CarrierId2 = carrier.CarrierNo2;
+            }
+
+            var details = item.InvoiceDetails.ToList();
+            viewModel.Brief = details.Select(d => (String?)d.InvoiceProduct?.Brief).ToArray();
+            viewModel.ItemNo = details.Select(d => d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.ItemNo).ToArray();
+            viewModel.ItemRemark = details.Select(d => d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.Remark).ToArray();
+            viewModel.Piece = details.Select(d => (int?)d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.Piece).ToArray();
+            viewModel.UnitCost = details.Select(d => d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.UnitCost).ToArray();
+            viewModel.CostAmount = details.Select(d => d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.CostAmount).ToArray();
+
+            return viewModel;
+        }
+
         public ActionResult UploadData(InvoiceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;

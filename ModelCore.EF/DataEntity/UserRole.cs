@@ -11,9 +11,9 @@ public partial class UserRole
 
     public int OrgaCateID { get; set; }
 
-    public virtual OrganizationCategory OrgaCate { get; set; } = null!;
+    public virtual OrganizationCategory OrganizationCategory { get; set; } = null!;
 
-    public virtual UserRoleDefinition Role { get; set; } = null!;
+    public virtual UserRoleDefinition UserRoleDefinition { get; set; } = null!;
 
-    public virtual UserProfile UIDNavigation { get; set; } = null!;
+    public virtual UserProfile UserProfile { get; set; } = null!;
 }

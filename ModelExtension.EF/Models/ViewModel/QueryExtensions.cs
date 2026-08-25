@@ -207,7 +207,7 @@ namespace ModelCore.Models.ViewModel
             //    if (viewModel.ProcessType == Naming.InvoiceProcessType.C0401)
             //    {
             //        items = items
-            //            .Join(models.GetTable<Doc>()
+            //            .Join(_models.GetTable<CDS_Document>()
             //                .Where(d => !d.ProcessType.HasValue
             //                    || (d.ProcessType != (int)Naming.InvoiceProcessType.A0401
             //                        && d.ProcessType != (int)Naming.InvoiceProcessType.A0401_Xlsx_Allocation_ByIssuer)),
@@ -217,7 +217,7 @@ namespace ModelCore.Models.ViewModel
             //    else if (viewModel.ProcessType == Naming.InvoiceProcessType.A0401)
             //    {
             //        items = items
-            //            .Join(models.GetTable<InvoiceBuyer>()
+            //            .Join(_models.GetTable<InvoiceBuyer>()
             //                .Where(d => d.ReceiptNo != "0000000000"),
             //                i => i.InvoiceID, d => d.InvoiceID, (i, d) => i);
             //        effective = true;
@@ -346,6 +346,9 @@ namespace ModelCore.Models.ViewModel
         public static IQueryable<InvoiceItem> QueryEffective(this IQueryable<InvoiceItem> items, InquireInvoiceViewModel? viewModel, GenericDbContext<ApplicationDbContext> models, ref bool effective)
         {
             viewModel ??= new InquireInvoiceViewModel { };
+            // 注意：InvoiceItem.CDS_Document 為 [NotMapped] 別名，EF Core 無法翻譯，
+            // 查詢時必須使用已對應的導覽屬性 CDS_Document。
+            items = items.Where(i => i.CDS_Document.DocType == (int)Naming.DocumentTypeDefinition.E_Invoice);
             if (viewModel.Cancelled.HasValue)
             {
                 if (viewModel.Cancelled == true)
@@ -522,7 +525,7 @@ namespace ModelCore.Models.ViewModel
             //    if (viewModel.ProcessType == Naming.InvoiceProcessType.D0401)
             //    {
             //        items = items
-            //            .Join(models.GetTable<Doc>()
+            //            .Join(_models.GetTable<CDS_Document>()
             //                .Where(d => !d.ProcessType.HasValue || d.ProcessType == (int)viewModel.ProcessType),
             //                i => i.AllowanceID, d => d.DocID, (i, d) => i);
             //        effective = true;
@@ -530,7 +533,7 @@ namespace ModelCore.Models.ViewModel
             //    else
             //    {
             //        items = items
-            //            .Join(models.GetTable<Doc>()
+            //            .Join(_models.GetTable<CDS_Document>()
             //                .Where(d => d.ProcessType == (int)viewModel.ProcessType),
             //                i => i.AllowanceID, d => d.DocID, (i, d) => i);
             //        effective = true;

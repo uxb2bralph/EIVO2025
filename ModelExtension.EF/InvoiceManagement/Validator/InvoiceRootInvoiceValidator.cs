@@ -335,7 +335,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
         protected virtual Exception? CheckInvoiceNo(InvoiceItem item, DateTime invoiceDate)
         {
-            if (_seller?.OrganizationStatus?.EnableTrackCodeInvoiceNoValidation == true)
+            if (_seller!.OrganizationStatus?.EnableTrackCodeInvoiceNoValidation == true)
             {
                 int periodNo = (invoiceDate.Month + 1) / 2;
 
@@ -364,11 +364,19 @@ namespace ModelCore.InvoiceManagement.Validator
                     };
                 }
             }
+            else if(_seller!.IgnoreDuplicatedNo() || processType.IgnoreDuplicatedNo())
+            {
+
+            }
+            else
+            {
+                item.TrackID = 0;
+            }
 
             return null;
         }
 
-        protected virtual Exception checkInvoice()
+        protected virtual Exception? checkInvoice()
         {
             DuplicateProcess = false;
             _container.CDS_Document = new CDS_Document
@@ -528,7 +536,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     {
                         DuplicateProcess = true;
                         _newItem = currentItem;
-                        return null;
+                        return null!;
                     }
                     else
                     {
@@ -663,7 +671,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
 
 
-        protected virtual Exception checkBusiness()
+        protected virtual Exception? checkBusiness()
         {
             if (_seller == null || _seller.ReceiptNo != _invItem.SellerId)
             {

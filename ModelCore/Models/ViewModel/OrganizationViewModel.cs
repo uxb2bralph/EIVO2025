@@ -17,7 +17,13 @@ namespace ModelCore.Models.ViewModel
         public String? Fax { get; set; }
         public String? LogoURL { get; set; }
         public String? CompanyName { get; set; }
-        public int? CompanyID { get; set; }
+
+        [JsonIgnore]
+        public int? CompanyID 
+        { 
+            get => SellerID; 
+            set => SellerID = value; 
+        }
         public String? ReceiptNo { get; set; }
         public String? Phone { get; set; }
         public String? ContactFax { get; set; }

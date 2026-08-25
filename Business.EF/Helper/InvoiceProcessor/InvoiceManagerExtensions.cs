@@ -277,9 +277,9 @@ namespace Business.Helper.InvoiceProcessor
             {
                 foreach (var newItem in manager.EventItems)
                 {
-                    //if (newItem.Doc.ProcessRequestDocument == null)
+                    //if (newItem.CDS_Document.ProcessRequestDocument == null)
                     //{
-                    //    newItem.Doc.ProcessRequestDocument = new ProcessRequestDocument
+                    //    newItem.CDS_Document.ProcessRequestDocument = new ProcessRequestDocument
                     //    {
                     //        TaskID = requestItem.TaskID
                     //    };
@@ -626,9 +626,100 @@ namespace Business.Helper.InvoiceProcessor
             }
         }
 
+        private static void ReviseInvoiceCore(this InvoiceManagerV2 models, Root result, OrganizationToken token, InvoiceRoot invoice)
+        {
+            List<AutomationItem> automation = new List<AutomationItem>();
+            var items = models.ReviseInvoice(invoice, token);
+
+            if (items.Count > 0)
+            {
+                result.Response = new RootResponse
+                {
+                    InvoiceNo =
+                    items.Select(d => new RootResponseInvoiceNo
+                    {
+                        Value = invoice.Invoice[d.Key].InvoiceNumber,
+                        Description = d.Value.Message,
+                        ItemIndexSpecified = true,
+                        ItemIndex = d.Key
+                    }).ToArray()
+                };
+
+                //失敗Response
+                automation.AddRange(items.Select(d => new AutomationItem
+                {
+                    Description = d.Value.Message,
+                    Status = 0,
+                    Invoice = new AutomationItemInvoice
+                    {
+                        InvoiceNumber = invoice.Invoice[d.Key].InvoiceNumber,
+                        SellerId = invoice.Invoice[d.Key].SellerId
+                    }
+                }));
+
+                ThreadPool.QueueUserWorkItem(ExceptionNotification.SendNotification,
+                    new ExceptionInfo
+                    {
+                        Token = token,
+                        ExceptionItems = items,
+                        InvoiceData = invoice
+                    });
+            }
+            else
+            {
+                result.Result.value = 1;
+            }
+
+            //成功Response
+            if (models.EventItems != null && models.EventItems.Count > 0)
+            {
+                if (token.Company.OrganizationStatus.DownloadDataNumber == true)
+                {
+                    automation.AddRange(models.EventItems.Select(i => new AutomationItem
+                    {
+                        Description = "",
+                        Status = 1,
+                        Invoice = new AutomationItemInvoice
+                        {
+                            SellerId = i.InvoiceSeller.ReceiptNo,
+                            InvoiceNumber = i.TrackCode + i.No,
+                            EncData = i.BuildEncryptedData(),
+                            InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
+                            InvoicePdf = $"{ModelExtension.Properties.AppSettings.Default.InvoicePdfUrl}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}"
+                        },
+                    }));
+                }
+                else
+                {
+                    automation.AddRange(models.EventItems.Select(i => new AutomationItem
+                    {
+                        Description = "",
+                        Status = 1,
+                        Invoice = new AutomationItemInvoice
+                        {
+                            SellerId = i.InvoiceSeller.ReceiptNo,
+                            InvoiceNumber = i.TrackCode + i.No,
+                            EncData = i.BuildEncryptedData(),
+                            InvoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewInvoice}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
+                            InvoicePdf = $"{ModelExtension.Properties.AppSettings.Default.InvoicePdfUrl}?keyID={HttpUtility.UrlEncode(i.InvoiceID.EncryptKey())}",
+                        }
+                    }));
+                }
+            }
+
+            result.Automation = automation.ToArray();
+
+        }
+
+
         public static void UploadInvoice(this InvoiceManagerV2 models, InvoiceRoot invoice, Root result, OrganizationToken token)
         {
             UploadInvoice(models, invoice, result, token, UploadInvoiceCore);
+        }
+
+        public static void ReviseInvoice(this InvoiceManagerV2 models, InvoiceRoot invoice, Root result, OrganizationToken token)
+        {
+            UploadInvoice(models, invoice, result, token, ReviseInvoiceCore);
         }
 
     }

@@ -33,10 +33,10 @@ namespace ModelCore.InvoiceManagement
         public virtual DataTable InitializeAllowanceResponseTable()
         {
             DataTable table = new DataTable();
-            table.Columns.Add(new DataColumn("Allowance No", typeof(String)));
+            table.Columns.Add(new DataColumn("CDS_Document No", typeof(String)));
             table.Columns.Add(new DataColumn("Status Code", typeof(int)));
             table.Columns.Add(new DataColumn("Description", typeof(String)));
-            table.Columns.Add(new DataColumn("Invoice No", typeof(String)));
+            table.Columns.Add(new DataColumn("CDS_Document No", typeof(String)));
             table.TableName = "Process Result";
             return table;
         }
@@ -48,7 +48,7 @@ namespace ModelCore.InvoiceManagement
             AllowanceDataSetValidator validator = new AllowanceDataSetValidator(this, owner);
             DataTable result = InitializeAllowanceResponseTable();
 
-            IEnumerable<DataRow> allowanceItems = item.Tables["Allowance"].Rows.Cast<DataRow>();
+            IEnumerable<DataRow> allowanceItems = item.Tables["CDS_Document"].Rows.Cast<DataRow>();
             IEnumerable<DataRow> details = item.Tables["Details"].Rows.Cast<DataRow>();
             String dataID = "";
             foreach (DataRow row in details)
@@ -91,7 +91,7 @@ namespace ModelCore.InvoiceManagement
                         if (newItem!.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.G0401)
                         {
                             newItem.CDS_Document.PushStepQueueOnSubmit(this, validator.Seller!.StepReadyToAllowanceMIG(), Naming.InvoiceProcessType.G0401);
-                            //newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
+                            //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.G0401);
                         }
                         else
                         {

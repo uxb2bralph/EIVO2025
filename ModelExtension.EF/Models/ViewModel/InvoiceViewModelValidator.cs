@@ -12,38 +12,33 @@ using ModelCore.Resource;
 using ModelCore.Schema.EIVO;
 using CommonLib.Utility;
 using ModelCore.InvoiceManagement;
+using ModelCore.InvoiceManagement.Validator;
 
 namespace ModelCore.Models.ViewModel
 {
-    public partial class InvoiceViewModelValidator<TEntity>
-        where TEntity : class, new()
+    public partial class InvoiceViewModelValidator
     {
-        public static string __DECIMAL_AMOUNT_PATTERN = "^-?\\d{1,12}(.[0-9]{0,4})?$";
-        public static string __CELLPHONE_BARCODE = "3J0002";
-        public static String __自然人憑證 = "CQ0001";
-        public static String __CROSS_BORDER_MURCHANT = "5G0001";
-
-        protected ModelSource<TEntity> _mgr;
+        protected ModelSource _models = null!;
         protected Organization _owner;
 
-        protected InvoiceViewModel _invItem;
+        protected InvoiceViewModel _invItem = null!;
 
-        protected InvoiceItem _newItem;
-        protected Organization _seller;
-        protected InvoicePurchaseOrder _order;
-        protected InvoiceBuyer _buyer;
-        protected InvoiceCarrier _carrier;
-        protected InvoiceDonation _donation;
-        protected IEnumerable<InvoiceProductItem> _productItems;
+        protected InvoiceItem? _newItem;
+        protected Organization? _seller;
+        protected InvoicePurchaseOrder? _order;
+        protected InvoiceBuyer? _buyer;
+        protected InvoiceCarrier? _carrier;
+        protected InvoiceDonation? _donation;
+        protected IEnumerable<InvoiceProductItem>? _productItems;
       
 
-        public InvoiceViewModelValidator(ModelSource<TEntity> mgr, Organization owner)
+        public InvoiceViewModelValidator(ModelSource models, Organization owner)
         {
-            _mgr = mgr;
+            _models = models;
             _owner = owner;
         }
 
-        public InvoiceItem InvoiceItem
+        public InvoiceItem? InvoiceItem
         {
             get
             {
@@ -52,11 +47,11 @@ namespace ModelCore.Models.ViewModel
         }
 
 
-        public virtual Exception Validate(InvoiceViewModel dataItem)
+        public virtual Exception? Validate(InvoiceViewModel dataItem)
         {
             _invItem = dataItem;
 
-            Exception ex;
+            Exception? ex;
 
             _seller = null;
             _newItem = null;
@@ -102,7 +97,7 @@ namespace ModelCore.Models.ViewModel
         }
 
 
-        protected virtual Exception checkInvoice()
+        protected virtual Exception? checkInvoice()
         {
             _newItem = new InvoiceItem
             {
@@ -162,7 +157,7 @@ namespace ModelCore.Models.ViewModel
             {
                 try
                 {
-                    using (TrackNoManager trackNoMgr = new TrackNoManager(_mgr, _seller.CompanyID))
+                    using (TrackNoManager trackNoMgr = new TrackNoManager(_models, _seller.CompanyID))
                     {
                         if (_invItem.InvoiceType == (byte)Naming.InvoiceTypeDefinition.特種稅額計算之電子發票)
                         {
@@ -193,7 +188,7 @@ namespace ModelCore.Models.ViewModel
             return null;
         }
 
-        protected virtual Exception checkDataNumber()
+        protected virtual Exception? checkDataNumber()
         {
             _order = null;
             if (String.IsNullOrEmpty(_invItem.DataNumber))
@@ -202,7 +197,7 @@ namespace ModelCore.Models.ViewModel
             }
 
 
-            if (_mgr.GetTable<InvoicePurchaseOrder>().Any(d => d.OrderNo == _invItem.DataNumber
+            if (_models.GetTable<InvoicePurchaseOrder>().Any(d => d.OrderNo == _invItem.DataNumber
                 && d.Invoice.SellerID==_seller.CompanyID))
             {
                 return new Exception(String.Format(MessageResources.AlertDataNumberDuplicated, _invItem.DataNumber));
@@ -221,17 +216,17 @@ namespace ModelCore.Models.ViewModel
 
         protected virtual Exception checkBusiness()
         {
-            _seller = _mgr.GetTable<Organization>().Where(o => o.CompanyID == _invItem.SellerID).FirstOrDefault();
+            _seller = _models.GetTable<Organization>().Where(o => o.CompanyID == _invItem.SellerID).FirstOrDefault();
             if (_seller == null)
             {
-                _seller = _mgr.GetTable<Organization>().Where(o => o.ReceiptNo == _invItem.SellerReceiptNo).FirstOrDefault();
+                _seller = _models.GetTable<Organization>().Where(o => o.ReceiptNo == _invItem.SellerReceiptNo).FirstOrDefault();
             }
             if (_seller == null)
             {
                 return new Exception(String.Format(MessageResources.AlertInvalidSeller, _invItem.SellerReceiptNo));
             }
 
-            if (_seller.CompanyID != _owner.CompanyID && !_mgr.GetTable<InvoiceIssuerAgent>().Any(a=>a.AgentID==_owner.CompanyID && a.IssuerID==_seller.CompanyID))
+            if (_seller.CompanyID != _owner.CompanyID && !_models.GetTable<InvoiceIssuerAgent>().Any(a=>a.AgentID==_owner.CompanyID && a.IssuerID==_seller.CompanyID))
             {
                 return new Exception(String.Format(MessageResources.InvalidSellerOrAgent, _invItem.SellerReceiptNo, _owner.ReceiptNo));
             }
@@ -270,9 +265,9 @@ namespace ModelCore.Models.ViewModel
             return carrierId != null && carrierId.Length == 8 && carrierId.StartsWith("/");
         }
 
-        protected virtual Exception checkPublicCarrier()
+        protected virtual Exception? checkPublicCarrier()
         {
-            if (_invItem.CarrierType == __CELLPHONE_BARCODE)
+            if (_invItem.CarrierType == InvoiceRootInvoiceValidator.__CELLPHONE_BARCODE)
             {
                 if (checkPublicCarrierId(_invItem.CarrierId1))
                 {
@@ -297,7 +292,7 @@ namespace ModelCore.Models.ViewModel
                     return null;
                 }
             }
-            else if (_invItem.CarrierType == __自然人憑證)
+            else if (_invItem.CarrierType == InvoiceRootInvoiceValidator.__自然人憑證)
             {
                 if (_invItem.CarrierId1 != null && Regex.IsMatch(_invItem.CarrierId1, "^[A-Z]{2}[0-9]{14}$"))
                 {
@@ -322,7 +317,7 @@ namespace ModelCore.Models.ViewModel
                     return null;
                 }
             }
-            else if (_invItem.CarrierType == __CROSS_BORDER_MURCHANT)
+            else if (_invItem.CarrierType == InvoiceRootInvoiceValidator.__CROSS_BORDER_MURCHANT)
             {
                 if (_invItem.CarrierId1 != null)
                 {
@@ -477,7 +472,7 @@ namespace ModelCore.Models.ViewModel
         }
 
 
-        protected virtual Exception checkInvoiceProductItems()
+        protected virtual Exception? checkInvoiceProductItems()
         {
             if (_invItem.Brief == null || _invItem.Brief.Length == 0)
             {
@@ -526,7 +521,7 @@ namespace ModelCore.Models.ViewModel
             return null;
         }
 
-        protected virtual Exception checkMandatoryFields()
+        protected virtual Exception? checkMandatoryFields()
         {
 
             if (_invItem.DonateMark != "0" && _invItem.DonateMark != "1")
@@ -559,7 +554,7 @@ namespace ModelCore.Models.ViewModel
             return null;
         }
 
-        protected virtual Exception checkCarrierDataIsComplete()
+        protected virtual Exception? checkCarrierDataIsComplete()
         {
 
             if (String.IsNullOrEmpty(_invItem.CarrierType))

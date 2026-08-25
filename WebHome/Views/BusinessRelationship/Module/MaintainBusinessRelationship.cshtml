@@ -100,19 +100,17 @@
                     查詢條件
                 </th>
             </tr>
-            @if (_profile.IsSystemAdmin())
-            {
-                <tr>
-                    <th>
-                        集團成員
-                    </th>
-                    <td class="tdleft">
-                        @{ ViewBag.SelectAll = true;
-                            await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/GroupMemberSelector.cshtml");}
-
-                    </td>
-                </tr>
-            }
+            <tr>
+                <th>
+                    營業人統編
+                </th>
+                <td class="tdleft">
+                    @{
+                        ViewBag.SelectorIndication = "全部";
+                        await Html.RenderPartialAsync("~/Views/DataFlow/SellerSelector.cshtml", _profile.InitializeOrganizationQuery(models));
+                    }
+                </td>
+            </tr>
             <tr>
                 <th>
                     相對營業人統編

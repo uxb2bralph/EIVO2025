@@ -165,7 +165,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
             if (_details == null || _details.Count() == 0)
             {
-                return new Exception("Allowance details not found.");
+                return new Exception("CDS_Document details not found.");
             }
 
             //byte? allowanceType = _allowanceItem.GetData<byte>(AllowanceField.Allowance_Type);
@@ -274,7 +274,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 var invProductItem = models.GetTable<InvoiceItem>().Where(v => v.InvoiceID == originalInvoice.InvoiceID)
                     .SelectMany(v => v.Product.SelectMany(p => p.InvoiceProductItem))
                     .Where(t => t.No == originalSeqNo).FirstOrDefault();
-                //var invProductItem = originalInvoice.Product.Join(_mgr.GetTable<InvoiceProductItem>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+                //var invProductItem = originalInvoice.Product.Join(_models.GetTable<InvoiceProductItem>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
                 //    .Where(p => p.No == i.OriginalSequenceNumber).FirstOrDefault();
                 if (invProductItem != null)
                 {

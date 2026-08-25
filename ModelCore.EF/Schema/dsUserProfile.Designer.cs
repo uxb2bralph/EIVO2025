@@ -582,7 +582,7 @@ namespace ModelCore.Schema {
                 this.columnOrgaCateID = base.Columns["OrgaCateID"];
                 this.columnCompanyID = base.Columns["CompanyID"];
                 this.columnCategoryID = base.Columns["CategoryID"];
-                this.columnRole = base.Columns["Role"];
+                this.columnRole = base.Columns["UserRoleDefinition"];
                 this.columnCategory = base.Columns["Category"];
                 this.columnCharacterURL = base.Columns["CharacterURL"];
                 this.columnCompanyName = base.Columns["CompanyName"];
@@ -607,7 +607,7 @@ namespace ModelCore.Schema {
                 base.Columns.Add(this.columnCompanyID);
                 this.columnCategoryID = new global::System.Data.DataColumn("CategoryID", typeof(int), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnCategoryID);
-                this.columnRole = new global::System.Data.DataColumn("Role", typeof(string), null, global::System.Data.MappingType.Element);
+                this.columnRole = new global::System.Data.DataColumn("UserRoleDefinition", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnRole);
                 this.columnCategory = new global::System.Data.DataColumn("Category", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnCategory);

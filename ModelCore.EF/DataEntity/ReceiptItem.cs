@@ -28,7 +28,7 @@ public partial class ReceiptItem
 
     public virtual Organization Buyer { get; set; } = null!;
 
-    public virtual CDS_Document Receipt { get; set; } = null!;
+    public virtual CDS_Document CDS_Document { get; set; } = null!;
 
     public virtual ReceiptCancellation? ReceiptCancellation { get; set; }
 

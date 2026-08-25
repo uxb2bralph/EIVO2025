@@ -267,7 +267,7 @@ namespace ModelCore.InvoiceManagement.enUS
 
             if (!__InvoiceTypeList.Contains(invItem.InvoiceType))
             {
-                return new Exception(String.Format("Format of Invoice Type error, please fill in correct code 01-06, Incorrect Invoice Type: {0}, Incorrect TAG:< InvoiceType />", invItem.InvoiceType));
+                return new Exception(String.Format("Format of CDS_Document Type error, please fill in correct code 01-06, Incorrect CDS_Document Type: {0}, Incorrect TAG:< InvoiceType />", invItem.InvoiceType));
             }
 
             if (!Enum.IsDefined(typeof(Naming.TaxTypeDefinition), (int)invItem.TaxType))

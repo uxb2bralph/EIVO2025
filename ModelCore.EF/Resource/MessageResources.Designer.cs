@@ -565,7 +565,7 @@ namespace ModelCore.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 無發票品項明細，TAG:&lt; Invoice /&gt;.
+        ///   Looks up a localized string similar to 無發票品項明細，TAG:&lt; CDS_Document /&gt;.
         /// </summary>
         public static string InvalidInvoiceDetails {
             get {

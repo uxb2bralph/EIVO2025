@@ -361,7 +361,7 @@ namespace TaskCenter.Controllers
                     var resultItems2 = models!.GetTable<DataProcessQueue>()
                                         .Where(d => d.ProcessType == (int)Naming.InvoiceProcessType.F0501)
                     .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
-                    .Where(d => invoiceItems.Any(i => i.InvoiceID == d.Doc.DerivedDocumentDoc.SourceID))
+                    .Where(d => invoiceItems.Any(i => i.InvoiceID == d.Doc.DerivedDocument.SourceID))
                                         .Take(MAX_ITEMS);
                     var migC0501 = resultItems2.ToList();
                     viewModel.LastReceivedKey = migC0501.Select(d => d.DocID).ToArray();
@@ -371,9 +371,9 @@ namespace TaskCenter.Controllers
                         {
                             DocID = d.DocID,
                             DocDate = d.Doc.DocDate,
-                            No = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.InvoiceNo(),
-                            ReceiptNo = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.Seller?.ReceiptNo,
-                            MIG = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.CreateF0501()?.OuterXml
+                            No = (d.Doc.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.InvoiceNo(),
+                            ReceiptNo = (d.Doc.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.Seller?.ReceiptNo,
+                            MIG = (d.Doc.DerivedDocument?.ParentDocument?.InvoiceItem ?? d.Doc.InvoiceItem)?.CreateF0501()?.OuterXml
                         }).ToArray();
                     break;
 
@@ -407,7 +407,7 @@ namespace TaskCenter.Controllers
                     var resultItems3 = models!.GetTable<DataProcessQueue>()
                                         .Where(d => d.ProcessType == (int)Naming.InvoiceProcessType.G0501)
                     .Where(d => d.StepID == (int)Naming.InvoiceStepDefinition.回傳MIG)
-                    .Where(d => allowanceItems.Any(i => i.AllowanceID == d.Doc.DerivedDocumentDoc.SourceID))
+                    .Where(d => allowanceItems.Any(i => i.AllowanceID == d.Doc.DerivedDocument.SourceID))
                                         .Take(MAX_ITEMS);
                     var migD0501 = resultItems3.ToList();
                     viewModel.LastReceivedKey = migD0501.Select(d => d.DocID).ToArray();
@@ -417,9 +417,9 @@ namespace TaskCenter.Controllers
                         {
                             DocID = d.DocID,
                             DocDate = d.Doc.DocDate,
-                            No = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.AllowanceNumber,
-                            ReceiptNo = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.InvoiceAllowanceSeller?.ReceiptNo,
-                            MIG = (d.Doc.DerivedDocumentDoc?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.CreateG0501()?.OuterXml
+                            No = (d.Doc.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.AllowanceNumber,
+                            ReceiptNo = (d.Doc.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.InvoiceAllowanceSeller?.ReceiptNo,
+                            MIG = (d.Doc.DerivedDocument?.ParentDocument?.InvoiceAllowance ?? d.Doc.InvoiceAllowance)?.CreateG0501()?.OuterXml
                         }).ToArray();
                     break;
 

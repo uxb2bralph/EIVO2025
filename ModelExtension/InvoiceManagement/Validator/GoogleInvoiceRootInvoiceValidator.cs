@@ -56,7 +56,7 @@ namespace ModelCore.InvoiceManagement.Validator
             }
             //else
             //{
-            //    C0401Handler.PushStepQueueOnSubmit(_mgr, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
+            //    C0401Handler.PushStepQueueOnSubmit(_models, newItem.CDS_Document, Naming.InvoiceStepDefinition.已接收資料待通知);
             //}
 
             //yuki 儲存發票
@@ -66,7 +66,7 @@ namespace ModelCore.InvoiceManagement.Validator
             newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
             //yuki 加一筆到ProcessRequestDocument
-            //C0401Handler.PushProcessRequestDocumentOnSubmit(_mgr, newItem.CDS_Document, taskID);
+            //C0401Handler.PushProcessRequestDocumentOnSubmit(_models, newItem.CDS_Document, taskID);
 
             _models.SubmitChanges();
 

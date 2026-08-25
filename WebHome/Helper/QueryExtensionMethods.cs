@@ -55,7 +55,7 @@ namespace WebHome.Helper
         {
             if (viewModel.KeyID != null)
             {
-                viewModel = JsonConvert.DeserializeObject<BusinessRelationshipQueryViewModel>(viewModel.KeyID.DecryptData());
+                viewModel = JsonConvert.DeserializeObject<BusinessRelationshipQueryViewModel>(viewModel.KeyID.DecryptData())!;
             }
 
             relativeItems = models.GetTable<Organization>();

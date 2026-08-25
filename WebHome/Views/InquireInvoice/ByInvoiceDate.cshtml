@@ -22,12 +22,78 @@
 }
 <tr>
     <th>
-        日期區間
+        日期區間<span style="color:red;">*</span>
     </th>
-    <td class="tdleft" style="display: flex; align-items: center; gap: 5px;">
-        自&nbsp;<input name="InvoiceDateFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.InvoiceDateFrom:yyyy/MM/dd}")" />
+    <td class="tdleft" style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+        自&nbsp;<input name="InvoiceDateFrom" id="InvoiceDateFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.InvoiceDateFrom:yyyy/MM/dd}")" />
         &nbsp;至&nbsp;
-        <input name="InvoiceDateTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.InvoiceDateTo:yyyy/MM/dd}")"  />
+        <input name="InvoiceDateTo" id="InvoiceDateTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.InvoiceDateTo:yyyy/MM/dd}")" />
+        <span id="invoiceDateRangeError" style="color:red; font-size:0.9em; width:100%; margin-top:4px;"></span>
     </td>
 </tr>
+<script>
+    (function () {
+        function validateInvoiceDateRange() {
+            var fromVal = $("#InvoiceDateFrom").val();
+            var toVal = $("#InvoiceDateTo").val();
+            var $err = $("#invoiceDateRangeError");
+            $err.text("");
+
+            if (!fromVal) {
+                $err.text("請輸入查詢起日");
+                alertModal($err.text());
+                return false;
+            }
+            if (!toVal) {
+                $err.text("請輸入查詢迄日");
+                alertModal($err.text());
+                return false;
+            }
+
+
+            var from = new Date(fromVal);
+            var to = new Date(toVal);
+
+            if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+                $err.text("日期格式不正確");
+                alertModal($err.text());
+                return false;
+            }
+            if (from > to) {
+                $err.text("查詢起日不可晚於查詢迄日");
+                alertModal($err.text());
+                return false;
+            }
+
+            // 最長查詢區間為 2 年
+            var maxTo = new Date(from);
+            maxTo.setFullYear(maxTo.getFullYear() + 2);
+            if (to > maxTo) {
+                $err.text("查詢區間最長不可超過2年");
+                alertModal($err.text());
+                return false;
+            }
+
+            return true;
+        }
+
+        $(function () {
+            // 掛載驗證到 $inquiryAgent
+            var hookInquiryAgent = function () {
+                if (typeof $inquiryAgent !== "undefined" && $inquiryAgent && !$inquiryAgent.__dateRangeValidationHooked) {
+                    var originalInquire = $inquiryAgent.inquire;
+                    $inquiryAgent.inquire = function () {
+                        if (!validateInvoiceDateRange()) {
+                            return;
+                        }
+                        originalInquire.apply($inquiryAgent, arguments);
+                    };
+                    $inquiryAgent.__dateRangeValidationHooked = true;
+                }
+            };
+            // 延遲掛載，確保 $inquiryAgent 已初始化
+            setTimeout(hookInquiryAgent, 200);
+        });
+    })();
+</script>
 

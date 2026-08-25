@@ -12,11 +12,23 @@ namespace TestConsoleCore
         static void Main(string[] args)
         {
             //ExportF0401(args);
-            if(args.Length > 1)
+            if(args.Length > 2)
             {
-                //MigrateInvoiceItem(args[0], args[1]);
-                //MigrateInvoiceCancellation(args[0], args[1]);
-                MigrateInvoiceAllowance(args[0], args[1]);
+                switch(args[0])
+                {
+                    case "InvoiceItem":
+                        MigrateInvoiceItem(args[1], args[2]);
+                        break;
+                    case "InvoiceCancellation":
+                        MigrateInvoiceCancellation(args[1], args[2]);
+                        break;
+                    case "InvoiceAllowance":
+                        MigrateInvoiceAllowance(args[1], args[2]);
+                        break;
+                    default:
+                        Console.WriteLine($"Unknown command: {args[0]}");
+                        break;
+                }
             }
         }
 
@@ -88,7 +100,7 @@ namespace TestConsoleCore
                 var batch = src.InvoiceItem.AsNoTracking()
                     .Where(x => x.InvoiceID > lastId)
                     .OrderBy(x => x.InvoiceID)
-                    .Include(x => x.Invoice)            // CDS_Document
+                    .Include(x => x.CDS_Document)            // CDS_Document
                     .Include(x => x.InvoiceDonation)
                     .Include(x => x.InvoiceItemExtension)
                     .Include(x => x.InvoiceCarrier)
@@ -108,7 +120,7 @@ namespace TestConsoleCore
 
                 foreach (var srcItem in batch)
                 {
-                    if (srcItem.Invoice is null)
+                    if (srcItem.CDS_Document is null)
                     {
                         Console.WriteLine($"[SKIP] InvoiceID={srcItem.InvoiceID} 缺少 CDS_Document，略過。");
                         skipped++;
@@ -127,16 +139,16 @@ namespace TestConsoleCore
                     // ── 組裝目的端物件圖（PK 皆留預設值，交由 EF/Identity 產生並串接傳遞）──
                     var newDoc = new CDS_Document
                     {
-                        DocType = srcItem.Invoice.DocType,
-                        DocDate = srcItem.Invoice.DocDate,
-                        CurrentStep = srcItem.Invoice.CurrentStep,
-                        ChannelID = srcItem.Invoice.ChannelID,
-                        ProcessType = srcItem.Invoice.ProcessType,
+                        DocType = srcItem.CDS_Document.DocType,
+                        DocDate = srcItem.CDS_Document.DocDate,
+                        CurrentStep = srcItem.CDS_Document.CurrentStep,
+                        ChannelID = srcItem.CDS_Document.ChannelID,
+                        ProcessType = srcItem.CDS_Document.ProcessType,
                     };
 
                     var newItem = new InvoiceItem
                     {
-                        Invoice = newDoc,                       // 共用主鍵：DocID → InvoiceID 由 EF 自動傳遞
+                        CDS_Document = newDoc,                       // 共用主鍵：DocID → InvoiceID 由 EF 自動傳遞
                         No = srcItem.No,
                         InvoiceDate = srcItem.InvoiceDate,
                         CheckNo = srcItem.CheckNo,
@@ -492,13 +504,13 @@ namespace TestConsoleCore
                 var batch = src.InvoiceAllowance.AsNoTracking()
                     .Where(a => a.AllowanceID > lastId)
                     .OrderBy(a => a.AllowanceID)
-                    .Include(a => a.Allowance)                 // CDS_Document
+                    .Include(a => a.CDS_Document)                 // CDS_Document
                     .Include(a => a.Invoice)                   // 原始 InvoiceItem（取自然鍵用）
                     .Include(a => a.InvoiceAllowanceCancellation)
                     .Include(a => a.InvoiceAllowanceItemExtension)
                     .Include(a => a.InvoiceAllowanceSeller)
                     .Include(a => a.InvoiceAllowanceBuyer)
-                    .Include(a => a.Item)
+                    .Include(a => a.InvoiceAllowanceDetails)
                     .AsSplitQuery()
                     .Take(batchSize)
                     .ToList();
@@ -510,7 +522,7 @@ namespace TestConsoleCore
 
                 foreach (var srcAllow in batch)
                 {
-                    if (srcAllow.Allowance is null)
+                    if (srcAllow.CDS_Document is null)
                     {
                         Console.WriteLine($"[SKIP] AllowanceID={srcAllow.AllowanceID} 缺少 CDS_Document，略過。");
                         skipped++;
@@ -535,11 +547,11 @@ namespace TestConsoleCore
 
                     var newDoc = new CDS_Document
                     {
-                        DocType = srcAllow.Allowance.DocType,
-                        DocDate = srcAllow.Allowance.DocDate,
-                        CurrentStep = srcAllow.Allowance.CurrentStep,
-                        ChannelID = srcAllow.Allowance.ChannelID,
-                        ProcessType = srcAllow.Allowance.ProcessType,
+                        DocType = srcAllow.CDS_Document.DocType,
+                        DocDate = srcAllow.CDS_Document.DocDate,
+                        CurrentStep = srcAllow.CDS_Document.CurrentStep,
+                        ChannelID = srcAllow.CDS_Document.ChannelID,
+                        ProcessType = srcAllow.CDS_Document.ProcessType,
                     };
 
                     int? currencyId = srcAllow.CurrencyID;
@@ -551,7 +563,7 @@ namespace TestConsoleCore
 
                     var newAllow = new InvoiceAllowance
                     {
-                        Allowance = newDoc,                    // 共用主鍵：DocID → AllowanceID 由 EF 自動傳遞
+                        CDS_Document = newDoc,                    // 共用主鍵：DocID → AllowanceID 由 EF 自動傳遞
                         AllowanceNumber = srcAllow.AllowanceNumber,
                         AllowanceType = srcAllow.AllowanceType,
                         AllowanceDate = srcAllow.AllowanceDate,
@@ -624,13 +636,13 @@ namespace TestConsoleCore
 
                     // ── 折讓明細 (多對多)：已移轉過者以 stub 帶入關聯，避免重複新增 ──
                     var newItemsBySrcId = new Dictionary<int, InvoiceAllowanceItem>();
-                    foreach (var srcDetail in srcAllow.Item)
+                    foreach (var srcDetail in srcAllow.InvoiceAllowanceDetails)
                     {
                         if (allowanceItemMap.TryGetValue(srcDetail.ItemID, out var destItemId))
                         {
                             var stub = new InvoiceAllowanceItem { ItemID = destItemId };
                             dest.InvoiceAllowanceItem.Attach(stub);
-                            newAllow.Item.Add(stub);
+                            newAllow.InvoiceAllowanceDetails.Add(stub);
                         }
                         else
                         {
@@ -658,7 +670,7 @@ namespace TestConsoleCore
                                 PieceUnit2 = srcDetail.PieceUnit2,
                                 Remark = srcDetail.Remark,
                             };
-                            newAllow.Item.Add(newDetail);
+                            newAllow.InvoiceAllowanceDetails.Add(newDetail);
                             newItemsBySrcId[srcDetail.ItemID] = newDetail;
                         }
                     }
@@ -800,7 +812,7 @@ namespace TestConsoleCore
                         .Include(x => x.InvoiceAmountType).ThenInclude(a => a!.Currency)
                         .Include(x => x.Seller).ThenInclude(s => s!.OrganizationCustomSetting)
                         .Include(x => x.Seller).ThenInclude(s => s!.OrganizationSettings)
-                        .Include(x => x.Invoice).ThenInclude(d => d.DataProcessLog)
+                        .Include(x => x.CDS_Document).ThenInclude(d => d.DataProcessLog)
                         .Include(x => x.Product).ThenInclude(p => p.InvoiceProductItem)
                         // 有多個集合導覽（OrganizationSettings / DataProcessLog / InvoiceProductItem），
                         // 用 split query 避免單一 JOIN 造成笛卡兒乘積式的資料膨脹。

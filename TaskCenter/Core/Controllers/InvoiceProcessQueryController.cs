@@ -188,6 +188,38 @@ namespace TaskCenter.Core.Controllers
             return File(bytes, "text/plain", "POSINV.dat");
         }
 
+        /// <summary>
+        /// 下載選取發票的 MIG XML 壓縮檔（對應選單「下載MIG檔案」/InvoiceProcess/InquireToMIG 之
+        /// 下載F0401／下載F0701／下載F0501）。下載對象依登入者角色範圍限縮。
+        /// </summary>
+        [HttpPost("DownloadMig")]
+        [Produces("application/octet-stream")]
+        public async Task<IActionResult> DownloadMig([FromBody] MigDownloadRequestDto request)
+        {
+            var uid = User.GetUserId();
+            if (!uid.HasValue) return CreateUnauthorizedResponse("登入資訊無效!!");
+
+            var docType = request?.DocType?.Trim().ToUpperInvariant();
+            if (string.IsNullOrEmpty(docType) || !InvoiceProcessQueryService.MigDocTypes.Contains(docType))
+            {
+                return CreateBadRequestResponse("不支援的 MIG 格式!!");
+            }
+            if (request!.KeyIds == null || request.KeyIds.Count == 0)
+            {
+                return CreateBadRequestResponse("請選擇下載資料!!");
+            }
+
+            var zip = await _service.BuildMigZipAsync(docType, request.KeyIds, uid.Value);
+            if (zip.Content == null || zip.Content.Length == 0)
+            {
+                return CreateBadRequestResponse(docType == "F0501"
+                    ? "選取的發票均無 F0501 可下載（僅已作廢發票適用）!!"
+                    : $"選取的發票均無 {docType} 可下載!!");
+            }
+
+            return File(zip.Content, "application/zip", $"{docType}.zip");
+        }
+
         // ── helpers ─────────────────────────────────────────────────
 
         private IActionResult ExcelFile(DataTable table, string fileName)

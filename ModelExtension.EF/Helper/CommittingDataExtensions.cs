@@ -183,7 +183,7 @@ namespace ModelCore.Helper
 
             //if (isNewItem)
             //{
-            //    models.CreateDefaultUser(item, orgaCate);
+            //    _models.CreateDefaultUser(item, orgaCate);
             //}
 
             if (orgaCate.CategoryID == (int)CategoryDefinition.CategoryEnum.經銷商)

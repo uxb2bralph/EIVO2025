@@ -200,7 +200,7 @@ namespace ModelCore.InvoiceManagement
             }
         }
 
-        //public static EventHandler<EventArgs<Invoice>>? NotifyReceivedInvoice
+        //public static EventHandler<EventArgs<CDS_Document>>? NotifyReceivedInvoice
         //{
         //    get;
         //    set;

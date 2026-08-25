@@ -278,13 +278,17 @@ namespace ModelCore.InvoiceManagement
                             continue;
                         }
 
-                        if (this.GetTable<InvoiceAllowanceItem>()
+                        var allowanceItem = this.GetTable<InvoiceAllowanceItem>()
                             .Where(a => a.InvoiceNo == invItem.CancelInvoiceNumber)
                             .Where(a => a.InvoiceAllowanceDetail.Any(d => d.InvoiceAllowance.InvoiceAllowanceSeller.SellerID == invoice.SellerID))
-                            .Any())
+                            .FirstOrDefault();
+                        if (allowanceItem != null)
                         {
-                            result.Add(idx, new Exception(String.Format("欲作廢之發票已開立折讓,發票號碼:{0}", invItem.CancelInvoiceNumber)));
-                            continue;
+                            if(!allowanceItem.InvoiceAllowanceDetail.Any(d => d.InvoiceAllowance.InvoiceAllowanceCancellation == null))
+                            {
+                                result.Add(idx, new Exception(String.Format("欲作廢之發票已開立折讓作廢,發票號碼:{0}", invItem.CancelInvoiceNumber)));
+                                continue;
+                            }
                         }
 
                         InvoiceCancellation cancelItem = new InvoiceCancellation

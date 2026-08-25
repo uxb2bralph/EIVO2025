@@ -459,7 +459,7 @@ namespace TaskCenter.Core.Controllers
         /// 背景比對中獎清冊 Excel（遷移自舊版 WinningNumberController.ProcessWinningNoExcel）。
         /// 逐列以「字軌 + 號碼 + 期別」比對發票，建立 / 更新 InvoiceWinningNumber（獎別 / 獎金），
         /// 對成功列發送中獎通知，並在原資料附加「處理狀態」欄後輸出結果檔；完成時標記 ProcessComplete。
-        /// 使用獨立 DbContext（背景執行，不可沿用請求範圍的 models）。
+        /// 使用獨立 DbContext（背景執行，不可沿用請求範圍的 _models）。
         /// </summary>
         private static void ProcessWinningNoExcel(int taskId, string resultFile, string excelPath)
         {

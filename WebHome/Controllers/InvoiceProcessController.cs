@@ -65,7 +65,7 @@ namespace WebHome.Controllers
             //ops.LoadWith<InvoiceItem>(i => i.InvoiceWinningNumber);
             //ops.LoadWith<InvoiceItem>(i => i.InvoiceCarrier);
             //ops.LoadWith<InvoiceItem>(i => i.InvoicePurchaseOrder);
-            //models.DataContext.LoadOptions = ops;
+            //models!.DataContext.LoadOptions = ops;
 
             ViewBag.ViewModel = viewModel;
 
@@ -208,7 +208,7 @@ namespace WebHome.Controllers
             //ops.LoadWith<InvoiceDetail>(i => i.InvoiceProduct);
             ////ops.LoadWith<InvoiceProduct>(i => i.InvoiceProductItem);
 
-            //models.DataContext.LoadOptions = ops;
+            //models!.DataContext.LoadOptions = ops;
 
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
@@ -722,10 +722,10 @@ namespace WebHome.Controllers
                 ProcessStart = DateTime.Now,
                 ResponsePath = System.IO.Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
             };
-            models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
-            models.SubmitChanges();
+            models!.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+            models!.SubmitChanges();
 
-            SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items);
+            SqlCommand sqlCmd = (SqlCommand)models!.GetCommand(items);
             saveAsExcel(processItem.TaskID, processItem.ResponsePath, sqlCmd, viewModel.Attachment != 0);
 
             return View("~/Views/Shared/Module/PromptCheckDownload.cshtml",
@@ -849,7 +849,7 @@ namespace WebHome.Controllers
             //ops.LoadWith<InvoiceItem>(i => i.InvoiceWinningNumber);
             //ops.LoadWith<InvoiceItem>(i => i.InvoiceCarrier);
             //ops.LoadWith<InvoiceItem>(i => i.InvoicePurchaseOrder);
-            //models.DataContext.LoadOptions = ops;
+            //models!.DataContext.LoadOptions = ops;
 
             ViewBag.ViewModel = viewModel;
 
@@ -901,7 +901,7 @@ namespace WebHome.Controllers
             {
                 try
                 {
-                    SqlCommand sqlCmd = (SqlCommand)models.GetCommand(DataSource.Items);
+                    SqlCommand sqlCmd = (SqlCommand)models!.GetCommand(DataSource.Items);
                     using (SqlDataAdapter adapter = new SqlDataAdapter(sqlCmd))
                     {
                         using (DataSet ds = new DataSet())
@@ -914,7 +914,7 @@ namespace WebHome.Controllers
                             }
                         }
                     }
-                    models.Dispose();
+                    models!.Dispose();
                 }
                 catch (Exception ex)
                 {
@@ -1089,8 +1089,9 @@ namespace WebHome.Controllers
             if (viewModel.ChkItem?.Count > 0)
             {
                 var profile = HttpContext.GetUser();
-                var items = models!.GetTable<InvoiceItem>().Where(i => viewModel.ChkItem!.Contains(i.InvoiceID));
-                items = models.FilterInvoiceByRole(profile, items);
+                var idList = viewModel.ChkItem!.ToList();
+                var items = models!.GetTable<InvoiceItem>().Where(i => idList.Contains(i.InvoiceID));
+                items = models!.FilterInvoiceByRole(profile, items);
 
                 if (items.Count() > 1)
                 {
@@ -1101,7 +1102,7 @@ namespace WebHome.Controllers
                         return View("~/Views/Shared/AlertMessage.cshtml");
                     }
 
-                    var g2 = items.Join(models.GetTable<CDS_Document>(), i => i.InvoiceID, d => d.DocID, (i, d) => d.ProcessType)
+                    var g2 = items.Join(models!.GetTable<CDS_Document>(), i => i.InvoiceID, d => d.DocID, (i, d) => d.ProcessType)
                         .GroupBy(t => t);
 
                     if (g2.Count() > 1)
@@ -1131,7 +1132,8 @@ namespace WebHome.Controllers
             var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
             {
-                var items = models!.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID))
+                var idList = chkItem.ToList();
+                var items = models!.GetTable<InvoiceItem>().Where(i => idList.Contains(i.InvoiceID))
                         .Where(i => i.CDS_Document.DocumentPrintLog.Any() && i.CDS_Document.DocumentAuthorization == null)
                         .Select(i => i.InvoiceID).ToList()
                         .Select(i => new DocumentAuthorization
@@ -1139,8 +1141,8 @@ namespace WebHome.Controllers
                             DocID = i
                         }).ToList();
 
-                models.GetTable<DocumentAuthorization>().InsertAllOnSubmit(items);
-                models.SubmitChanges();
+                models!.GetTable<DocumentAuthorization>().InsertAllOnSubmit(items);
+                models!.SubmitChanges();
 
                 ViewBag.Message = "下列發票已核准重印!!\r\n" + String.Join("\r\n", items.Select(i => i.CDS_Document.InvoiceItem.TrackCode + i.CDS_Document.InvoiceItem.No));
                 return View("~/Views/Shared/AlertMessage.cshtml");
@@ -1166,17 +1168,18 @@ namespace WebHome.Controllers
             {
                 if (viewModel.Allow == true)
                 {
+                    var idList = chkItem.ToList();
                     var items = models!.GetTable<InvoiceItem>()
                         .Where(i => i.AuthorizeToVoid != null && i.AuthorizeToVoid.VoidMode == (int)Naming.VoidActionMode.註銷作廢)
-                        .Where(i => chkItem.Contains(i.InvoiceID));
+                        .Where(i => idList.Contains(i.InvoiceID));
                     if (items.Count() > 0)
                     {
                         doVoidInvoice(items, Naming.VoidActionMode.註銷作廢);
                     }
 
-                    items = models.GetTable<InvoiceItem>()
+                    items = models!.GetTable<InvoiceItem>()
                                             .Where(i => i.AuthorizeToVoid != null && i.AuthorizeToVoid.VoidMode == (int)Naming.VoidActionMode.註銷重開)
-                                            .Where(i => chkItem.Contains(i.InvoiceID));
+                                            .Where(i => idList.Contains(i.InvoiceID));
                     if (items.Count() > 0)
                     {
                         doVoidInvoice(items, Naming.VoidActionMode.註銷重開);
@@ -1185,10 +1188,10 @@ namespace WebHome.Controllers
 
                 foreach (var item in chkItem)
                 {
-                    models.ExecuteCommand("delete AuthorizeToVoid where InvoiceID = {0}", item);
+                    models!.ExecuteCommand("delete AuthorizeToVoid where InvoiceID = {0}", item);
                 }
 
-                //models.DeleteAny<AuthorizeToVoid>(i => chkItem.Contains(i.InvoiceID));
+                //models!.DeleteAny<AuthorizeToVoid>(i => idList.Contains(i.InvoiceID));
 
                 return View("~/Views/InvoiceProcess/ResultAction/VoidDone.cshtml");
             }
@@ -1216,7 +1219,8 @@ namespace WebHome.Controllers
                 var profile = HttpContext.GetUser();
                 //if (profile.IsSystemAdmin())
                 //{
-                items = models!.GetTable<InvoiceItem>().Where(i => viewModel.ChkItem.Contains(i.InvoiceID));
+                var idList = viewModel.ChkItem.ToList();
+                items = models!.GetTable<InvoiceItem>().Where(i => idList.Contains(i.InvoiceID));
 
                 if(!items.Any())
                 {
@@ -1287,14 +1291,14 @@ namespace WebHome.Controllers
         //                && item.InvoiceCancellation == null)
         //            {
         //                item.PrintMark = "Y";
-        //                models.DeleteAnyOnSubmit<InvoiceCarrier>(c => c.InvoiceID == item.InvoiceID);
-        //                models.SubmitChanges();
+        //                models!.DeleteAnyOnSubmit<InvoiceCarrier>(c => c.InvoiceID == item.InvoiceID);
+        //                models!.SubmitChanges();
         //            }
 
         //            var c0401 = item.CreateF0401().ConvertToXml();
         //            c0401.Save(System.IO.Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
 
-        //            models.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
+        //            models!.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
         //            {
         //                DataContent = c0401.OuterXml,
         //                CompanyID = item.SellerID,
@@ -1302,15 +1306,15 @@ namespace WebHome.Controllers
         //                TypeID = (int)Naming.DocumentTypeDefinition.E_InvoiceVoid,
         //                Message = $"發票註銷({item.TrackCode}{item.No}),UID:{profile?.UID},PID:{profile?.PID}"
         //            });
-        //            models.SubmitChanges();
+        //            models!.SubmitChanges();
 
         //            if (mode == Naming.VoidActionMode.註銷作廢)
         //            {
-        //                models.ExecuteCommand(@"DELETE FROM CDS_Document
+        //                models!.ExecuteCommand(@"DELETE FROM CDS_Document
         //                FROM    DerivedDocument INNER JOIN
         //                        CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
         //                WHERE   (DerivedDocument.SourceID = {0})", item.InvoiceID);
-        //                models.DeleteAny<InvoiceCancellation>(d => d.InvoiceID == item.InvoiceID);
+        //                models!.DeleteAny<InvoiceCancellation>(d => d.InvoiceID == item.InvoiceID);
         //            }
         //        }
 
@@ -1345,7 +1349,7 @@ namespace WebHome.Controllers
         //            var c0401 = item.CreateF0401().ConvertToXml();
         //            c0401.Save(System.IO.Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
 
-        //            models.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
+        //            models!.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
         //            {
         //                DataContent = c0401.OuterXml,
         //                CompanyID = item.SellerID,
@@ -1353,13 +1357,13 @@ namespace WebHome.Controllers
         //                TypeID = (int)Naming.DocumentTypeDefinition.E_InvoiceVoid,
         //                Message = $"發票註銷({item.TrackCode}{item.No}),UID:{profile?.UID},PID:{profile?.PID}"
         //            });
-        //            models.SubmitChanges();
+        //            models!.SubmitChanges();
 
-        //            models.ExecuteCommand(@"DELETE FROM CDS_Document
+        //            models!.ExecuteCommand(@"DELETE FROM CDS_Document
         //                FROM    DerivedDocument INNER JOIN
         //                        CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
         //                WHERE   (DerivedDocument.SourceID = {0})", item.InvoiceID);
-        //            models.ExecuteCommand("delete CDS_Document where DocID={0}", item.InvoiceID);
+        //            models!.ExecuteCommand("delete CDS_Document where DocID={0}", item.InvoiceID);
         //        }
         //    }
         //}
@@ -1387,7 +1391,7 @@ namespace WebHome.Controllers
                     models!.ProcessVoidInvoiceRequest(mode, viewModel, item);
                 }
 
-                item.CreateF0701().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "INV0701_" + item.TrackCode + item.No + ".xml"));
+                item.CreateF0701().Save(System.IO.Path.Combine(ModelExtension.Properties.AppSettings.Default.F0701Outbound, "F0701_" + item.TrackCode + item.No + ".xml"));
             }
         }
 
@@ -1402,16 +1406,36 @@ namespace WebHome.Controllers
                 };
             }
 
-            models.SubmitChanges();
+            models!.SubmitChanges();
 
         }
 
-        public ActionResult DownloadC0401(int[] chkItem)
+        public ActionResult DownloadF0401(int[] chkItem)
         {
             if (chkItem != null && chkItem.Count() > 0)
             {
-                var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
-                return zipItems(items, i => i.CreateF0401().ConvertToXml(), "INV0401");
+                using (var downloadModels = new GenericManager<EIVOEntityDataContext>())
+                {
+                    var ops = new DataLoadOptions();
+                    ops.LoadWith<InvoiceItem>(i => i.InvoiceBuyer);
+                    ops.LoadWith<InvoiceItem>(i => i.InvoiceAmountType);
+                    ops.LoadWith<InvoiceAmountType>(i => i.CurrencyType);
+                    ops.LoadWith<InvoiceItem>(i => i.InvoiceSeller);
+                    ops.LoadWith<InvoiceItem>(i => i.Organization);
+                    ops.LoadWith<InvoiceItem>(i => i.InvoiceCarrier);
+                    ops.LoadWith<InvoiceItem>(i => i.InvoiceDonation);
+                    ops.LoadWith<InvoiceItem>(i => i.InvoiceDetails);
+                    ops.LoadWith<InvoiceDetail>(i => i.InvoiceProduct);
+                    ops.LoadWith<InvoiceProduct>(i => i.InvoiceProductItem);
+                    downloadModels!.DataContext.LoadOptions = ops;
+
+                    var idList = chkItem.ToList();
+                    var items = downloadModels!.GetTable<InvoiceItem>()
+                        .Where(i => idList.Contains(i.InvoiceID))
+                        .ToArray();
+
+                    return zipItems(items, i => i.CreateF0401().ConvertToXml(), "F0401");
+                }
             }
             else
             {
@@ -1421,12 +1445,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult DownloadC0701(int[] chkItem)
+        public ActionResult DownloadF0701(int[] chkItem)
         {
             if (chkItem != null && chkItem.Count() > 0)
             {
-                var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
-                return zipItems(items, i => i.CreateF0701(), "INV0701");
+                var idList = chkItem.ToList();
+                var items = models!.GetTable<InvoiceItem>().Where(i => idList.Contains(i.InvoiceID));
+                return zipItems(items, i => i.CreateF0701(), "F0701");
             }
             else
             {
@@ -1435,12 +1460,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult DownloadC0501(int[] chkItem)
+        public ActionResult DownloadF0501(int[] chkItem)
         {
             if (chkItem != null && chkItem.Count() > 0)
             {
-                var items = models.GetTable<InvoiceItem>().Where(i => chkItem.Contains(i.InvoiceID));
-                return zipItems(items, i => i.CreateF0501(), "INV0501");
+                var idList = chkItem.ToList();
+                var items = models!.GetTable<InvoiceItem>().Where(i => idList.Contains(i.InvoiceID));
+                return zipItems(items, i => i.CreateF0501(), "F0501");
             }
             else
             {
@@ -1533,7 +1559,7 @@ namespace WebHome.Controllers
                 //    RecordCount = d.Count(),
                 //    InvoiceDate = d.OrderBy(i => i.InvoiceID).First().InvoiceDate
                 //})
-                .Join(models.GetTable<Organization>(), i => i.Key, o => o.CompanyID,
+                .Join(models!.GetTable<Organization>(), i => i.Key, o => o.CompanyID,
                     (i, o) => new
                     {
                         Seller = o,
@@ -1587,7 +1613,7 @@ namespace WebHome.Controllers
             if (viewModel.KeyID != null)
             {
                 viewModel.InvoiceID = viewModel.DecryptKeyValue();
-                item = models.GetTable<InvoiceBuyer>().Where(u => u.InvoiceID == viewModel.InvoiceID).FirstOrDefault();
+                item = models!.GetTable<InvoiceBuyer>().Where(u => u.InvoiceID == viewModel.InvoiceID).FirstOrDefault();
             }
 
             if (item == null)
@@ -1652,7 +1678,7 @@ namespace WebHome.Controllers
             item.EMail = viewModel.EMail;
             item.CustomerName = viewModel.CustomerName;
 
-            models.SubmitChanges();
+            models!.SubmitChanges();
 
             return Json(new { result = true });
         }
@@ -1700,9 +1726,9 @@ namespace WebHome.Controllers
                         StoredPath = fullPath,
                         DocID = viewModel.DocID,
                     };
-                models.GetTable<Attachment>().InsertOnSubmit(item);
+                models!.GetTable<Attachment>().InsertOnSubmit(item);
 
-                models.SubmitChanges();
+                models!.SubmitChanges();
 
                 return Json(new { result = true, message = keyName });
 
@@ -1727,7 +1753,7 @@ namespace WebHome.Controllers
 
             try
             {
-                var result = models.ExecuteCommand("delete Attachment where KeyName = {0} and DocID = {1}", tmp.KeyName, tmp.DocID);
+                var result = models!.ExecuteCommand("delete Attachment where KeyName = {0} and DocID = {1}", tmp.KeyName, tmp.DocID);
                 if (result > 0)
                 {
                     return Json(new { result = true });
@@ -2064,13 +2090,13 @@ namespace WebHome.Controllers
                     {
                         var track = s.Substring(0, 2);
                         var no = s.Substring(2);
-                        item = models.GetTable<InvoiceItem>()
+                        item = models!.GetTable<InvoiceItem>()
                             .Where(i => i.TrackCode == track && i.No == no)
                             .FirstOrDefault();
                     }
                     if (item == null)
                     {
-                        item = models.GetTable<InvoiceItem>()
+                        item = models!.GetTable<InvoiceItem>()
                             .Where(i => (i.TrackCode + i.No) == s)
                             .FirstOrDefault();
                     }
@@ -2084,59 +2110,59 @@ namespace WebHome.Controllers
                     var invoiceID = item.InvoiceID;
 
                     // 先刪折讓相關子資料
-                    //var allowanceIDs = models.GetTable<InvoiceAllowance>()
+                    //var allowanceIDs = models!.GetTable<InvoiceAllowance>()
                     //    .Where(a => a.InvoiceID == invoiceID)
                     //    .Select(a => a.AllowanceID)
                     //    .ToList();
 
                     //foreach (var aid in allowanceIDs)
                     //{
-                    //    models.ExecuteCommand("DELETE InvoiceAllowanceCancellation WHERE AllowanceID = {0}", aid);
-                    //    models.ExecuteCommand("DELETE InvoiceAllowanceDetail WHERE AllowanceID = {0}", aid);
-                    //    models.ExecuteCommand("DELETE InvoiceAllowanceBuyer WHERE AllowanceID = {0}", aid);
-                    //    models.ExecuteCommand("DELETE InvoiceAllowanceSeller WHERE AllowanceID = {0}", aid);
-                    //    models.ExecuteCommand("DELETE InvoiceAllowanceItemExtension WHERE AllowanceID = {0}", aid);
-                    //    models.ExecuteCommand(@"DELETE CDS_Document
+                    //    models!.ExecuteCommand("DELETE InvoiceAllowanceCancellation WHERE AllowanceID = {0}", aid);
+                    //    models!.ExecuteCommand("DELETE InvoiceAllowanceDetail WHERE AllowanceID = {0}", aid);
+                    //    models!.ExecuteCommand("DELETE InvoiceAllowanceBuyer WHERE AllowanceID = {0}", aid);
+                    //    models!.ExecuteCommand("DELETE InvoiceAllowanceSeller WHERE AllowanceID = {0}", aid);
+                    //    models!.ExecuteCommand("DELETE InvoiceAllowanceItemExtension WHERE AllowanceID = {0}", aid);
+                    //    models!.ExecuteCommand(@"DELETE CDS_Document
                     //        FROM DerivedDocument
                     //        INNER JOIN CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
                     //        WHERE DerivedDocument.SourceID = {0}", aid);
-                    //    models.ExecuteCommand("DELETE DerivedDocument WHERE SourceID = {0}", aid);
-                    //    models.ExecuteCommand("DELETE CDS_Document WHERE DocID = {0}", aid);
+                    //    models!.ExecuteCommand("DELETE DerivedDocument WHERE SourceID = {0}", aid);
+                    //    models!.ExecuteCommand("DELETE CDS_Document WHERE DocID = {0}", aid);
                     //}
-                    //models.ExecuteCommand("DELETE InvoiceAllowance WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceAllowance WHERE InvoiceID = {0}", invoiceID);
 
                     // 刪 InvoiceItem 子資料
-                    //models.ExecuteCommand("DELETE InvoiceDetail WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceDeliveryTracking WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoicePrintQueue WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoicePrintAssertion WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceCarrier WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceMail WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceBuyer WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceSeller WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceNoAssignment WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceAmountType WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceByHousehold WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceDonation WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceItemExtension WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceWinningNumber WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE AuthorizeToVoid WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoicePaperRequest WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE B2BBuyerInvoiceTag WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE DocumentPostLog WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoicePurchaseOrderAudit WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoicePurchaseOrder WHERE InvoiceID = {0}", invoiceID);
-                    //models.ExecuteCommand("DELETE InvoiceCancellation WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceDetail WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceDeliveryTracking WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoicePrintQueue WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoicePrintAssertion WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceCarrier WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceMail WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceBuyer WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceSeller WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceNoAssignment WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceAmountType WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceByHousehold WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceDonation WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceItemExtension WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceWinningNumber WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE AuthorizeToVoid WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoicePaperRequest WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE B2BBuyerInvoiceTag WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE DocumentPostLog WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoicePurchaseOrderAudit WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoicePurchaseOrder WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceCancellation WHERE InvoiceID = {0}", invoiceID);
                     // 刪 DerivedDocument 及衍生的 CDS_Document
-                    models.ExecuteCommand(@"DELETE CDS_Document
+                    models!.ExecuteCommand(@"DELETE CDS_Document
                         FROM DerivedDocument
                         INNER JOIN CDS_Document ON DerivedDocument.DocID = CDS_Document.DocID
                         WHERE DerivedDocument.SourceID = {0}", invoiceID);
-                    models.ExecuteCommand("DELETE DerivedDocument WHERE SourceID = {0}", invoiceID);
+                    models!.ExecuteCommand("DELETE DerivedDocument WHERE SourceID = {0}", invoiceID);
                     // 刪 InvoiceItem 本體
-                    //models.ExecuteCommand("DELETE InvoiceItem WHERE InvoiceID = {0}", invoiceID);
+                    //models!.ExecuteCommand("DELETE InvoiceItem WHERE InvoiceID = {0}", invoiceID);
                     // 刪 CDS_Document
-                    models.ExecuteCommand("DELETE CDS_Document WHERE DocID = {0}", invoiceID);
+                    models!.ExecuteCommand("DELETE CDS_Document WHERE DocID = {0}", invoiceID);
 
                     deleted++;
                 }

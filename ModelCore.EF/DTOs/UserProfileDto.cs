@@ -38,7 +38,7 @@ namespace ModelCore.DTOs
                 Password2 = user.Password2,
                 MailID = user.MailID,
                 RoleID = currentRole?.RoleID,
-                RoleName = currentRole?.Role?.Role,
+                RoleName = currentRole?.UserRoleDefinition?.Role,
             };
         }
     }
@@ -92,7 +92,7 @@ namespace ModelCore.DTOs
         /// <summary>主要角色 ID（取自第一筆 UserRole），前端據此決定選單。</summary>
         public int? RoleID { get; set; }
 
-        /// <summary>主要角色名稱（UserRoleDefinition.Role），僅供顯示。</summary>
+        /// <summary>主要角色名稱（UserRoleDefinition.UserRoleDefinition），僅供顯示。</summary>
         public string? RoleName { get; set; }
 
         // Navigation / related entities kept as in the entity definitions

@@ -86,7 +86,7 @@ namespace WebHome.Controllers
         protected String getInvoiceViewPath(InvoiceItem item, out String[]? useThermalPOSArgs, String? paperStyle = null, Naming.InvoiceProcessType? processType = null)
         {
             useThermalPOSArgs = null;
-            if (((paperStyle == "B2B" || item.Organization.HybridB2B() == true) && item.InvoiceBuyer.CustomerName?.Length > 4) && !item.InvoiceBuyer.IsB2C())
+            if (((paperStyle == "B2B" || item.Organization.HybridB2B() == true || item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101) && item.InvoiceBuyer.CustomerName?.Length > 4) && !item.InvoiceBuyer.IsB2C())
             {
                 return "~/Views/DataView/A0401.cshtml";
             }

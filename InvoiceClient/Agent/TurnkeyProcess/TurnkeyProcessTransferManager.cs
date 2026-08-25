@@ -43,6 +43,15 @@ namespace InvoiceClient.Agent.TurnkeyProcess
 
                         break;
 
+                    case "E0504":
+                        watcher = new E0504Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
+                        {
+                            TransferManager = this,
+                        };
+                        watcher.StartUp();
+
+                        break;
+
                     case "A0101":
                         watcher = new ReceivedA0101Watcher(TurnkeyProcessResultSettings.Default.MessageResponseGood[msgType])
                         {

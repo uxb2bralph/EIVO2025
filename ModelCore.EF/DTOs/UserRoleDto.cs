@@ -9,7 +9,7 @@ namespace ModelCore.DTOs
             UID = src.UID,
             RoleID = src.RoleID,
             OrgaCateID = src.OrgaCateID,
-            OrganizationCategory = src.OrgaCate?.ToDto(),
+            OrganizationCategory = src.OrganizationCategory?.ToDto(),
         };
     }
 
@@ -23,9 +23,9 @@ namespace ModelCore.DTOs
 
         public OrganizationCategoryDto? OrganizationCategory { get; set; }
 
-        //public ModelCore.DataEntity.UserRoleDefinition? Role { get; set; }
+        //public ModelCore.DataEntity.UserRoleDefinition? UserRoleDefinition { get; set; }
 
-        //public ModelCore.DataEntity.UserProfile? UIDNavigation { get; set; }
+        //public ModelCore.DataEntity.UserProfile? UserProfile { get; set; }
 
     }
 }

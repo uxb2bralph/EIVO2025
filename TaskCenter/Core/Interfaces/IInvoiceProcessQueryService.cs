@@ -32,6 +32,12 @@ namespace TaskCenter.Core.Interfaces
         /// <summary>組裝 ERP 匯出固定寬度文字內容（POSINV.dat）。</summary>
         Task<string> BuildErpTextAsync(InvoiceProcessQueryDto dto, int uid);
 
+        /// <summary>
+        /// 組裝選取發票的 MIG（F0401 / F0701 / F0501）XML 壓縮檔。
+        /// keyIds 為加密後 InvoiceID；uid 為登入者 UID，用以還原角色資料範圍（範圍外者略過）。
+        /// </summary>
+        Task<MigZipResultDto> BuildMigZipAsync(string docType, IEnumerable<string> keyIds, int uid);
+
         /// <summary>開立人候選清單（依角色範圍限縮）。</summary>
         Task<List<InvoiceQuerySellerOptionDto>> SearchSellersAsync(string? keyword, bool isAdmin, int? categoryId, int? companyId);
 

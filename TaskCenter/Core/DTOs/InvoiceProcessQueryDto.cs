@@ -163,7 +163,7 @@ namespace TaskCenter.Core.DTOs
         [JsonPropertyName("totalAmount")] public decimal TotalAmount { get; set; }
     }
 
-    /// <summary>發票明細（對應舊版 DataView/Module/Invoice.cshtml 之預覽內容）。</summary>
+    /// <summary>發票明細（對應舊版 DataView/Module/CDS_Document.cshtml 之預覽內容）。</summary>
     public class InvoiceDetailDto
     {
         [JsonPropertyName("invoiceNo")] public string? InvoiceNo { get; set; }

@@ -174,7 +174,7 @@ namespace ModelCore.InvoiceManagement
                         this.EntityList.Add(newItem);
                         newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
                         EIVONotificationFactory.NotifyIssuedInvoice(new RenderStyleViewModel { DocID = newItem.CDS_Document.DocID });
-                        //newItem.Doc.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
+                        //newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
 
                         this.SubmitChanges();
                     }

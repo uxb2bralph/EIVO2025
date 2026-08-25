@@ -46,7 +46,7 @@ namespace ModelCore.Helper
                 //    //}
                 //    //else
                 //    //{ 
-                //    //    item.Doc = new Doc
+                //    //    item.CDS_Document = new CDS_Document
                 //    //    {
                 //    //        DocumentOwner = new DocumentOwner
                 //    //        {
@@ -84,7 +84,7 @@ namespace ModelCore.Helper
                 //        //}
                 //        //else
                 //        //{ 
-                //        //    item.Doc = new Doc
+                //        //    item.CDS_Document = new CDS_Document
                 //        //    {
                 //        //        DocumentOwner = new DocumentOwner
                 //        //        {
