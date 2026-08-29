@@ -33,6 +33,7 @@
                 ...$('#queryResult').find('input,select,textarea').serializeObject(),
                 allow: allow,
             };
+            toArrayField($formData, 'chkItem');
 
             doPost('@(Url.Action("DesireToVoidInvoice","InvoiceProcess"))', $formData, function (data) {
                 var $data = $(data);

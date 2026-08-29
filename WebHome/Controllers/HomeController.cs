@@ -42,12 +42,12 @@ namespace WebHome.Controllers
                 items = items.Where(f => false);
             }
 
-            return Json(items.OrderBy(o => o.ReceiptNo).ToArray()
+            return Content(items.OrderBy(o => o.ReceiptNo).ToArray()
                 .Select(o => new
                 {
                     label = $"{o.ReceiptNo} {o.CompanyName}",
                     value = encrypt == true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString()
-                }));
+                }).JsonStringify(), "application/json");
         }
 
         public ActionResult SearchHeadquarter(String term, bool? encrypt)
@@ -66,12 +66,12 @@ namespace WebHome.Controllers
                 items = items.Where(f => false);
             }
 
-            return Json(items.OrderBy(o => o.ReceiptNo).ToArray()
+            return Content(items.OrderBy(o => o.ReceiptNo).ToArray()
                 .Select(o => new
                 {
                     label = $"{o.ReceiptNo} {o.CompanyName}",
                     value = encrypt == true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString()
-                }));
+                }).JsonStringify(), "application/json");
         }
 
         [Authorize]
@@ -102,33 +102,33 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult SearchCounterpart(String term, int? sellerID)
+        public ActionResult SearchCounterpart(EncQueryViewModel viewModel)
         {
-            GetCounterpart(term);
+            GetCounterpart(viewModel?.Term!);
 
             IQueryable<Organization> items = (IQueryable<Organization>)ViewBag.DataItems;
 
-            if (sellerID.HasValue)
+            if (viewModel?.SellerID.HasValue == true)
             {
                 var dataItems = items
                     .OrderBy(o => o.ReceiptNo)
-                    .Select(o => new { C = o, R = o.RelativeRelation.Where(b => b.MasterID == sellerID).FirstOrDefault() })
+                    .Select(o => new { C = o, R = o.RelativeRelation.Where(b => b.MasterID == viewModel.SellerID).FirstOrDefault() })
                     .ToArray();
-                return Json(dataItems
+                return Content(dataItems
                     .Select(o => new
                     {
                         label = $"{o.C.ReceiptNo} {o.R?.CompanyName ?? o.C.CompanyName}",
                         value = o.C.CompanyID
-                    }));
+                    }).JsonStringify(), "application/json");
             }
             else
             {
-                return Json(items.OrderBy(o => o.ReceiptNo).ToArray()
+                return Content(items.OrderBy(o => o.ReceiptNo).ToArray()
                     .Select(o => new
                     {
                         label = $"{o.ReceiptNo} {o.CompanyName}",
                         value = o.CompanyID
-                    }));
+                    }).JsonStringify(), "application/json");
 
             }
         }
@@ -206,10 +206,10 @@ namespace WebHome.Controllers
 
         public ActionResult SystemInfo()
         {
-            return Json(new
+            return Content((new
             {
                 Version = "2023-02-13",
-            });
+            }).JsonStringify(), "application/json");
         }
 
         public IActionResult Index()

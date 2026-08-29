@@ -46,7 +46,7 @@
         $input.autocomplete({
             source: function (request, response) {
                     showLoading();
-                $.post('@(Url.Action("SearchCounterpart", "Home"))', { 'term': request.term, 'sellerID': $('[name="SellerID"]').val() }, function (data) {
+                    $.post('@(Url.Action("SearchCounterpart", "Home"))', { 'term': request.term, 'encSellerID': $('[name="EncSellerID"]').val() }, function (data) {
                         hideLoading();
                         if ($.isArray(data)) {
                             response(data);

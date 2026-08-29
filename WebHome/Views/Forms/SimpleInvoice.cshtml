@@ -70,13 +70,13 @@
                     <script>
                         $global.onBusiness = function (buyerID) {
                             showLoading();
-                            $.post('@Html.Raw(Url.Action("Organization", "DataEntity"))', { 'id': buyerID, 'masterID': $('[name="SellerID"]').val() }, function (data) {
+                            $.post('@Html.Raw(Url.Action("Organization", "DataEntity"))', { 'id': buyerID, 'encSellerID': $('[name="EncSellerID"]').val() }, function (data) {
                                 hideLoading();
                                 if ($.isPlainObject(data) && data) {
                                     $('input[name="BuyerReceiptNo"]').val(data.ReceiptNo);
-                                    if ($('[name="SellerID"]').val() != '2478') {
+                                    // if ($('[name="EncSellerID"]').val() != '2478') {
                                         $('input[name="BuyerName"]').val(data.CompanyName);
-                                    }
+                                    // }
                                     $('input[name="Address"]').val(data.Addr);
                                     $('input[name="Phone"]').val(data.Phone);
                                     $('input[name="EMail"]').val(data.ContactEmail);

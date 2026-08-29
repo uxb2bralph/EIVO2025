@@ -24,6 +24,7 @@ using ModelCore.Security;
 using Newtonsoft.Json;
 using TaskCenter.Core;
 using TaskCenter.Core.Attributes;
+using TaskCenter.Core.Interfaces;
 using TaskCenter.Core.Services;
 using TaskCenter.Helper.RequestAction;
 using TaskCenter.Properties;
@@ -41,6 +42,15 @@ namespace TaskCenter.Controllers
         {
             DumpRequest = AppSettings.Default.EnableRequestDump;
         }
+
+        private IInvoiceProcessQueue? _processQueue;
+
+        /// <summary>
+        /// 發票處理背景服務（<see cref="InvoiceProcessBackgroundService"/>）的作業佇列，
+        /// 以 Singleton 註冊，Apply* 端點將存證作業排入後即回應。
+        /// </summary>
+        protected IInvoiceProcessQueue ProcessQueue
+            => _processQueue ??= ServiceProvider.GetRequiredService<IInvoiceProcessQueue>();
 
         [HttpPost("UploadInvoiceAutoTrackNo")]
         [ProducesResponseType(typeof(Root), 200)]
@@ -139,6 +149,98 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
+        [HttpPost("ApplyInvoice")]
+        [ProducesResponseType(typeof(Root), 200)]
+        public ActionResult ApplyInvoice([FromBody] InvoiceRequestViewModel? viewModel)
+        {
+            Root result = createMessageToken();
+            ContentResult? invalid = CheckRequestBody(viewModel, result);
+            if (invalid != null)
+            {
+                return invalid;
+            }
+
+            InvoiceRoot? invoice = viewModel!.InvoiceRoot;
+            if (invoice != null)
+            {
+                OrganizationToken? token = viewModel?.CheckRequestToken(this);
+                if (token == null)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "Token 驗證失敗!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                // 存證改由 InvoiceProcessBackgroundService 執行：只帶 AgentID 與請求內容進佇列，
+                // 不把請求 DbContext 追蹤的 token 傳到背景（Lazy Loading Proxy 在請求結束後會失效）。
+                bool queued = ProcessQueue.TryEnqueue(new InvoiceProcessJob
+                {
+                    Kind = InvoiceProcessJobKind.UploadInvoice,
+                    AgentID = token.CompanyID,
+                    Invoice = invoice,
+                    ClientID = viewModel?.ClientID,
+                    ProcessType = viewModel?.ProcessType,
+                });
+
+                if (!queued)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "系統忙碌中，請稍後再試!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                result.Result.value = 1;
+            }
+
+            return Content(result.JsonStringify(), "application/json");
+        }
+
+        [HttpPost("ApplyInvoiceAutoTrackNo")]
+        [ProducesResponseType(typeof(Root), 200)]
+        public ActionResult ApplyInvoiceAutoTrackNo([FromBody] InvoiceRequestViewModel? viewModel)
+        {
+            Root result = createMessageToken();
+            ContentResult? invalid = CheckRequestBody(viewModel, result);
+            if (invalid != null)
+            {
+                return invalid;
+            }
+
+            InvoiceRoot? invoice = viewModel!.InvoiceRoot;
+            if (invoice != null)
+            {
+                OrganizationToken? token = viewModel?.CheckRequestToken(this);
+                if (token == null)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "Token 驗證失敗!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                // 同 ApplyInvoice，改由 InvoiceProcessBackgroundService 執行（自動配號）。
+                bool queued = ProcessQueue.TryEnqueue(new InvoiceProcessJob
+                {
+                    Kind = InvoiceProcessJobKind.UploadInvoiceAutoTrackNo,
+                    AgentID = token.CompanyID,
+                    Invoice = invoice,
+                    ClientID = viewModel?.ClientID,
+                    ProcessType = viewModel?.ProcessType,
+                    ApplyInvoiceDate = viewModel?.ApplyInvoiceDate,
+                });
+
+                if (!queued)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "系統忙碌中，請稍後再試!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                result.Result.value = 1;
+            }
+
+            return Content(result.JsonStringify(), "application/json");
+        }
+
         [HttpPost("ReviseInvoice")]
         [ProducesResponseType(typeof(Root), 200)]
         public ActionResult ReviseInvoice([FromBody] InvoiceRequestViewModel? viewModel)
@@ -197,6 +299,50 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
+        [HttpPost("ApplyInvoiceCancellation")]
+        [ProducesResponseType(typeof(Root), 200)]
+        public ActionResult ApplyInvoiceCancellation([FromBody] InvoiceRequestViewModel? viewModel)
+        {
+            Root result = createMessageToken();
+            ContentResult? invalid = CheckRequestBody(viewModel, result);
+            if (invalid != null)
+            {
+                return invalid;
+            }
+
+            CancelInvoiceRoot? item = viewModel!.CancelInvoiceRoot;
+            if (item != null)
+            {
+                OrganizationToken? token = viewModel?.CheckRequestToken(this);
+                if (token == null)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "Token 驗證失敗!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                // 作廢改由 InvoiceProcessBackgroundService 執行：只帶 AgentID 與請求內容進佇列，
+                // 不把請求 DbContext 追蹤的 token 傳到背景（Lazy Loading Proxy 在請求結束後會失效）。
+                bool queued = ProcessQueue.TryEnqueue(new InvoiceProcessJob
+                {
+                    Kind = InvoiceProcessJobKind.UploadInvoiceCancellation,
+                    AgentID = token.CompanyID,
+                    CancelInvoice = item,
+                });
+
+                if (!queued)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "系統忙碌中，請稍後再試!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                result.Result.value = 1;
+            }
+
+            return Content(result.JsonStringify(), "application/json");
+        }
+
         [HttpPost("UploadAllowance")]
         [ProducesResponseType(typeof(Root), 200)]
         public ActionResult UploadAllowance([FromBody] InvoiceRequestViewModel? viewModel)
@@ -223,14 +369,57 @@ namespace TaskCenter.Controllers
             return Content(result.JsonStringify(), "application/json");
         }
 
-        /// <summary>
-        /// 開立折讓單。僅需提供 <c>AllowanceItem[0].OriginalInvoiceNumber</c>、<c>SellerId</c>、
-        /// <c>TotalAmount</c>(不含稅折讓金額)、<c>TaxAmount</c>，折讓明細由原發票
-        /// <see cref="InvoiceProductItem"/> 依序逐項扣抵產生後，交由 <c>UploadAllowance</c> 存證。
-        /// </summary>
         [HttpPost("ApplyAllowance")]
         [ProducesResponseType(typeof(Root), 200)]
         public ActionResult ApplyAllowance([FromBody] InvoiceRequestViewModel? viewModel)
+        {
+            Root result = createMessageToken();
+            ContentResult? invalid = CheckRequestBody(viewModel, result);
+            if (invalid != null)
+            {
+                return invalid;
+            }
+
+            AllowanceRoot? allowance = viewModel!.AllowanceRoot;
+            if (allowance != null)
+            {
+                OrganizationToken? token = viewModel?.CheckRequestToken(this);
+                if (token == null)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "Token 驗證失敗!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                // 折讓單存證改由 InvoiceProcessBackgroundService 執行（同 ApplyInvoice，token 不進背景）。
+                bool queued = ProcessQueue.TryEnqueue(new InvoiceProcessJob
+                {
+                    Kind = InvoiceProcessJobKind.UploadAllowance,
+                    AgentID = token.CompanyID,
+                    Allowance = allowance,
+                });
+
+                if (!queued)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "系統忙碌中，請稍後再試!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                result.Result.value = 1;
+            }
+
+            return Content(result.JsonStringify(), "application/json");
+        }
+
+        /// <summary>
+        /// 開立折讓單。僅需提供
+        /// <c>TotalAmount</c>(不含稅折讓金額)、<c>TaxAmount</c>，折讓明細由原發票
+        /// <see cref="InvoiceProductItem"/> 依序逐項扣抵產生後，交由 <c>UploadAllowance</c> 存證。
+        /// </summary>
+        [HttpPost("ApplyAllowanceByInvoiceNo")]
+        [ProducesResponseType(typeof(Root), 200)]
+        public ActionResult ApplyAllowanceByInvoiceNo([FromBody] InvoiceRequestViewModel? viewModel)
         {
             Root result = createMessageToken();
             ContentResult? invalid = CheckRequestBody(viewModel, result);
@@ -546,6 +735,49 @@ namespace TaskCenter.Controllers
                     manager.UploadAllowanceCancellation(result, item, token);
                 }
             }
+            return Content(result.JsonStringify(), "application/json");
+        }
+
+        [HttpPost("ApplyAllowanceCancellation")]
+        [ProducesResponseType(typeof(Root), 200)]
+        public ActionResult ApplyAllowanceCancellation([FromBody] InvoiceRequestViewModel? viewModel)
+        {
+            Root result = createMessageToken();
+            ContentResult? invalid = CheckRequestBody(viewModel, result);
+            if (invalid != null)
+            {
+                return invalid;
+            }
+
+            CancelAllowanceRoot? item = viewModel!.CancelAllowanceRoot;
+            if (item != null)
+            {
+                OrganizationToken? token = viewModel?.CheckRequestToken(this);
+                if (token == null)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "Token 驗證失敗!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                // 折讓單作廢改由 InvoiceProcessBackgroundService 執行（同 ApplyInvoice，token 不進背景）。
+                bool queued = ProcessQueue.TryEnqueue(new InvoiceProcessJob
+                {
+                    Kind = InvoiceProcessJobKind.UploadAllowanceCancellation,
+                    AgentID = token.CompanyID,
+                    CancelAllowance = item,
+                });
+
+                if (!queued)
+                {
+                    result.Result.value = 0;
+                    result.Result.message = "系統忙碌中，請稍後再試!!";
+                    return Content(result.JsonStringify(), "application/json");
+                }
+
+                result.Result.value = 1;
+            }
+
             return Content(result.JsonStringify(), "application/json");
         }
 

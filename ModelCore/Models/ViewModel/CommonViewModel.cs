@@ -324,6 +324,7 @@ namespace ModelCore.Models.ViewModel
         public bool? StartQuery { get; set; }
         public bool? Encrypt { get; set; }
         public String? QuickSearch { get; set; }
+        public String? Term { get; set; }
         public Naming.FieldDisplayType? DisplayType { get; set; }
         public String[]? KeyItems { get; set; }
         public String? Message { get; set; }

@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using CommonLib.Utility;
 using Microsoft.AspNetCore.Mvc;
+using ModelCore.Helper;
 using TaskCenter.Models;
 using TaskCenter.Properties;
 
@@ -24,6 +25,13 @@ public class HomeController : Controller
     {
         return View();
     }
+
+    public IActionResult InitializeKey()
+    {
+        AppResource.Instance.InitializeKey();
+        return Ok();
+    }
+
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

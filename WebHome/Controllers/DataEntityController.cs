@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using CommonLib.Utility;
 using Microsoft.AspNetCore.Mvc;
-
-using WebHome.Helper;
 using ModelCore.DataEntity;
 using ModelCore.Locale;
+using ModelCore.Models.ViewModel;
 using Newtonsoft.Json;
-using CommonLib.Utility;
+using WebHome.Helper;
 
 namespace WebHome.Controllers
 {
@@ -19,36 +19,36 @@ namespace WebHome.Controllers
         }
 
         // GET: DataFlow
-        public ActionResult Organization(int? id, int? masterID)
+        public ActionResult Organization(DocumentQueryViewModel viewModel)
         {
-            BusinessRelationship relation = null;
-            if (masterID.HasValue)
+            BusinessRelationship? relation = null;
+            if (viewModel?.SellerID.HasValue == true)
             {
-                relation = models.GetTable<BusinessRelationship>()
-                    .Where(r => r.MasterID == masterID)
-                    .Where(r => r.RelativeID == id).FirstOrDefault();
+                relation = models!.GetTable<BusinessRelationship>()
+                    .Where(r => r.MasterID == viewModel.SellerID!)
+                    .Where(r => r.RelativeID == viewModel.id!).FirstOrDefault();
             }
 
             if (relation != null)
             {
                 var orgItem = relation.Counterpart;
-                return Json(new
+                return Content((new
                 {
                     orgItem.ReceiptNo,
                     relation.CompanyName,
                     relation.ContactEmail,
                     relation.Addr,
                     relation.Phone,
-                });
+                }).JsonStringify(), "application/json");
             }
 
-            var item = models.GetTable<Organization>().Where(o => o.CompanyID == id).FirstOrDefault();
+            var item = models!.GetTable<Organization>().Where(o => o.CompanyID == viewModel!.id).FirstOrDefault();
             return Content(item.JsonStringify(), "application/json");
         }
 
         public ActionResult OrganizationExtension(int id)
         {
-            var item = models.GetTable<OrganizationExtension>().Where(o => o.CompanyID == id).FirstOrDefault();
+            var item = models!.GetTable<OrganizationExtension>().Where(o => o.CompanyID == id).FirstOrDefault();
             return Content(item.JsonStringify(), "application/json");
         }
 

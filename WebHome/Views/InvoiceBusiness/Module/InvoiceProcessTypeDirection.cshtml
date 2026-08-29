@@ -52,10 +52,10 @@
 <div class="border_gray">
     【選擇電子發票型式：
     <input type="radio" name="InvoiceProcessType" value="@((int)Naming.InvoiceProcessType.F0401)" checked="@(_viewModel.InvoiceProcessType == Naming.InvoiceProcessType.F0401)" />存證
-    <input type="radio" class="ml-2" name="InvoiceProcessType" value="@((int)Naming.InvoiceProcessType.A0101)" checked="@(_viewModel.InvoiceProcessType == Naming.InvoiceProcessType.A0101)" />B2B交換
+    <input type="radio" class="ml-2" name="InvoiceProcessType" value="@((int)Naming.InvoiceProcessType.A0101)" checked="@(_viewModel.InvoiceProcessType == Naming.InvoiceProcessType.A0101)" />交換
     @*@if (orgItem?.InvoiceExchange() == true)
     {
-        <input type="radio" class="ml-2" name="InvoiceProcessType" value="@((int)Naming.InvoiceProcessType.A0101)" @(_viewModel.InvoiceProcessType == Naming.InvoiceProcessType.A0101 ? "checked" : null) /><text>B2B交換</text>
+        <input type="radio" class="ml-2" name="InvoiceProcessType" value="@((int)Naming.InvoiceProcessType.A0101)" @(_viewModel.InvoiceProcessType == Naming.InvoiceProcessType.A0101 ? "checked" : null) /><text>交換</text>
     }*@
     】
     <script>

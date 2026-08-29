@@ -60,7 +60,7 @@ namespace TaskCenter.Helper.RequestAction
             if (viewModel.KeyID != null)
             {
                 viewModel.AgentID = controller.DecryptKeyValue(viewModel, out bool expired);
-                if (expired)
+                if (expired && !AppSettings.Default.IgnoreExpiredToken)
                 {
                     ModelState.AddModelError("E1001", ErrorMessage.E1001);
                 }

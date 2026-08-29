@@ -1,4 +1,4 @@
-﻿using CommonLib.Utility.Properties;
+using CommonLib.Utility.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,6 +38,12 @@ namespace TaskCenter.Properties
         public JwtSettings Jwt { get; set; } = new JwtSettings();   
         public LicenseSettings License { get; set; } = new LicenseSettings();
         public bool EnableRequestDump { get; set; } = false;
+        public bool IgnoreExpiredToken { get; set; } = false;
+
+        /// <summary>
+        /// 發票處理背景服務（<c>InvoiceProcessBackgroundService</c>）的佇列設定。
+        /// </summary>
+        public InvoiceProcessQueueSettings InvoiceProcessQueue { get; set; } = new InvoiceProcessQueueSettings();
 
         /// <summary>
         /// 角色側邊選單設定（roleId 字串 → 選單群組清單）。
@@ -90,6 +96,47 @@ namespace TaskCenter.Properties
     public class LicenseSettings
     {
 
+    }
+
+    /// <summary>
+    /// 發票處理背景服務的佇列設定。
+    /// </summary>
+    public class InvoiceProcessQueueSettings
+    {
+        /// <summary>佇列容量；已滿時收單端點回報忙碌（不阻塞請求）。</summary>
+        public int Capacity { get; set; } = 262144;
+
+        /// <summary>
+        /// 同時處理作業的 Worker 數量，預設 1（依序處理）。
+        /// 自動配號會配發字軌號碼，調高併發前請先確認號碼配發的併發安全性。
+        /// </summary>
+        public int WorkerCount { get; set; } = 1;
+
+        /// <summary>
+        /// true（預設）使用檔案佇列（<c>InvoiceProcessFileQueue</c>）：作業以 JSON 落地於
+        /// <see cref="StoragePath"/>，行程中斷重啟後可接續處理；false 改用記憶體佇列
+        /// （<c>InvoiceProcessQueue</c>），未處理完的作業於行程結束時遺失。
+        /// </summary>
+        public bool Persistent { get; set; } = true;
+
+        /// <summary>
+        /// 檔案佇列的根目錄，其下自動建立 pending / processing / failed / interrupted（及 archive）子目錄。
+        /// 預設置於記錄目錄下的 InvoiceProcessQueue；多站台共用同一份設定時，請各自指定不同路徑。
+        /// </summary>
+        public string StoragePath { get; set; } = Path.Combine(CommonLib.Core.Utility.Logger.LogPath, "InvoiceProcessQueue");
+
+        /// <summary>
+        /// 啟動時是否把「前次中斷時正在處理」的作業（processing 目錄）重新排入佇列。
+        /// 預設 false：這類作業可能已存證部分發票，自動重跑會重複開立，改移到 interrupted 目錄等人工確認。
+        /// 尚未開始處理的作業（pending 目錄）不受此設定影響，一律接續處理。
+        /// </summary>
+        public bool ResumeInterruptedJobs { get; set; } = false;
+
+        /// <summary>
+        /// 已完成的作業是否保留內容（移到 archive 目錄）而非刪除，預設 false。
+        /// 開啟後請自行清理 archive 目錄。
+        /// </summary>
+        public bool ArchiveCompletedJobs { get; set; } = false;
     }
 
     public static class Settings
