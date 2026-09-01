@@ -21,7 +21,7 @@
 @{
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     IQueryable<InvoiceAllowance> _model = (IQueryable<InvoiceAllowance>)this.Model;

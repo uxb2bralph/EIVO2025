@@ -67,7 +67,7 @@ namespace WebHome.Published
                         userProfile.MailID = userProfile.EMail.GetEfficientString()?
                             .Split(';', ',', ',')?[0];
 
-                        mgr.GetTable<UserRole>().InsertOnSubmit(new UserRole
+                        mgr.GetTable<UserRole>().Add(new UserRole
                         {
                             RoleID = (int)Naming.RoleID.ROLE_SELLER,
                             UserProfile = userProfile,
@@ -127,9 +127,9 @@ namespace WebHome.Published
             {
                 OrganizationToken token;
                 manager.UploadInvoiceAutoTrackNo(uploadData, result, out token);
-                if (token!=null && manager.HasItem && token.Organization.OrganizationStatus.PrintAll == true)
+                if (token!=null && manager.HasItem && token.Company.OrganizationStatus.PrintAll == true)
                 {
-                    SharedFunction.SendMailMessage($"{token.Organization.CompanyName}電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, $"{token.Organization.CompanyName}電子發票開立郵件通知");
+                    SharedFunction.SendMailMessage($"{token.Company.CompanyName}電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, $"{token.Company.CompanyName}電子發票開立郵件通知");
                 }
             }
             return result.ConvertToXml();
@@ -176,9 +176,9 @@ namespace WebHome.Published
             {
                 OrganizationToken token;
                 manager.UploadInvoice(uploadData, result, out token);
-                if (token != null && manager.HasItem && token.Organization.OrganizationStatus.PrintAll == true)
+                if (token != null && manager.HasItem && token.Company.OrganizationStatus.PrintAll == true)
                 {
-                    SharedFunction.SendMailMessage(token.Organization.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Organization.CompanyName + "電子發票開立郵件通知");
+                    SharedFunction.SendMailMessage(token.Company.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Company.CompanyName + "電子發票開立郵件通知");
                 }
             }
 
@@ -239,9 +239,9 @@ namespace WebHome.Published
                             else
                             {
                                 result.Result.value = 1;
-                                if (token.Organization.OrganizationStatus.PrintAll == true)
+                                if (token.Company.OrganizationStatus.PrintAll == true)
                                 {
-                                    SharedFunction.SendMailMessage(token.Organization.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Organization.CompanyName + "電子發票開立郵件通知");
+                                    SharedFunction.SendMailMessage(token.Company.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Company.CompanyName + "電子發票開立郵件通知");
                                 }
                             }
 
@@ -424,10 +424,10 @@ namespace WebHome.Published
                                     {
                                         InvoiceBeginNo = String.Format("{0:00000000}", i.StartNo),
                                         InvoiceEndNo = String.Format("{0:00000000}", i.EndNo),
-                                        PeriodNo = String.Format("{0:00}", i.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo),
-                                        TrackCode = i.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode,
-                                        Year = i.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year,
-                                        SellerId = i.InvoiceTrackCodeAssignment.Organization.ReceiptNo
+                                        PeriodNo = String.Format("{0:00}", i.InvoiceTrackCodeAssignment.Track.PeriodNo),
+                                        TrackCode = i.InvoiceTrackCodeAssignment.Track.TrackCode,
+                                        Year = i.InvoiceTrackCodeAssignment.Track.Year,
+                                        SellerId = i.InvoiceTrackCodeAssignment.Seller.ReceiptNo
                                     }
                                 }));
                             }
@@ -473,7 +473,7 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-                            if (token.Organization.OrganizationCategory.Any(c => c.CategoryID == (int)Naming.CategoryID.COMP_INVOICE_AGENT))
+                            if (token.Company.OrganizationCategory.Any(c => c.CategoryID == (int)Naming.CategoryID.COMP_INVOICE_AGENT))
                             {
                                 List<AutomationItem> automation = new List<AutomationItem>();
                                 var items = mgr.SaveInvoiceEnterprise(enterprise, token);
@@ -705,7 +705,7 @@ namespace WebHome.Published
                                                 BranchBan = item.ReceiptNo,
                                                 InvoiceType = (ModelCore.Schema.TurnKey.E0402.InvoiceTypeEnum)item.OrganizationStatus.SettingInvoiceType.Value,
                                                 YearMonth = String.Format("{0:000}{1:00}", queryDate.Year - 1911, queryPeriod * 2),
-                                                InvoiceTrack = g.First().InvoiceTrackCode.TrackCode
+                                                InvoiceTrack = g.First().Track.TrackCode
                                             },
                                             Details = g.Join(mgr.GetTable<UnassignedInvoiceNo>(), n => new { n.TrackID, n.SellerID }, u => new { u.TrackID, u.SellerID }, (n, u) => u)
                                                 .Select(u => new ModelCore.Schema.TurnKey.E0402.DetailsBranchTrackBlankItem

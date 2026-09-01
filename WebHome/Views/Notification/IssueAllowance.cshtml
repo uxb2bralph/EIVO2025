@@ -26,7 +26,7 @@
     _model = (InvoiceAllowance)this.Model;
     _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
 
-    String notificationView = _model?.InvoiceAllowanceSeller?.Organization?.OrganizationStatus.CustomNotificationView;
+    String notificationView = _model?.InvoiceAllowanceSeller?.Seller?.OrganizationStatus.CustomNotificationView;
 
 }
 
@@ -34,7 +34,7 @@
 {
     await Html.RenderPartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedAllowance.cshtml", _model);
 }
-else if (_model.InvoiceAllowanceSeller.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.IssuingAllowance))
+else if (_model.InvoiceAllowanceSeller.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.IssuingAllowance))
 {
     String pdfFile = models.PrepareToDownload(_model);
 
@@ -50,10 +50,10 @@ else if (_model.InvoiceAllowanceSeller.Organization.OrganizationStatus.InvoiceNo
     var mailTo = String.Join(",",
         mailing.Where(m => m != null)).GetEfficientString() ??  ModelExtension.Properties.AppSettings.Default.WebMaster;
 
-    var enterprise = _model.InvoiceAllowanceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
-    var smtpSettings = _model.InvoiceAllowanceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+    var enterprise = _model.InvoiceAllowanceSeller.Seller.EnterpriseGroupMember.FirstOrDefault();
+    var smtpSettings = _model.InvoiceAllowanceSeller.Seller.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
-    String Subject = $"{(enterprise?.EnterpriseGroup.EnterpriseName)} 折讓證明開立通知(折讓證明單號碼:{_model.AllowanceNumber})";
+    String Subject = $"{(enterprise?.Enterprise.EnterpriseName)} 折讓證明開立通知(折讓證明單號碼:{_model.AllowanceNumber})";
     String body = (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedAllowance.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
 
     body.SendMailMessage(mailTo, Subject, new System.Net.Mail.Attachment[] { attachment }, smtpSettings);

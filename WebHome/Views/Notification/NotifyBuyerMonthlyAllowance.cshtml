@@ -64,7 +64,7 @@
         a.InvoiceAllowanceBuyer.EMail
     });
 
-    foreach (var item in buyerGroups)
+    foreach (var item in buyerGroups.ToList())
     {
             <pre>@(item.Key.ReceiptNo)</pre>
             await Html.RenderPartialAsync("~/Views/Notification/IssueBuyerAllowance.cshtml", new Object[] { item.Key.CustomerName, item.Key.ReceiptNo, item.Key.EMail, item });

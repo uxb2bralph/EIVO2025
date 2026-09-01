@@ -10,7 +10,7 @@
     ViewBag.Title = "電子發票系統";
     ModelSource<InvoiceItem> models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
 
-    UserProfile _userProfile;
+    UserProfileWrapper _userProfile;
     IQueryable<SystemMessage> _items;
     _userProfile = Context.GetUser();
     _items = models.GetTable<SystemMessage>().Where(s => s.AlwaysShow || (s.StartDate <= DateTime.Now && s.EndDate.Value.AddDays(1) > DateTime.Now));
@@ -87,7 +87,7 @@
                     <li>
                         ‧系統公告：
                         <marquee class="notice" scrollamount="2">
-                            @foreach (var item in _items)
+                            @foreach (var item in _items.ToList())
                             {
                                 <font color="#434343">@item.MessageContents</font>
                             }

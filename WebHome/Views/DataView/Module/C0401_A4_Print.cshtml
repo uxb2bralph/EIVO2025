@@ -65,18 +65,17 @@
     _model = (InvoiceItem)this.Model;
     _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
 
-    _productItem = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
-        .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+    _productItem = models.GetTable<InvoiceProduct>().Where(p => p.Invoice.Any(i => i.InvoiceID == _model.InvoiceID))
         .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, i => i.ProductID, (p, i) => i).ToArray();
 
     _buyer = _model.InvoiceBuyer;
     _postdata = _model.DocumentPostLog.OrderByDescending(w => w.LogID).FirstOrDefault();
     if (_buyer != null && _buyer.BuyerID.HasValue)
     {
-        _buyerOrg = _buyer.Organization;
+        _buyerOrg = _buyer.Buyer;
     }
 
-    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Organization.OrganizationStatus.EntrustToPrint != true;
+    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Seller.OrganizationStatus.EntrustToPrint != true;
 
 }
 @if (_model != null)
@@ -142,10 +141,10 @@
             <div class="container" style="border-bottom-style:none;border-top-style:none;margin-left:0.2cm">
                 <div style="width: 7.2cm; height: 9cm; display: block; overflow: hidden; float: left;"></div>
                 <div class="cutfield" style="margin-left: -0.6cm;margin-top: -0.6cm;">
-                    @if (_model.Organization.LogoURL != null)
+                    @if (_model.Seller.LogoURL != null)
                     {
                         <div style="text-align:center;">
-                            <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Organization.LogoURL))' />
+                            <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Seller.LogoURL))' />
                         </div>
                     }
                     else
@@ -173,7 +172,7 @@
                                                                                                     ? "不得扣抵"
                                                                                                     : String.Format("格式 {0}", ((int)_model.InvoiceType.Value).InvoiceTypeToFormat()))<br />
                         隨機碼 @(_model.RandomNo)&nbsp;&nbsp;&nbsp;&nbsp;總計 @(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.TotalAmount))<br />
-                        賣方@(_model.Organization.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
+                        賣方@(_model.Seller.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
                     </p>
                     <div class="code1">
                         @{
@@ -199,7 +198,7 @@
                 {
                     var item = _productItem[_itemIdx];
                     <div class="content_box">
-                        <p class="productname">@(item.InvoiceProduct.Brief)</p>
+                        <p class="productname">@(item.Product.Brief)</p>
                         <p class="quantity">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</p>
                         <p class="price">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</p>
                         <p class="totalPrice">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</p>
@@ -210,7 +209,7 @@
                     <div class="content_box">
                         <p style="border-top: 1px dotted #808080;margin-right:1.6cm;">
                             <span style="font-size: 12pt; font-weight: bold;">
-                                總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;
+                                總計：@(_model.Product.Count)項&nbsp;&nbsp;
                                 金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))
                             </span><br />
                             課稅別：@(_model.InvoiceAmountType.TaxTypeString)&nbsp;&nbsp;
@@ -223,7 +222,7 @@
                                     稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceAmountType.TaxAmount)) &nbsp;&nbsp;
                                 </text>
                             }
-                            備註：@(String.Join(";", _model.InvoiceDetails.Select(d => d.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
+                            備註：@(String.Join(";", _model.Product.Select(d => d.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
                             退貨請憑電子發票證明聯辦理
                             @if (_model.InvoiceWinningNumber != null && _model.InvoiceCarrier != null && _model.InvoiceCarrier.CarrierType == "3J0002")
                             {
@@ -243,7 +242,7 @@
                     {
                         var item = _productItem[_itemIdx];
                         <div class="content_box">
-                            <p class="productname">@(item.InvoiceProduct.Brief)</p>
+                            <p class="productname">@(item.Product.Brief)</p>
                             <p class="quantity">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</p>
                             <p class="price">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</p>
                             <p class="totalPrice">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</p>
@@ -253,7 +252,7 @@
                     {
                         <div class="content_box">
                             <p style="border-top: 1px dotted #808080;">
-                                <span style="font-size: 12pt; font-weight: bold;">總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
+                                <span style="font-size: 12pt; font-weight: bold;">總計：@(_model.Product.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
                                 課稅別：@(_model.InvoiceAmountType.TaxTypeString)&nbsp;&nbsp;
                                 @if (!_buyer.IsB2C())
                                 {
@@ -268,7 +267,7 @@
                                         稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceBuyer.BuyerMark == 3 || _model.InvoiceBuyer.BuyerMark == 4 ? 0 : _model.InvoiceAmountType.TaxAmount)) &nbsp;&nbsp;
                                     </text>
                                 }
-                                備註：@(String.Join(";", _model.InvoiceDetails.Select(d => d.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
+                                備註：@(String.Join(";", _model.Product.Select(d => d.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
                                 退貨請憑電子發票證明聯辦理
                             </p>
                         </div>
@@ -307,7 +306,7 @@
                     {
                         var item = _productItem[_itemIdx];
                         <div class="content_box">
-                            <p class="productname">@(item.InvoiceProduct.Brief)</p>
+                            <p class="productname">@(item.Product.Brief)</p>
                             <p class="quantity">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</p>
                             <p class="price">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</p>
                             <p class="totalPrice">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</p>
@@ -315,7 +314,7 @@
                     }
                     <div class="content_box" style="width:100%;">
                         <p style="border-top: 1px dotted #808080;">
-                            <span style="font-size: 12pt; font-weight: bold;">總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
+                            <span style="font-size: 12pt; font-weight: bold;">總計：@(_model.Product.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
                             課稅別：@(_model.InvoiceAmountType.TaxTypeString)&nbsp;&nbsp;
                             @if (!_buyer.IsB2C())
                             {
@@ -331,7 +330,7 @@
                                 </text>
                             }
                             <br />
-                            備註：@(String.Join(";", _model.InvoiceDetails.Select(d => d.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
+                            備註：@(String.Join(";", _model.Product.Select(d => d.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))<br />
                             退貨請憑電子發票證明聯辦理
                         </p>
                     </div>

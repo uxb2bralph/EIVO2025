@@ -198,13 +198,13 @@
                 備註
             </th>
         </tr>
-        @foreach (var p in _model.InvoiceDetails)
+        @foreach (var p in _model.Product)
         {
-            foreach (var d in p.InvoiceProduct.InvoiceProductItem)
+            foreach (var d in p.InvoiceProductItem)
             {
                 <tr>
                     <td valign="top">
-                        @(d.No).@(p.InvoiceProduct.Brief)
+                        @(d.No).@(p.Brief)
                     </td>
                     <td align="right" valign="top">
                         @(String.Format("{0:##,###,###,##0.##}", d.Piece))

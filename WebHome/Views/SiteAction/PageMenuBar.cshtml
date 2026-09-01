@@ -16,7 +16,7 @@
 @using ModelCore.Helper
 
 @{
-    UserProfile _userProfile;
+    UserProfileWrapper _userProfile;
     String _menuView = null;
     _userProfile = Context.GetUser();
     if (_userProfile == null)

@@ -69,7 +69,9 @@ namespace WebHome.Controllers.TrackCodeNo
 
             ViewBag.ViewModel = viewModel;
 
-            _dbInstance = false;
+            //原本以 _dbInstance = false 阻止請求結束時釋放 DbContext，
+            //供 DownloadE0401(.Query).cshtml 的 Task.Run 續用；兩者已改為背景作業自建 DbContext，
+            //這裡恢復正常釋放。
             IQueryable<InvoiceNoMainAssignment> items = viewModel.InquireHeaquarterNoAssignment(models!);
             if (items.Any())
             {
@@ -189,7 +191,7 @@ namespace WebHome.Controllers.TrackCodeNo
                                     ? $"{orgItem.ReceiptNo}(註記停用:{orgItem.OrganizationExtension.ExpirationDate:yyyy/MM/dd})"
                                     : orgItem.ReceiptNo,
                                 HeadBan = viewModel.BranchRelation == true
-                                    ? orgItem.AsInvoiceIssuer.Where(a => a.RelationType == (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch).FirstOrDefault()?.InvoiceAgent.ReceiptNo ?? orgItem.ReceiptNo
+                                    ? orgItem.AsInvoiceIssuer.Where(a => a.RelationType == (int)InvoiceIssuerAgent.RelationTypeEnum.MasterBranch).FirstOrDefault()?.Agent.ReceiptNo ?? orgItem.ReceiptNo
                                     : orgItem.ReceiptNo,
                                 YearMonth = String.Format("{0}{1:00}", trackCode.Year - 1911, trackCode.PeriodNo * 2),
                                 InvoiceType = trackCode.InvoiceType == (byte)InvoiceTypeEnum.Item08 ? InvoiceTypeEnum.Item08 : InvoiceTypeEnum.Item07,
@@ -279,7 +281,7 @@ namespace WebHome.Controllers.TrackCodeNo
             {
                 if (model != null)
                 {
-                    if (model.InvoiceNoAssignments.Count > 0)
+                    if (model.InvoiceNoAssignment.Count > 0)
                     {
                         ModelState.AddModelError("IntervalID", "該區間之號碼已經被使用,不可修改!!!!");
                     }
@@ -295,7 +297,7 @@ namespace WebHome.Controllers.TrackCodeNo
                                 .Where(t => t.TrackID == viewModel.TrackID
                                     && ((t.EndNo <= viewModel.EndNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.StartNo >= viewModel.StartNo) || (t.StartNo <= viewModel.StartNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.EndNo >= viewModel.EndNo)))
                                 .First();
-                        ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Organization.ReceiptNo})已使用!!");
+                        ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Seller.ReceiptNo})已使用!!");
                         //ModelState.AddModelError("StartNo", "系統中已存在重疊的區段!!");
                     }
                 }
@@ -314,7 +316,7 @@ namespace WebHome.Controllers.TrackCodeNo
                                 .Where(t => t.TrackID == viewModel.TrackID
                                     && ((t.EndNo <= viewModel.EndNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.StartNo >= viewModel.StartNo) || (t.StartNo <= viewModel.StartNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.EndNo >= viewModel.EndNo)))
                                 .First();
-                        ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Organization.ReceiptNo})已使用!!");
+                        ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Seller.ReceiptNo})已使用!!");
                     }
                 }
             }
@@ -364,7 +366,7 @@ namespace WebHome.Controllers.TrackCodeNo
                         TrackID = viewModel.TrackID.Value
                     };
 
-                    models.GetTable<InvoiceTrackCodeAssignment>().InsertOnSubmit(codeAssignment);
+                    models.GetTable<InvoiceTrackCodeAssignment>().Add(codeAssignment);
                 }
 
                 model = new InvoiceNoInterval { };
@@ -485,7 +487,7 @@ namespace WebHome.Controllers.TrackCodeNo
                     TrackID = model.TrackID
                 };
 
-                masterAssignment.BranchNoAssignment.Add(trackCodeAssignment);
+                masterAssignment.InvoiceTrackCodeAssignmentNavigation.Add(trackCodeAssignment);
                 models!.SubmitChanges();
             }
 
@@ -578,7 +580,7 @@ namespace WebHome.Controllers.TrackCodeNo
                         TrackID = item.TrackID,
                         StartNo = cutpoint + 1,
                     };
-                    models.GetTable<InvoiceNoInterval>().InsertOnSubmit(newItem);
+                    models.GetTable<InvoiceNoInterval>().Add(newItem);
                     item.EndNo = cutpoint;
                     models.SubmitChanges();
 
@@ -625,7 +627,7 @@ namespace WebHome.Controllers.TrackCodeNo
             while (startNo < endNo)
             {
                 intervalEndNo = Math.Min(startNo + interval, endNo);
-                intervals.InsertOnSubmit(new InvoiceNoInterval
+                intervals.Add(new InvoiceNoInterval
                 {
                     TrackID = item.TrackID,
                     SellerID = item.SellerID,
@@ -804,7 +806,7 @@ namespace WebHome.Controllers.TrackCodeNo
                 if (!profile.IsSystemAdmin())
                 {
                     viewModel.SellerID = models.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == profile.CurrentUserRole.OrganizationCategory.CompanyID
-                                    && a.InvoiceIssuer.ReceiptNo == viewModel.ReceiptNo).FirstOrDefault()?.IssuerID;
+                                    && a.Issuer.ReceiptNo == viewModel.ReceiptNo).FirstOrDefault()?.IssuerID;
                 }
                 else
                 {
@@ -960,7 +962,7 @@ namespace WebHome.Controllers.TrackCodeNo
                     if (!profile.IsSystemAdmin())
                     {
                         viewModel.SellerID = models.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == profile.CurrentUserRole.OrganizationCategory.CompanyID
-                                        && a.InvoiceIssuer.ReceiptNo == viewModel.ReceiptNo).FirstOrDefault()?.IssuerID;
+                                        && a.Issuer.ReceiptNo == viewModel.ReceiptNo).FirstOrDefault()?.IssuerID;
                     }
                     else
                     {

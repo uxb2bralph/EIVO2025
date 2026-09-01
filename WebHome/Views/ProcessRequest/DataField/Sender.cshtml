@@ -24,7 +24,7 @@
     ModelSource<InvoiceItem> models;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     ProcessRequestQueryViewModel _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
 }
@@ -38,7 +38,7 @@
         break;
     case Naming.FieldDisplayType.DataItem:
         ProcessRequest item = this.Model as ProcessRequest;
-        <text>@(item.UserProfile?.PID)</text>
+        <text>@(item.SenderNavigation?.PID)</text>
         break;
     case Naming.FieldDisplayType.SortBy:
         ProcessRequestQueryViewModel viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
@@ -51,22 +51,22 @@
                 {
                     if (TempData["SortedItems"] != null)
                     {
-                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenBy(p => p.UserProfile.PID);
+                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenBy(p => p.SenderNavigation.PID);
                     }
                     else
                     {
-                        TempData["SortedItems"] = ((IQueryable<ProcessRequest>)this.Model).OrderBy(p => p.UserProfile.PID);
+                        TempData["SortedItems"] = ((IQueryable<ProcessRequest>)this.Model).OrderBy(p => p.SenderNavigation.PID);
                     }
                 }
                 else if (viewModel.SortType[idx] == (int)Naming.SortType.DESC)
                 {
                     if (TempData["SortedItems"] != null)
                     {
-                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p => p.UserProfile.PID);
+                        TempData["SortedItems"] = ((IOrderedQueryable<ProcessRequest>)TempData["SortedItems"]).ThenByDescending(p => p.SenderNavigation.PID);
                     }
                     else
                     {
-                        TempData["SortedItems"] = ((IQueryable<ProcessRequest>)this.Model).OrderByDescending(p => p.UserProfile.PID);
+                        TempData["SortedItems"] = ((IQueryable<ProcessRequest>)this.Model).OrderByDescending(p => p.SenderNavigation.PID);
                     }
                 }
             }

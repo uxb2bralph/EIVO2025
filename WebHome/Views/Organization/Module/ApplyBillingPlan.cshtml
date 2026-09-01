@@ -49,7 +49,7 @@
                     </th>
                     <td colspan="3">
                         @{
-                            gradeItem = _model.BillingGrade.Count > 0 ? _model.BillingGrade[0] : null;
+                            gradeItem = _model.BillingGrade.Count > 0 ? _model.BillingGrade.ElementAt(0) : null;
                         }
                         <input type="hidden" name="GradeCount" value="1" />
                         <input type="text" class="form-control" name="BasicFee" value='@(gradeItem?.BasicFee)' />
@@ -59,7 +59,7 @@
                     <th>
                         級距一、每月開立張數
                         @{
-                            gradeItem = _model.BillingGrade.Count > 1 ? _model.BillingGrade[1] : null;
+                            gradeItem = _model.BillingGrade.Count > 1 ? _model.BillingGrade.ElementAt(1) : null;
                         }
                     </th>
                     <td>
@@ -76,7 +76,7 @@
                     <th>
                         級距二、每月開立張數
                         @{
-                            gradeItem = _model.BillingGrade.Count > 2 ? _model.BillingGrade[2] : null;
+                            gradeItem = _model.BillingGrade.Count > 2 ? _model.BillingGrade.ElementAt(2) : null;
                         }
                     </th>
                     <td>
@@ -93,7 +93,7 @@
                     <th>
                         級距三、每月開立張數
                         @{
-                            gradeItem = _model.BillingGrade.Count > 3 ? _model.BillingGrade[2] : null;
+                            gradeItem = _model.BillingGrade.Count > 3 ? _model.BillingGrade.ElementAt(2) : null;
                         }
                     </th>
                     <td>
@@ -110,7 +110,7 @@
                     <th>
                         級距四、每月開立張數
                         @{
-                            gradeItem = _model.BillingGrade.Count > 4 ? _model.BillingGrade[4] : null;
+                            gradeItem = _model.BillingGrade.Count > 4 ? _model.BillingGrade.ElementAt(4) : null;
                         }
                     </th>
                     <td>
@@ -132,7 +132,7 @@
                     <th>
                         級距一、每月開立張數超過
                         @{
-                            increment = _model.BillingIncrement.Count > 0 ? _model.BillingIncrement[0] : null;
+                            increment = _model.BillingIncrement.Count > 0 ? _model.BillingIncrement.ElementAt(0) : null;
                         }
                     </th>
                     <td>
@@ -149,7 +149,7 @@
                     <th>
                         級距二、每月開立張數超過
                         @{
-                            increment = _model.BillingIncrement.Count > 1 ? _model.BillingIncrement[1] : null;
+                            increment = _model.BillingIncrement.Count > 1 ? _model.BillingIncrement.ElementAt(1) : null;
                         }
                     </th>
                     <td>
@@ -166,7 +166,7 @@
                     <th>
                         級距三、每月開立張數超過
                         @{
-                            increment = _model.BillingIncrement.Count > 2 ? _model.BillingIncrement[2] : null;
+                            increment = _model.BillingIncrement.Count > 2 ? _model.BillingIncrement.ElementAt(2) : null;
                         }
                     </th>
                     <td>
@@ -183,7 +183,7 @@
                     <th>
                         級距四、每月開立張數超過
                         @{
-                            increment = _model.BillingIncrement.Count > 3 ? _model.BillingIncrement[3] : null;
+                            increment = _model.BillingIncrement.Count > 3 ? _model.BillingIncrement.ElementAt(3) : null;
                         }
                     </th>
                     <td>
@@ -309,13 +309,13 @@
                         <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_Invoice)' checked="checked" /> 發票
                     </td>
                     <td>
-                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_InvoiceCancellation)' checked="@(_model.BillingCalculation.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_InvoiceCancellation))" /> 作廢發票
+                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_InvoiceCancellation)' checked="@(_model.Type.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_InvoiceCancellation))" /> 作廢發票
                     </td>
                     <td>
-                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_Allowance)' checked="@(_model.BillingCalculation.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_Allowance))" /> 折讓證明
+                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_Allowance)' checked="@(_model.Type.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_Allowance))" /> 折讓證明
                     </td>
                     <td>
-                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_AllowanceCancellation)' checked="@(_model.BillingCalculation.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_AllowanceCancellation))" /> 作廢折讓證明
+                        <input type="checkbox" name="CalcType" value='@((int)Naming.DocumentTypeDefinition.E_AllowanceCancellation)' checked="@(_model.Type.Any(c=>c.TypeID==(int)Naming.DocumentTypeDefinition.E_AllowanceCancellation))" /> 作廢折讓證明
                     </td>
                 </tr>
                 <tr>

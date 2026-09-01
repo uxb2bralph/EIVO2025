@@ -33,13 +33,14 @@ using ModelCore.Models;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using CommonLib.Core.Controllers;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers
 {
     [Authorize]
     public class InvoiceQueryController : SampleController<InvoiceItem>
     {
-        protected UserProfile _userProfile;
+        protected UserProfileWrapper _userProfile;
 
         public InvoiceQueryController(IServiceProvider serviceProvider) : base(serviceProvider)
         {
@@ -107,13 +108,13 @@ namespace WebHome.Controllers
 
             ProcessRequest processItem = new ProcessRequest
             {
-                Sender = HttpContext.GetUser()?.UID,
+                Sender = HttpContext.GetUser()?.Entity.UID,
                 SubmitDate = DateTime.Now,
                 ProcessStart = DateTime.Now,
                 ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
                 ViewModel = viewModel.JsonStringify(),
             };
-            models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+            models.GetTable<ProcessRequest>().Add(processItem);
             models.SubmitChanges();
 
             viewModel.TaskID = processItem.TaskID;
@@ -181,12 +182,12 @@ namespace WebHome.Controllers
             {
                 ProcessRequest processItem = new ProcessRequest
                 {
-                    Sender = HttpContext.GetUser()?.UID,
+                    Sender = HttpContext.GetUser()?.Entity.UID,
                     SubmitDate = DateTime.Now,
                     ProcessStart = DateTime.Now,
                     ResponsePath = System.IO.Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".csv"),
                 };
-                models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+                models.GetTable<ProcessRequest>().Add(processItem);
                 models.SubmitChanges();
 
                 saveAsCsv(processItem.TaskID, processItem.ResponsePath, viewModel);
@@ -203,12 +204,12 @@ namespace WebHome.Controllers
             }
 
             DateTime startDate = new DateTime(viewModel.Year.Value, viewModel.PeriodNo.Value * 2 - 1, 1);
-            DataLoadOptions ops = new DataLoadOptions();
-            ops.LoadWith<InvoiceItem>(i => i.InvoiceBuyer);
-            ops.LoadWith<InvoiceItem>(i => i.InvoiceCancellation);
-            ops.LoadWith<InvoiceItem>(i => i.InvoiceAmountType);
-            ops.LoadWith<InvoiceItem>(i => i.InvoiceSeller);
-            models.DataContext.LoadOptions = ops;
+            //DataLoadOptions ops = new DataLoadOptions();
+            //ops.LoadWith<InvoiceItem>(i => i.InvoiceBuyer);
+            //ops.LoadWith<InvoiceItem>(i => i.InvoiceCancellation);
+            //ops.LoadWith<InvoiceItem>(i => i.InvoiceAmountType);
+            //ops.LoadWith<InvoiceItem>(i => i.InvoiceSeller);
+            //models.DataContext.LoadOptions = ops;
 
             var items = models.GetTable<InvoiceItem>().Where(i => i.SellerID == viewModel.SellerID
                     && i.InvoiceDate >= startDate
@@ -224,7 +225,7 @@ namespace WebHome.Controllers
 
             if (items.Count() > 0 || allowance.Count() > 0)
             {
-                ViewBag.FileName = String.Format("{0:d4}{1:d2}({2}).txt", viewModel.Year, viewModel.PeriodNo, items.First().Organization.ReceiptNo);
+                ViewBag.FileName = String.Format("{0:d4}{1:d2}({2}).txt", viewModel.Year, viewModel.PeriodNo, items.First().Seller.ReceiptNo);
                 var orgItem = models.GetTable<Organization>().Where(o => o.CompanyID == viewModel.SellerID).First();
                 if (orgItem.OrganizationExtension == null)
                     orgItem.OrganizationExtension = new OrganizationExtension { };
@@ -263,8 +264,8 @@ namespace WebHome.Controllers
 
                                 for (int idx = 0; idx < 2; idx++)
                                 {
-                                    var invoiceItems = db.DataContext.GetInvoiceReport(viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
-                                    var allowanceItems = db.DataContext.GetAllowanceReport(viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
+                                    var invoiceItems = db.GetInvoiceReport(viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
+                                    var allowanceItems = db.GetAllowanceReport(viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
 
                                     foreach (var g in invoiceItems)
                                     {
@@ -331,7 +332,7 @@ namespace WebHome.Controllers
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.ExceptionLog = new ExceptionLog
+                                    taskItem.Log = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };
@@ -472,7 +473,7 @@ namespace WebHome.Controllers
                     連絡人地址 = i.InvoiceBuyer.Address,
                     買受人EMail = i.InvoiceBuyer.EMail,
                     愛心碼 = i.InvoiceDonation.AgencyCode,
-                    是否中獎 = i.InvoiceWinningNumber.UniformInvoiceWinningNumber.PrizeType,
+                    是否中獎 = i.InvoiceWinningNumber.Winning.PrizeType,
                     載具類別 = i.InvoiceCarrier.CarrierType,
                     載具號碼 = i.InvoiceCarrier.CarrierNo,
                 //備註 = String.Join("", i.InvoiceDetails.Select(t => t.InvoiceProduct.InvoiceProductItem.FirstOrDefault())
@@ -482,7 +483,7 @@ namespace WebHome.Controllers
 
             using (SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items))
             {
-                sqlCmd.Connection = (SqlConnection)models.DataContext.Connection;
+                sqlCmd.Connection = (SqlConnection)models.Connection;
                 using (SqlDataAdapter adapter = new SqlDataAdapter(sqlCmd))
                 {
                     using (DataSet ds = new DataSet())
@@ -620,7 +621,7 @@ namespace WebHome.Controllers
                         {
                             for (int i = 0; i < item.CDS_Document.Attachment.Count; i++)
                             {
-                                var attach = item.CDS_Document.Attachment[i];
+                                var attach = item.CDS_Document.Attachment.ElementAt(i);
                                 if (System.IO.File.Exists(attach.StoredPath))
                                 {
                                     ZipArchiveEntry entry = zip.CreateEntry(i == 0 ? item.TrackCode + item.No + ".pdf" : item.TrackCode + item.No + "-" + i + ".pdf");
@@ -712,12 +713,12 @@ namespace WebHome.Controllers
 
             ProcessRequest processItem = new ProcessRequest
             {
-                Sender = HttpContext.GetUser()?.UID,
+                Sender = HttpContext.GetUser()?.Entity.UID,
                 SubmitDate = DateTime.Now,
                 ProcessStart = DateTime.Now,
                 ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
             };
-            models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+            models.GetTable<ProcessRequest>().Add(processItem);
             models.SubmitChanges();
 
             _dbInstance = false;
@@ -830,7 +831,7 @@ namespace WebHome.Controllers
 
                 if (exception != null)
                 {
-                    taskItem.ExceptionLog = new ExceptionLog
+                    taskItem.Log = new ExceptionLog
                     {
                         DataContent = exception.Message
                     };

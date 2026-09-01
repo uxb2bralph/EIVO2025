@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 
 using WebHome.Properties;
 using MessagingToolkit.QRCode.Codec;
@@ -36,6 +36,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using System.Net.Mail;
 using CommonLib.Core.Controllers;
 using ZXing.Windows.Compatibility;
+using ModelCore.DataEntityWrapper;
 
 
 namespace WebHome.Helper
@@ -52,7 +53,7 @@ namespace WebHome.Helper
             return request.Form["chkItem"];
         }
 
-        public static void EnqueueInvoicePrint(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, IEnumerable<int> docID)
+        public static void EnqueueInvoicePrint(this UserProfileWrapper userProfile, GenericDbContext<ApplicationDbContext> mgr, IEnumerable<int> docID)
         {
             foreach (var id in docID)
             {
@@ -62,14 +63,14 @@ namespace WebHome.Helper
                     item.DocumentPrintQueue = new DocumentPrintQueue
                     {
                         SubmitDate = DateTime.Now,
-                        UID = userProfile.UID
+                        UID = userProfile.Entity.UID
                     };
                     mgr.SubmitChanges();
                 }
             }
         }
 
-        public static bool EnqueueDocumentPrint(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, IEnumerable<int> docID)
+        public static bool EnqueueDocumentPrint(this UserProfileWrapper userProfile, GenericDbContext<ApplicationDbContext> mgr, IEnumerable<int> docID)
         {
             bool result = false;
             foreach (var id in docID)
@@ -81,7 +82,7 @@ namespace WebHome.Helper
                     item.DocumentPrintQueue = new DocumentPrintQueue
                     {
                         SubmitDate = DateTime.Now,
-                        UID = userProfile.UID
+                        UID = userProfile.Entity.UID
                     };
                     result = true;
                 }
@@ -91,7 +92,7 @@ namespace WebHome.Helper
             return result;
         }
 
-        public static bool EnqueueInvoicePrint(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, IEnumerable<int> docID, out String reason)
+        public static bool EnqueueInvoicePrint(this UserProfileWrapper userProfile, GenericDbContext<ApplicationDbContext> mgr, IEnumerable<int> docID, out String reason)
         {
             bool result = false;
             reason = null;
@@ -100,7 +101,7 @@ namespace WebHome.Helper
                 var item = mgr.GetTable<CDS_Document>().Where(i => i.DocID == id).FirstOrDefault();
                 if (item == null || item.InvoiceItem == null)
                     continue;
-                if (item.InvoiceItem.Organization.OrganizationStatus.EntrustToPrint == false && item.DocumentPrintLog.Any() && item.DocumentAuthorization == null)
+                if (item.InvoiceItem.Seller.OrganizationStatus.EntrustToPrint == false && item.DocumentPrintLog.Any() && item.DocumentAuthorization == null)
                 {
                     reason = $"發票已列印({item.InvoiceItem.TrackCode}{item.InvoiceItem.No})，請取得授權列印!!";
                     return false;
@@ -112,7 +113,7 @@ namespace WebHome.Helper
                         item.DocumentPrintQueue = new DocumentPrintQueue
                         {
                             SubmitDate = DateTime.Now,
-                            UID = userProfile.UID
+                            UID = userProfile.Entity.UID
                         };
                         result = true;
                     }
@@ -308,7 +309,7 @@ namespace WebHome.Helper
             }
         }
 
-        public static bool CheckSystemCompany(this UserProfile profile)
+        public static bool CheckSystemCompany(this UserProfileWrapper profile)
         {
             return profile?.CurrentUserRole?.OrganizationCategory.CategoryID == (int)Naming.CategoryID.COMP_SYS;
         }
@@ -584,27 +585,27 @@ namespace WebHome.Helper
             sb.Append(String.Format("{0:X8}", (int)(item.InvoiceAmountType.SalesAmount ?? 0)));
             sb.Append(String.Format("{0:X8}", (int)item.InvoiceAmountType.TotalAmount.Value));
             sb.Append(buyer.IsB2C() ? "00000000" : buyer.ReceiptNo);
-            sb.Append(item.InvoiceSeller != null ? item.InvoiceSeller.ReceiptNo : item.Organization.ReceiptNo);
+            sb.Append(item.InvoiceSeller != null ? item.InvoiceSeller.ReceiptNo : item.Seller.ReceiptNo);
             sb.Append(finalEncryData);
             sb.Append(":");
             sb.Append("**********");
             sb.Append(":");
-            sb.Append(item.InvoiceDetails.Count);
+            sb.Append(item.Product.Count);
             sb.Append(":");
-            sb.Append(item.InvoiceDetails.Count);
+            sb.Append(item.Product.Count);
             sb.Append(":");
             sb.Append(2);
             sb.Append(":");
             StringBuilder details = new StringBuilder();
-            foreach (var p in item.InvoiceDetails)
+            foreach (var p in item.Product)
             {
                 //sb.Append(p.InvoiceProduct.Brief);
                 //sb.Append(":");
-                foreach (var pd in p.InvoiceProduct.InvoiceProductItem)
+                foreach (var pd in p.InvoiceProductItem)
                 {
                     if (!pd.Piece.Value.Equals(0))
                     {
-                        details.Append(p.InvoiceProduct.Brief);
+                        details.Append(p.Brief);
                         details.Append(":");
                         details.Append(String.Format("{0:#0}", pd.Piece));
                         details.Append(":");

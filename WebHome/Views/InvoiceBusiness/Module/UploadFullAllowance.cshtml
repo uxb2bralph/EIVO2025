@@ -17,7 +17,7 @@
     InvoiceViewModel _viewModel;
 
     _viewModel = (InvoiceViewModel)ViewBag.ViewModel;
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
 }
 
     <tr>
@@ -46,7 +46,7 @@
                             $file.on('change', function (event) {
                                 clearErrors();
                                 var $formData = $('form').find('input,select,textArea').serializeObject();
-                                uploadFile($file, $formData, '@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.TaskCenterUrl}/InvoiceData/UploadFullAllowanceRequestXlsx?sender={_profile.UID}")',
+                                uploadFile($file, $formData, '@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.TaskCenterUrl}/InvoiceData/UploadFullAllowanceRequestXlsx?sender={_profile.Entity.UID}")',
                                     function (data) {
                                         $btn.before($file);
                                         if ($.isPlainObject(data)) {

@@ -10,20 +10,20 @@ using ModelCore.Locale;
 using ModelCore.UploadManagement;
 using CommonLib.Utility;
 using WebHome.Properties;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using ModelCore.Models.ViewModel;
 using ModelCore.Helper;
 
 namespace WebHome.Helper
 {
-    public class BusinessCounterpartUploadManager : CsvUploadManager<EIVOEntityDataContext, Organization, ItemUpload<Organization>>
+    public class BusinessCounterpartUploadManager : CsvUploadManager<ApplicationDbContext, Organization, ItemUpload<Organization>>
     {
         public BusinessCounterpartUploadManager() : base()
         {
 
         }
 
-        public BusinessCounterpartUploadManager(GenericManager<EIVOEntityDataContext> manager)
+        public BusinessCounterpartUploadManager(GenericDbContext<ApplicationDbContext> manager)
             : base(manager)
         {
         }
@@ -49,7 +49,7 @@ namespace WebHome.Helper
         {
             _userProfile = userProfile;
             if (!_masterID.HasValue)
-                _masterID = _userProfile.CurrentUserRole.OrganizationCategory.CompanyID;
+                _masterID = _userProfile.UserRole.FirstOrDefault()?.OrganizationCategory.CompanyID;
             base.ParseData(userProfile, fileName, encoding);
         }
 
@@ -75,7 +75,7 @@ namespace WebHome.Helper
             var enterprise = this.GetTable<Organization>().Where(o => o.CompanyID == _masterID)
                 .FirstOrDefault().EnterpriseGroupMember.FirstOrDefault();
 
-            String subject = (enterprise != null ? enterprise.EnterpriseGroup.EnterpriseName : "") + " 會員啟用認證信";
+            String subject = (enterprise != null ? enterprise.Enterprise.EnterpriseName : "") + " 會員啟用認證信";
 
             ThreadPool.QueueUserWorkItem(p =>
             {
@@ -165,7 +165,7 @@ namespace WebHome.Helper
 
                     relationship = new BusinessRelationship
                     {
-                        Counterpart = item.Entity,
+                        Relative = item.Entity,
                         BusinessID = (int)BusinessType,
                         MasterID = _masterID.Value,
                         CurrentLevel = (int)Naming.MemberStatusDefinition.Checked
@@ -173,11 +173,11 @@ namespace WebHome.Helper
 
                     var orgaCate = new OrganizationCategory
                     {
-                        Organization = item.Entity,
+                        Company = item.Entity,
                         CategoryID = (int)CategoryDefinition.CategoryEnum.相對營業人
                     };
 
-                    this.EntityList.InsertOnSubmit(item.Entity);
+                    this.EntityList.Add(item.Entity);
 
                     var userProfile = new UserProfile
                     {
@@ -199,7 +199,7 @@ namespace WebHome.Helper
 
                     _userList.Add(userProfile);
 
-                    this.GetTable<UserRole>().InsertOnSubmit(new UserRole
+                    this.GetTable<UserRole>().Add(new UserRole
                     {
                         RoleID = (int)Naming.RoleID.相對營業人,
                         UserProfile = userProfile,
@@ -213,7 +213,7 @@ namespace WebHome.Helper
                 {
                     relationship = new BusinessRelationship
                     {
-                        Counterpart = item.Entity,
+                        Relative = item.Entity,
                         BusinessID = (int)BusinessType,
                         MasterID = _masterID.Value
                     };

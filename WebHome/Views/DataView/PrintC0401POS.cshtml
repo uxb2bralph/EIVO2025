@@ -53,10 +53,10 @@
             foreach (var item in _model.OrderBy(d => d.SubmitID).ToList())
             {
                 invoicePrintView = _viewModel.UseCustomView == true
-                    ? item.CDS_Document.InvoiceItem.Organization.OrganizationCustomSetting?.Settings?.C0401POSView
+                    ? item.Doc.InvoiceItem.Seller.OrganizationCustomSetting?.Settings?.C0401POSView
                     : null;
-                await Html.RenderPartialAsync(invoicePrintView ?? "~/Views/DataView/Module/C0401_POS.cshtml", item.CDS_Document.InvoiceItem);
-                models.MarkPrintedLog(item.CDS_Document.InvoiceItem, profile);
+                await Html.RenderPartialAsync(invoicePrintView ?? "~/Views/DataView/Module/C0401_POS.cshtml", item.Doc.InvoiceItem);
+                models.MarkPrintedLog(item.Doc.InvoiceItem, profile.Entity);
             }
         }
     </form>

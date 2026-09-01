@@ -21,28 +21,34 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 @using CommonLib.DataAccess
+@using WebHome.Infrastructure.BackgroundTasks
 
 @functions
 {
     ModelSource<InvoiceItem>? models;
     IQueryable<WinningInvoiceReportItem>? _model;
     InquireInvoiceViewModel? _viewModel;
-    UserProfile? profile;
+    UserProfileWrapper? profile;
 
-    void SaveAsExcel(int taskID, String resultFile)
+    //背景作業：由 BackgroundTaskService 於請求結束後執行。
+    //不可沿用請求的 models／_model／profile，改以 viewModel + uid/roleIndex 重建同一份查詢
+    //（與 WinningInvoiceController.InquireWinningInvoice 共用 BuildWinningInvoiceReport）。
+    static void SaveAsExcel(int taskID, String resultFile, InquireInvoiceViewModel viewModel, int? uid, int? roleIndex)
     {
-        Task.Run(() =>
-        {
             try
             {
+                using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
                 using (DataSet ds = new DataSet())
                 {
+                    UserProfileWrapper? profile = db.ReloadProfile(uid, roleIndex);
+                    IQueryable<WinningInvoiceReportItem> _model =
+                        WinningInvoiceController.BuildWinningInvoiceReport(db, viewModel, profile);
 
                     Exception? exception = null;
 
                     try
                     {
-                        DataTable table = _model!.ToDataTable();
+                        DataTable table = _model.ToDataTable();
                         table.TableName = "中獎統計";
                         table.Columns[0].ColumnName = "賣方統一編號";
                         table.Columns[1].ColumnName = "賣方名稱";
@@ -62,8 +68,6 @@
                         exception = ex;
                     }
 
-                    var db = models!;
-
                     ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
                         .Where(t => t.TaskID == taskID).FirstOrDefault();
 
@@ -77,7 +81,7 @@
                                 LogTime = DateTime.Now,
                             };
                             db.GetTable<ExceptionLog>
-                                ().InsertOnSubmit(logItem);
+                                ().Add(logItem);
                             db.SubmitChanges();
 
                             taskItem.LogID = logItem.LogID;
@@ -87,14 +91,11 @@
                         db.SubmitChanges();
                     }
                 }
-
-                models!.Dispose();
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
             }
-        });
     }
 
 }
@@ -111,16 +112,21 @@
 @{
     ProcessRequest processItem = new ProcessRequest
     {
-        Sender = profile?.UID,
+        Sender = profile?.Entity.UID,
         SubmitDate = DateTime.Now,
         ProcessStart = DateTime.Now,
         ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
     };
 
-    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.GetTable<ProcessRequest>().Add(processItem);
     models.SubmitChanges();
 
-    SaveAsExcel(processItem.TaskID, processItem.ResponsePath);
+    int taskID = processItem.TaskID;
+    String resultFile = processItem.ResponsePath;
+    InquireInvoiceViewModel jobViewModel = _viewModel;
+    var (jobUID, jobRoleIndex) = profile.ForBackgroundWork();
+    Context.EnqueueBackgroundWork("WinningInvoice/CreateXlsx",
+        _ => SaveAsExcel(taskID, resultFile, jobViewModel, jobUID, jobRoleIndex));
 
     await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
         new AttachmentViewModel

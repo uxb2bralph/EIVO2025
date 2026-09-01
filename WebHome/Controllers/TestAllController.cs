@@ -29,6 +29,7 @@ using ModelCore.Helper;
 using CommonLib.Core.Utility;
 using System.Linq.Expressions;
 using Newtonsoft.Json.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebHome.Controllers
 {
@@ -183,7 +184,7 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
             JObject json = JObject.Parse(RequestBody);
-            Table<Organization> org = models.GetTable<Organization>();
+            DbSet<Organization> org = models.GetTable<Organization>();
             IQueryable<Organization> items = org;
             Expression<Func<Organization, String>> order = o => o.CompanyName;
 

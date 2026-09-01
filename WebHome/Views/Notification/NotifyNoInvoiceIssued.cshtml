@@ -18,6 +18,7 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
 
 @{
     ModelSource<InvoiceItem> models;
@@ -49,7 +50,8 @@
         orgItems = orgItems.Where(o => o.ReceiptNo == _viewModel.ReceiptNo);
     }
 
-    foreach (var item in orgItems)
+    //迴圈內會存取 OrganizationStatus，先一次載入避免 N+1。
+    foreach (var item in orgItems.Include(o => o.OrganizationStatus).ToList())
     {
         if ((item.OrganizationStatus?.InvoiceNoticeSetting & (int)Naming.InvoiceNoticeStatus.NoInvoiceIssued) > 0
             && !items.Any(i => i.SellerID == item.CompanyID))

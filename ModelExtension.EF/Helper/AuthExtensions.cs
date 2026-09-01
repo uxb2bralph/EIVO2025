@@ -53,7 +53,7 @@ namespace ModelCore.Helper
             return profile != null && profile.CurrentUserRole?.RoleID == (int)Naming.RoleID.ROLE_SYS;
         }
 
-        public static bool IsAuthorized(this UserProfileWrapper profile, Naming.RoleID[] roleID)
+        public static bool IsAuthorized(this UserProfileWrapper profile, params Naming.RoleID[] roleID)
         {
             return profile != null && profile.CurrentUserRole != null && roleID.Contains((Naming.RoleID)profile.CurrentUserRole.RoleID);
         }

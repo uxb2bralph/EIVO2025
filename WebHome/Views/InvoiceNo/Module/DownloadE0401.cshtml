@@ -22,20 +22,30 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 @using CommonLib.DataAccess
+@using Microsoft.EntityFrameworkCore
+@using WebHome.Infrastructure.BackgroundTasks
 
 @functions
 {
     ModelSource<InvoiceItem>? models;
     IQueryable<InvoiceNoMainAssignment>? _model;
     InquireNoIntervalViewModel? _viewModel;
-    UserProfile? profile;
+    UserProfileWrapper? profile;
 
-    void SaveData(int taskID, String resultFile)
+    //背景作業：由 BackgroundTaskService 於請求結束後執行。
+    //不可沿用請求的 models／_model，一律以 viewModel 在此重新建立自己的 ModelSource 與查詢。
+    static void SaveData(int taskID, String resultFile, InquireNoIntervalViewModel viewModel)
     {
-        Task.Run(() =>
-        {
             try
             {
+                using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
+
+                //各層會用到的導覽屬性一次載入，避免逐筆 lazy loading。
+                IQueryable<InvoiceNoMainAssignment> _model = viewModel.InquireHeaquarterNoAssignment(db)
+                    .Include(m => m.InvoiceTrackCodeAssignment).ThenInclude(a => a.Track)
+                    .Include(m => m.InvoiceTrackCodeAssignment).ThenInclude(a => a.Seller)
+                    .Include(m => m.InvoiceTrackCodeAssignmentNavigation).ThenInclude(a => a.InvoiceNoInterval);
+
                 Exception? exception = null;
 
                 try
@@ -46,14 +56,14 @@
                     {
                         using (System.IO.Compression.ZipArchive zip = new System.IO.Compression.ZipArchive(zipOut, System.IO.Compression.ZipArchiveMode.Create))
                         {
-                            foreach (var headquarterAssignment in _model!)
+                            foreach (var headquarterAssignment in _model!.ToList())
                             {
-                                var items = headquarterAssignment.BranchNoAssignment.GroupBy(a => a.SellerID);
-                                var trackCode = headquarterAssignment.InvoiceTrackCodeAssignment.InvoiceTrackCode;
+                                var items = headquarterAssignment.InvoiceTrackCodeAssignmentNavigation.GroupBy(a => a.SellerID);
+                                var trackCode = headquarterAssignment.InvoiceTrackCodeAssignment.Track;
                                 foreach (var g in items)
                                 {
                                     var intervalItems = g.SelectMany(a => a.InvoiceNoInterval);
-                                    var orgItem = models!.GetTable<Organization>().Where(a => a.CompanyID == g.Key).FirstOrDefault();
+                                    var orgItem = db.GetTable<Organization>().Where(a => a.CompanyID == g.Key).FirstOrDefault();
 
                                     if (orgItem != null)
                                     {
@@ -62,7 +72,7 @@
                                             Main = new ModelCore.Schema.TurnKey.E0401.Main
                                             {
                                                 BranchBan = orgItem.ReceiptNo,
-                                                HeadBan = headquarterAssignment.InvoiceTrackCodeAssignment.Organization.ReceiptNo,
+                                                HeadBan = headquarterAssignment.InvoiceTrackCodeAssignment.Seller.ReceiptNo,
                                                 YearMonth = String.Format("{0}{1:00}", trackCode.Year - 1911, trackCode.PeriodNo * 2),
                                                 InvoiceType = trackCode.InvoiceType == (byte)ModelCore.Schema.TurnKey.E0401.InvoiceTypeEnum.Item08 ? ModelCore.Schema.TurnKey.E0401.InvoiceTypeEnum.Item08 : ModelCore.Schema.TurnKey.E0401.InvoiceTypeEnum.Item07,
                                                 InvoiceTrack = trackCode.TrackCode,
@@ -103,7 +113,6 @@
                     Logger.Error($"{ex}\r\n{_model}");
                     exception = ex;
                 }
-                var db = models!;
                 ProcessRequest? taskItem =
                     db.GetTable<ProcessRequest>()
                         .Where(t => t.TaskID == taskID).FirstOrDefault();
@@ -117,7 +126,7 @@
                             DataContent = exception.Message,
                             LogTime = DateTime.Now,
                         };
-                        db.GetTable<ExceptionLog>().InsertOnSubmit(logItem);
+                        db.GetTable<ExceptionLog>().Add(logItem);
                         db.SubmitChanges();
 
                         taskItem.LogID = logItem.LogID;
@@ -132,8 +141,6 @@
             {
                 Logger.Error(ex);
             }
-        });
-
     }
 
 }
@@ -149,20 +156,24 @@
 }
 @{
     var item = _model.First();
-    String fileName = $"E0402-{item!.InvoiceTrackCodeAssignment.Organization.ReceiptNo}.zip";
+    String fileName = $"E0402-{item!.InvoiceTrackCodeAssignment.Seller.ReceiptNo}.zip";
 
     ProcessRequest processItem = new ProcessRequest
     {
-        Sender = profile?.UID,
+        Sender = profile?.Entity.UID,
         SubmitDate = DateTime.Now,
         ProcessStart = DateTime.Now,
         ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, fileName),
     };
 
-    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.GetTable<ProcessRequest>().Add(processItem);
     models.SubmitChanges();
 
-    SaveData(processItem.TaskID, processItem.ResponsePath);
+    int taskID = processItem.TaskID;
+    String resultFile = processItem.ResponsePath;
+    InquireNoIntervalViewModel jobViewModel = _viewModel;
+    Context.EnqueueBackgroundWork("InvoiceNo/DownloadE0401",
+        _ => SaveData(taskID, resultFile, jobViewModel));
 
     await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
         new AttachmentViewModel

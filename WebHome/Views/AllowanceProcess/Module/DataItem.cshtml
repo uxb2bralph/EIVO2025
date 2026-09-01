@@ -31,17 +31,17 @@
 <td style="white-space:nowrap;">@(_model.TurnkeyAllowanceNo)</td>
 @*<td style="white-space:nowrap;">@($"{_model.AllowanceID:0000000000000000}")</td>*@
 <td align="right" style="white-space:nowrap;">
-    @{ var amount = _model.InvoiceAllowanceDetails.Sum(d => d.InvoiceAllowanceItem.Amount);}
+    @{ var amount = _model.InvoiceAllowanceDetails.Sum(d => d.Amount);}
 
     @(String.Format("{0:##,###,###,##0.##}", amount))
 </td>
 <td align="right" style="white-space:nowrap;">
-    @{ var tax = _model.InvoiceAllowanceDetails.Sum(d => d.InvoiceAllowanceItem.Tax);}
+    @{ var tax = _model.InvoiceAllowanceDetails.Sum(d => d.Tax);}
 
     @(String.Format("{0:##,###,###,##0.##}", tax))
 </td>
 <td align="right" style="white-space:nowrap;">@(String.Format("{0:##,###,###,##0.##}", amount + tax))</td>
-<td>@(_model.CurrencyType?.AbbrevName)</td>
+<td>@(_model.Currency?.AbbrevName)</td>
 <td style="white-space:nowrap;">@(_model.InvoiceAllowanceBuyer.IsB2C() ? "" : _model.InvoiceAllowanceBuyer.ReceiptNo)</td>
 <td style="white-space:nowrap;">
     @(_model.InvoiceAllowanceCancellation==null ? "" : $"已作廢({_model.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})")

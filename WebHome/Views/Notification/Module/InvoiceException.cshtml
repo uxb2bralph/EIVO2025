@@ -81,7 +81,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in _model)
+                @foreach (var item in _model.ToList())
                 {
                     InvoiceRootInvoice invoice = null;
                     SellerInvoiceRootInvoice b2bInvoice = null;

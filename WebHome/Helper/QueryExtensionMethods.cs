@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Web;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using ModelCore.DataEntity;
 using ModelCore.Locale;
 
@@ -21,7 +21,7 @@ namespace WebHome.Helper
     public static class QueryExtensionMethods
     {
 
-        public static IQueryable<UserProfile> FilterByOrganization(this IQueryable<UserProfile> items, GenericManager<EIVOEntityDataContext> models, int companyID)
+        public static IQueryable<UserProfile> FilterByOrganization(this IQueryable<UserProfile> items, GenericDbContext<ApplicationDbContext> models, int companyID)
         {
             return items.Join(models.GetTable<UserRole>()
                             .Join(models.GetTable<OrganizationCategory>().Where(c => c.CompanyID == companyID),
@@ -29,7 +29,7 @@ namespace WebHome.Helper
                         u => u.UID, r => r.UID, (u, r) => u);
         }
 
-        public static int GetAttachedPdfPageCount(this int docID, GenericManager<EIVOEntityDataContext> models)
+        public static int GetAttachedPdfPageCount(this int docID, GenericDbContext<ApplicationDbContext> models)
         {
             var attachment = models.GetTable<Attachment>().Where(a => a.DocID == docID).FirstOrDefault();
             return GetAttachedPdfPageCount(attachment);
@@ -51,7 +51,7 @@ namespace WebHome.Helper
             return 0;
         }
 
-        public static IQueryable<BusinessRelationship> PromptBusinessRelationship(this BusinessRelationshipQueryViewModel viewModel, GenericManager<EIVOEntityDataContext> models,out IQueryable<BusinessRelationship> items,out IQueryable<Organization> masterItems, out IQueryable<Organization> relativeItems)
+        public static IQueryable<BusinessRelationship> PromptBusinessRelationship(this BusinessRelationshipQueryViewModel viewModel, GenericDbContext<ApplicationDbContext> models,out IQueryable<BusinessRelationship> items,out IQueryable<Organization> masterItems, out IQueryable<Organization> relativeItems)
         {
             if (viewModel.KeyID != null)
             {

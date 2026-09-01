@@ -42,7 +42,8 @@
     var pid = _viewModel?.PID;
     if (pid != null)
     {
-        var userProfile = ModelCore.Security.MembershipManagement.UserProfileFactory.CreateInstance(pid);
+        using ModelCore.Security.MembershipManagement.UserProfileManager userManager = new ModelCore.Security.MembershipManagement.UserProfileManager();
+        var userProfile = ModelCore.Security.MembershipManagement.UserProfileFactory.CreateInstance(userManager, pid);
         if (userProfile != null)
         {
             await Context.SignOnAsync(userProfile);

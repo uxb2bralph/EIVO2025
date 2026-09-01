@@ -120,10 +120,21 @@ namespace ModelCore.Models.ViewModel
     }
 }
 
-namespace ModelCore.DataEntity
+namespace ModelCore.Models.ViewModel
 {
-    public partial class CustomSmtpHost : ModelCore.Models.ViewModel.QueryViewModel
+    /// <summary>
+    /// 客製化 SMTP 設定的輸入模型（原本由 CustomSmtpHost 實體兼任 QueryViewModel）。
+    /// </summary>
+    public class CustomSmtpHostDto : QueryViewModel
     {
-
+        public int? HostID { get; set; }
+        public int CompanyID { get; set; }
+        public String? Host { get; set; }
+        public int? Port { get; set; }
+        public bool? EnableSsl { get; set; }
+        public String? UserName { get; set; }
+        public String? Password { get; set; }
+        public String? MailFrom { get; set; }
+        public int? Status { get; set; }
     }
 }

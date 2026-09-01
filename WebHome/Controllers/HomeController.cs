@@ -112,7 +112,7 @@ namespace WebHome.Controllers
             {
                 var dataItems = items
                     .OrderBy(o => o.ReceiptNo)
-                    .Select(o => new { C = o, R = o.RelativeRelation.Where(b => b.MasterID == viewModel.SellerID).FirstOrDefault() })
+                    .Select(o => new { C = o, R = o.BusinessRelationshipRelative.Where(b => b.MasterID == viewModel.SellerID).FirstOrDefault() })
                     .ToArray();
                 return Content(dataItems
                     .Select(o => new
@@ -172,7 +172,7 @@ namespace WebHome.Controllers
 
                 if (item != null)
                 {
-                    return Content((new { item.Counterpart.ReceiptNo, item.CompanyName, item.Addr, item.Phone, item.ContactEmail, item.CustomerNo }).JsonStringify(), "application/json");
+                    return Content((new { item.Relative.ReceiptNo, item.CompanyName, item.Addr, item.Phone, item.ContactEmail, item.CustomerNo }).JsonStringify(), "application/json");
                 }
                 else
                 {

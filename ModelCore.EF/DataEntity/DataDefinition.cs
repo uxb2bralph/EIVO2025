@@ -25,6 +25,12 @@ namespace ModelCore.DataEntity
         public virtual bool MergedItem { get; set; }
     }
 
+    public partial class InvoiceItem
+    {
+        [NotMapped]
+        public virtual int? PackageID { get; set; }
+    }
+
     public class NotifyMailInfo
     {
         public virtual bool? isMail { get; set; }
@@ -66,35 +72,18 @@ namespace ModelCore.DataEntity
         }
     }
 
+
+
     public partial class OrganizationCustomSetting
     {
-        private OrganizationCustomSettingsModel? _settings;
-        public virtual OrganizationCustomSettingsModel Settings
-        {
-            get
-            {
-                if (_settings == null)
-                {
-                    if (SettingData != null)
-                    {
-                        _settings = JsonConvert.DeserializeObject<OrganizationCustomSettingsModel>(SettingData);
-                    }
-                }
+        private ModelCore.DataEntityWrapper.OrganizationCustomSettingWrapper? _wrapper;
+        private ModelCore.DataEntityWrapper.OrganizationCustomSettingWrapper Wrapper
+            => _wrapper ??= new ModelCore.DataEntityWrapper.OrganizationCustomSettingWrapper(this);
 
-                if (_settings == null)
-                {
-                        _settings = new OrganizationCustomSettingsModel { };
-                        Accept();
-                }
+        [NotMapped]
+        public virtual OrganizationCustomSettingsModel Settings => Wrapper.Settings;
 
-                return _settings;
-            }
-        }
-
-        public void Accept()
-        {
-            SettingData = _settings?.JsonStringify();
-        }
+        public void Accept() => Wrapper.Accept();
     }
 
     public class OrganizationCustomSettingsModel
@@ -140,6 +129,12 @@ namespace ModelCore.DataEntity
 
     public partial class Organization
     {
+        [NotMapped]
+        public virtual IEnumerable<InvoiceIssuerAgent> BranchRelation
+        {
+            get => this.InvoiceIssuerAgentAgent.Where(a => a.RelationType == (int)ModelCore.DataEntity.InvoiceIssuerAgent.RelationTypeEnum.MasterBranch);
+        }
+
         public virtual Organization? Headquarter
         {
             get => this.AsInvoiceIssuer.Where(a => a.RelationType == (int)ModelCore.DataEntity.InvoiceIssuerAgent.RelationTypeEnum.MasterBranch).FirstOrDefault()?.Agent;

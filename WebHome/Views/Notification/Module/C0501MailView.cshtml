@@ -33,7 +33,7 @@
     {
         ViewBag.MailTitle = "電子發票作廢通知";
     }
-    await Html.RenderPartialAsync("~/Views/Notification/Module/MailTitle.cshtml", _model.Organization);
+    await Html.RenderPartialAsync("~/Views/Notification/Module/MailTitle.cshtml", _model.Seller);
 }
 
 

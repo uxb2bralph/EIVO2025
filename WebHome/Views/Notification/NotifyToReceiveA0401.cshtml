@@ -40,10 +40,10 @@
 }
 @if (!String.IsNullOrEmpty(mailTo))
 {
-    var enterprise = _model.InvoiceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
-    var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+    var enterprise = _model.InvoiceSeller.Seller.EnterpriseGroupMember.FirstOrDefault();
+    var smtpSettings = _model.InvoiceSeller.Seller.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
-    String Subject = $"{(enterprise?.EnterpriseGroup.EnterpriseName)} 發票接收通知(發票號碼:{_model.TrackCode}{_model.No})";
+    String Subject = $"{(enterprise?.Enterprise.EnterpriseName)} 發票接收通知(發票號碼:{_model.TrackCode}{_model.No})";
     String body = (await Html.PartialAsync("~/Views/Notification/Module/A0401.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
 
     body.SendMailMessage(mailTo, Subject, new System.Net.Mail.Attachment[] { attachment }, smtpSettings);

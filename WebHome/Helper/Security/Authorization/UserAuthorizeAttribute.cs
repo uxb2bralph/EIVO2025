@@ -16,6 +16,7 @@ using ModelCore.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Http.Extensions;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Helper.Security.Authorization
 {
@@ -24,7 +25,7 @@ namespace WebHome.Helper.Security.Authorization
     {
         public AuthorizedSysAdminAttribute() : base(typeof(RoleRequirementFilter))
         {
-            Arguments = new object[] { (Func<UserProfile, bool>)(u => u.IsSystemAdmin()) };
+            Arguments = new object[] { (Func<UserProfileWrapper, bool>)(u => u.IsSystemAdmin()) };
         }
     }
 
@@ -33,15 +34,15 @@ namespace WebHome.Helper.Security.Authorization
     {
         public RoleAuthorizeAttribute(Naming.RoleID[] roleID) : base(typeof(RoleRequirementFilter))
         {
-            Arguments = new object[] { (Func<UserProfile, bool>)(u => u.IsAuthorized(roleID)) };
+            Arguments = new object[] { (Func<UserProfileWrapper, bool>)(u => u.IsAuthorized(roleID)) };
         }
     }
 
     public class RoleRequirementFilter : IAuthorizationFilter
     {
-        protected Func<UserProfile, bool> _auth;
+        protected Func<UserProfileWrapper, bool> _auth;
 
-        public RoleRequirementFilter(Func<UserProfile, bool> checkAuth)
+        public RoleRequirementFilter(Func<UserProfileWrapper, bool> checkAuth)
         {
             _auth = checkAuth;
         }

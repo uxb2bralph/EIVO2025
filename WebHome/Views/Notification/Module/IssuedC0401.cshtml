@@ -214,7 +214,7 @@
 
     <form>
         <!--交易畫面標題-->
-        @if (!_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCustomStyle))
+        @if (!_model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCustomStyle))
         {
             <p>
                 您的客戶編號：<span class="blue">@(_model.InvoiceBuyer.CustomerID.StringMask(4, 3, '*'))</span> 發票已經開立，電子發票內容如下：
@@ -226,7 +226,7 @@
 
             <!--表格 結束-->
         </div>
-        @if (_model.Organization.OrganizationStatus.UseB2BStandalone == true)
+        @if (_model.Seller.OrganizationStatus.UseB2BStandalone == true)
         {
             if (_model.InvoiceBuyer.IsB2C())
             {
@@ -254,10 +254,10 @@
         <p class="red">
             &nbsp;
         </p>
-        @if (_model.Organization.OrganizationExtension?.CustomNotification != null)
+        @if (_model.Seller.OrganizationExtension?.CustomNotification != null)
         {
             <text>
-                @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.Organization.OrganizationExtension?.CustomNotification))
+                @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.Seller.OrganizationExtension?.CustomNotification))
             </text>
         }
         <p>&nbsp;</p>

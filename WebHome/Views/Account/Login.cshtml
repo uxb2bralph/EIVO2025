@@ -95,7 +95,7 @@
             <div class="run">
                 <!--跑馬燈開始-->
                 <marquee class="notice" scrollamount="2">
-                    @foreach (var item in data)
+                    @foreach (var item in data.ToList())
                     {
                         <text>
                             ‧系統公告：

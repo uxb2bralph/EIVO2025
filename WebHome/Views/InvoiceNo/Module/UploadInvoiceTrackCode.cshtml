@@ -13,7 +13,7 @@
 @using ModelCore.Helper
 @using WebHome.Controllers
 @{
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
     int? _idx = (TempData["ImportData"] as int?) ?? 0;
     TempData["ImportData"] = _idx + 1;
 }

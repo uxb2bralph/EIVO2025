@@ -13,7 +13,7 @@
 @{
     UserProfileViewModel _viewModel;
     ModelSource<InvoiceItem> models;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
     UserProfile _model = this.Model as UserProfile;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;

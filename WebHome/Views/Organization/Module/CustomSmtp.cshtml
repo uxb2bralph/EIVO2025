@@ -17,12 +17,12 @@
 
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    CustomSmtpHost _viewModel;
+    CustomSmtpHostDto _viewModel;
     Organization _model;
 
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    _viewModel = (CustomSmtpHost)ViewBag.ViewModel;
+    _viewModel = (CustomSmtpHostDto)ViewBag.ViewModel;
     _model = (Organization)this.Model;
 
     CustomSmtpHost settings = _model.CustomSmtpHost.OrderByDescending(s => s.HostID).FirstOrDefault();

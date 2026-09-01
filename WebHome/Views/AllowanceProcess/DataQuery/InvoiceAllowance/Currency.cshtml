@@ -53,7 +53,7 @@
     void ShowBody(dynamic po)
     {
         InvoiceAllowance item = (InvoiceAllowance)po;
-        <td>@(item.CurrencyType?.AbbrevName ?? "TWD")</td>
+        <td>@(item.Currency?.AbbrevName ?? "TWD")</td>
     }
 
     void ShowFooter(dynamic item)

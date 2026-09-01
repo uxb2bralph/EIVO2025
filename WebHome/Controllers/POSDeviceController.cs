@@ -83,11 +83,11 @@ namespace WebHome.Controllers
             return Json(new
             {
                 viewModel.SellerID,
-                item?.InvoiceNoInterval.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year,
-                item?.InvoiceNoInterval.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo,
+                item?.Interval.InvoiceTrackCodeAssignment.Track.Year,
+                item?.Interval.InvoiceTrackCodeAssignment.Track.PeriodNo,
                 invoice_issue = items.Select(t => new
                 {
-                    sn = t.InvoiceNoInterval.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode + String.Format("{0:00000000}", t.InvoiceNo),
+                    sn = t.Interval.InvoiceTrackCodeAssignment.Track.TrackCode + String.Format("{0:00000000}", t.InvoiceNo),
                     random = t.RandomNo,
                     aesbase64 = t.EncryptedContent
                 }).ToArray()
@@ -105,17 +105,17 @@ namespace WebHome.Controllers
 
             int no;
             int.TryParse(viewModel.No, out no);
-            var item = models!.GetTable<InvoiceNoAllocation>().Where(i => i.InvoiceNo == no && i.InvoiceNoInterval.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode == viewModel.TrackCode).FirstOrDefault();
+            var item = models!.GetTable<InvoiceNoAllocation>().Where(i => i.InvoiceNo == no && i.Interval.InvoiceTrackCodeAssignment.Track.TrackCode == viewModel.TrackCode).FirstOrDefault();
 
             if (item == null)
                 return Json(new { result = false, message = "發票號碼錯誤!!" });
 
-            var seller = item.InvoiceNoInterval.InvoiceTrackCodeAssignment.Organization;
+            var seller = item.Interval.InvoiceTrackCodeAssignment.Seller;
 
             viewModel.SellerName = seller.CompanyName;
             viewModel.SellerReceiptNo = seller.ReceiptNo;
 
-            InvoiceViewModelValidator<InvoiceItem> validator = new InvoiceViewModelValidator<InvoiceItem>(this.DataSource, seller);
+            InvoiceViewModelValidator validator = new InvoiceViewModelValidator(new ModelSource(this.DataSource), seller);
             var exception = validator.Validate(viewModel);
             if (exception != null)
             {
@@ -123,7 +123,7 @@ namespace WebHome.Controllers
             }
 
             InvoiceItem newItem = validator.InvoiceItem;
-            models.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+            models.GetTable<InvoiceItem>().Add(newItem);
             item.Status = (int)Naming.UploadStatusDefinition.匯入成功;
             models.SubmitChanges();
 
@@ -150,14 +150,14 @@ namespace WebHome.Controllers
             if (seller != null)
             {
                 items = models.GetTable<InvoiceNoAllocation>().Where(d => d.Status == (int)Naming.UploadStatusDefinition.等待匯入)
-                    .Where(d => d.InvoiceNoInterval.InvoiceTrackCodeAssignment.SellerID == seller.CompanyID).ToList();
+                    .Where(d => d.Interval.InvoiceTrackCodeAssignment.SellerID == seller.CompanyID).ToList();
             }
 
             return Json(new
             {
                 invoice_pending = items.Select(t => new
                 {
-                    sn = t.InvoiceNoInterval.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode + String.Format("{0:00000000}", t.InvoiceNo),
+                    sn = t.Interval.InvoiceTrackCodeAssignment.Track.TrackCode + String.Format("{0:00000000}", t.InvoiceNo),
                     time = String.Format("{0:yyyy/MM/dd HH:mm:ss}", t.AllocateDate)
                 }).ToArray()
             });

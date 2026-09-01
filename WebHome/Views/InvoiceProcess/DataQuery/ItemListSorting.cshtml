@@ -58,13 +58,13 @@
         idx = System.Array.IndexOf(_viewModel.SortName, "CompanyName");
         if (idx >= 0 && _viewModel.SortType[idx] != 0)
         {
-            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.Organization.CompanyName, _viewModel.SortType[idx]);
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.Seller.CompanyName, _viewModel.SortType[idx]);
         }
 
         idx = System.Array.IndexOf(_viewModel.SortName, "ReceiptNo");
         if (idx >= 0 && _viewModel.SortType[idx] != 0)
         {
-            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.Organization.ReceiptNo, _viewModel.SortType[idx]);
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.Seller.ReceiptNo, _viewModel.SortType[idx]);
         }
 
         idx = System.Array.IndexOf(_viewModel.SortName, "SalesAmount");
@@ -88,7 +88,7 @@
         idx = System.Array.IndexOf(_viewModel.SortName, "IsWinning");
         if (idx >= 0 && _viewModel.SortType[idx] != 0)
         {
-            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceWinningNumber.UniformInvoiceWinningNumber.Rank, _viewModel.SortType[idx]);
+            TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? (IQueryable<InvoiceItem>)this.Model).OrderBy(p => p.InvoiceWinningNumber.Winning.Rank, _viewModel.SortType[idx]);
         }
 
         idx = System.Array.IndexOf(_viewModel.SortName, "BuyerNo");

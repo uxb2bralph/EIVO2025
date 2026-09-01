@@ -22,26 +22,50 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
+@using WebHome.Infrastructure.BackgroundTasks
 
 
 @functions
 {
     ModelSource<InvoiceItem> models;
     InquireInvoiceViewModel _viewModel;
-    IQueryable<InvoiceItem> invoice;
-    IQueryable<InvoiceAllowance> allowance;
-    IQueryable<InvoiceItem> cancelInvoice;
-    IQueryable<InvoiceAllowance> cancelAllowance;
-    UserProfile profile;
+    UserProfileWrapper profile;
 
-    void SaveAsExcel(int taskID, String resultFile)
+    //背景作業：由 BackgroundTaskService 於請求結束後執行，
+    //因此不可沿用請求的 models 或它追蹤的實體（lazy loading proxy 會在 context 釋放後爆掉），
+    //一律以 viewModel 在此重新建立自己的 ModelSource 與查詢。
+    static void SaveAsExcel(int taskID, String resultFile, InquireInvoiceViewModel viewModel)
     {
-        Task.Run(() =>
-        {
             try
             {
+                using (ModelSource<InvoiceItem> queryDb = new ModelSource<InvoiceItem>())
                 using (DataSet ds = new DataSet())
                 {
+                    bool effective = false;
+
+                    //各報表列會用到的導覽屬性一次載入，避免逐筆 lazy loading 造成 N+1。
+                    IQueryable<InvoiceItem> invoice = queryDb.GetTable<InvoiceItem>().InquireInvoice(viewModel, queryDb, ref effective, false)
+                        .Include(i => i.InvoicePurchaseOrder)
+                        .Include(i => i.InvoiceSeller)
+                        .Include(i => i.Seller!).ThenInclude(s => s.OrganizationExtension)
+                        .Include(i => i.InvoiceAmountType!).ThenInclude(a => a.Currency)
+                        .Include(i => i.InvoiceBuyer)
+                        .Include(i => i.InvoiceCarrier)
+                        .Include(i => i.CDS_Document).ThenInclude(d => d.DataProcessLog);
+
+                    IQueryable<InvoiceAllowance> allowance = queryDb.GetTable<InvoiceAllowance>().InquireAllowance(viewModel, queryDb, ref effective, false)
+                        .Include(a => a.InvoiceAllowanceSeller)
+                        .Include(a => a.Currency)
+                        .Include(a => a.CDS_Document).ThenInclude(d => d.DataProcessLog);
+
+                    IQueryable<InvoiceItem> cancelInvoice = queryDb.GetTable<InvoiceItem>().InquireVoidInvoice(viewModel, queryDb, ref effective)
+                        .Include(i => i.InvoiceCancellation)
+                        .Include(i => i.CDS_Document).ThenInclude(d => d.ChildDocument).ThenInclude(c => c.CDS_Document).ThenInclude(d => d.DataProcessLog);
+
+                    IQueryable<InvoiceAllowance> cancelAllowance = queryDb.GetTable<InvoiceAllowance>().InquireVoidAllowance(viewModel, queryDb, ref effective)
+                        .Include(a => a.InvoiceAllowanceCancellation)
+                        .Include(a => a.CDS_Document).ThenInclude(d => d.ChildDocument).ThenInclude(c => c.CDS_Document).ThenInclude(d => d.DataProcessLog);
 
                     Exception exception = null;
 
@@ -69,7 +93,7 @@
                             table.Columns.Add("載具號碼", typeof(String));
                             table.Columns.Add("傳送大平狀態", typeof(String));
 
-                            foreach (var i in invoice.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
+                            foreach (var i in invoice.OrderBy(i => i.TrackCode).ThenBy(i => i.No).ToList())
                             {
                                 DataRow r = table.NewRow();
                                 r["發票號碼"] = i.TrackCode + i.No;
@@ -79,12 +103,12 @@
                                 r["序號"] = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : DBNull.Value;
                                 r["發票開立人"] = i.InvoiceSeller.CustomerName;
                                 r["開立人統編"] = i.InvoiceSeller.ReceiptNo;
-                                r["營業人店別"] = i.Organization.OrganizationExtension.CustomerNo;
+                                r["營業人店別"] = i.Seller.OrganizationExtension.CustomerNo;
                                 r["未稅金額"] = (Object)i.InvoiceAmountType.SalesAmount ?? DBNull.Value;
                                 r["稅別"] = $"{(Naming.TaxTypeDefinition?)i.InvoiceAmountType.TaxType}";
                                 r["稅額"] = (Object)i.InvoiceAmountType.TaxAmount ?? DBNull.Value;
                                 r["含稅金額"] = i.InvoiceAmountType.TotalAmount;
-                                r["幣別"] = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : DBNull.Value;
+                                r["幣別"] = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.Currency.AbbrevName : DBNull.Value;
                                 r["買受人名稱"] = i.InvoiceBuyer.CustomerName;
                                 r["買受人統編"] = i.InvoiceBuyer.IsB2C() ? "" : i.InvoiceBuyer.ReceiptNo;
                                 if (i.InvoiceCarrier != null)
@@ -111,7 +135,7 @@
                             table.Columns.Add("作廢原因", typeof(String));
                             table.Columns.Add("傳送大平狀態", typeof(String));
 
-                            foreach (var i in cancelInvoice.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
+                            foreach (var i in cancelInvoice.OrderBy(i => i.TrackCode).ThenBy(i => i.No).ToList())
                             {
                                 var cancelItem = i.InvoiceCancellation;
                                 DataRow r = table.NewRow();
@@ -143,7 +167,7 @@
                             table.Columns.Add("幣別", typeof(String));
                             table.Columns.Add("傳送大平狀態", typeof(String));
 
-                            foreach (var i in allowance)
+                            foreach (var i in allowance.ToList())
                             {
                                 DataRow r = table.NewRow();
                                 r["折讓單號碼"] = i.AllowanceNumber;
@@ -152,7 +176,7 @@
                                 r["開立人統編"] = i.InvoiceAllowanceSeller.ReceiptNo;
                                 r["未稅金額"] = (Object)i.TotalAmount ?? DBNull.Value;
                                 r["稅額"] = (Object)i.TaxAmount ?? DBNull.Value;
-                                r["幣別"] = i.CurrencyID.HasValue ? i.CurrencyType.AbbrevName : DBNull.Value;
+                                r["幣別"] = i.CurrencyID.HasValue ? i.Currency.AbbrevName : DBNull.Value;
                                 r["傳送大平狀態"] = i.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_C)
                                     ? "C"
                                     : i.CDS_Document.DataProcessLog.Any(l => l.StepID == (int)Naming.InvoiceStepDefinition.MIG_E)
@@ -172,7 +196,7 @@
                             table.Columns.Add("作廢原因", typeof(String));
                             table.Columns.Add("傳送大平狀態", typeof(String));
 
-                            foreach (var i in cancelAllowance)
+                            foreach (var i in cancelAllowance.ToList())
                             {
                                 var cancelItem = i.InvoiceAllowanceCancellation;
 
@@ -205,7 +229,7 @@
 
                     using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
 
-                    ProcessRequest taskItem = db.GetTable<ProcessRequest>()
+                    ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
                                     .Where(t => t.TaskID == taskID).FirstOrDefault();
 
                     if (taskItem != null)
@@ -217,7 +241,7 @@
                                 DataContent = exception.Message,
                                 LogTime = DateTime.Now,
                             };
-                            db.GetTable<ExceptionLog>().InsertOnSubmit(logItem);
+                            db.GetTable<ExceptionLog>().Add(logItem);
                             db.SubmitChanges();
 
                             taskItem.LogID = logItem.LogID;
@@ -233,8 +257,6 @@
             {
                 Logger.Error(ex);
             }
-        });
-
     }
 
 }
@@ -255,12 +277,7 @@
         _viewModel = JsonConvert.DeserializeObject<InquireInvoiceViewModel>(_viewModel.KeyID.DecryptData());
     }
 
-    bool effective = false;
-    invoice = models.GetTable<InvoiceItem>().InquireInvoice(_viewModel, models, ref effective, false);
-    allowance = models.GetTable<InvoiceAllowance>().InquireAllowance(_viewModel, models, ref effective, false);
-    cancelInvoice = models.GetTable<InvoiceItem>().InquireVoidInvoice(_viewModel, models, ref effective);
-    cancelAllowance = models.GetTable<InvoiceAllowance>().InquireVoidAllowance(_viewModel, models, ref effective);
-
+    //查詢一律在背景作業內以自己的 ModelSource 重新建立，此處不再預先組查詢。
     profile = Context.GetUser();
 
 }
@@ -281,16 +298,24 @@
 @{
     ProcessRequest processItem = new ProcessRequest
     {
-        Sender = profile?.UID,
+        Sender = profile?.Entity.UID,
         SubmitDate = DateTime.Now,
         ProcessStart = DateTime.Now,
         ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
     };
 
-    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.GetTable<ProcessRequest>().Add(processItem);
     models.SubmitChanges();
 
-    SaveAsExcel(processItem.TaskID, processItem.ResponsePath);
+    int taskID = processItem.TaskID;
+    String resultFile = processItem.ResponsePath;
+    InquireInvoiceViewModel jobViewModel = _viewModel;
+
+    //背景作業已改為自建 ModelSource，這個頁面自己 new 出來的 context 可以在此釋放。
+    models.Dispose();
+
+    Context.EnqueueBackgroundWork("Notification/DownloadDailyReport",
+        _ => SaveAsExcel(taskID, resultFile, jobViewModel));
 
     await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
         new AttachmentViewModel

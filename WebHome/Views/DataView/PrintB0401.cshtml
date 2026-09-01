@@ -40,8 +40,8 @@
     }
     @while ((item = _model.FirstOrDefault()) != null)
     {
-        await Html.RenderPartialAsync("~/Views/DataView/Module/B0401.cshtml", item.CDS_Document.InvoiceAllowance);
-        models.MarkPrintedLog(item.CDS_Document.InvoiceAllowance, profile);
+        await Html.RenderPartialAsync("~/Views/DataView/Module/B0401.cshtml", item.Doc.InvoiceAllowance);
+        models.MarkPrintedLog(item.Doc.InvoiceAllowance, profile.Entity);
     }
 </body>
 </html>

@@ -27,7 +27,7 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _model = (InvoiceAllowance)this.Model;
 }
-@if (_model.InvoiceAllowanceSeller.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.CancellingAllowance))
+@if (_model.InvoiceAllowanceSeller.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.CancellingAllowance))
 {
     var mailing = models.GetUserListByCompanyID(_model.InvoiceAllowanceBuyer.BuyerID)
             .Select(u => u.EMail).ToList();
@@ -40,8 +40,8 @@
     {
         foreach (var a in _model.InvoiceAllowanceDetails)
         {
-            String trackCode = a.InvoiceAllowanceItem.InvoiceNo.Substring(0, 2);
-            String no = a.InvoiceAllowanceItem.InvoiceNo.Substring(2);
+            String trackCode = a.InvoiceNo.Substring(0, 2);
+            String no = a.InvoiceNo.Substring(2);
             var invoice = models.GetTable<InvoiceItem>().Where(i => i.TrackCode == trackCode && i.No == no).FirstOrDefault();
             if (invoice != null)
             {
@@ -54,10 +54,10 @@
 
     if (!String.IsNullOrEmpty(mailTo))
     {
-        var enterprise = _model.InvoiceAllowanceSeller.Organization.EnterpriseGroupMember.FirstOrDefault();
-        var smtpSettings = _model.InvoiceAllowanceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+        var enterprise = _model.InvoiceAllowanceSeller.Seller.EnterpriseGroupMember.FirstOrDefault();
+        var smtpSettings = _model.InvoiceAllowanceSeller.Seller.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
-        String Subject = $"{(enterprise?.EnterpriseGroup.EnterpriseName)} 折讓證明作廢通知(折讓證明單號碼:{_model.AllowanceNumber})";
+        String Subject = $"{(enterprise?.Enterprise.EnterpriseName)} 折讓證明作廢通知(折讓證明單號碼:{_model.AllowanceNumber})";
         String body = (await Html.PartialAsync("~/Views/Notification/Module/IssuedAllowanceCancellation.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
 
         body.SendMailMessage(mailTo, Subject, smtpSettings);

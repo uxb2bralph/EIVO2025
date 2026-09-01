@@ -30,6 +30,7 @@ using Microsoft.Net.Http.Headers;
 using WebHome.Helper.Security.Authorization;
 using ModelCore.Models;
 using ModelCore.Helper;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers
 {
@@ -41,7 +42,7 @@ namespace WebHome.Controllers
 
         protected ModelSourceInquiry<InvoiceItem> createModelInquiry()
         {
-            UserProfile userProfile = HttpContext.GetUser();
+            UserProfileWrapper userProfile = HttpContext.GetUser();
 
             return (ModelSourceInquiry<InvoiceItem>)(new InquireEffectiveInvoice { })
                 .Append(new InquireWinningInvoice { })
@@ -74,19 +75,24 @@ namespace WebHome.Controllers
             //return View("~/Views/WinningInvoice/ReportResult.cshtml", items);
         }
 
-        private IQueryable<WinningInvoiceReportItem> InquireWinningInvoice(InquireInvoiceViewModel viewModel)
+        /// <summary>
+        /// 中獎統計查詢，抽成不依賴 HttpContext 的靜態方法，讓背景作業（CreateXlsx.cshtml）
+        /// 能以自己的 DbContext 重建同一份查詢。
+        /// </summary>
+        public static IQueryable<WinningInvoiceReportItem> BuildWinningInvoiceReport(
+            CommonLib.Core.DataWork.GenericDbContext<ApplicationDbContext> models,
+            InquireInvoiceViewModel viewModel,
+            UserProfileWrapper? profile)
         {
-            ViewBag.ViewModel = viewModel;
-            //ViewBag.HasQuery = true;
-            var profile = HttpContext.GetUser();
-            DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
-            DataSource.BuildQuery();
-            DataSource.Items = DataSource.Items.Where(i => i.InvoiceWinningNumber != null);
+            ModelSource<InvoiceItem> dataSource = new ModelSource<InvoiceItem>(models);
+            dataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
+            dataSource.BuildQuery();
+            dataSource.Items = dataSource.Items.Where(i => i.InvoiceWinningNumber != null);
 
-            var items = DataSource.Items
+            return dataSource.Items
                 .GroupBy(i => i.SellerID)
                 .OrderBy(g => g.Key)
-                .Join(models!.GetTable<Organization>(),
+                .Join(models.GetTable<Organization>(),
                     g => g.Key, o => o.CompanyID, (g, o) =>
                         new WinningInvoiceReportItem
                         {
@@ -97,6 +103,14 @@ namespace WebHome.Controllers
                             DonationCount = g.Where(i => i.InvoiceDonation != null).Count()
                         }
                 );
+        }
+
+        private IQueryable<WinningInvoiceReportItem> InquireWinningInvoice(InquireInvoiceViewModel viewModel)
+        {
+            ViewBag.ViewModel = viewModel;
+            //ViewBag.HasQuery = true;
+            var profile = HttpContext.GetUser();
+            var items = BuildWinningInvoiceReport(models!, viewModel, profile);
             return items;
         }
 
@@ -152,7 +166,9 @@ namespace WebHome.Controllers
 
         public ActionResult CreateXlsx(InquireInvoiceViewModel viewModel)
         {
-            _dbInstance = false;
+            //原本以 _dbInstance = false 阻止請求結束時釋放 DbContext，
+            //供 CreateXlsx.cshtml 的 Task.Run 續用；該報表已改為背景作業自建 DbContext，
+            //這裡恢復正常釋放。
             IQueryable<WinningInvoiceReportItem> items = InquireWinningInvoice(viewModel);
             viewModel.RecordCount = items.Count();
 

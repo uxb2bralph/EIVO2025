@@ -34,17 +34,16 @@
     _model = (InvoiceItem)this.Model;
     _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
 
-    _productItem = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
-        .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+    _productItem = models.GetTable<InvoiceProduct>().Where(p => p.Invoice.Any(i => i.InvoiceID == _model.InvoiceID))
         .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, i => i.ProductID, (p, i) => i).ToArray();
 
     _buyer = _model.InvoiceBuyer;
     if (_buyer != null && _buyer.BuyerID.HasValue)
     {
-        _buyerOrg = _buyer.Organization;
+        _buyerOrg = _buyer.Buyer;
     }
 
-    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Organization.OrganizationStatus.EntrustToPrint != true;
+    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Seller.OrganizationStatus.EntrustToPrint != true;
 
 }
 @if (_model != null)
@@ -74,7 +73,7 @@
                                     總計 @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))
                                 </div>
                                 <div>
-                                    賣方@(_model.Organization.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
+                                    賣方@(_model.Seller.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
                                 </div>
                             </div>
                         </div>
@@ -97,7 +96,7 @@
                             {
                                 var item = _productItem[_itemIdx];
                                 <tr class="content_box">
-                                    <td style="width:360px;"><p class="productname">@(item.InvoiceProduct.Brief)</p></td>
+                                    <td style="width:360px;"><p class="productname">@(item.Product.Brief)</p></td>
                                     <td style="width:80px;"><p class="quantity">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</p></td>
                                     <td style="width:180px;"><p class="price">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</p></td>
                                     <td style="width:180px;"><p class="totalPrice">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</p></td>
@@ -108,7 +107,7 @@
                                 <tr class="content_box">
                                     <td colspan="4" style="border-top: 1px dotted #808080;">
                                         <div style="font-size: 12pt; font-weight: bold; width:210px;float:left;">
-                                            總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;
+                                            總計：@(_model.Product.Count)項&nbsp;&nbsp;
                                         </div>
                                         <div style="font-size: 12pt; font-weight: bold; width:210px;float:right;">
                                             金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))&nbsp;&nbsp;

@@ -62,10 +62,10 @@ namespace WebHome.Controllers
                     break;
             }
 
-            DataLoadOptions ops = new DataLoadOptions();
-            ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceBuyer);
-            ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceSeller);
-            models.DataContext.LoadOptions = ops;
+            //DataLoadOptions ops = new DataLoadOptions();
+            //ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceBuyer);
+            //ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceSeller);
+            //models.DataContext.LoadOptions = ops;
 
             var modelSource = new ModelSource<InvoiceAllowance>(models);
 
@@ -157,10 +157,10 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            DataLoadOptions ops = new DataLoadOptions();
-            ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceBuyer);
-            ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceSeller);
-            models.DataContext.LoadOptions = ops;
+            //DataLoadOptions ops = new DataLoadOptions();
+            //ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceBuyer);
+            //ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceSeller);
+            //models.DataContext.LoadOptions = ops;
 
             ModelSource<InvoiceAllowance> modelSource = new ModelSource<InvoiceAllowance>(models);
 
@@ -168,8 +168,8 @@ namespace WebHome.Controllers
             modelSource.Inquiry = viewModel.CreateAllowanceInquiry(profile);
             modelSource.BuildQuery();
 
-            var prodItems = models.GetTable<InvoiceAllowanceDetail>()
-                                .Join(models.GetTable<InvoiceAllowanceItem>(), d => d.ItemID, p => p.ItemID, (d, p) => new { d.AllowanceID, p.InvoiceNo, p.Amount, p.Tax, p.Remark })
+            var prodItems = models.GetTable<InvoiceAllowance>()
+                                .SelectMany(a => a.InvoiceAllowanceDetails, (a, p) => new { a.AllowanceID, p.InvoiceNo, p.Amount, p.Tax, p.Remark })
                                 .GroupBy(a => new { a.AllowanceID, a.InvoiceNo, a.Remark })
                                 .Select(g => new { g.Key, TotalAmt = g.Sum(v => v.Amount), TotalTax = g.Sum(v => v.Tax) });
 
@@ -233,8 +233,8 @@ namespace WebHome.Controllers
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceAllowance> allowanceItems = result.Model as IQueryable<InvoiceAllowance>;
 
-            var prodItems = models.GetTable<InvoiceAllowanceDetail>()
-                                .Join(models.GetTable<InvoiceAllowanceItem>(), d => d.ItemID, p => p.ItemID, (d, p) => new { d.AllowanceID, p.InvoiceNo, p.Amount, p.Tax, p.Remark })
+            var prodItems = models.GetTable<InvoiceAllowance>()
+                                .SelectMany(a => a.InvoiceAllowanceDetails, (a, p) => new { a.AllowanceID, p.InvoiceNo, p.Amount, p.Tax, p.Remark })
                                 .GroupBy(a => new { a.AllowanceID, a.InvoiceNo, a.Remark })
                                 .Select(g => new { g.Key, TotalAmt = g.Sum(v => v.Amount), TotalTax = g.Sum(v => v.Tax) });
 
@@ -251,7 +251,7 @@ namespace WebHome.Controllers
                     未稅金額 = g.TotalAmt,
                     稅額 = g.TotalTax,
                     含稅金額 = g.TotalAmt + g.TotalTax, //i.TotalAmount + i.TaxAmount,
-                    幣別 = i.CurrencyID.HasValue ? i.CurrencyType.AbbrevName : null,
+                    幣別 = i.CurrencyID.HasValue ? i.Currency.AbbrevName : null,
                     買受人名稱 = i.InvoiceAllowanceBuyer.CustomerName,
                     買受人統編 = i.InvoiceAllowanceBuyer.ReceiptNo,
                     連絡人名稱 = i.InvoiceAllowanceBuyer.ContactName,
@@ -264,12 +264,12 @@ namespace WebHome.Controllers
 
             ProcessRequest processItem = new ProcessRequest
             {
-                Sender = HttpContext.GetUser()?.UID,
+                Sender = HttpContext.GetUser()?.Entity.UID,
                 SubmitDate = DateTime.Now,
                 ProcessStart = DateTime.Now,
                 ResponsePath = System.IO.Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
             };
-            models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+            models.GetTable<ProcessRequest>().Add(processItem);
             models.SubmitChanges();
 
             SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items);
@@ -345,7 +345,7 @@ namespace WebHome.Controllers
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.ExceptionLog = new ExceptionLog
+                                    taskItem.Log = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };

@@ -38,14 +38,14 @@
         CreateNew = true,
     };
 
-    String notificationView = _model?.Organization?.OrganizationStatus.CustomNotificationView;
+    String notificationView = _model?.Seller?.OrganizationStatus.CustomNotificationView;
 
     //Request.SaveAs(System.IO.Path.Combine(Logger.LogDailyPath, String.Format("IssueC0401_{0}.txt", DateTime.Now.Ticks)), true);
 }
 
 @if (_viewModel.ForTest == true)
 {
-    if (_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle))
+    if (_model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle))
     {
         await Html.RenderPartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model);
     }
@@ -54,7 +54,7 @@
         await Html.RenderPartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model);
     }
 }
-else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Issuing))
+else if (_viewModel.ForceTodo == true || _model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Issuing))
 {
     var mailing = models.GetUserListByCompanyID(_model.InvoiceBuyer.BuyerID)
             .Select(u => u.EMail).ToList();
@@ -64,18 +64,18 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
             mailing.Where(m => m != null));
 
     Logger.Debug($"InvoiceNo:{_model.TrackCode}{_model.No},mail to:{mailTo}");
-    var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+    var smtpSettings = _model.InvoiceSeller.Seller.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
     if (!String.IsNullOrEmpty(mailTo))
     {
 
-        String subject = $"{_model.Organization.OrganizationExtension?.MailSubjectAlias ?? _model.Organization.CompanyName} 電子發票{(_model.InvoiceDonation == null ? "開立" : "捐贈")}通知(發票號碼:{_model.TrackCode}{_model.No})";
+        String subject = $"{_model.Seller.OrganizationExtension?.MailSubjectAlias ?? _model.Seller.CompanyName} 電子發票{(_model.InvoiceDonation == null ? "開立" : "捐贈")}通知(發票號碼:{_model.TrackCode}{_model.No})";
         if (_model.InvoiceBuyer.IsB2C()
-            || _model.Organization.OrganizationStatus.UseB2BStandalone == true)
+            || _model.Seller.OrganizationStatus.UseB2BStandalone == true)
         {
 
             IHtmlContent htmlContent =
-                _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
+                _model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
                     ? await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model)
                     : await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model);
 
@@ -117,14 +117,14 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
             {
                 var attached = _model.CDS_Document.Attachment.Select(a => a.StoredPath).ToList();
                 attached.Insert(0, pdfFile);
-                String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
+                String body = _model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
                     ? (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder)
                     : (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
                 body.SendMailMessage(mailTo, subject, smtpSettings, attached.ToArray());
             }
             else
             {
-                String body = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
+                String body = _model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
                     ? (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedCBE.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder)
                     : (await Html.PartialAsync(notificationView ?? "~/Views/Notification/Module/IssuedC0401.cshtml", _model)).RenderHtmlContentToString(HtmlEncoder);
                 body.SendMailMessage(mailTo, subject, smtpSettings, pdfFile);

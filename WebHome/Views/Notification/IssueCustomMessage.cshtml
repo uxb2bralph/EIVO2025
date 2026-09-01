@@ -18,6 +18,7 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
 
 @{
 
@@ -38,7 +39,7 @@ else
 {
     String subject = "中獎電子發票郵件通知（更正通知）";
     String body = Html.Partial("~/Views/Notification/Module/CustomMessage.cshtml").RenderHtmlContentToString(HtmlEncoder);
-    var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+    var smtpSettings = _model.InvoiceSeller.Seller.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
     var items = models.GetTable<InvoiceItem>()
             .Where(i => i.InvoiceCancellation == null)
@@ -55,7 +56,8 @@ else
                     w => w.WinningID, u => u.WinningID, (w, u) => w),
                 i => i.InvoiceID, w => w.InvoiceID, (i, w) => i);
 
-    foreach (var item in items)
+    //迴圈內會存取 InvoiceBuyer，先一次載入避免 N+1。
+    foreach (var item in items.Include(i => i.InvoiceBuyer).ToList())
     {
         var mailTo = item.InvoiceBuyer.EMail.GetEfficientString();
 

@@ -17,7 +17,7 @@
 @{
 
     ModelSource<InvoiceItem> models;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
 
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
@@ -28,7 +28,7 @@
 <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
         <td>
-            @if (_profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo != "0000000000")
+            @if (_profile.CurrentUserRole.OrganizationCategory.Company.ReceiptNo != "0000000000")
             {
                 <button type="button" class="btn" name="paperStyle" value="B2B" onclick="uiInvoiceQuery.print('B2B');">B2B格式列印</button>
                 @*(列印兌獎訊息：<input name="printBack" type="radio" value="true" />是

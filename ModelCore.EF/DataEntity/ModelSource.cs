@@ -1,4 +1,5 @@
 ﻿using CommonLib.Core.DataWork;
+using ModelCore.Locale;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,11 +12,17 @@ namespace ModelCore.DataEntity
         public ModelSource() : base() { }
         public ModelSource(GenericDbContext<ApplicationDbContext> manager) : base(manager) { }
 
-        //public Naming.DataResultMode ResultModel
-        //{
-        //    get;
-        //    set;
-        //}
+        public Naming.DataResultMode ResultModel
+        {
+            get;
+            set;
+        }
+
+        public int InquiryPageSize
+        { get; set; }
+
+        public int InquiryPageIndex
+        { get; set; }
 
     }
 

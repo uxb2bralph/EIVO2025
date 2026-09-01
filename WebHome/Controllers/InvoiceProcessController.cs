@@ -1,6 +1,6 @@
 ﻿using ClosedXML.Excel;
 using CommonLib.Core.Utility;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using CommonLib.Utility;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +35,7 @@ using WebHome.Models;
 using WebHome.Models.ViewModel;
 using WebHome.Properties;
 using ZXing;
+using CommonLib.DataAccess;
 
 namespace WebHome.Controllers
 {
@@ -448,7 +449,7 @@ namespace WebHome.Controllers
                     是否中獎 = i.InvoiceWinningNumber.PrizeType,
                     載具類別 = i.InvoiceCarrier.CarrierType,
                     載具號碼 = i.InvoiceCarrier.CarrierNo,
-                    備註 = i.InvoiceDetails.First().InvoiceProduct.InvoiceProductItem.First().Remark
+                    備註 = i.Product.First().InvoiceProductItem.First().Remark
                     //備註 = String.Join("", i.InvoiceDetails.Select(t => t.InvoiceProduct.InvoiceProductItem.FirstOrDefault())
                     //    .Select(p => p.Remark))
                 });
@@ -609,7 +610,7 @@ namespace WebHome.Controllers
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.ExceptionLog = new ExceptionLog
+                                    taskItem.Log = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };
@@ -657,11 +658,11 @@ namespace WebHome.Controllers
                                     序號 = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : null,
                                     發票開立人 = i.InvoiceSeller.CustomerName,
                                     開立人統編 = i.InvoiceSeller.ReceiptNo,
-                                    營業人店別 = i.Organization.OrganizationExtension.CustomerNo,
+                                    營業人店別 = i.Seller.OrganizationExtension.CustomerNo,
                                     未稅金額 = i.InvoiceAmountType.SalesAmount,
                                     稅額 = i.InvoiceAmountType.TaxAmount,
                                     含稅金額 = i.InvoiceAmountType.TotalAmount,
-                                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : null,
+                                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.Currency.AbbrevName : null,
                                     買受人名稱 = i.InvoiceBuyer.CustomerName,
                                     買受人統編 = i.InvoiceBuyer.ReceiptNo,
                                     連絡人名稱 = i.InvoiceBuyer.ContactName,
@@ -692,11 +693,11 @@ namespace WebHome.Controllers
                                     序號 = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : null,
                                     發票開立人 = i.InvoiceSeller.CustomerName,
                                     開立人統編 = i.InvoiceSeller.ReceiptNo,
-                                    營業人店別 = i.Organization.OrganizationExtension.CustomerNo,
+                                    營業人店別 = i.Seller.OrganizationExtension.CustomerNo,
                                     未稅金額 = i.InvoiceAmountType.SalesAmount,
                                     稅額 = i.InvoiceAmountType.TaxAmount,
                                     含稅金額 = i.InvoiceAmountType.TotalAmount,
-                                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : null,
+                                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.Currency.AbbrevName : null,
                                     買受人名稱 = i.InvoiceBuyer.CustomerName,
                                     買受人統編 = i.InvoiceBuyer.ReceiptNo,
                                     //連絡人名稱 = i.InvoiceBuyer.ContactName,
@@ -717,12 +718,12 @@ namespace WebHome.Controllers
 
             ProcessRequest processItem = new ProcessRequest
             {
-                Sender = HttpContext.GetUser()?.UID,
+                Sender = HttpContext.GetUser()?.Entity.UID,
                 SubmitDate = DateTime.Now,
                 ProcessStart = DateTime.Now,
                 ResponsePath = System.IO.Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
             };
-            models!.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+            models!.GetTable<ProcessRequest>().Add(processItem);
             models!.SubmitChanges();
 
             SqlCommand sqlCmd = (SqlCommand)models!.GetCommand(items);
@@ -738,7 +739,7 @@ namespace WebHome.Controllers
 
         }
 
-        static void saveAsExcel(int taskID, String resultFile, GenericManager<EIVOEntityDataContext> db, IQueryable<dynamic> items, bool hasAttachment)
+        static void saveAsExcel(int taskID, String resultFile, GenericDbContext<ApplicationDbContext> db, IQueryable<dynamic> items, bool hasAttachment)
         {
             Task.Run(() =>
             {
@@ -803,7 +804,7 @@ namespace WebHome.Controllers
                                     DataContent = exception.Message,
                                     LogTime = DateTime.Now,
                                 };
-                                db.GetTable<ExceptionLog>().InsertOnSubmit(logItem);
+                                db.GetTable<ExceptionLog>().Add(logItem);
                                 db.SubmitChanges();
 
                                 taskItem.LogID = logItem.LogID;
@@ -830,7 +831,9 @@ namespace WebHome.Controllers
         public ActionResult CreateXlsx2024(InquireInvoiceViewModel viewModel)
         {
             //this.models = new ModelSource<InvoiceItem>();
-            _dbInstance = false;
+            //原本以 _dbInstance = false 阻止請求結束時釋放 DbContext，
+            //供 CreateXlsx2024.cshtml 的 Task.Run 續用；該報表已改為背景作業自建 DbContext，
+            //這裡恢復正常釋放。
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> items = result.Model as IQueryable<InvoiceItem>;
             viewModel.RecordCount = items?.Count();
@@ -1141,7 +1144,7 @@ namespace WebHome.Controllers
                             DocID = i
                         }).ToList();
 
-                models!.GetTable<DocumentAuthorization>().InsertAllOnSubmit(items);
+                models!.GetTable<DocumentAuthorization>().AddRange(items);
                 models!.SubmitChanges();
 
                 ViewBag.Message = "下列發票已核准重印!!\r\n" + String.Join("\r\n", items.Select(i => i.CDS_Document.InvoiceItem.TrackCode + i.CDS_Document.InvoiceItem.No));
@@ -1298,7 +1301,7 @@ namespace WebHome.Controllers
         //            var c0401 = item.CreateF0401().ConvertToXml();
         //            c0401.Save(System.IO.Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
 
-        //            models!.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
+        //            models!.GetTable<ExceptionLog>().Add(new ExceptionLog
         //            {
         //                DataContent = c0401.OuterXml,
         //                CompanyID = item.SellerID,
@@ -1349,7 +1352,7 @@ namespace WebHome.Controllers
         //            var c0401 = item.CreateF0401().ConvertToXml();
         //            c0401.Save(System.IO.Path.Combine(storedPath, $"INV0401_{item.TrackCode}{item.No}_{DateTime.Now.Ticks}.xml"));
 
-        //            models!.GetTable<ExceptionLog>().InsertOnSubmit(new ExceptionLog
+        //            models!.GetTable<ExceptionLog>().Add(new ExceptionLog
         //            {
         //                DataContent = c0401.OuterXml,
         //                CompanyID = item.SellerID,
@@ -1414,20 +1417,20 @@ namespace WebHome.Controllers
         {
             if (chkItem != null && chkItem.Count() > 0)
             {
-                using (var downloadModels = new GenericManager<EIVOEntityDataContext>())
+                using (var downloadModels = new GenericDbContext<ApplicationDbContext>())
                 {
                     var ops = new DataLoadOptions();
-                    ops.LoadWith<InvoiceItem>(i => i.InvoiceBuyer);
-                    ops.LoadWith<InvoiceItem>(i => i.InvoiceAmountType);
-                    ops.LoadWith<InvoiceAmountType>(i => i.CurrencyType);
-                    ops.LoadWith<InvoiceItem>(i => i.InvoiceSeller);
-                    ops.LoadWith<InvoiceItem>(i => i.Organization);
-                    ops.LoadWith<InvoiceItem>(i => i.InvoiceCarrier);
-                    ops.LoadWith<InvoiceItem>(i => i.InvoiceDonation);
-                    ops.LoadWith<InvoiceItem>(i => i.InvoiceDetails);
-                    ops.LoadWith<InvoiceDetail>(i => i.InvoiceProduct);
-                    ops.LoadWith<InvoiceProduct>(i => i.InvoiceProductItem);
-                    downloadModels!.DataContext.LoadOptions = ops;
+                    //ops.LoadWith<InvoiceItem>(i => i.InvoiceBuyer);
+                    //ops.LoadWith<InvoiceItem>(i => i.InvoiceAmountType);
+                    //ops.LoadWith<InvoiceAmountType>(i => i.Currency);
+                    //ops.LoadWith<InvoiceItem>(i => i.InvoiceSeller);
+                    //ops.LoadWith<InvoiceItem>(i => i.Seller);
+                    //ops.LoadWith<InvoiceItem>(i => i.InvoiceCarrier);
+                    //ops.LoadWith<InvoiceItem>(i => i.InvoiceDonation);
+                    //ops.LoadWith<InvoiceItem>(i => i.Product);
+                    //ops.LoadWith<InvoiceDetail>(i => i.InvoiceProduct);
+                    //ops.LoadWith<InvoiceProduct>(i => i.InvoiceProductItem);
+                    //downloadModels!.DataContext.LoadOptions = ops;
 
                     var idList = chkItem.ToList();
                     var items = downloadModels!.GetTable<InvoiceItem>()
@@ -1726,7 +1729,7 @@ namespace WebHome.Controllers
                         StoredPath = fullPath,
                         DocID = viewModel.DocID,
                     };
-                models!.GetTable<Attachment>().InsertOnSubmit(item);
+                models!.GetTable<Attachment>().Add(item);
 
                 models!.SubmitChanges();
 

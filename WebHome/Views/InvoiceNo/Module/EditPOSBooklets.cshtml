@@ -36,10 +36,10 @@
                 <table class="table table-striped table-bordered table-hover">
                     <tr>
                         <th>
-                            (@(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo))@(_model.InvoiceTrackCodeAssignment.Organization.CompanyName)
+                            (@(_model.InvoiceTrackCodeAssignment.Seller.ReceiptNo))@(_model.InvoiceTrackCodeAssignment.Seller.CompanyName)
                         </th>
                         <td>
-                            @(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)年@(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1, _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2))
+                            @(_model.InvoiceTrackCodeAssignment.Track.Year)年@(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.Track.PeriodNo * 2 - 1, _model.InvoiceTrackCodeAssignment.Track.PeriodNo * 2))
                         </td>
                         <th>
                             @(_model.StartNo) ~ @(_model.EndNo)
@@ -56,7 +56,7 @@
                             本組數
                         </td>
                     </tr>
-                    @foreach (var item in _model.InvoiceTrackCodeAssignment.Organization.POSDevice)
+                    @foreach (var item in _model.InvoiceTrackCodeAssignment.Seller.POSDevice)
                     {
                         <tr>
                             <th colspan="1">

@@ -30,10 +30,10 @@
     _model = (InvoiceAllowance)this.Model;
 
 }
-@if (_model.InvoiceAllowanceSeller.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCustomStyle))
+@if (_model.InvoiceAllowanceSeller.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCustomStyle))
 {
     ViewBag.MailTitle = "發票折讓證明作廢";
-    await Html.RenderPartialAsync("~/Views/Notification/Module/MailTitle.cshtml", _model.InvoiceAllowanceSeller.Organization);
+    await Html.RenderPartialAsync("~/Views/Notification/Module/MailTitle.cshtml", _model.InvoiceAllowanceSeller.Seller);
 }
 else
 {
@@ -46,9 +46,9 @@ else
 
 }
 @{ await Html.RenderPartialAsync("~/Views/Notification/Module/AllowanceMailView.cshtml", _model);}
-@if (_model.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomNotification != null)
+@if (_model.InvoiceAllowanceSeller.Seller.OrganizationExtension?.CustomNotification != null)
 {
-    Write(new HtmlString(System.Web.HttpUtility.HtmlDecode(_model.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomNotification)));
+    Write(new HtmlString(System.Web.HttpUtility.HtmlDecode(_model.InvoiceAllowanceSeller.Seller.OrganizationExtension?.CustomNotification)));
     <br />
 }
 信件寄送時間：@(DateTime.Now)

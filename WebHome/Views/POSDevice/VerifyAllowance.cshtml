@@ -88,7 +88,7 @@
                 for (int i = 0; i < allowance.AllowanceItem.Length; i++)
                 {
                     var allowanceItem = allowance.AllowanceItem[i];
-                    var invoice = order?.InvoiceItem ?? MatchAllowanceItem(allowance, allowanceItem);
+                    var invoice = order?.Invoice ?? MatchAllowanceItem(allowance, allowanceItem);
 
                     if (invoice != null)
                     {

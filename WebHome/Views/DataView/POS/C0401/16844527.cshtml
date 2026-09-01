@@ -38,17 +38,16 @@
     _model = (InvoiceItem)this.Model;
     _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
 
-    _productItem = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
-        .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+    _productItem = models.GetTable<InvoiceProduct>().Where(p => p.Invoice.Any(i => i.InvoiceID == _model.InvoiceID))
         .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, i => i.ProductID, (p, i) => i).ToArray();
 
     _buyer = _model.InvoiceBuyer;
     if (_buyer != null && _buyer.BuyerID.HasValue)
     {
-        _buyerOrg = _buyer.Organization;
+        _buyerOrg = _buyer.Buyer;
     }
 
-    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Organization.OrganizationStatus.EntrustToPrint != true;
+    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Seller.OrganizationStatus.EntrustToPrint != true;
 
 }
 @if (_model != null)
@@ -60,9 +59,9 @@
                 <tr>
                     <td>
                         <div class="cutfield" style="/*width:5cm;*/border-top:0px;border:0px;/*font-weight:bold;*/">
-                            @if (_model.Organization.LogoURL != null)
+                            @if (_model.Seller.LogoURL != null)
                             {
-                                <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Organization.LogoURL))' />
+                                <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Seller.LogoURL))' />
                             }
                             else
                             {
@@ -87,7 +86,7 @@
               ? "不得扣抵"
               : String.Format("格式 {0}", ((int)_model.InvoiceType.Value).InvoiceTypeToFormat()))<br />
                                 隨機碼 @(_model.RandomNo)&nbsp;&nbsp;&nbsp;&nbsp; 總計 @(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))<br />
-                                賣方@(_model.Organization.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
+                                賣方@(_model.Seller.ReceiptNo) @(_buyer.IsB2C() ? null : String.Format("買方{0}", _buyer.ReceiptNo))
                             </p>
                             <div class="code1" style="padding-top:0;">
                                 @{ String data = $"{_model.InvoiceDate.Value.Year - 1911:000}{(_model.InvoiceDate.Value.Month + 1) / 2 * 2:00}{_model.TrackCode}{_model.No}{_model.RandomNo}";}
@@ -166,7 +165,7 @@
                 {
                     var item = _productItem[_itemIdx];
                     <tr>
-                        <td colspan="3" height="15" valign="top">@(item.InvoiceProduct.Brief)</td>
+                        <td colspan="3" height="15" valign="top">@(item.Product.Brief)</td>
                     </tr>
                     <tr>
                         <td align="right" valign="top">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</td>
@@ -179,7 +178,7 @@
                     <tr>
                         <td colspan="3">
                             <p style="border-top: 1px dotted #808080;">
-                                <span style="font-size: 8pt;">總計：@(_model.InvoiceDetails.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
+                                <span style="font-size: 8pt;">總計：@(_model.Product.Count)項&nbsp;&nbsp;金額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.TotalAmount))</span><br />
                                 @{
                                     String customContent = _model.CDS_Document.CustomerDefined?.DataContent.GetEfficientString();
                                     if (customContent != null)

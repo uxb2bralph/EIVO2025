@@ -28,10 +28,10 @@
     _model = (InvoiceNoInterval)this.Model;
 }
 <tr>
-    <td>@(_model.InvoiceTrackCodeAssignment.Organization.ReceiptNo)</td>
-    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)</td>
-    <td>@(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1, _model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2))</td>
-    <td>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)</td>
+    <td>@(_model.InvoiceTrackCodeAssignment.Seller.ReceiptNo)</td>
+    <td>@(_model.InvoiceTrackCodeAssignment.Track.Year)</td>
+    <td>@(String.Format("{0:00}-{1:00}月", _model.InvoiceTrackCodeAssignment.Track.PeriodNo * 2 - 1, _model.InvoiceTrackCodeAssignment.Track.PeriodNo * 2))</td>
+    <td>@(_model.InvoiceTrackCodeAssignment.Track.TrackCode)</td>
     <td>
         <input type="text" name="StartNo" class="form-control" data-role="edit" placeholder="請輸入配號區間起始號碼" value="@(String.Format("{0:00000000}",_model.StartNo))" />
     </td>

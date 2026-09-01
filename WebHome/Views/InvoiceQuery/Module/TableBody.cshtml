@@ -11,12 +11,15 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
 
 @using CommonLib.DataAccess
 
 @{
 
-    _model = (IQueryable<Organization>)this.Model;
+    //DataItem 每一列會存取 OrganizationExtension，先一次載入避免 N+1（須在 Skip/Take 之前）。
+    _model = ((IQueryable<Organization>)this.Model)
+        .Include(o => o.OrganizationExtension);
     _viewModel = ViewBag.ViewModel as InquireInvoiceViewModel;
 
     _pageSize = _viewModel.PageSize ?? 10;
@@ -48,7 +51,7 @@
 @{
     int idx = 0;
 }
-@foreach (var item in _items)
+@foreach (var item in _items.ToList())
 {
     idx++;
     await Html.RenderPartialAsync("~/Views/InvoiceQuery/Module/DataItem.cshtml", item);

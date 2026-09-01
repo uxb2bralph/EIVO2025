@@ -27,7 +27,7 @@
     if (_model != null && _model.Count() > 0)
     {
         decimal? taxFreeAmt = null;
-        foreach (var item in _model)
+        foreach (var item in _model.ToList())
         {
             if (item.InvoiceCancellation == null)
             {
@@ -68,13 +68,12 @@
     }
     if (_items != null && _items.Count() > 0)
     {
-        var details = _items.Join(models.GetTable<InvoiceAllowanceDetail>(), a => a.AllowanceID, d => d.AllowanceID, (a, d) => d)
-                .Select(d => d.InvoiceAllowanceItem)
+        var details = _items.SelectMany(a => a.InvoiceAllowanceDetails)
                 .GroupBy(i => i.InvoiceNo);
 
-        foreach (var item in details)
+        foreach (var item in details.ToList())
         {
-            var allowance = item.First().InvoiceAllowanceDetail.First().InvoiceAllowance;
+            var allowance = item.First().Allowance.First();
             Output.Write("33");     //	格式代號	X(002)	1	2
             Output.Write(String.Format("{0,9}", _viewModel.TaxNo));       //	申報營業人稅籍編號	X(009)	3	11
             Output.Write(String.Format("{0:d7}", idx++));       //	流水號	X(007)	12	18

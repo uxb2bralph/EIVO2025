@@ -16,21 +16,30 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
+@using WebHome.Infrastructure.BackgroundTasks
 
 @functions
 {
-    static void SaveAsERP(int taskID, String resultFile, InquireInvoiceViewModel viewModel, UserProfile profile)
+    //背景作業：由 BackgroundTaskService 於請求結束後執行。
+    //使用者只以 uid/roleIndex 傳入，在此以自己的 ModelSource 重新載入，
+    //不可沿用請求的 UserProfileWrapper（其實體由請求的 context 追蹤）。
+    static void SaveAsERP(int taskID, String resultFile, InquireInvoiceViewModel viewModel, int? uid, int? roleIndex)
     {
-        Task.Run(() =>
-        {
             try
             {
                 using (ModelSource db = new ModelSource())
                 {
+                    UserProfileWrapper? profile = db.ReloadProfile(uid, roleIndex);
                     IQueryable<InvoiceAllowance> items = db.GetTable<InvoiceAllowance>    ();
                     bool effective = false;
                     items = db.FilterAllowanceByRole(profile, items)
-                .InquireAllowance(viewModel, db, ref effective);
+                .InquireAllowance(viewModel, db, ref effective)
+                        //輸出每一列會用到的導覽屬性一次載入，避免逐筆 lazy loading。
+                        .Include(a => a.InvoiceAllowanceSeller!).ThenInclude(s => s.Seller!).ThenInclude(o => o.OrganizationExtension)
+                        .Include(a => a.InvoiceAllowanceDetails)
+                        .Include(a => a.InvoiceAllowanceBuyer)
+                        .Include(a => a.InvoiceAllowanceCancellation);
 
                     Exception exception = null;
 
@@ -39,9 +48,9 @@
                         String tmpPath = System.IO.Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.tmp");
                         using (StreamWriter writer = new StreamWriter(tmpPath))
                         {
-                            foreach (var item in items)
+                            foreach (var item in items.ToList())
                             {
-                                writer.WriteLine($"{item.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomerNo,8}{item.AllowanceDate.Value.Year - 1911:0000}{item.AllowanceDate:MMdd}{item.InvoiceAllowanceDetails.FirstOrDefault()?.InvoiceAllowanceItem.InvoiceNo}{(item.InvoiceAllowanceBuyer.IsB2C() ? "        " : item.InvoiceAllowanceBuyer.ReceiptNo)}{item.TotalAmount,8:########}{item.TaxAmount,8:########}{item.TotalAmount + item.TaxAmount,8:########}{(item.InvoiceAllowanceCancellation != null ? "Y" : " ")}");
+                                writer.WriteLine($"{item.InvoiceAllowanceSeller.Seller.OrganizationExtension?.CustomerNo,8}{item.AllowanceDate.Value.Year - 1911:0000}{item.AllowanceDate:MMdd}{item.InvoiceAllowanceDetails.FirstOrDefault()?.InvoiceNo}{(item.InvoiceAllowanceBuyer.IsB2C() ? "        " : item.InvoiceAllowanceBuyer.ReceiptNo)}{item.TotalAmount,8:########}{item.TaxAmount,8:########}{item.TotalAmount + item.TaxAmount,8:########}{(item.InvoiceAllowanceCancellation != null ? "Y" : " ")}");
                             }
                         }
                         File.Move(tmpPath, resultFile);
@@ -65,7 +74,7 @@
                                 LogTime = DateTime.Now,
                             };
                             db.GetTable<ExceptionLog>
-                            ().InsertOnSubmit(logItem);
+                            ().Add(logItem);
                             db.SubmitChanges();
 
                             taskItem.LogID = logItem.LogID;
@@ -81,9 +90,6 @@
             {
                 Logger.Error(ex);
             }
-
-        });
-
     }
 
 }
@@ -99,15 +105,20 @@
 
     ProcessRequest processItem = new ProcessRequest
     {
-        Sender = profile?.UID,
+        Sender = profile?.Entity.UID,
         SubmitDate = DateTime.Now,
         ProcessStart = DateTime.Now,
         ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".txt"),
     };
-    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.GetTable<ProcessRequest>().Add(processItem);
     models.SubmitChanges();
 
-    SaveAsERP(processItem.TaskID, processItem.ResponsePath, _viewModel, profile);
+    int taskID = processItem.TaskID;
+    String resultFile = processItem.ResponsePath;
+    InquireInvoiceViewModel jobViewModel = _viewModel;
+    var (jobUID, jobRoleIndex) = profile.ForBackgroundWork();
+    Context.EnqueueBackgroundWork("AllowanceProcess/CreateCustomERPResult",
+        _ => SaveAsERP(taskID, resultFile, jobViewModel, jobUID, jobRoleIndex));
 
     await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
     new AttachmentViewModel

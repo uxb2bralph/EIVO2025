@@ -326,15 +326,15 @@
                 根據財政部「電子發票實施作業要點」規範，營業人將您的發票明細資料上傳到政府儲存，若您要至<a href="https://www.einvoice.nat.gov.tw/portal/btc/audit">財政部網站</a>查詢發票開立狀況，請輸入「發票號碼」及「發票日期」，即可查詢此張發票內容。
             </li>
         </ol>
-        @if (_model.Organization.OrganizationExtension?.CustomNotification != null)
+        @if (_model.Seller.OrganizationExtension?.CustomNotification != null)
         {
             <text>
-                @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.Organization.OrganizationExtension?.CustomNotification))
+                @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.Seller.OrganizationExtension?.CustomNotification))
             </text>
         }
         <p>&nbsp;</p>
         @{
-            await Html.RenderPartialAsync("~/Views/Notification/Shared/ServiceNotation.cshtml", _model.Organization);
+            await Html.RenderPartialAsync("~/Views/Notification/Shared/ServiceNotation.cshtml", _model.Seller);
         }
     </form>
 </body>

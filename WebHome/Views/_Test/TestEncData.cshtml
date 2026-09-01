@@ -13,6 +13,7 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using WebHome.Infrastructure.BackgroundTasks
 
 @{
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
@@ -128,27 +129,62 @@
             if (count > 0)
             {
                 alert("送出執行註銷筆數:" + count);
-                System.Threading.ThreadPool.QueueUserWorkItem(t =>
-                {
-                    foreach (var item in items)
-                    {
-                        try
-                        {
-                            CreateData(item, _viewModel);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error(ex);
-                        }
-                    }
-                    StoreData();
-                    models.Dispose();
-                });
+                DateTime? dateFrom = _viewModel.DateFrom;
+                DateTime? dateTo = _viewModel.DateTo;
+                String trackCode = invoiceNo.Substring(0, 2);
+                String startNo = invoiceNo.Substring(2);
+                String endNoValue = endNo.Substring(2);
+                Context.EnqueueBackgroundWork("_Test/TestEncData(range)",
+                    _ => createEncDataByRange(dateFrom, dateTo, trackCode, startNo, endNoValue));
             }
+            models.Dispose();
         }
         else
         {
             models.Dispose();
+        }
+    }
+
+    //背景作業：由 BackgroundTaskService 於請求結束後執行，
+    //只帶入純值參數，內部自建 ModelSource 重新查詢並輸出檔案
+    //（不再寫回頁面的 _item，因為此時回應早已送出）。
+    static void createEncDataByRange(DateTime? dateFrom, DateTime? dateTo, String trackCode, String startNo, String endNo)
+    {
+        using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
+
+        IQueryable<InvoiceItem> invoiceItems = db.GetTable<InvoiceItem>();
+
+        if (dateFrom.HasValue)
+        {
+            invoiceItems = invoiceItems.Where(i => i.InvoiceDate >= dateFrom);
+        }
+
+        if (dateTo.HasValue)
+        {
+            invoiceItems = invoiceItems.Where(i => i.InvoiceDate < dateTo.Value.AddDays(1));
+        }
+
+        StringBuilder content = new StringBuilder();
+        foreach (var item in invoiceItems
+            .Where(i => i.TrackCode == trackCode)
+            .Where(i => String.Compare(i.No, startNo) >= 0)
+            .Where(i => String.Compare(i.No, endNo) <= 0)
+            .ToList())
+        {
+            try
+            {
+                content.AppendLine($"{item.TrackCode}{item.No}\t{item.BuildEncryptedData()}");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        }
+
+        if (content.Length > 0)
+        {
+            String fullPath = System.IO.Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.txt");
+            File.WriteAllText(fullPath, content.ToString(), Encoding.UTF8);
         }
     }
 }

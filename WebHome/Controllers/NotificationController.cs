@@ -351,7 +351,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "資料錯誤!!");
             }
 
-            item = item.LoadInstance(models).PrepareTwoFactorKey(models);
+            item = item.PrepareTwoFactorKey(models);
 
             return View("~/Views/Notification/NotifyTwoFactorSettings.cshtml", item);
 

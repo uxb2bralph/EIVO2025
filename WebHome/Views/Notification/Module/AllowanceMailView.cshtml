@@ -30,13 +30,13 @@
 }
 @{ await Html.RenderPartialAsync("~/Views/DataView/Module/Allowance.cshtml", _model);}
 
-@if (_model.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomNotification != null)
+@if (_model.InvoiceAllowanceSeller.Seller.OrganizationExtension?.CustomNotification != null)
 {
     <text>
-        @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.InvoiceAllowanceSeller.Organization.OrganizationExtension?.CustomNotification))
+        @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.InvoiceAllowanceSeller.Seller.OrganizationExtension?.CustomNotification))
     </text>
 }
 else
 {
-    await Html.RenderPartialAsync("~/Views/Notification/Shared/ServiceNotation.cshtml", _model.InvoiceAllowanceSeller.Organization);
+    await Html.RenderPartialAsync("~/Views/Notification/Shared/ServiceNotation.cshtml", _model.InvoiceAllowanceSeller.Seller);
 }

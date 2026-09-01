@@ -43,9 +43,9 @@
 @{
     String invoicePrintView;
 }
-@if (_viewModel?.UseCustomView == true && (invoicePrintView = _model.Organization.OrganizationStatus.InvoicePrintView.GetEfficientString()) != null)
+@if (_viewModel?.UseCustomView == true && (invoicePrintView = _model.Seller.OrganizationStatus.InvoicePrintView.GetEfficientString()) != null)
 {
-    if(_model.Organization.DisableC0401Template() == true)
+    if(_model.Seller.DisableC0401Template() == true)
     {
         Layout = null;
     }

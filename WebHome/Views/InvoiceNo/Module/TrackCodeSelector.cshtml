@@ -31,7 +31,7 @@
     {
         <option value="">@(_viewModel.SelectIndication)</option>
     }
-    @foreach (var item in _items)
+    @foreach (var item in _items.ToList())
     {
         <option value="@(item.TrackID)">@(item.TrackCode)</option>
     }

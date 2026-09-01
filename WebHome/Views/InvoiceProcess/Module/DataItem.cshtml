@@ -35,7 +35,7 @@
 <td align="right">@(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.SalesAmount))</td>
 <td align="right">@(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.TaxAmount))</td>
 <td align="right">@(String.Format("{0:##,###,###,##0.##}",_model.InvoiceAmountType.TotalAmount))</td>
-<td>@(_model.InvoiceAmountType.CurrencyType?.AbbrevName)</td>
+<td>@(_model.InvoiceAmountType.Currency?.AbbrevName)</td>
 <td>@(_model.InvoiceWinningNumber!=null ? _model.InvoiceWinningNumber.PrizeType : "N/A")</td>
 <td>@(_model.InvoiceBuyer.IsB2C() ? "" : _model.InvoiceBuyer.ReceiptNo)</td>
 <td>
@@ -79,7 +79,7 @@
 <td>@(_model.InvoiceBuyer.ContactName)</td>
 <td>@(_model.InvoiceBuyer.Address)</td>
 <td>@(_model.InvoiceBuyer.EMail)</td>
-<td>@(String.Join("", _model.InvoiceDetails.Select(t => t.InvoiceProduct.InvoiceProductItem.FirstOrDefault().Remark)))</td>
+<td>@(String.Join("", _model.Product.Select(t => t.InvoiceProductItem.FirstOrDefault().Remark)))</td>
 <td>@(_model.CDS_Document.IssuingNotice!=null ? String.Format("{0:yyyy/MM/dd HH:mm:ss}",_model.CDS_Document.IssuingNotice.IssueDate) : "未通知")</td>
 <td>@(_model.InvoiceCarrier!=null ? _model.InvoiceCarrier.CarrierNo : null)</td>
 <td>@(_model.PrintMark)</td>

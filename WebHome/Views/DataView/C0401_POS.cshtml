@@ -69,7 +69,7 @@
       String invoicePrintView;
     }
     @if (_viewModel?.UseCustomView == true && (invoicePrintView =
-    _model.Organization.OrganizationCustomSetting?.Settings?.C0401POSView.GetEfficientString()) != null)
+    _model.Seller.OrganizationCustomSetting?.Settings?.C0401POSView.GetEfficientString()) != null)
     {
       await Html.RenderPartialAsync(invoicePrintView, _model);
     }

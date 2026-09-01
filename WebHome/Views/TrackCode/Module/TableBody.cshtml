@@ -39,7 +39,7 @@
 @{
     int idx = 0;
 }
-@foreach (var item in _items)
+@foreach (var item in _items.ToList())
 {
     idx++;
     await Html.RenderPartialAsync("~/Views/TrackCode/Module/DataItem.cshtml", item);

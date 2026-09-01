@@ -29,7 +29,7 @@
     _model = (InvoiceAllowance)this.Model;
 
     InvoiceItem invoice = null;
-    InvoiceAllowanceItem item = _model.InvoiceAllowanceDetails.FirstOrDefault()?.InvoiceAllowanceItem;
+    InvoiceAllowanceItem item = _model.InvoiceAllowanceDetails.FirstOrDefault();
 
     if (item != null)
     {

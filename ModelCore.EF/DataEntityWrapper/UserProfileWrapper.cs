@@ -26,6 +26,22 @@ namespace ModelCore.DataEntityWrapper
             }
         }
 
+        /// <summary>
+        /// 以指定的角色索引還原目前角色；索引無效時退回 <see cref="DetermineUserRole()"/> 的預設行為。
+        /// 供背景作業以自己的 DbContext 重新載入使用者時，沿用請求當下所選的角色。
+        /// </summary>
+        public void DetermineUserRole(int? roleIndex)
+        {
+            if (roleIndex.HasValue && roleIndex.Value >= 0 && Entity.UserRole.Count > roleIndex.Value)
+            {
+                RoleIndex = roleIndex;
+                CurrentUserRole = Entity.UserRole.ElementAt(roleIndex.Value);
+                return;
+            }
+
+            DetermineUserRole();
+        }
+
         protected internal Hashtable? _values;
         public object? this[object index]
         {

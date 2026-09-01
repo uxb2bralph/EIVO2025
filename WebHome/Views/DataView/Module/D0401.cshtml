@@ -27,14 +27,14 @@
 
 @if (_model != null)
 {
-    var details = _model.InvoiceAllowanceDetails.Select(d => d.InvoiceAllowanceItem).First();
+    var details = _model.InvoiceAllowanceDetails.Select(d => d).First();
     <div class="page__break--after">
         <div class="allowances__wrapper">
             <div class="allowances__cutfield">
-                @if (_model.InvoiceAllowanceSeller.Organization.LogoURL != null)
+                @if (_model.InvoiceAllowanceSeller.Seller.LogoURL != null)
                 {
                     <img class="allowances__logo"
-                         src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.InvoiceAllowanceSeller.Organization.LogoURL))' />
+                         src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.InvoiceAllowanceSeller.Seller.LogoURL))' />
                 }
                 else
                 {
@@ -56,7 +56,7 @@
             </div>
             <div class="allowances__listfield">
                 @{
-                    var items = _model.InvoiceAllowanceDetails.Select(d => d.InvoiceAllowanceItem);
+                    var items = _model.InvoiceAllowanceDetails.Select(d => d);
                     bool specialTaxType = false;
                 }
                 @foreach (var d in items)

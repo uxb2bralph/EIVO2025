@@ -49,7 +49,7 @@ namespace WebHome.Controllers
                 WaitForCheck = forCheck
             };
 
-            var item = models.GetTable<UserProfile>().Where(u => u.PID == profile.PID).FirstOrDefault();
+            var item = models.GetTable<UserProfile>().Where(u => u.PID == profile.Entity.PID).FirstOrDefault();
 
             if (item != null)
             {
@@ -79,7 +79,7 @@ namespace WebHome.Controllers
                 if (viewModel.ResetID.HasValue)
                 {
                     item = models.GetTable<ResetUserPassword>().Where(r => r.ResetID == viewModel.ResetID)
-                        .Select(r => r.UserProfile).FirstOrDefault();
+                        .Select(r => r.UIDNavigation).FirstOrDefault();
                 }
             }
 

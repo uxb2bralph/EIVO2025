@@ -35,7 +35,7 @@
                     .Where(i => i.InvoiceDate >= new DateTime(2024, 6, 4))
                     .Where(i => models.GetTable<IssuingNotice>().Any(n => n.DocID == i.InvoiceID));
 
-    foreach (var item in items)
+    foreach (var item in items.ToList())
     {
         String Subject = $"荷蘭商聯邦快遞國際股份有限公司台灣分公司 電子發票開立通知#錯誤發送請忽略#(發票號碼:{item.TrackCode}{item.No})";
         String body = $"{await Html.PartialAsync("~/Views/_Test/NotifyAll_BuildTitle")}{(await Html.PartialAsync("~/Views/Notification/Module/IssuedC0401.cshtml", item)).RenderHtmlContentToString(HtmlEncoder)}";

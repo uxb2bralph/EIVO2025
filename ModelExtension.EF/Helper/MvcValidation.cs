@@ -146,7 +146,7 @@ namespace ModelCore.Helper
             }
         }
 
-        public static void CustomSmtpHostValueCheck(this CustomSmtpHost viewModel, ModelStateDictionary modelState)
+        public static void CustomSmtpHostValueCheck(this CustomSmtpHostDto viewModel, ModelStateDictionary modelState)
         {
             viewModel.Host = viewModel.Host.GetEfficientString();
             if (viewModel.Host == null)

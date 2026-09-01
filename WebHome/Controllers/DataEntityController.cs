@@ -31,7 +31,7 @@ namespace WebHome.Controllers
 
             if (relation != null)
             {
-                var orgItem = relation.Counterpart;
+                var orgItem = relation.Relative;
                 return Content((new
                 {
                     orgItem.ReceiptNo,

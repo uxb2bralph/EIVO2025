@@ -41,25 +41,25 @@
 @{
     var profile = Context.GetUser();
     DocumentPrintQueue item;
-    var items = _model.OrderBy(d => d.CDS_Document.InvoiceItem.No);
+    var items = _model.OrderBy(d => d.Doc.InvoiceItem.No);
 }
 @while ((item = items.FirstOrDefault()) != null)
 {
     String invoicePrintView;
 
-    if (_viewModel?.UseCustomView == true && (invoicePrintView = item.CDS_Document.InvoiceItem.Organization.OrganizationStatus.InvoicePrintView.GetEfficientString()) != null)
+    if (_viewModel?.UseCustomView == true && (invoicePrintView = item.Doc.InvoiceItem.Seller.OrganizationStatus.InvoicePrintView.GetEfficientString()) != null)
     {
-        await Html.RenderPartialAsync(invoicePrintView, item.CDS_Document.InvoiceItem);
+        await Html.RenderPartialAsync(invoicePrintView, item.Doc.InvoiceItem);
     }
     else if (_viewModel?.PrintCuttingLine == true)
     {
-        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4_Print.cshtml", item.CDS_Document.InvoiceItem);
+        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4_Print.cshtml", item.Doc.InvoiceItem);
     }
     else
     {
-        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4.cshtml", item.CDS_Document.InvoiceItem);
+        await Html.RenderPartialAsync("~/Views/DataView/Module/C0401_A4.cshtml", item.Doc.InvoiceItem);
     }
-    models.MarkPrintedLog(item.CDS_Document.InvoiceItem, profile);
+    models.MarkPrintedLog(item.Doc.InvoiceItem, profile.Entity);
 }
 <script>
     window.onload = function () {

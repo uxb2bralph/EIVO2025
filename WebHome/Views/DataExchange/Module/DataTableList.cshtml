@@ -36,9 +36,10 @@
         </div>
         <div class="panel-body col-md-12">
             @{
-                var type = typeof(EIVOEntityDataContext);
+                var type = typeof(ApplicationDbContext);
                 var items = type.GetProperties()
-                                .Where(p => p.PropertyType.GetInterface("System.Data.Linq.ITable") != null)
+                                .Where(p => p.PropertyType.IsGenericType
+                                         && p.PropertyType.GetGenericTypeDefinition() == typeof(Microsoft.EntityFrameworkCore.DbSet<>))
                                 .OrderBy(p => p.Name);
             }
             @foreach (var item in items)

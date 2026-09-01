@@ -31,7 +31,7 @@
     String _fieldName;
     String _contentID = "id" + DateTime.Now.Ticks;
     String _valueID = "value" + DateTime.Now.Ticks;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
 
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
@@ -53,7 +53,7 @@ else
         {
             <option value="@(ViewBag.SelectorIndicationValue ?? "")">@(ViewBag.SelectorIndication)</option>
         }
-        @foreach (var o in _model.OrderBy(o => o.ReceiptNo))
+        @foreach (var o in _model.OrderBy(o => o.ReceiptNo).ToList())
         {
             <option value="@(_viewModel.Encrypt==true ? o.CompanyID.EncryptKey() : o.CompanyID.ToString())" selected="@(_viewModel.SellerID.HasValue && o.CompanyID == _viewModel.SellerID)">@(String.Format("{0} {1}", o.ReceiptNo, o.CompanyName))</option>
         }

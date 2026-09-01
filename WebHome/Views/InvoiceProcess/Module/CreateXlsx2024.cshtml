@@ -21,22 +21,40 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 
 @using CommonLib.DataAccess
+@using Microsoft.EntityFrameworkCore
+@using WebHome.Infrastructure.BackgroundTasks
 
 @functions
 {
     ModelSource<InvoiceItem>? models;
     IQueryable<InvoiceItem>? _model;
     InquireInvoiceViewModel? _viewModel;
-    UserProfile? profile;
+    UserProfileWrapper? profile;
 
-    void SaveAsExcel(int taskID, String resultFile)
+    //背景作業：由 BackgroundTaskService 於請求結束後執行。
+    //不可沿用請求的 models／_model／profile，一律以 viewModel + uid/roleIndex 重新建立查詢。
+    static void SaveAsExcel(int taskID, String resultFile, InquireInvoiceViewModel viewModel, int? uid, int? roleIndex)
     {
-        Task.Run(() =>
-        {
             try
             {
+                using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
                 using (DataSet ds = new DataSet())
                 {
+                    UserProfileWrapper? profile = db.ReloadProfile(uid, roleIndex);
+                    db.BuildInvoiceQuery(viewModel, profile, viewModel?.ResultAction);
+
+                    //輸出每一列會用到的導覽屬性一次載入，避免逐筆 lazy loading。
+                    IQueryable<InvoiceItem> _model = db.Items
+                        .Include(i => i.CDS_Document).ThenInclude(d => d.Attachment)
+                        .Include(i => i.InvoiceBuyer)
+                        .Include(i => i.InvoicePurchaseOrder)
+                        .Include(i => i.InvoiceSeller)
+                        .Include(i => i.Seller!).ThenInclude(o => o.OrganizationExtension)
+                        .Include(i => i.InvoiceAmountType!).ThenInclude(a => a.Currency)
+                        .Include(i => i.InvoiceDonation)
+                        .Include(i => i.InvoiceWinningNumber)
+                        .Include(i => i.InvoiceCancellation)
+                        .Include(i => i.InvoiceCarrier);
 
                     Exception? exception = null;
 
@@ -71,7 +89,7 @@
                         table.Columns.Add("載具類別", typeof(String));
                         table.Columns.Add("載具號碼", typeof(String));
 
-                        foreach (var i in _model!.OrderBy(i => i.TrackCode).ThenBy(i => i.No))
+                        foreach (var i in _model!.OrderBy(i => i.TrackCode).ThenBy(i => i.No).ToList())
                         {
                             DataRow r = table.NewRow();
                             r["發票號碼"] = i.TrackCode + i.No;
@@ -87,12 +105,12 @@
                             r["序號"] = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : DBNull.Value;
                             r["發票開立人"] = i.InvoiceSeller.CustomerName;
                             r["開立人統編"] = i.InvoiceSeller.ReceiptNo;
-                            r["營業人店別"] = i.Organization.OrganizationExtension.CustomerNo;
+                            r["營業人店別"] = i.Seller.OrganizationExtension.CustomerNo;
                             r["未稅金額"] = (Object?)i.InvoiceAmountType.SalesAmount ?? DBNull.Value;
                             r["稅別"] = $"{(Naming.TaxTypeDefinition?)i.InvoiceAmountType.TaxType}";
                             r["稅額"] = (Object?)i.InvoiceAmountType.TaxAmount ?? DBNull.Value;
                             r["含稅金額"] = i.InvoiceAmountType.TotalAmount;
-                            r["幣別"] = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : DBNull.Value;
+                            r["幣別"] = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.Currency.AbbrevName : DBNull.Value;
                             r["買受人名稱"] = i.InvoiceBuyer.CustomerName;
                             r["買受人統編"] = i.InvoiceBuyer.IsB2C() ? "" : i.InvoiceBuyer.ReceiptNo;
                             r["連絡人名稱"] = i.InvoiceBuyer.ContactName;
@@ -135,9 +153,6 @@
                         exception = ex;
                     }
 
-                    //using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
-                    var db = models!;
-
                     ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
                         .Where(t => t.TaskID == taskID).FirstOrDefault();
 
@@ -151,7 +166,7 @@
                                 LogTime = DateTime.Now,
                             };
                             db.GetTable<ExceptionLog>
-                                ().InsertOnSubmit(logItem);
+                                ().Add(logItem);
                             db.SubmitChanges();
 
                             taskItem.LogID = logItem.LogID;
@@ -167,8 +182,6 @@
             {
                 Logger.Error(ex);
             }
-        });
-
     }
 
 }
@@ -185,16 +198,21 @@
 @{
     ProcessRequest processItem = new ProcessRequest
     {
-        Sender = profile?.UID,
+        Sender = profile?.Entity.UID,
         SubmitDate = DateTime.Now,
         ProcessStart = DateTime.Now,
         ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
     };
 
-    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.GetTable<ProcessRequest>().Add(processItem);
     models.SubmitChanges();
 
-    SaveAsExcel(processItem.TaskID, processItem.ResponsePath);
+    int taskID = processItem.TaskID;
+    String resultFile = processItem.ResponsePath;
+    InquireInvoiceViewModel jobViewModel = _viewModel;
+    var (jobUID, jobRoleIndex) = profile.ForBackgroundWork();
+    Context.EnqueueBackgroundWork("InvoiceProcess/CreateXlsx2024",
+        _ => SaveAsExcel(taskID, resultFile, jobViewModel, jobUID, jobRoleIndex));
 
     await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
         new AttachmentViewModel

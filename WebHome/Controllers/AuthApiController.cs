@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ModelCore.DataEntity;
 using ModelCore.Locale;
 using WebHome.Helper;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers
 {
@@ -30,12 +31,12 @@ namespace WebHome.Controllers
 
             LoginHandler login = new LoginHandler(this);
             string msg;
-            if (!login.ProcessLogin(request.Id, request.Password, out msg, out UserProfile member))
+            if (!login.ProcessLogin(request.Id, request.Password, out msg, out UserProfileWrapper? member))
             {
                 return Ok(new { success = false, message = msg ?? "登入失敗，請確認帳密" });
             }
 
-            if (member.Expiration.HasValue && member.Expiration < DateTime.Today)
+            if (member.Entity.Expiration.HasValue && member.Entity.Expiration < DateTime.Today)
             {
                 return Ok(new
                 {
@@ -54,8 +55,8 @@ namespace WebHome.Controllers
             return Ok(new
             {
                 success = true,
-                pid = member.PID,
-                userName = member.UserName ?? member.PID,
+                pid = member.Entity.PID,
+                userName = member.Entity.UserName ?? member.Entity.PID,
                 roleId,
                 roleName,
                 redirectUrl = "/MainPage"
@@ -84,8 +85,8 @@ namespace WebHome.Controllers
 
             return Ok(new
             {
-                pid = profile.PID,
-                userName = profile.UserName ?? profile.PID,
+                pid = profile.Entity.PID,
+                userName = profile.Entity.UserName ?? profile.Entity.PID,
                 roleId,
                 roleName
             });

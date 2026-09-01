@@ -15,7 +15,7 @@
 @{
 
     InvoiceRequestViewModel _model = (InvoiceRequestViewModel)this.Model;
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
 }
 
     <tr>
@@ -44,7 +44,7 @@
                     $file.on('change', function (event) {
                         clearErrors();
                         var $formData = $('form').find('input,select,textArea').serializeObject();
-                        $formData.Sender = @(_profile.UID);
+                        $formData.Sender = @(_profile.Entity.UID);
                         $formData.ProcessType = @(((int?)_model.ProcessType) ?? -1);
                         uploadFile($file, $formData, '@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.TaskCenterUrl}/InvoiceData/UploadInvoiceRequestXlsx")',
                             function (data) {

@@ -158,7 +158,7 @@ namespace WebHome.Controllers
                     Year = viewModel.Year.Value,
                     PeriodNo = viewModel.PeriodNo.Value,
                 };
-                models.GetTable<InvoiceTrackCode>().InsertOnSubmit(model);
+                models.GetTable<InvoiceTrackCode>().Add(model);
             }
 
             model.TrackCode = viewModel.TrackCode;

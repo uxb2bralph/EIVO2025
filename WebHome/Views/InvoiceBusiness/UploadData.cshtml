@@ -25,7 +25,7 @@
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     _viewModel = (InvoiceViewModel)ViewBag.ViewModel;
 
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
     ViewBag.ActionName = "首頁 > 上傳開立資料";
     var _orgItem = models.GetTable<Organization>().Where(c => c.CompanyID == _profile.CurrentUserRole.OrganizationCategory.CompanyID).FirstOrDefault();
 }

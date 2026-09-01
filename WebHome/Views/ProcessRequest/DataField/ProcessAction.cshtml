@@ -26,7 +26,7 @@
     ModelSource<InvoiceItem> models;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     ProcessRequestQueryViewModel _viewModel = (ProcessRequestQueryViewModel)ViewBag.ViewModel;
 }

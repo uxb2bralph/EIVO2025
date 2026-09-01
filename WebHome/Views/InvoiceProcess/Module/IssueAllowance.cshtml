@@ -33,8 +33,8 @@
     if (_model.Count() > 0)
     {
         var item = _model.First();
-        var prodItem = _model.SelectMany(i => i.InvoiceDetails)
-                .SelectMany(d => d.InvoiceProduct.InvoiceProductItem).ToArray();
+        var prodItem = _model.SelectMany(i => i.Product)
+                .SelectMany(d => d.InvoiceProductItem).ToArray();
 
         _viewModel = new AllowanceViewModel
         {
@@ -49,16 +49,16 @@
                 ? Naming.InvoiceProcessType.D0401
                 : Naming.InvoiceProcessType.B0401,
             No = Enumerable.Range(1, prodItem.Length).Select(n => (short?)n).ToArray(),
-            OriginalInvoiceDate = prodItem.Select(p => p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceDate).ToArray(),
-            OriginalInvoiceNo = prodItem.Select(p => p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceNo()).ToArray(),
-            OriginalDescription = prodItem.Select(p => p.InvoiceProduct.Brief).ToArray(),
+            OriginalInvoiceDate = prodItem.Select(p => p.Product.Invoice.First().InvoiceDate).ToArray(),
+            OriginalInvoiceNo = prodItem.Select(p => p.Product.Invoice.First().InvoiceNo()).ToArray(),
+            OriginalDescription = prodItem.Select(p => p.Product.Brief).ToArray(),
             OriginalSequenceNo = prodItem.Select(p => p.No).ToArray(),
             Piece = prodItem.Select(p => p.Piece).ToArray(),
             PieceUnit = prodItem.Select(p => p.PieceUnit).ToArray(),
             UnitCost = prodItem.Select(p => p.UnitCost).ToArray(),
             Amount = prodItem.Select(p => p.CostAmount).ToArray(),
             Tax = prodItem.Select(p => (decimal?)Math.Round((p.CostAmount * 0.05m) ?? 0)).ToArray(),
-            TaxType = prodItem.Select(p => (Naming.TaxTypeDefinition?)p.InvoiceProduct.InvoiceDetails.First().InvoiceItem.InvoiceAmountType.TaxType).ToArray(),
+            TaxType = prodItem.Select(p => (Naming.TaxTypeDefinition?)p.Product.Invoice.First().InvoiceAmountType.TaxType).ToArray(),
         };
     }
 }

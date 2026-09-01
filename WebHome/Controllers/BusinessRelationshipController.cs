@@ -331,7 +331,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "營業人資料錯誤!!");
             }
 
-            item.Counterpart.OrganizationStatus.Entrusting = status;
+            item.Relative.OrganizationStatus.Entrusting = status;
             models.SubmitChanges();
 
             return View("~/Views/BusinessRelationship/Module/DataItem.cshtml", item);
@@ -345,7 +345,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "營業人資料錯誤!!");
             }
 
-            item.Counterpart.OrganizationStatus.EntrustToPrint = status;
+            item.Relative.OrganizationStatus.EntrustToPrint = status;
             models.SubmitChanges();
 
             return View("~/Views/BusinessRelationship/Module/DataItem.cshtml", item);
@@ -437,7 +437,7 @@ namespace WebHome.Controllers
             mgr.BusinessType = (Naming.InvoiceCenterBusinessType?)viewModel.BusinessType ?? Naming.InvoiceCenterBusinessType.銷項;
             mgr.MasterID = viewModel.CompanyID;
             viewModel.Encoding=viewModel.Encoding.GetEfficientString();
-            mgr.ParseData(userProfile, fileName, viewModel.Encoding != null ? Encoding.GetEncoding(viewModel.Encoding) : Encoding.Default);
+            mgr.ParseData(userProfile.Entity, fileName, viewModel.Encoding != null ? Encoding.GetEncoding(viewModel.Encoding) : Encoding.Default);
 
             userProfile["UploadManager"] = mgr;
 
@@ -513,7 +513,7 @@ namespace WebHome.Controllers
             mgr.BusinessType = (Naming.InvoiceCenterBusinessType?)viewModel.BusinessType ?? Naming.InvoiceCenterBusinessType.銷項;
             mgr.MasterID = viewModel.CompanyID;
             viewModel.Encoding = viewModel.Encoding.GetEfficientString();
-            mgr.ParseData(userProfile, fileName, viewModel.Encoding!=null ? Encoding.GetEncoding(viewModel.Encoding) : Encoding.Default);
+            mgr.ParseData(userProfile.Entity, fileName, viewModel.Encoding!=null ? Encoding.GetEncoding(viewModel.Encoding) : Encoding.Default);
 
             userProfile["UploadManager"] = mgr;
 
@@ -732,7 +732,7 @@ namespace WebHome.Controllers
         //        ProcessStart = DateTime.Now,
         //        ResponsePath = System.IO.Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
         //    };
-        //    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+        //    models.GetTable<ProcessRequest>().Add(processItem);
         //    models.SubmitChanges();
 
         //    SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items);
@@ -761,10 +761,10 @@ namespace WebHome.Controllers
             var items = model.OrderBy(i => i.MasterID).ThenBy(i => i.RelativeID)
                 .Select(o => new
                 {
-                    營業人名稱 = o.BusinessMaster.CompanyName,
-                    統一編號 = o.BusinessMaster.ReceiptNo,
+                    營業人名稱 = o.Master.CompanyName,
+                    統一編號 = o.Master.ReceiptNo,
                     相對營業人名稱 = o.CompanyName,
-                    相對營業人統一編號 = o.Counterpart.ReceiptNo,
+                    相對營業人統一編號 = o.Relative.ReceiptNo,
                     聯絡人電子郵件 = o.ContactEmail,
                     地址 = o.Addr,
                     電話 = o.Phone,

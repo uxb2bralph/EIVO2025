@@ -31,17 +31,16 @@
     _model = (InvoiceItem)this.Model;
     _viewModel = ViewBag.ViewModel as RenderStyleViewModel;
 
-    _productItem = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
-        .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+    _productItem = models.GetTable<InvoiceProduct>().Where(p => p.Invoice.Any(i => i.InvoiceID == _model.InvoiceID))
         .Join(models.GetTable<InvoiceProductItem>(), p => p.ProductID, i => i.ProductID, (p, i) => i).ToArray();
 
     _buyer = _model.InvoiceBuyer;
     if (_buyer != null && _buyer.BuyerID.HasValue)
     {
-        _buyerOrg = _buyer.Organization;
+        _buyerOrg = _buyer.Buyer;
     }
 
-    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Organization.OrganizationStatus.EntrustToPrint != true;
+    _isDuplicatedPrint = /*_buyer.IsB2C() &&*/ _model.CDS_Document.DocumentPrintLog.Count > 0 && _model.Seller.OrganizationStatus.EntrustToPrint != true;
 
 }
 @if (_model != null)
@@ -66,9 +65,9 @@
                                             <tbody>
                                                 <tr>
                                                     <td height="25" align="center">
-                                                        @if (_model.Organization.LogoURL != null)
+                                                        @if (_model.Seller.LogoURL != null)
                                                         {
-                                                            <img id="logo" src="@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" +_model.Organization.LogoURL))" width="180" style="vertical-align:middle" />
+                                                            <img id="logo" src="@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" +_model.Seller.LogoURL))" width="180" style="vertical-align:middle" />
                                                         }
                                                         else
                                                         {
@@ -142,7 +141,7 @@
                                                             <tbody>
                                                                 <tr>
                                                                     <td valign="baseline" class="class15">
-                                                                        賣方：<span style="font-size:15px; line-height:15px">@(_model.Organization.ReceiptNo)</span>
+                                                                        賣方：<span style="font-size:15px; line-height:15px">@(_model.Seller.ReceiptNo)</span>
                                                                     </td>
                                                                     <td valign="baseline" align="right" class="class15">
                                                                         @(_buyer.IsB2C() ? null : String.Format("買方：{0}", _buyer.ReceiptNo))
@@ -220,7 +219,7 @@
                                                 {
                                                     var item = _productItem[_itemIdx];
                                                     <tr>
-                                                        <td class="class12" style="padding:3px">@(item.InvoiceProduct.Brief)</td>
+                                                        <td class="class12" style="padding:3px">@(item.Product.Brief)</td>
                                                         <td align="center">@(String.Format("{0:##,###,###,##0.##}", item.Piece))</td>
                                                         <td align="right">@(String.Format("{0:##,###,###,##0.##}", item.UnitCost))</td>
                                                         <td align="right">@(String.Format("{0:##,###,###,##0.##}", item.CostAmount))</td>
@@ -289,7 +288,7 @@
                                                                     <td valign="top" class="class12">
                                                                         合計：
                                                                         <span class="class12" style="margin:0px 0px 0px 50px">
-                                                                            @(_model.InvoiceDetails.Count)
+                                                                            @(_model.Product.Count)
                                                                         </span>
                                                                         項
                                                                     </td>

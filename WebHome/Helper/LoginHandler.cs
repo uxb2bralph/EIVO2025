@@ -8,6 +8,7 @@ using ModelCore.DataEntity;
 using ModelCore.Locale;
 using ModelCore.Resource;
 using ModelCore.Security.MembershipManagement;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Helper
 {
@@ -24,9 +25,10 @@ namespace WebHome.Helper
 
         public string? RedirectToAsLoginSuccessfully { get; set; }
 
-        public bool ProcessLogin(string pid, string password, out string msg, out UserProfile member)
+        public bool ProcessLogin(string pid, string password, out string msg, out UserProfileWrapper? member)
         {
-            member = UserProfileFactory.CreateInstance(pid, password);
+            using UserProfileManager models = new UserProfileManager();
+            member = UserProfileFactory.CreateInstance(models, pid, password);
             bool auth = processLoginUsingRole(out msg, member);
             //if (up != null)
             //{
@@ -41,7 +43,8 @@ namespace WebHome.Helper
 
         public bool ProcessLogin(string pid, out String msg)
         {
-            UserProfile up = UserProfileFactory.CreateInstance(pid);
+            using UserProfileManager models = new UserProfileManager();
+            UserProfileWrapper? up = UserProfileFactory.CreateInstance(models, pid);
             return processLoginUsingRole(out msg, up);
         }
 
@@ -85,11 +88,11 @@ namespace WebHome.Helper
 
         public bool ProcessLogin(X509Certificate2 signerCert, out string msg)
         {
-            UserProfile up = UserProfileFactory.CreateInstance(signerCert);
+            UserProfileWrapper? up = UserProfileFactory.CreateInstance(signerCert);
             return processLoginUsingRole(out msg, up);
         }
 
-        private bool processLoginUsingRole(out string? msg, UserProfile up)
+        private bool processLoginUsingRole(out string? msg, UserProfileWrapper? up)
         {
             msg = null;
             bool bAuth = false;
@@ -109,7 +112,7 @@ namespace WebHome.Helper
                     //System.Web.Security.FormsAuthentication.RedirectFromLoginPage(up.PID, false);
                     msg = url;
                 }
-                else if (up.UserProfileStatus.CurrentLevel == (int)Naming.MemberStatusDefinition.Wait_For_Check)
+                else if (up.Entity.UserProfileStatus.CurrentLevel == (int)Naming.MemberStatusDefinition.Wait_For_Check)
                 {
                     up.CurrentSiteMenu = "WaitForCheckMenu.xml";
                     msg = VirtualPathUtility.ToAbsolute("~/UserProfile/EditMySelf?forCheck=True");

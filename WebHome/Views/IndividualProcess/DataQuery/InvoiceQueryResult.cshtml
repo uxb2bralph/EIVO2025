@@ -45,7 +45,7 @@
             if (_viewModel.BuyerName != null || _viewModel.RandomNo != null)
             {
                 await Html.RenderPartialAsync("~/Views/DataView/Module/Invoice.cshtml", _model);
-                if (!_model.InvoiceBuyer.IsB2C() || _model.Organization.OrganizationSettings.Any(s => s.Settings == "AllowPrintAll"))
+                if (!_model.InvoiceBuyer.IsB2C() || _model.Seller.OrganizationSettings.Any(s => s.Settings == "AllowPrintAll"))
                 {
                     <div>
                         <button type="button" class="btn btnPrint" onclick="$('').launchDownload('@Url.Action("PrintSingleInvoiceAsPDF", "DataView",

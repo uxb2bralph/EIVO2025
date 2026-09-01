@@ -95,7 +95,7 @@ else
 @{
     ViewBag.DisplayType = Naming.FieldDisplayType.DataItem;
 }
-@foreach (var item in items)
+@foreach (var item in items.ToList())
 {
     await showDataRowAsync(item);
 }

@@ -40,8 +40,8 @@
         <table class="table table-striped itemList" cellspacing="0" cellpadding="0" style="width: 100%;">
             <thead>
                 <tr>
-                    <th>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year)/@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2 - 1)~@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2)</th>
-                    <th>@(_model.InvoiceTrackCodeAssignment.InvoiceTrackCode.TrackCode)@(_model.StartNo)~@(_model.EndNo)</th>
+                    <th>@(_model.InvoiceTrackCodeAssignment.Track.Year)/@(_model.InvoiceTrackCodeAssignment.Track.PeriodNo * 2 - 1)~@(_model.InvoiceTrackCodeAssignment.Track.PeriodNo * 2)</th>
+                    <th>@(_model.InvoiceTrackCodeAssignment.Track.TrackCode)@(_model.StartNo)~@(_model.EndNo)</th>
                 </tr>
             </thead>
             <tbody>

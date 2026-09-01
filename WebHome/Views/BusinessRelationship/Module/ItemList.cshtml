@@ -8,6 +8,7 @@
 @using ModelCore.Models.ViewModel
 @using ModelCore.DataEntity
 @using WebHome.Controllers
+@using Microsoft.EntityFrameworkCore
 @{
 
 IQueryable<BusinessRelationship> _items;
@@ -16,7 +17,14 @@ IQueryable<BusinessRelationship> _items;
 
 
     _viewModel = (BusinessRelationshipQueryViewModel)ViewBag.ViewModel;
-    _items = ((IQueryable<BusinessRelationship>)this.Model).Skip(_viewModel.PageIndex.Value * _viewModel.PageSize.Value)
+    //DataItem 每一列會存取多個導覽屬性，先一次載入避免 N+1（須在 Skip/Take 之前）。
+    _items = ((IQueryable<BusinessRelationship>)this.Model)
+        .Include(b => b.Business)
+        .Include(b => b.CurrentLevelNavigation)
+        .Include(b => b.Master)
+        .Include(b => b.Relative).ThenInclude(o => o.OrganizationStatus)
+        .Include(b => b.Relative).ThenInclude(o => o.OrganizationBranch)
+        .Skip(_viewModel.PageIndex.Value * _viewModel.PageSize.Value)
         .Take(_viewModel.PageSize.Value);
 }
 
@@ -37,7 +45,7 @@ IQueryable<BusinessRelationship> _items;
     </thead>
     <tbody>
         @{ int idx = 0;}
-        @foreach (var item in _items)
+        @foreach (var item in _items.ToList())
         {
             idx++;
             await Html.RenderPartialAsync("~/Views/BusinessRelationship/Module/DataItem.cshtml", item);

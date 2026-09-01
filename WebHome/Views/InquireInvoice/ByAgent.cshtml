@@ -21,7 +21,7 @@
 
     ModelSource<InvoiceItem> models;
     IQueryable<Organization> _model;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
 
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
@@ -39,7 +39,7 @@
         <td class="tdleft">
             <select name="AgentID">
                 <option value="">全部</option>
-                @foreach (var a in _model.OrderBy(o=>o.ReceiptNo))
+                @foreach (var a in _model.OrderBy(o=>o.ReceiptNo).ToList())
                 {
                     <option value="@(a.CompanyID)">@($"({a.ReceiptNo}) {a.CompanyName}")</option>
                 }

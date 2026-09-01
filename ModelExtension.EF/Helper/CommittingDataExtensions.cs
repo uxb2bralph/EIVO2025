@@ -478,7 +478,7 @@ namespace ModelCore.Helper
             return item;
         }
 
-        public static CustomSmtpHost CommitCustomSmtpHost(this CustomSmtpHost viewModel, GenericDbContext<ApplicationDbContext> models, ModelStateDictionary modelState)
+        public static CustomSmtpHost CommitCustomSmtpHost(this CustomSmtpHostDto viewModel, GenericDbContext<ApplicationDbContext> models, ModelStateDictionary modelState)
         {
             viewModel.CustomSmtpHostValueCheck(modelState);
 
@@ -509,12 +509,12 @@ namespace ModelCore.Helper
                 models.GetTable<CustomSmtpHost>().Add(item);
             }
 
-            item.Host = viewModel.Host;
+            item.Host = viewModel.Host!;
             item.Port = viewModel.Port ?? 25;
             item.EnableSsl = viewModel.EnableSsl ?? false;
             item.UserName = viewModel.UserName;
             item.Password = viewModel.Password;
-            item.MailFrom = viewModel.MailFrom;
+            item.MailFrom = viewModel.MailFrom!;
             item.Status = (int)CustomSmtpHost.StatusType.Enabled;
 
             models.SubmitChanges();
@@ -522,7 +522,7 @@ namespace ModelCore.Helper
             return item;
         }
 
-        public static Organization LoadCustomSmtpHostFor(this CustomSmtpHost viewModel, GenericDbContext<ApplicationDbContext> models)
+        public static Organization LoadCustomSmtpHostFor(this CustomSmtpHostDto viewModel, GenericDbContext<ApplicationDbContext> models)
         {
             if (viewModel.KeyID != null)
             {

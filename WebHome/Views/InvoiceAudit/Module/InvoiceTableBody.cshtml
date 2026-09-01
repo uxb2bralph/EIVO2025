@@ -21,7 +21,7 @@
 @{
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     IQueryable<InvoiceItem> _model = (IQueryable<InvoiceItem>)this.Model;
@@ -44,22 +44,19 @@
         await Html.RenderPartialAsync(c, _model);
     }
 }
-@if (TempData["SortedItems"] == null)
-{
-    items = _model
+@{
+    //各欄位分部檢視每一列會存取多個導覽屬性，先一次載入避免 N+1（須在 Skip/Take 之前）。
+    IQueryable<InvoiceItem> source = ((TempData["SortedItems"] as IQueryable<InvoiceItem>) ?? _model)
+        .IncludeInvoiceListNavigations();
+
+    items = source
         .Skip(pageIndex * pageSize)
         .Take(pageSize);
-}
-else
-{
-    items = ((IQueryable<InvoiceItem>)TempData["SortedItems"])
-    .Skip(pageIndex * pageSize)
-    .Take(pageSize);
 }
 @{
     ViewBag.DisplayType = Naming.FieldDisplayType.DataItem;
 }
-@foreach (var item in items)
+@foreach (var item in items.ToList())
 {
     <tr>
         @foreach (var c in columns)

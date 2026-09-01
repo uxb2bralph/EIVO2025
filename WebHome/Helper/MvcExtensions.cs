@@ -1,5 +1,5 @@
 ﻿using CommonLib.Core.Utility;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using CommonLib.Utility;
 using MessagingToolkit.QRCode.Codec;
 using Microsoft.AspNetCore.Html;
@@ -23,14 +23,15 @@ using System.Threading;
 using System.Web;
 using WebHome.Controllers;
 using WebHome.Properties;
+using CommonLib.DataAccess;
 
 namespace WebHome.Helper
 {
     public static class MvcExtensions
     {
-        public static GenericManager<EIVOEntityDataContext> DataSource(this ControllerBase controller)
+        public static GenericDbContext<ApplicationDbContext> DataSource(this ControllerBase controller)
         {
-            return ((SampleController<EIVOEntityDataContext>)controller).DataSource;
+            return ((SampleController<ApplicationDbContext>)controller).DataSource;
         }
 
         //public static void RenderJsonResult(this ViewUserControl control, object data)

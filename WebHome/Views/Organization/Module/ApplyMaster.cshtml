@@ -39,11 +39,18 @@
                 var items = models.GetTable<Organization>()
                     .Where(o => o.MasterOrganization != null)
                     .OrderBy(o => o.ReceiptNo);
+
+                //原本每一列都對 MasterOrganization 再查一次（N+1），
+                //改為一次撈出此營業人所屬的主機構 ID。
+                var currentMasterIDs = models.GetTable<MasterOrganization>()
+                    .Where(m => m.Branch.Any(o => o.CompanyID == _model.CompanyID))
+                    .Select(m => m.MasterID)
+                    .ToHashSet();
             }
-            @foreach (var item in items)
+            @foreach (var item in items.ToList())
             {
                 <label class="col-md-6">
-                    <input type="checkbox" onclick="excludeCheck();" name="masterID" value="@(item.CompanyID)" checked="@(models.GetTable<MasterBranch>().Where(b=>b.MasterID==item.CompanyID).Any(b=>b.BranchID==_model.CompanyID))" />
+                    <input type="checkbox" onclick="excludeCheck();" name="masterID" value="@(item.CompanyID)" checked="@(currentMasterIDs.Contains(item.CompanyID))" />
                     <i></i> @(String.Concat("(",item.ReceiptNo,")",item.CompanyName))
                 </label>
             }

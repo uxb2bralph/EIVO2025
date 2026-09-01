@@ -36,11 +36,18 @@
                 var items = models.GetTable<Organization>()
                     .Where(o => o.OrganizationCategory.Any(c => c.CategoryID == (int)Naming.CategoryID.COMP_INVOICE_AGENT))
                     .OrderBy(o => o.ReceiptNo);
+
+                //原本每一列都以 item.InvoiceIssuerAgentAgent.Any(...) 觸發一次 lazy loading（N+1），
+                //改為一次撈出此開立人已指定的經銷商 ID。
+                var currentAgentIDs = models.GetTable<InvoiceIssuerAgent>()
+                    .Where(a => a.IssuerID == _model.CompanyID)
+                    .Select(a => a.AgentID)
+                    .ToHashSet();
             }
-            @foreach (var item in items)
+            @foreach (var item in items.ToList())
             {
                 <label class="col-md-6">
-                    <input type="checkbox" name="agentID" value="@(item.CompanyID)" @(item.InvoiceIssuerAgent.Any(i => i.IssuerID == _model.CompanyID) ? "checked" : null) />
+                    <input type="checkbox" name="agentID" value="@(item.CompanyID)" @(currentAgentIDs.Contains(item.CompanyID) ? "checked" : null) />
                     <i></i> @(String.Concat("(",item.ReceiptNo,")",item.CompanyName))
                 </label>
             }

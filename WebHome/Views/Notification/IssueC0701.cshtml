@@ -33,7 +33,7 @@
 {
     await Html.RenderPartialAsync("~/Views/Notification/Module/IssuedC0701.cshtml", _model);
 }
-else if (_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Cancelling))
+else if (_model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Cancelling))
 {
     var mailing = models.GetUserListByCompanyID(_model.InvoiceBuyer.BuyerID)
             .Select(u => u.EMail).ToList();
@@ -45,9 +45,9 @@ else if (_model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice
 
     if (!String.IsNullOrEmpty(mailTo))
     {
-        var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+        var smtpSettings = _model.InvoiceSeller.Seller.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
 
-        String subject = _model.Organization.CompanyName + "註銷電子發票郵件通知(此張發票因屬發票系統問題致使錯誤開立已由營業人上傳註銷)";
+        String subject = _model.Seller.CompanyName + "註銷電子發票郵件通知(此張發票因屬發票系統問題致使錯誤開立已由營業人上傳註銷)";
         String body = Html.Partial("~/Views/Notification/Module/IssuedC0701.cshtml", _model).RenderHtmlContentToString(HtmlEncoder);
         body.SendMailMessage(mailTo, subject, smtpSettings);
     }

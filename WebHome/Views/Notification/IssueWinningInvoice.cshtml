@@ -29,7 +29,7 @@
     _model = (InvoiceItem)this.Model;
     _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
 
-    String notificationView = _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
+    String notificationView = _model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.UseCBEStyle)
         ? "~/Views/Notification/Module/IssuedWinningInvoiceCBE.cshtml"
         : "~/Views/Notification/Module/IssuedWinningInvoice.cshtml";
     //Request.SaveAs(System.IO.Path.Combine(Logger.LogDailyPath, String.Format("IssueC0401_{0}.txt", DateTime.Now.Ticks)), true);
@@ -39,7 +39,7 @@
 {
     await Html.RenderPartialAsync(notificationView, _model);
 }
-else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Winning))
+else if (_viewModel.ForceTodo == true || _model.Seller.OrganizationStatus.InvoiceNoticeSetting.CheckNotice(Naming.InvoiceNoticeStatus.Winning))
 {
     var mailing = models.GetUserListByCompanyID(_model.InvoiceBuyer.BuyerID)
             .Select(u => u.EMail).ToList();
@@ -52,8 +52,8 @@ else if (_viewModel.ForceTodo == true || _model.Organization.OrganizationStatus.
 
     if (!String.IsNullOrEmpty(mailTo))
     {
-        var smtpSettings = _model.InvoiceSeller.Organization.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
-        String subject = $"{_model.Organization.CompanyName} 電子發票中獎通知(發票號碼:{_model.TrackCode}{_model.No})";
+        var smtpSettings = _model.InvoiceSeller.Seller.CustomSmtpHost.Where(s => s.Status == (int)CustomSmtpHost.StatusType.Enabled).FirstOrDefault();
+        String subject = $"{_model.Seller.CompanyName} 電子發票中獎通知(發票號碼:{_model.TrackCode}{_model.No})";
         String body = (await Html.PartialAsync(notificationView, _model)).RenderHtmlContentToString(HtmlEncoder);
         body.SendMailMessage(mailTo, subject, smtpSettings);
     }

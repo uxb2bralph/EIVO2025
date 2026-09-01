@@ -1,5 +1,7 @@
 ﻿using WebHome.Helper;
 using WebHome.Models.ViewModel;
+using InvoiceNumberApplyWord = WebHome.Models.ViewModel.InvoiceNumberApplyWord;
+using ApplyNumberType = WebHome.Models.ViewModel.ApplyNumberType;
 using WebHome.Properties;
 
 using ModelCore.DataEntity;

@@ -8,16 +8,16 @@
 @{
 
     BusinessRelationship _model;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
 
 
     _model = (BusinessRelationship)this.Model;
     _profile = Context.GetUser();
 }
 
-@if (_model.Counterpart.OrganizationBranch.Count > 0)
+@if (_model.Relative.OrganizationBranch.Count > 0)
 {
-    IEnumerable<OrganizationBranch> items = _model.Counterpart.OrganizationBranch;
+    IEnumerable<OrganizationBranch> items = _model.Relative.OrganizationBranch;
     if (ViewBag.ByBranchNo != null)
     {
         String branchNo = (String)ViewBag.ByBranchNo;
@@ -26,20 +26,20 @@
     foreach (var item in items)
     {
         <tr>
-            <td>@(_model.BusinessMaster.CompanyName)</td>
+            <td>@(_model.Master.CompanyName)</td>
             <td>@(item.BranchName)</td>
-            <td>@(_model.Counterpart.ReceiptNo)</td>
-            <td>@(_model.BusinessType.Business)</td>
+            <td>@(_model.Relative.ReceiptNo)</td>
+            <td>@(_model.Business.Business)</td>
             <td>@(item.ContactEmail)</td>
             <td>@(item.Addr)</td>
             <td>@(item.Phone)</td>
             <td>@(item.BranchNo)</td>
             <td>
-                @(_model.CurrentLevel.HasValue ? _model.LevelExpression.Expression : "已啟用")
+                @(_model.CurrentLevel.HasValue ? _model.CurrentLevelNavigation.Expression : "已啟用")
                 <br />
-                @(_model.BusinessID == (int)Naming.InvoiceCenterBusinessType.銷項 && _model.Counterpart.OrganizationStatus.Entrusting == true ? "自動接收" : null)
+                @(_model.BusinessID == (int)Naming.InvoiceCenterBusinessType.銷項 && _model.Relative.OrganizationStatus.Entrusting == true ? "自動接收" : null)
                 <br />
-                @(_model.Counterpart.OrganizationStatus.EntrustToPrint.HasValue ? (_model.Counterpart.OrganizationStatus.EntrustToPrint == true ? "主動列印" : "停用列印") : "未設定")
+                @(_model.Relative.OrganizationStatus.EntrustToPrint.HasValue ? (_model.Relative.OrganizationStatus.EntrustToPrint == true ? "主動列印" : "停用列印") : "未設定")
             </td>
             <td>
                 <div class="btn-group dropdown" data-toggle="dropdown">
@@ -55,7 +55,7 @@
                         {
                             <li><a class="btn" onclick="uiInquireBusiness.deactivate(@(_model.BusinessID),@(_model.MasterID),@(_model.RelativeID));">停用</a></li>
                         }
-                        @if (_model.Counterpart.OrganizationStatus.Entrusting != true)
+                        @if (_model.Relative.OrganizationStatus.Entrusting != true)
                         {
                             <li><a class="btn" onclick="uiInquireBusiness.entrusting(@(_model.BusinessID),@(_model.MasterID),@(_model.RelativeID),true);">設定自動接收</a></li>
                         }
@@ -63,7 +63,7 @@
                         {
                             <li><a class="btn" onclick="uiInquireBusiness.entrusting(@(_model.BusinessID),@(_model.MasterID),@(_model.RelativeID),false);">停用自動接收</a></li>
                         }
-                        @if (_model.Counterpart.OrganizationStatus.EntrustToPrint != true)
+                        @if (_model.Relative.OrganizationStatus.EntrustToPrint != true)
                         {
                             <li><a class="btn" onclick="uiInquireBusiness.entrustToPrint(@(_model.BusinessID),@(_model.MasterID),@(_model.RelativeID),true);">啟用列印</a></li>
                         }
@@ -82,20 +82,20 @@
 else
 {
     <tr>
-        <td>@(_model.BusinessMaster.CompanyName)</td>
+        <td>@(_model.Master.CompanyName)</td>
         <td>@(_model.CompanyName)</td>
-        <td>@(_model.Counterpart.ReceiptNo)</td>
-        <td>@(_model.BusinessType.Business)</td>
+        <td>@(_model.Relative.ReceiptNo)</td>
+        <td>@(_model.Business.Business)</td>
         <td>@(_model.ContactEmail)</td>
         <td>@(_model.Addr)</td>
         <td>@(_model.Phone)</td>
         <td></td>
         <td>
-            @(_model.CurrentLevel.HasValue ? _model.LevelExpression.Expression : "已啟用")
+            @(_model.CurrentLevel.HasValue ? _model.CurrentLevelNavigation.Expression : "已啟用")
             <br />
-            @(_model.BusinessID == (int)Naming.InvoiceCenterBusinessType.銷項 && _model.Counterpart.OrganizationStatus.Entrusting == true ? "自動接收" : null)
+            @(_model.BusinessID == (int)Naming.InvoiceCenterBusinessType.銷項 && _model.Relative.OrganizationStatus.Entrusting == true ? "自動接收" : null)
             <br />
-            @(_model.Counterpart.OrganizationStatus.EntrustToPrint.HasValue ? (_model.Counterpart.OrganizationStatus.EntrustToPrint == true ? "主動列印" : "停用列印") : "未設定")
+            @(_model.Relative.OrganizationStatus.EntrustToPrint.HasValue ? (_model.Relative.OrganizationStatus.EntrustToPrint == true ? "主動列印" : "停用列印") : "未設定")
         </td>
         <td>
             <div class="btn-group dropdown" data-toggle="dropdown">
@@ -111,7 +111,7 @@ else
                     {
                         <li><a class="btn" onclick="uiInquireBusiness.deactivate(@(_model.BusinessID),@(_model.MasterID),@(_model.RelativeID));">停用</a></li>
                     }
-                    @if (_model.Counterpart.OrganizationStatus.Entrusting != true)
+                    @if (_model.Relative.OrganizationStatus.Entrusting != true)
                     {
                         <li><a class="btn" onclick="uiInquireBusiness.entrusting(@(_model.BusinessID),@(_model.MasterID),@(_model.RelativeID),true);">設定自動接收</a></li>
                     }
@@ -119,7 +119,7 @@ else
                     {
                         <li><a class="btn" onclick="uiInquireBusiness.entrusting(@(_model.BusinessID),@(_model.MasterID),@(_model.RelativeID),false);">停用自動接收</a></li>
                     }
-                    @if (_model.Counterpart.OrganizationStatus.EntrustToPrint != true)
+                    @if (_model.Relative.OrganizationStatus.EntrustToPrint != true)
                     {
                         <li><a class="btn" onclick="uiInquireBusiness.entrustToPrint(@(_model.BusinessID),@(_model.MasterID),@(_model.RelativeID),true);">啟用列印</a></li>
                     }

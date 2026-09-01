@@ -51,7 +51,7 @@
     void ShowBody(dynamic po)
     {
         InvoiceAllowance item = (InvoiceAllowance)po;
-        <td>@(item.InvoiceAllowanceDetails.FirstOrDefault()?.InvoiceAllowanceItem.TaxType != null ? ((Naming.TaxTypeDefinition?)item.InvoiceAllowanceDetails.FirstOrDefault().InvoiceAllowanceItem.TaxType).ToString() : "")</td>
+        <td>@(item.InvoiceAllowanceDetails.FirstOrDefault()?.TaxType != null ? ((Naming.TaxTypeDefinition?)item.InvoiceAllowanceDetails.FirstOrDefault().TaxType).ToString() : "")</td>
     }
 
     void ShowFooter(dynamic item)

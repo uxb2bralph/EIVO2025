@@ -9,6 +9,7 @@ using WebHome.Helper;
 using WebHome.Models;
 using ModelCore.DataEntity;
 using ModelCore.Models.ViewModel;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers
 {
@@ -20,7 +21,7 @@ namespace WebHome.Controllers
 
         protected ModelSourceInquiry<Organization> createModelInquiry(OrganizationQueryViewModel viewModel)
         {
-            UserProfile userProfile = HttpContext.GetUser();
+            UserProfileWrapper userProfile = HttpContext.GetUser();
 
             return (ModelSourceInquiry<Organization>)(new InquireOrganizationReceiptNo { QueryViewModel = viewModel })
                 .Append(new InquireOrganizationStatus { QueryViewModel = viewModel })

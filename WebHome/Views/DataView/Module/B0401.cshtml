@@ -28,8 +28,8 @@
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _model = (InvoiceAllowance)this.Model;
 
-    _products = models.GetTable<InvoiceAllowanceDetail>().Where(d => d.AllowanceID == _model.AllowanceID)
-        .Join(models.GetTable<InvoiceAllowanceItem>(), d => d.ItemID, i => i.ItemID, (p, i) => i)
+    _products = models.GetTable<InvoiceAllowance>().Where(a => a.AllowanceID == _model.AllowanceID)
+        .SelectMany(a => a.InvoiceAllowanceDetails)
         .OrderBy(i => i.ItemID).ToArray();
     _pageCount = (_products.Length + 19) / 20;
 
@@ -42,9 +42,9 @@
         @*<div class="title">
         <img src="images/chc_logo.gif" width="403" height="51"></div>*@
         <div style="text-align: center;">
-            @if (_model.InvoiceAllowanceSeller.Organization.LogoURL != null)
+            @if (_model.InvoiceAllowanceSeller.Seller.LogoURL != null)
             {
-                <img id="logo" style="width: 200px; height: auto;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" +_model.InvoiceAllowanceSeller.Organization.LogoURL))' />
+                <img id="logo" style="width: 200px; height: auto;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" +_model.InvoiceAllowanceSeller.Seller.LogoURL))' />
             }
         </div>
         <div style="width: 50%; float: right;">

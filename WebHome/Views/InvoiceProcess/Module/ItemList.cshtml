@@ -35,13 +35,13 @@
         _sortExpr.Add(1, (Expression<Func<InvoiceItem, DateTime?>>)(p => p.InvoiceDate));
         _sortExpr.Add(2, (Expression<Func<InvoiceItem, String>>)(i => i.InvoiceBuyer.CustomerID));
         _sortExpr.Add(3, (Expression<Func<InvoiceItem, String>>)(i => i.InvoicePurchaseOrder.OrderNo));
-        _sortExpr.Add(4, (Expression<Func<InvoiceItem, String>>)(i => i.Organization.CompanyName));
-        _sortExpr.Add(5, (Expression<Func<InvoiceItem, String>>)(i => i.Organization.ReceiptNo));
+        _sortExpr.Add(4, (Expression<Func<InvoiceItem, String>>)(i => i.Seller.CompanyName));
+        _sortExpr.Add(5, (Expression<Func<InvoiceItem, String>>)(i => i.Seller.ReceiptNo));
         _sortExpr.Add(7, (Expression<Func<InvoiceItem, decimal?>>)(i => i.InvoiceAmountType.SalesAmount));
         _sortExpr.Add(8, (Expression<Func<InvoiceItem, decimal?>>)(i => i.InvoiceAmountType.TaxAmount));
         _sortExpr.Add(9, (Expression<Func<InvoiceItem, decimal?>>)(i => i.InvoiceAmountType.TotalAmount));
         //_sortExpr.Add(10, (Expression<Func<InvoiceItem, int>>)(i => i.InvoiceWinningNumber != null ? i.InvoiceWinningNumber.UniformInvoiceWinningNumber.Rank : 0));
-        _sortExpr.Add(10, (Expression<Func<InvoiceItem, int?>>)(i => (int?)i.InvoiceWinningNumber.UniformInvoiceWinningNumber.Rank));
+        _sortExpr.Add(10, (Expression<Func<InvoiceItem, int?>>)(i => (int?)i.InvoiceWinningNumber.Winning.Rank));
         _sortExpr.Add(11, (Expression<Func<InvoiceItem, String>>)(i => i.InvoiceBuyer.ReceiptNo));
         _sortExpr.Add(6, (Expression<Func<InvoiceItem, String>>)(i => i.TrackCode + i.No));
     }
@@ -106,13 +106,15 @@
     }
 
     _viewModel.PageIndex = _viewModel.PageIndex ?? 0;
+    //DataItem 每一列會存取多個導覽屬性，先一次載入避免 N+1（須在 Skip/Take 之前）。
     _items = _model
+        .IncludeInvoiceListNavigations()
         .Skip((int)_viewModel.PageIndex * (int)_viewModel.PageSize)
         .Take((int)_viewModel.PageSize);
 }
 
 @{ int idx = 0;}
-@foreach (var item in _items)
+@foreach (var item in _items.ToList())
 {
     idx++;
     <tr>

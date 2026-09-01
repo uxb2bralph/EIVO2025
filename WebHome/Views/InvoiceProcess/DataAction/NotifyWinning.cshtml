@@ -20,7 +20,7 @@
 }
 
 @if (_model.InvoiceCancellation == null && _model.InvoiceDonation == null
-    && _model.PrintMark == "N" && (_model.Organization.OrganizationStatus.InvoiceNoticeSetting & (int)Naming.InvoiceNoticeStatus.Winning) > 0
+    && _model.PrintMark == "N" && (_model.Seller.OrganizationStatus.InvoiceNoticeSetting & (int)Naming.InvoiceNoticeStatus.Winning) > 0
     && _model.InvoiceWinningNumber != null)
 {
     <a class="btn" onclick="uiInvoiceQuery.notifyWinning('@(_model.InvoiceID.EncryptKey())');">通知中獎</a>

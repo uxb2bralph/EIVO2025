@@ -62,13 +62,24 @@
         <td colspan="25">
             @if (_viewModel?.CurrencySummary == true)
             {
-                foreach (var g in items.GroupBy(i => i.CurrencyID))
+                @*原本 GroupBy(...).ToList() 會把符合條件的每一筆折讓單整列載入記憶體再加總；
+                  改成投影後由 SQL GROUP BY 直接彙總。*@
+                foreach (var g in items
+                    .GroupBy(i => i.CurrencyID)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        GrandTotal = g.Sum(i => i.TotalAmount + i.TaxAmount),
+                        TotalAmount = g.Sum(i => i.TotalAmount),
+                        TaxAmount = g.Sum(i => i.TaxAmount),
+                    })
+                    .ToList())
                 {
                     var currency = g.Key.HasValue ? models!.GetTable<CurrencyType>().Where(c => c.CurrencyID == g.Key).FirstOrDefault()?.AbbrevName : "TWD";
                     <text>
-                        含稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.TotalAmount + i.TaxAmount)))，
-                        未稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.TotalAmount)))，
-                        稅額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.Sum(i => i.TaxAmount)))<br />
+                        含稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.GrandTotal))，
+                        未稅金額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.TotalAmount))，
+                        稅額總計(@(currency))：&nbsp;@(String.Format("{0:##,###,###,##0.##}", g.TaxAmount))<br />
                     </text>
                 }
             }

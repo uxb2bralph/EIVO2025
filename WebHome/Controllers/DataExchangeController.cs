@@ -200,7 +200,7 @@ namespace WebHome.Controllers
                         return Json(new { result = true, KeyID = viewModel.JsonStringify().EncryptData() });
                     }
 
-                    return Json(new { result = false, KeyID = viewModel.JsonStringify().EncryptData(), message = taskItem.ExceptionLog?.DataContent });
+                    return Json(new { result = false, KeyID = viewModel.JsonStringify().EncryptData(), message = taskItem.Log?.DataContent });
 
                 }
             }
@@ -293,7 +293,7 @@ namespace WebHome.Controllers
                 return null;
             }
 
-            String typeName = typeof(EIVOEntityDataContext).AssemblyQualifiedName.Replace("EIVOEntityDataContext", viewModel.TableName);
+            String typeName = typeof(ApplicationDbContext).AssemblyQualifiedName.Replace("ApplicationDbContext", viewModel.TableName);
             var type = Type.GetType(typeName);
             if (type == null)
             {
@@ -315,7 +315,7 @@ namespace WebHome.Controllers
 
             ViewBag.TableType = type;
 
-            IQueryable items = models.DataContext.GetTable(type);
+            IQueryable items = models.GetTable(type);
             if (viewModel.DataItem != null && viewModel.DataItem.Length > 0)
             {
                 items = BuildQuery(viewModel.DataItem, type, items);
@@ -372,7 +372,7 @@ namespace WebHome.Controllers
             }
 
             ViewBag.TableType = type;
-            IQueryable items = ViewBag.DataTable = models.DataContext.GetTable(type);
+            IQueryable items = ViewBag.DataTable = models.GetTable(type);
             //var items = dataTable.Cast<dynamic>(); 
 
             dynamic dataItem;
@@ -421,13 +421,13 @@ namespace WebHome.Controllers
                 return result;
             }
 
-            ITable dataTable = ViewBag.DataTable as ITable;
+            IQueryable dataTable = ViewBag.DataTable as IQueryable;
             dynamic dataItem = result.Model;
 
             if (dataItem == null)
             {
                 dataItem = Activator.CreateInstance(type);
-                dataTable.InsertOnSubmit(dataItem);
+                models.DataContext.Add((object)dataItem);
             }
 
             if (viewModel.DataItem != null)
@@ -458,7 +458,7 @@ namespace WebHome.Controllers
             }
 
             ViewBag.TableType = type;
-            ITable dataTable = ViewBag.DataTable = models.DataContext.GetTable(type);
+            IQueryable dataTable = ViewBag.DataTable = models.GetTable(type);
 
             if (viewModel.KeyItems != null)
             {
@@ -468,7 +468,7 @@ namespace WebHome.Controllers
                     dynamic item = BuildQuery(keyData, type, (IQueryable)dataTable).FirstOrDefault();
                     if (item != null)
                     {
-                        dataTable.DeleteOnSubmit(item);
+                        models.DataContext.Remove((object)item);
                         models.SubmitChanges();
                     }
                 }

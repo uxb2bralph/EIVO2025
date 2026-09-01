@@ -25,7 +25,7 @@
     ModelSource<InvoiceItem> models;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
 }
@@ -39,7 +39,7 @@
         break;
     case Naming.FieldDisplayType.DataItem:
         BusinessRelationship item = this.Model as BusinessRelationship;
-        <text>@(item?.BusinessType.Business)</text>
+        <text>@(item?.Business.Business)</text>
         break;
     case Naming.FieldDisplayType.SortBy:
         QueryViewModel viewModel = (QueryViewModel)ViewBag.ViewModel;
@@ -56,7 +56,7 @@
     case Naming.FieldDisplayType.Edit:
         item = this.Model as BusinessRelationship;
         <text>
-            @(item?.BusinessType?.Business)
+            @(item?.Business?.Business)
         </text>
         break;
     default:

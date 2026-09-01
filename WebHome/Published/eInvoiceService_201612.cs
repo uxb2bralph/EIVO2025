@@ -65,7 +65,10 @@ namespace WebHome.Published
                             csvMgr.BusinessType = Naming.InvoiceCenterBusinessType.銷項;
                             csvMgr.MasterID = token.CompanyID;
                             Encoding encoding = dataToSign.IsUtf8(dataToSign.Length) ? Encoding.UTF8 : Encoding.GetEncoding(ModelExtension.Properties.AppSettings.Default.CsvUploadEncoding);
-                            csvMgr.ParseData(UserProfileFactory.CreateInstance(ModelExtension.Properties.AppSettings.Default.SystemAdmin), fileName, encoding);
+                            using (UserProfileManager userManager = new UserProfileManager(mgr))
+                            {
+                                csvMgr.ParseData(UserProfileFactory.CreateInstance(userManager, ModelExtension.Properties.AppSettings.Default.SystemAdmin)?.Entity!, fileName, encoding);
+                            }
 
                             if (!csvMgr.Save())
                             {
@@ -171,9 +174,9 @@ namespace WebHome.Published
                             else
                             {
                                 result.Result.value = 1;
-                                if (token.Organization.OrganizationStatus.PrintAll == true)
+                                if (token.Company.OrganizationStatus.PrintAll == true)
                                 {
-                                    SharedFunction.SendMailMessage(token.Organization.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Organization.CompanyName + "電子發票開立郵件通知");
+                                    SharedFunction.SendMailMessage(token.Company.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Company.CompanyName + "電子發票開立郵件通知");
                                 }
                             }
 

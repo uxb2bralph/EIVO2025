@@ -21,7 +21,7 @@
 
     ModelSource<InvoiceItem> models;
     UserAccountQueryViewModel _viewModel;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _viewModel = (UserAccountQueryViewModel)ViewBag.ViewModel;

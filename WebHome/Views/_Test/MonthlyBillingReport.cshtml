@@ -39,8 +39,8 @@
     {
         StringBuilder sb = new StringBuilder();
         sb.Append("統計開立張數：")
-            .Append(String.Join("、", orgItem.BillingCalculation
-                .Select(b => b.DocumentType.TypeName.Replace("電子", ""))))
+            .Append(String.Join("、", orgItem.Type
+                .Select(b => b.TypeName.Replace("電子", ""))))
             .Append("\r\n");
 
         if (orgItem.BillingGrade.Any())
@@ -71,13 +71,13 @@
 
     var items = _items.ToList().Select(b => new
     {
-        會員名稱 = b.Organization.CompanyName,
-        統編 = b.Organization.ReceiptNo,
+        會員名稱 = b.Company.CompanyName,
+        統編 = b.Company.ReceiptNo,
         帳單月份 = $"{b.Settlement.Year}/{b.Settlement.Month}",
         開立張數 = b.TotalIssueCount,
         帳單金額 = b.IssueChargeAmount,
-        帳單日期 = $"{b.BillSubmission?.BillDate:yyyy/MM/dd}",
-        計價規則 = GetBillingDescription(b.Organization),
+        帳單日期 = $"{b.Bill?.BillDate:yyyy/MM/dd}",
+        計價規則 = GetBillingDescription(b.Company),
     });
 
     using (DataSet ds = new DataSet())

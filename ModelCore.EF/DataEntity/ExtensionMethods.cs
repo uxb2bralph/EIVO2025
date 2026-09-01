@@ -64,6 +64,39 @@ namespace ModelCore.DataEntity
         }
 
 
+        public static bool MoveToNextStep(this CDS_Document item, GenericDbContext<ApplicationDbContext> mgr)
+        {
+            using (EIVOEntityManager<CDS_Document> worker = new EIVOEntityManager<CDS_Document>())
+            {
+                var docItem = worker.GetTable<CDS_Document>().Where(d => d.DocID.Equals(item.DocID)).FirstOrDefault();
+                if (docItem == null)
+                    return false;
+
+                var flowStep = docItem.DocumentFlowStep;
+                if (flowStep != null)
+                {
+                    var currentStep = worker.GetTable<DocumentFlowControl>().Where(f => f.StepID == flowStep.CurrentFlowStep).First();
+                    if (currentStep.NextStep.HasValue)
+                    {
+                        var nextStep = currentStep.NextStepNavigation!;
+                        flowStep.CurrentFlowStep = nextStep.StepID;
+                        docItem.CurrentStep = nextStep.LevelID;
+
+                        worker.GetTable<DocumentProcessLog>().Add(new DocumentProcessLog
+                        {
+                            DocID = flowStep.DocID,
+                            StepDate = DateTime.Now,
+                            FlowStep = nextStep.LevelID
+                        });
+
+                        worker.SubmitChanges();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public static bool IsCrossBorderMerchant(this GenericDbContext<ApplicationDbContext> models, int? companyID)
         {
             return models.GetTable<OrganizationCategory>().Any(c => c.CompanyID == companyID && c.CategoryID == (int)Naming.CategoryID.COMP_CROSS_BORDER_MURCHANT);

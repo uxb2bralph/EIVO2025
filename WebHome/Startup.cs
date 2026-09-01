@@ -19,6 +19,7 @@ using CoreWCF.Configuration;
 
 using ModelCore.DataEntity;
 using WebHome.Controllers.Filters;
+using WebHome.Infrastructure.BackgroundTasks;
 using Microsoft.Extensions.Logging;
 using WebHome.Helper;
 using CommonLib.Core.Utility;
@@ -146,6 +147,9 @@ namespace WebHome
             services.AddTransient<IHtmlHelper<dynamic>, HtmlHelper<dynamic>>();
 
             services.AddScoped<IViewRenderService, ViewRenderService>();
+
+            // 背景工作佇列 + IHostedService，取代 View/Controller 內的 Task.Run
+            services.AddBackgroundTaskQueue();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddHttpClient();

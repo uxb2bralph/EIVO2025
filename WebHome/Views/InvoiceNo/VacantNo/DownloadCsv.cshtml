@@ -13,6 +13,7 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
 
 @functions
 {
@@ -23,7 +24,10 @@
 @{
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    _model = (IQueryable<UnassignedInvoiceNo>)this.Model;
+    //每一列會存取 InvoiceTrackCodeAssignment 的 Seller / Track，先一次載入避免 N+1。
+    _model = ((IQueryable<UnassignedInvoiceNo>)this.Model)
+        .Include(i => i.InvoiceTrackCodeAssignment).ThenInclude(a => a.Seller!).ThenInclude(o => o.OrganizationExtension)
+        .Include(i => i.InvoiceTrackCodeAssignment).ThenInclude(a => a.Track);
     _items = _model;
     ViewBag.DataItems = _model;
     var Response = ViewContext.HttpContext.Response;
@@ -35,7 +39,7 @@
     Response.Headers.Clear();
     Response.Headers.Append("Cache-control", "max-age=1");
     Response.ContentType = "application/octet-stream";
-    Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", System.Web.HttpUtility.UrlEncode("空白發票_" + orgItem.ReceiptNo + "(" + String.Format("{0}{1:00}", item.InvoiceTrackCodeAssignment.InvoiceTrackCode.Year - 1911, item.InvoiceTrackCodeAssignment.InvoiceTrackCode.PeriodNo * 2) + ").csv")));
+    Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", System.Web.HttpUtility.UrlEncode("空白發票_" + orgItem.ReceiptNo + "(" + String.Format("{0}{1:00}", item.InvoiceTrackCodeAssignment.Track.Year - 1911, item.InvoiceTrackCodeAssignment.Track.PeriodNo * 2) + ").csv")));
 
     renderConetnt();
 }
@@ -44,10 +48,10 @@
 	void renderConetnt()
 	{ 
         int idx = 1;
-        foreach (var item in _items)
+        foreach (var item in _items.ToList())
         {
-            var orgItem = item.InvoiceTrackCodeAssignment.Organization;
-            var trackCode = item.InvoiceTrackCodeAssignment.InvoiceTrackCode;
+            var orgItem = item.InvoiceTrackCodeAssignment.Seller;
+            var trackCode = item.InvoiceTrackCodeAssignment.Track;
             <text>@(String.Format("{0:00000}", idx++)),@(orgItem.ReceiptNo),@(String.Format("{0}{1:00}", trackCode.Year - 1911, trackCode.PeriodNo * 2)),@(trackCode.TrackCode),@(String.Format("{0:00000000}", item.InvoiceBeginNo)),@(String.Format("{0:00000000}", item.InvoiceEndNo)),@($"{trackCode.InvoiceType:00}")@(orgItem.OrganizationExtension.ExpirationDate.HasValue ? $",註記停用:{orgItem.OrganizationExtension.ExpirationDate:yyyy/MM/dd}" : null)</text>
         }
     }

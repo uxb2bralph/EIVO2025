@@ -17,7 +17,7 @@
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
     IQueryable<Organization> _items;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
 
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
@@ -35,7 +35,7 @@
         _items = _items.Where(o => o.CompanyID == _profile.CurrentUserRole.OrganizationCategory.CompanyID);
     }
 }
-@foreach (var item in _items.OrderBy(o => o.ReceiptNo))
+@foreach (var item in _items.OrderBy(o => o.ReceiptNo).ToList())
 {
     <option value="@(item.CompanyID)">@(String.Format("{0} {1}", item.ReceiptNo, item.CompanyName))</option>
 }

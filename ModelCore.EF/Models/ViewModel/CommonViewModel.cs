@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -323,6 +324,7 @@ namespace ModelCore.Models.ViewModel
         public bool? StartQuery { get; set; }
         public bool? Encrypt { get; set; }
         public String? QuickSearch { get; set; }
+        public String? Term { get; set; }
         public Naming.FieldDisplayType? DisplayType { get; set; }
         public String[]? KeyItems { get; set; }
         public String? Message { get; set; }
@@ -388,17 +390,18 @@ namespace ModelCore.Models.ViewModel
         public String? EmptyKeyID { get; set; }
         public List<int>? ChkItem { get; set; }
         public bool? ForceTodo { get; set; }
-        //[JsonIgnore]
-        //public List<QueryResultDataColumnHelper>? DataColumns { get; set; }
+        [JsonIgnore]
+        [NotMapped]
+        public List<QueryResultDataColumnHelper>? DataColumns { get; set; }
         public Naming.ActionType? ProcessAction { get; set; }
     }
 
-    //public class QueryResultDataColumnHelper
-    //{
-    //    public Func<object, HelperResult>? ShowHeader { get; set; }
-    //    public Func<object, HelperResult>? ShowBody { get; set; }
-    //    public Func<object, HelperResult>? ShowFooter { get; set; }
-    //}
+    public class QueryResultDataColumnHelper
+    {
+        public Func<object, HelperResult>? ShowHeader { get; set; }
+        public Func<object, HelperResult>? ShowBody { get; set; }
+        public Func<object, HelperResult>? ShowFooter { get; set; }
+    }
 
     public class BusinessRelationshipQueryViewModel : BusinessRelationshipViewModel
     {
@@ -516,7 +519,7 @@ namespace ModelCore.Models.ViewModel
         public DateTime? ProcessCompleteTo { get; set; }
     }
 
-    public class ProductCatalogQueryViewModel : QueryViewModel
+    public class ProductCatalogQueryViewModel : EncQueryViewModel
     {
         public int? ProductID { get; set; }
         public String? Barcode { get; set; }

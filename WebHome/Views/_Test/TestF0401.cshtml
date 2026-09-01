@@ -12,6 +12,7 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using WebHome.Infrastructure.BackgroundTasks
 
 @{
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
@@ -131,22 +132,17 @@
             if (count > 0)
             {
                 alert("送出執行註銷筆數:" + count);
-                System.Threading.ThreadPool.QueueUserWorkItem(t =>
-                {
-                    foreach (var item in items)
-                    {
-                        try
-                        {
-                            storedMIG(item, storedPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error(ex);
-                        }
-                    }
-                    models.Dispose();
-                });
+                DateTime? dateFrom = _viewModel.DateFrom;
+                DateTime? dateTo = _viewModel.DateTo;
+                Naming.InvoiceProcessType? processType = _viewModel.ProcessType;
+                String trackCode = invoiceNo.Substring(0, 2);
+                String startNo = invoiceNo.Substring(2);
+                String endNoValue = endNo.Substring(2);
+                String outPath = storedPath;
+                Context.EnqueueBackgroundWork("_Test/TestF0401(range)",
+                    _ => storedMIGByRange(dateFrom, dateTo, trackCode, startNo, endNoValue, outPath, processType));
             }
+            models.Dispose();
         }
         else
         {
@@ -158,6 +154,46 @@
     {
         String invoiceNo = item.TrackCode + item.No;
         CreateMIG(item, _viewModel).Save(System.IO.Path.Combine(storedPath, $"{_viewModel.ProcessType}_{invoiceNo}.xml"));
+    }
+
+    //背景作業：由 BackgroundTaskService 於請求結束後執行，
+    //只帶入純值參數，內部自建 ModelSource 重新查詢，不沿用請求的 models。
+    static void storedMIGByRange(DateTime? dateFrom, DateTime? dateTo, String trackCode, String startNo, String endNo,
+        String storedPath, Naming.InvoiceProcessType? processType)
+    {
+        using ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>();
+
+        IQueryable<InvoiceItem> invoiceItems = db.GetTable<InvoiceItem>();
+
+        if (dateFrom.HasValue)
+        {
+            invoiceItems = invoiceItems.Where(i => i.InvoiceDate >= dateFrom);
+        }
+
+        if (dateTo.HasValue)
+        {
+            invoiceItems = invoiceItems.Where(i => i.InvoiceDate < dateTo.Value.AddDays(1));
+        }
+
+        foreach (var item in invoiceItems
+            .Where(i => i.TrackCode == trackCode)
+            .Where(i => String.Compare(i.No, startNo) >= 0)
+            .Where(i => String.Compare(i.No, endNo) <= 0)
+            .ToList())
+        {
+            try
+            {
+                String invoiceNo = item.TrackCode + item.No;
+                System.Xml.XmlDocument mig = processType == Naming.InvoiceProcessType.A0101
+                    ? item.CreateA0101()
+                    : item.CreateF0401();
+                mig.Save(System.IO.Path.Combine(storedPath, $"{processType}_{invoiceNo}.xml"));
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+        }
     }
 }
 

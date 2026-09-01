@@ -68,10 +68,10 @@ namespace WebHome.Controllers
                     Property = property
                 };
                 item.ApplyPlainText(property);
-                db.UserProfileProperty.InsertOnSubmit(item);
+                db.UserProfileProperty.Add(item);
             }
 
-            db.SubmitChanges();
+            models!.SubmitChanges();
             return item;
         }
 
@@ -82,8 +82,8 @@ namespace WebHome.Controllers
 
             if (property != null)
             {
-                db.UserProfileProperty.DeleteOnSubmit(property);
-                db.SubmitChanges();
+                db.UserProfileProperty.Remove(property);
+                models!.SubmitChanges();
             }
         }
     }

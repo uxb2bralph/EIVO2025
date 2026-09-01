@@ -33,6 +33,7 @@ using Microsoft.AspNetCore.Authorization;
 using ModelCore.Helper;
 using CommonLib.Core.Utility;
 using CommonLib.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebHome.Controllers
 {
@@ -190,7 +191,7 @@ namespace WebHome.Controllers
                     Year = viewModel.Year.Value,
                     Period = viewModel.Period.Value
                 };
-                table.InsertOnSubmit(model);
+                table.Add(model);
             }
             else
             {
@@ -229,9 +230,9 @@ namespace WebHome.Controllers
 
         }
 
-        private void createWinningNo(Table<UniformInvoiceWinningNumber> table, int year, int period, string winningNo, Naming.WinningPrizeType prizeType)
+        private void createWinningNo(DbSet<UniformInvoiceWinningNumber> table, int year, int period, string winningNo, Naming.WinningPrizeType prizeType)
         {
-            table.InsertOnSubmit(new UniformInvoiceWinningNumber
+            table.Add(new UniformInvoiceWinningNumber
             {
                 Year = year,
                 Period = period,
@@ -248,7 +249,7 @@ namespace WebHome.Controllers
             IQueryable<UniformInvoiceWinningNumber> items = result.Model as IQueryable<UniformInvoiceWinningNumber>;
             if (items != null && items.Count() > 0)
             {
-                models.DataContext.MatchWinningInvoiceNo(viewModel.Year, viewModel.PeriodNo);
+                models.ExecuteCommand("EXEC dbo.MatchWinningInvoiceNo @Year = {0}, @PeriodNo = {1}", viewModel.Year, viewModel.PeriodNo);
 
                 var invoiceItems = models.PromptWinningInvoiceForNotification(viewModel.Year ?? -1, viewModel.PeriodNo?? -1);
                 invoiceItems.Select(i => i.InvoiceID).NotifyWinningInvoice(false);
@@ -305,13 +306,13 @@ namespace WebHome.Controllers
 
             ProcessRequest processItem = new ProcessRequest
             {
-                Sender = HttpContext.GetUser()?.UID,
+                Sender = HttpContext.GetUser()?.Entity.UID,
                 SubmitDate = DateTime.Now,
                 ProcessStart = DateTime.Now,
                 RequestPath = fileName,
                 ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
             };
-            models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+            models.GetTable<ProcessRequest>().Add(processItem);
             models.SubmitChanges();
 
             ProcessWinningNoExcel(processItem.TaskID, processItem.ResponsePath, fileName);
@@ -382,7 +383,7 @@ namespace WebHome.Controllers
                                                 InvoiceID = invoice.InvoiceID,
                                             };
 
-                                            db.GetTable<InvoiceWinningNumber>().InsertOnSubmit(winningInvoice);
+                                            db.GetTable<InvoiceWinningNumber>().Add(winningInvoice);
                                         }
 
                                         winningInvoice.PrizeType = row.GetString(3).GetEfficientString();
@@ -419,7 +420,7 @@ namespace WebHome.Controllers
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.ExceptionLog = new ExceptionLog
+                                    taskItem.Log = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };

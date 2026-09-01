@@ -16,6 +16,8 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 @using CommonLib.DataAccess
 @using Newtonsoft.Json
+@using V_Invoice = ModelCore.TurnkeyModel.V_Invoice
+@using V_Allowance = ModelCore.TurnkeyModel.V_Allowance
 
 @functions
 {
@@ -45,14 +47,14 @@
     Response.Headers.Clear();
     Response.ContentType = "application/json";
 
-    using (TurnKey2DataContext turnkeyDB = new TurnKey2DataContext())
+    using (ModelCore.TurnkeyModel.TurnkeyDbContext turnkeyDB = new ModelCore.TurnkeyModel.TurnkeyDbContext())
     {
         IQueryable<V_Allowance> allowanceItems =
-            turnkeyDB.GetTable<V_Allowance>()
+            turnkeyDB.Set<V_Allowance>()
                 .Where(i => i.AllowanceNo == _viewModel.AllowanceNo);
 
         IQueryable<V_Invoice> items =
-            turnkeyDB.GetTable<V_Invoice>()
+            turnkeyDB.Set<V_Invoice>()
                 .Where(i => i.InvoiceNo == _viewModel.InvoiceNo);
 
         switch (_viewModel.DocType)

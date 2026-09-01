@@ -25,7 +25,7 @@
     ModelSource<InvoiceItem> models;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
-    UserProfile _profile = Context.GetUser();
+    UserProfileWrapper _profile = Context.GetUser();
     _modelState = (ModelStateDictionary)ViewBag.ModelState;
     QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
 }
@@ -39,7 +39,7 @@
         break;
     case Naming.FieldDisplayType.DataItem:
         BusinessRelationship item = this.Model as BusinessRelationship;
-        <text>@(item?.Counterpart.ReceiptNo)</text>
+        <text>@(item?.Relative.ReceiptNo)</text>
         break;
     case Naming.FieldDisplayType.SortBy:
         QueryViewModel viewModel = (QueryViewModel)ViewBag.ViewModel;
@@ -48,7 +48,7 @@
             int idx = System.Array.IndexOf(viewModel.SortName, "ReceiptNo");
             if (idx >= 0)
             {
-                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<BusinessRelationship> ?? (IQueryable<BusinessRelationship>)this.Model).OrderBy(p => p.Counterpart.ReceiptNo, viewModel.SortType[idx]);
+                TempData["SortedItems"] = (TempData["SortedItems"] as IOrderedQueryable<BusinessRelationship> ?? (IQueryable<BusinessRelationship>)this.Model).OrderBy(p => p.Relative.ReceiptNo, viewModel.SortType[idx]);
             }
         }
         break;
@@ -56,7 +56,7 @@
     case Naming.FieldDisplayType.Edit:
         item = this.Model as BusinessRelationship;
         <text>
-            @(item?.Counterpart?.ReceiptNo)
+            @(item?.Relative?.ReceiptNo)
         </text>
         break;
     default:

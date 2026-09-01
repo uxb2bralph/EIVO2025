@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Web;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using ModelCore.DataEntity;
 using ModelCore.Locale;
 
@@ -20,7 +20,7 @@ namespace WebHome.Helper.DataQuery
 {
     public static class InvoiceItemQueryExtensions
     {
-        public static IQueryable<InvoiceItem> Inquire(this InquireInvoiceViewModel viewModel, GenericManager<EIVOEntityDataContext> models)
+        public static IQueryable<InvoiceItem> Inquire(this InquireInvoiceViewModel viewModel, GenericDbContext<ApplicationDbContext> models)
         {
             IQueryable<InvoiceItem> items = models.GetTable<InvoiceItem>();
 
@@ -42,7 +42,7 @@ namespace WebHome.Helper.DataQuery
             return items;
         }
 
-        public static IQueryable<InvoiceItem> InquireInvoiceCancellation(this InquireInvoiceViewModel viewModel, GenericManager<EIVOEntityDataContext> models)
+        public static IQueryable<InvoiceItem> InquireInvoiceCancellation(this InquireInvoiceViewModel viewModel, GenericDbContext<ApplicationDbContext> models)
         {
             IQueryable<InvoiceItem> items = models.GetTable<InvoiceItem>();
 
@@ -66,7 +66,7 @@ namespace WebHome.Helper.DataQuery
             return items.Join(cancellation, i => i.InvoiceID, c => c.InvoiceID, (i, c) => i);
         }
 
-        public static IQueryable<InvoiceAllowance> InquireAllowance(this InquireInvoiceViewModel viewModel, GenericManager<EIVOEntityDataContext> models)
+        public static IQueryable<InvoiceAllowance> InquireAllowance(this InquireInvoiceViewModel viewModel, GenericDbContext<ApplicationDbContext> models)
         {
             IQueryable<InvoiceAllowance> items = models.GetTable<InvoiceAllowance>();
 
@@ -90,7 +90,7 @@ namespace WebHome.Helper.DataQuery
             return items;
         }
 
-        public static IQueryable<InvoiceAllowance> InquireAllowanceCancellation(this InquireInvoiceViewModel viewModel, GenericManager<EIVOEntityDataContext> models)
+        public static IQueryable<InvoiceAllowance> InquireAllowanceCancellation(this InquireInvoiceViewModel viewModel, GenericDbContext<ApplicationDbContext> models)
         {
             IQueryable<InvoiceAllowance> items = models.GetTable<InvoiceAllowance>();
 

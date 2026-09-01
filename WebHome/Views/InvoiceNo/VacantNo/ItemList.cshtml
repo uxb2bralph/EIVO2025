@@ -5,9 +5,13 @@
 
 @using ModelCore.DataEntity
 @using ModelCore.Locale
+@using Microsoft.EntityFrameworkCore
 @{
 
-    IQueryable<UnassignedInvoiceNo> _model = (IQueryable<UnassignedInvoiceNo>)this.Model;
+    //DataItem 每一列會存取 InvoiceTrackCodeAssignment 的 Seller / Track，先一次載入避免 N+1。
+    IQueryable<UnassignedInvoiceNo> _model = ((IQueryable<UnassignedInvoiceNo>)this.Model)
+        .Include(i => i.InvoiceTrackCodeAssignment).ThenInclude(a => a.Seller).ThenInclude(o => o.OrganizationExtension)
+        .Include(i => i.InvoiceTrackCodeAssignment).ThenInclude(a => a.Track);
     ViewBag.DataItems = _model;
 }
 <table class="table table-striped itemList">
@@ -24,7 +28,7 @@
     </thead>
     <tbody>
         @{ int idx = 0;}
-        @foreach (var item in _model)
+        @foreach (var item in _model.ToList())
         {
             idx++;
             await Html.RenderPartialAsync("~/Views/InvoiceNo/VacantNo/DataItem.cshtml", item);

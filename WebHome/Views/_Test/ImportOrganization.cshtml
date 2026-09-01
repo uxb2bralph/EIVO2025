@@ -56,7 +56,7 @@
                 var dbItem = models.GetTable<Organization>().Where(o => o.ReceiptNo == item.ReceiptNo).FirstOrDefault();
                 if (dbItem == null)
                 {
-                    models.GetTable<Organization>().InsertOnSubmit(item);
+                    models.GetTable<Organization>().Add(item);
                     item.OrganizationExtension = new OrganizationExtension();
                     item.OrganizationStatus = new OrganizationStatus { };
                 }

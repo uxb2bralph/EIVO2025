@@ -9,6 +9,7 @@ using CommonLib.Utility;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
 using WebHome.Helper.Security.Authorization;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers.Merchandise
 {
@@ -41,12 +42,12 @@ namespace WebHome.Controllers.Merchandise
 
             if(viewModel.SupplierID.HasValue)
             {
-                items = items.Where(p => p.ProductSupplier.Any(s => s.SupplierID == viewModel.SupplierID));
+                items = items.Where(p => p.Supplier.Any(s => s.CompanyID == viewModel.SupplierID));
             }
 
             if (viewModel.SellerID.HasValue)
             {
-                items = items.Where(p => p.ProductSupplier.Any(s => s.SupplierID == viewModel.SellerID));
+                items = items.Where(p => p.Supplier.Any(s => s.CompanyID == viewModel.SellerID));
             }
 
             if (viewModel.ProductID.HasValue)
@@ -107,7 +108,7 @@ namespace WebHome.Controllers.Merchandise
 
         public ActionResult CommitItem(ProductCatalogQueryViewModel viewModel)
         {
-            UserProfile profile = HttpContext.GetUser();
+            UserProfileWrapper profile = HttpContext.GetUser();
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -154,11 +155,10 @@ namespace WebHome.Controllers.Merchandise
                 {
 
                 };
-                item.ProductSupplier.Add(new ProductSupplier
-                {
-                    SupplierID = viewModel.SupplierID.Value
-                });
-                models.GetTable<ProductCatalog>().InsertOnSubmit(item);
+                var supplier = models.GetTable<Organization>()
+                                    .Where(o => o.CompanyID == viewModel.SupplierID.Value).First();
+                item.Supplier.Add(supplier);
+                models.GetTable<ProductCatalog>().Add(item);
             }
 
             item.Barcode = viewModel.Barcode;
@@ -176,7 +176,7 @@ namespace WebHome.Controllers.Merchandise
 
         public ActionResult DeleteItem(ProductCatalogQueryViewModel viewModel)
         {
-            UserProfile profile = HttpContext.GetUser();
+            UserProfileWrapper profile = HttpContext.GetUser();
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -192,7 +192,7 @@ namespace WebHome.Controllers.Merchandise
             {
                 return Json(new { result = false, message = "資料錯誤" });
             }
-            models.GetTable<ProductCatalog>().DeleteOnSubmit(item);
+            models.GetTable<ProductCatalog>().Remove(item);
             models.SubmitChanges();
 
             return Json(new { result = true });

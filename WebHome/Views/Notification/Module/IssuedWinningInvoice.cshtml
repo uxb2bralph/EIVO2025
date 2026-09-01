@@ -244,7 +244,7 @@
             <!--表格 開始-->
             @{
                 ViewBag.MailTitle = "電子發票中獎通知";
-                await Html.RenderPartialAsync("~/Views/Notification/Module/MailTitle.cshtml", _model.Organization);
+                await Html.RenderPartialAsync("~/Views/Notification/Module/MailTitle.cshtml", _model.Seller);
                 await Html.RenderPartialAsync("~/Views/DataView/Module/Invoice.cshtml", _model);
             }
 
@@ -255,7 +255,7 @@
             {
                 <text>本公司奉財政部核准文號：</text>
                 <span class="blue">
-                    @( _model.Organization.OrganizationStatus.AuthorizationNo ?? "臺北市國稅局信義分局100年7月22日財北國稅信義營業字第1000213452號")
+                    @( _model.Seller.OrganizationStatus.AuthorizationNo ?? "臺北市國稅局信義分局100年7月22日財北國稅信義營業字第1000213452號")
                 </span>
                 <text>，使用電子發票。</text>
             }
@@ -272,15 +272,15 @@
                 儲存，若您要至該網站查詢發票開立狀況，請輸入「發票號碼」及「發票日期」，即可查詢此張發票內容。
             </li>
         </ol>
-        @if (_model.Organization.OrganizationExtension?.CustomNotification != null)
+        @if (_model.Seller.OrganizationExtension?.CustomNotification != null)
         {
             <text>
-                @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.Organization.OrganizationExtension?.CustomNotification))
+                @Html.Raw(System.Web.HttpUtility.HtmlDecode(_model.Seller.OrganizationExtension?.CustomNotification))
             </text>
         }
         <p>&nbsp;</p>
         @{
-            await Html.RenderPartialAsync("~/Views/Notification/Shared/ServiceNotation.cshtml", _model.Organization);
+            await Html.RenderPartialAsync("~/Views/Notification/Shared/ServiceNotation.cshtml", _model.Seller);
         }
     </form>
 </body>

@@ -30,8 +30,10 @@ using CommonLib.Utility;
 using CommonLib.Security.UseCrypto;
 using Newtonsoft.Json;
 using System.Data;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using CommonLib.Core.Utility;
+using ModelCore.DataEntityWrapper;
+using CommonLib.DataAccess;
 
 namespace WebHome.Controllers.Accounting
 {
@@ -81,7 +83,7 @@ namespace WebHome.Controllers.Accounting
                 {
                     tmp.Currency = "TWD";
                 }
-                items = items.Where(t => t.CurrencyType.AbbrevName.StartsWith(tmp.Currency));
+                items = items.Where(t => t.Currency.AbbrevName.StartsWith(tmp.Currency));
             }
 
             if (!(tmp.PageSize > 0))
@@ -95,9 +97,9 @@ namespace WebHome.Controllers.Accounting
 
         }
 
-        public ActionResult CommitItem(ExchangeRateQueryViewModel viewModel, GenericManager<EIVOEntityDataContext>? db = null)
+        public ActionResult CommitItem(ExchangeRateQueryViewModel viewModel, GenericDbContext<ApplicationDbContext>? db = null)
         {
-            UserProfile profile = HttpContext.GetUser();
+            UserProfileWrapper profile = HttpContext.GetUser();
             ViewBag.ViewModel = viewModel;
 
             if (db == null)
@@ -195,15 +197,15 @@ namespace WebHome.Controllers.Accounting
                     {
                         PeriodID = viewModel.PeriodID.Value,
                     };
-                    db.GetTable<InvoicePeriod>().InsertOnSubmit(period);
+                    db.GetTable<InvoicePeriod>().Add(period);
                 }
 
                 item = new InvoicePeriodExchangeRate
                 {
                     CurrencyID = currency.CurrencyID,
-                    InvoicePeriod = period,
+                    Period = period,
                 };
-                db.GetTable<InvoicePeriodExchangeRate>().InsertOnSubmit(item);
+                db.GetTable<InvoicePeriodExchangeRate>().Add(item);
             }
 
             item.ExchangeRate = viewModel.ExchangeRate.Value;
@@ -228,7 +230,7 @@ namespace WebHome.Controllers.Accounting
 
         public ActionResult DeleteItem(ExchangeRateQueryViewModel viewModel)
         {
-            UserProfile profile = HttpContext.GetUser();
+            UserProfileWrapper profile = HttpContext.GetUser();
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -274,7 +276,7 @@ namespace WebHome.Controllers.Accounting
             {
                 年度 = i.PeriodID / 100,
                 期別 = i.PeriodID % 100,
-                幣別代碼 = i.CurrencyType.AbbrevName,
+                幣別代碼 = i.Currency.AbbrevName,
                 匯率 = i.ExchangeRate,
             });
 
@@ -349,7 +351,7 @@ namespace WebHome.Controllers.Accounting
                             item.ExchangeRate = r.GetData<decimal>(3);
 
                             ModelState.Clear();
-                            using (GenericManager<EIVOEntityDataContext> db = new GenericManager<EIVOEntityDataContext>())
+                            using (GenericDbContext<ApplicationDbContext> db = new GenericDbContext<ApplicationDbContext>())
                             {
                                 CommitItem(item, db);
                             }

@@ -339,9 +339,9 @@ namespace WebHome.Published
                                 result.Result.value = 1;
                             }
 
-                            if (mgr.HasItem && token.Organization.OrganizationStatus.PrintAll == true)
+                            if (mgr.HasItem && token.Company.OrganizationStatus.PrintAll == true)
                             {
-                                SharedFunction.SendMailMessage(token.Organization.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Organization.CompanyName + "電子發票開立郵件通知");
+                                SharedFunction.SendMailMessage(token.Company.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Company.CompanyName + "電子發票開立郵件通知");
                             }
 
                         }
@@ -662,9 +662,9 @@ namespace WebHome.Published
                             {
                                 result.Result.value = 1;
 
-                                if (token.Organization.OrganizationStatus.PrintAll == true)
+                                if (token.Company.OrganizationStatus.PrintAll == true)
                                 {
-                                    SharedFunction.SendMailMessage(token.Organization.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Organization.CompanyName + "電子發票開立郵件通知");
+                                    SharedFunction.SendMailMessage(token.Company.CompanyName + "電子發票已匯入,請執行發票列印作業!!", ModelExtension.Properties.AppSettings.Default.WebMaster, token.Company.CompanyName + "電子發票開立郵件通知");
                                 }
 
                             }
@@ -1013,16 +1013,16 @@ namespace WebHome.Published
                             CompanyBan = sellerReceiptNo,
                             SocialWelfareAgencies = items.Select(i => new SocialWelfareAgenciesRootSocialWelfareAgencies
                             {
-                                Address = i.InvoiceWelfareAgency.WelfareAgency.Organization.Addr,
-                                Ban = i.InvoiceWelfareAgency.WelfareAgency.Organization.ReceiptNo,
-                                Email = String.IsNullOrEmpty(i.InvoiceWelfareAgency.WelfareAgency.Organization.ContactEmail) ? "N/A" : i.InvoiceWelfareAgency.WelfareAgency.Organization.ContactEmail,
-                                Name = i.InvoiceWelfareAgency.WelfareAgency.Organization.CompanyName,
-                                TEL = i.InvoiceWelfareAgency.WelfareAgency.Organization.Phone,
-                                Code = String.IsNullOrEmpty(i.InvoiceWelfareAgency.WelfareAgency.AgencyCode) ? "待登錄" : i.InvoiceWelfareAgency.WelfareAgency.AgencyCode
+                                Address = i.Welfare.Agency.Agency.Addr,
+                                Ban = i.Welfare.Agency.Agency.ReceiptNo,
+                                Email = String.IsNullOrEmpty(i.Welfare.Agency.Agency.ContactEmail) ? "N/A" : i.Welfare.Agency.Agency.ContactEmail,
+                                Name = i.Welfare.Agency.Agency.CompanyName,
+                                TEL = i.Welfare.Agency.Agency.Phone,
+                                Code = String.IsNullOrEmpty(i.Welfare.Agency.AgencyCode) ? "待登錄" : i.Welfare.Agency.AgencyCode
                             }).ToArray()
                         };
 
-                        mgr.GetTable<WelfareReplication>().DeleteAllOnSubmit(items);
+                        mgr.GetTable<WelfareReplication>().RemoveRange(items);
                         mgr.SubmitChanges();
 
                         return welfare.ConvertToXml();
@@ -1051,12 +1051,12 @@ namespace WebHome.Published
                             CompanyBan = sellerReceiptNo,
                             SocialWelfareAgencies = items.Select(i => new SocialWelfareAgenciesRootSocialWelfareAgencies
                             {
-                                Address = i.WelfareAgency.Organization.Addr,
-                                Ban = i.WelfareAgency.Organization.ReceiptNo,
-                                Email = String.IsNullOrEmpty(i.WelfareAgency.Organization.ContactEmail) ? "N/A" : i.WelfareAgency.Organization.ContactEmail,
-                                Name = i.WelfareAgency.Organization.CompanyName,
-                                TEL = i.WelfareAgency.Organization.Phone,
-                                Code = String.IsNullOrEmpty(i.WelfareAgency.AgencyCode) ? "待登錄" : i.WelfareAgency.AgencyCode
+                                Address = i.Agency.Agency.Addr,
+                                Ban = i.Agency.Agency.ReceiptNo,
+                                Email = String.IsNullOrEmpty(i.Agency.Agency.ContactEmail) ? "N/A" : i.Agency.Agency.ContactEmail,
+                                Name = i.Agency.Agency.CompanyName,
+                                TEL = i.Agency.Agency.Phone,
+                                Code = String.IsNullOrEmpty(i.Agency.AgencyCode) ? "待登錄" : i.Agency.AgencyCode
                             }).ToArray()
                         };
                         return welfare.ConvertToXml();
@@ -1133,10 +1133,10 @@ namespace WebHome.Published
                 result.Response = new RootResponseForA0101
                 {
                     Invoice =
-                    items.Select(d => d.CDS_Document.InvoiceItem.CreateInvoiceMIG(false)).ToArray()
+                    items.Select(d => d.Doc.InvoiceItem.CreateInvoiceMIG(false)).ToArray()
                 };
 
-                table.DeleteAllOnSubmit(items);
+                table.RemoveRange(items);
                 mgr.SubmitChanges();
 
                 result.Result.value = 1;
@@ -1167,7 +1167,7 @@ namespace WebHome.Published
                         ///憑證資料檢查
                         ///
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
-                        if (token != null && token.Organization.OrganizationStatus.DownloadDataNumber == true)
+                        if (token != null && token.Company.OrganizationStatus.DownloadDataNumber == true)
                         {
                             buildInvoicesMap(result, mgr, token.CompanyID);
                             Root root = sellerInfo.ConvertTo<Root>();
@@ -1212,16 +1212,16 @@ namespace WebHome.Published
                     {
                         InvoiceMap = items.Select(d => new InvoiceMapRootInvoiceMap
                         {
-                            InvoiceNumber = d.CDS_Document.InvoiceItem.TrackCode + d.CDS_Document.InvoiceItem.No,
-                            InvoiceDate = String.Format("{0:yyyy/MM/dd}", d.CDS_Document.InvoiceItem.InvoiceDate),
-                            DataNumber = d.CDS_Document.InvoiceItem.InvoicePurchaseOrder.OrderNo,
-                            InvoiceTime = String.Format("{0:HH:mm:ss}", d.CDS_Document.InvoiceItem.InvoiceDate),
-                            SellerId = d.CDS_Document.InvoiceItem.InvoiceSeller.ReceiptNo
+                            InvoiceNumber = d.Doc.InvoiceItem.TrackCode + d.Doc.InvoiceItem.No,
+                            InvoiceDate = String.Format("{0:yyyy/MM/dd}", d.Doc.InvoiceItem.InvoiceDate),
+                            DataNumber = d.Doc.InvoiceItem.InvoicePurchaseOrder.OrderNo,
+                            InvoiceTime = String.Format("{0:HH:mm:ss}", d.Doc.InvoiceItem.InvoiceDate),
+                            SellerId = d.Doc.InvoiceItem.InvoiceSeller.ReceiptNo
                         }).ToArray()
                     }
                 };
 
-                table.DeleteAllOnSubmit(items);
+                table.RemoveRange(items);
                 mgr.SubmitChanges();
 
                 result.Result.value = 1;
@@ -1281,16 +1281,16 @@ namespace WebHome.Published
                         if (token != null)
                         {
                             var table = mgr.GetTable<InvoiceWinningNumber>();
-                            var items = table.Where(w => w.InvoiceItem.CDS_Document.DocumentOwner.OwnerID == token.CompanyID && !w.DownloadDate.HasValue);
+                            var items = table.Where(w => w.Invoice.CDS_Document.DocumentOwner.OwnerID == token.CompanyID && !w.DownloadDate.HasValue);
                             if (items.Count() > 0)
                             {
-                                var welfare = token.Organization.InvoiceWelfareAgencies.Select(w => w.WelfareAgency.Organization).FirstOrDefault();
+                                var welfare = token.Company.InvoiceWelfareAgency.Select(w => w.Agency.Agency).FirstOrDefault();
                                 String welfareReceiptNo = welfare != null ? welfare.ReceiptNo : null;
                                 BonusInvoiceRoot root = new BonusInvoiceRoot
                                 {
                                     BonusInvoice = items.Select(w => new BonusInvoiceRootBonusInvoice
                                     {
-                                        InvoiceNumber = String.Concat(w.InvoiceItem.TrackCode, w.InvoiceItem.No),
+                                        InvoiceNumber = String.Concat(w.Invoice.TrackCode, w.Invoice.No),
                                         SWABan = welfareReceiptNo
                                     }).ToArray()
                                 };
@@ -1347,7 +1347,7 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-                            return token.Organization.SerializeDataContractToXml();
+                            return token.Company.SerializeDataContractToXml();
                         }
                     }
                 }
@@ -1962,10 +1962,10 @@ namespace WebHome.Published
                             var item = mgr.GetTable<InvoiceItem>().Where(i => i.TrackCode == invoiceNo.Substring(0, 2) && i.No == invoiceNo.Substring(2, 8)).FirstOrDefault();
                             if (item != null)
                             {
-                                var orgUser = mgr.GetTable<UserProfile>().Where(u => u.PID == token.Organization.ReceiptNo).FirstOrDefault();
+                                var orgUser = mgr.GetTable<UserProfile>().Where(u => u.PID == token.Company.ReceiptNo).FirstOrDefault();
                                 if (orgUser != null)
                                 {
-                                    mgr.GetTable<DocumentDownloadLog>().InsertOnSubmit(new DocumentDownloadLog
+                                    mgr.GetTable<DocumentDownloadLog>().Add(new DocumentDownloadLog
                                     {
                                         DocID = item.InvoiceID,
                                         TypeID = item.CDS_Document.DocType!.Value,
@@ -2020,15 +2020,15 @@ namespace WebHome.Published
                                 {
                                     sb.Append(string.Format("{0:yyyy/MM/dd}", item.DeliveryDate));//寄送日期
                                     sb.Append("|");
-                                    sb.Append(item.InvoiceItem.InvoiceBuyer.CustomerID);//GoogleId
+                                    sb.Append(item.Invoice.InvoiceBuyer.CustomerID);//GoogleId
                                     sb.Append("|");
-                                    sb.Append(item.InvoiceItem.TrackCode + item.InvoiceItem.No);//發票號碼
+                                    sb.Append(item.Invoice.TrackCode + item.Invoice.No);//發票號碼
                                     sb.Append("|");
                                     sb.Append(item.TrackingNo1).Append(item.TrackingNo2);//掛號號碼
                                     sb.Append("|");
-                                    sb.Append(item.InvoiceItem.InvoiceBuyer.ContactName);//收件人
+                                    sb.Append(item.Invoice.InvoiceBuyer.ContactName);//收件人
                                     sb.Append("|");
-                                    sb.Append(item.InvoiceItem.InvoiceBuyer.Address);//收件人地址
+                                    sb.Append(item.Invoice.InvoiceBuyer.Address);//收件人地址
                                     result.Add(sb.ToString());
                                     item.DeliveryStatus = (int)Naming.InvoiceDeliveryStatus.已傳送;
                                     sb.Clear();
@@ -2082,15 +2082,15 @@ namespace WebHome.Published
                                 {
                                     sb.Append(string.Format("{0:yyyy/MM/dd}", item.DeliveryDate));//重寄日期
                                     sb.Append("|");
-                                    sb.Append(item.InvoiceItem.InvoiceBuyer.CustomerID);//GoogleId
+                                    sb.Append(item.Invoice.InvoiceBuyer.CustomerID);//GoogleId
                                     sb.Append("|");
-                                    sb.Append(item.InvoiceItem.TrackCode + item.InvoiceItem.No);//發票號碼
+                                    sb.Append(item.Invoice.TrackCode + item.Invoice.No);//發票號碼
                                     sb.Append("|");
                                     sb.Append(item.TrackingNo1).Append(item.TrackingNo2);//掛號號碼
                                     sb.Append("|");
-                                    sb.Append(item.InvoiceItem.InvoiceBuyer.ContactName);//收件人
+                                    sb.Append(item.Invoice.InvoiceBuyer.ContactName);//收件人
                                     sb.Append("|");
-                                    sb.Append(item.InvoiceItem.InvoiceBuyer.Address);//收件人地址
+                                    sb.Append(item.Invoice.InvoiceBuyer.Address);//收件人地址
                                     sb.Append("|");
                                     sb.Append("");//備註
                                     result.Add(sb.ToString());
@@ -2132,7 +2132,7 @@ namespace WebHome.Published
                         if (token != null)
                         {
                             Root root = sellerInfo.ConvertTo<Root>();
-                            String message = "營業人(" + token.Organization.CompanyName + ") G/W 資料傳送失敗資料夾尚有資料未處理如下:\r\n" +
+                            String message = "營業人(" + token.Company.CompanyName + ") G/W 資料傳送失敗資料夾尚有資料未處理如下:\r\n" +
                                             root.Request.actionName;
                             ExceptionNotification.SendExceptionNotificationToSysAdmin(new Exception(message));
                         }
@@ -2164,7 +2164,7 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-                            mgr.PrepareSignerCertificate(token.Organization);
+                            mgr.PrepareSignerCertificate(token.Company);
 
                             var items = mgr.SaveUploadReceipt(receiptAll, token);
                             if (items.Count > 0)
@@ -2445,7 +2445,7 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-                            mgr.PrepareSignerCertificate(token.Organization);
+                            mgr.PrepareSignerCertificate(token.Company);
 
                             var items = mgr.SaveUploadInvoiceCancellation(item, token);
                             if (items.Count > 0)
@@ -2704,7 +2704,7 @@ namespace WebHome.Published
                             Root root = sellerInfo.ConvertTo<Root>();
                             acknowledgeReport(mgr, token, root.Request.periodicalIntervalSpecified ? root.Request.periodicalInterval : (int?)null);
 
-                            var table = mgr.GetTable<DocumentDispatch>();
+                            //var table = mgr.GetTable<DocumentDispatch>();
                             var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待接收 && d.DocType == (int)Naming.DocumentTypeDefinition.E_InvoiceCancellation)
                                     .Join(mgr.GetTable<DerivedDocument>()
                                         .Join(mgr.GetTable<InvoiceItem>().Where(i => i.InvoiceBuyer.BuyerID == token.CompanyID), d => d.SourceID, i => i.InvoiceID, (d, i) => d)
@@ -2750,7 +2750,7 @@ namespace WebHome.Published
                             Root root = sellerInfo.ConvertTo<Root>();
                             acknowledgeReport(mgr, token, root.Request.periodicalIntervalSpecified ? root.Request.periodicalInterval : (int?)null);
 
-                            var table = mgr.GetTable<DocumentDispatch>();
+                            //var table = mgr.GetTable<DocumentDispatch>();
                             var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待接收 && d.DocType == (int)Naming.DocumentTypeDefinition.E_AllowanceCancellation)
                                     .Join(mgr.GetTable<DerivedDocument>()
                                         .Join(mgr.GetTable<InvoiceAllowance>().Where(i => i.InvoiceAllowanceSeller.SellerID == token.CompanyID)
@@ -2853,20 +2853,20 @@ namespace WebHome.Published
                             acknowledgeReport(mgr, token, root.Request.periodicalIntervalSpecified ? root.Request.periodicalInterval : (int?)null);
 
                             var tableQ = mgr.GetTable<DocumentSubscriptionQueue>();
-                            var item = tableQ.Where(d => d.DocID == docID && d.CDS_Document.DocumentOwner.OwnerID == token.CompanyID).FirstOrDefault();
+                            var item = tableQ.Where(d => d.DocID == docID && d.Doc.DocumentOwner.OwnerID == token.CompanyID).FirstOrDefault();
 
                             if (item != null)
                             {
 
-                                mgr.GetTable<DocumentDownloadLog>().InsertOnSubmit(new DocumentDownloadLog
+                                mgr.GetTable<DocumentDownloadLog>().Add(new DocumentDownloadLog
                                 {
                                     DocID = item.DocID,
-                                    TypeID = (int)item.CDS_Document.DocType,
+                                    TypeID = (int)item.Doc.DocType,
                                     DownloadDate = DateTime.Now,
-                                    UID = token.Organization.OrganizationCategory.First().UserRole.First().UID
+                                    UID = token.Company.OrganizationCategory.First().UserRole.First().UID
                                 });
 
-                                tableQ.DeleteOnSubmit(item);
+                                tableQ.Remove(item);
 
                                 mgr.SubmitChanges();
 
@@ -2932,9 +2932,9 @@ namespace WebHome.Published
                             BusinessCounterpartXmlUploadManager csvMgr = new BusinessCounterpartXmlUploadManager(mgr);
                             csvMgr.BusinessType = Naming.InvoiceCenterBusinessType.銷項;
                             csvMgr.MasterID = token.CompanyID;
-                            if (token.Organization.IsEnterpriseGroupMember())
+                            if (token.Company.IsEnterpriseGroupMember())
                             {
-                                csvMgr.MasterGroup = token.Organization.EnterpriseGroupMember.First().EnterpriseGroup.EnterpriseGroupMember.Select(m => m.CompanyID).ToArray();
+                                csvMgr.MasterGroup = token.Company.EnterpriseGroupMember.First().Enterprise.EnterpriseGroupMember.Select(m => m.CompanyID).ToArray();
                             }
                             csvMgr.SaveData(uploadData);
 
@@ -3005,7 +3005,7 @@ namespace WebHome.Published
                         var token = models.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-                            var userItems = token.Organization.OrganizationCategory.SelectMany(c => c.UserRole).Where(r => r.RoleID == (int)Naming.EIVOMemberRoleID.會員);
+                            var userItems = token.Company.OrganizationCategory.SelectMany(c => c.UserRole).Where(r => r.RoleID == (int)Naming.EIVOMemberRoleID.會員);
                             if (root.Request?.processIndexSpecified == true)
                             {
                                 userItems = userItems.Skip(root.Request.processIndex);
@@ -3017,7 +3017,7 @@ namespace WebHome.Published
                                 TaskCenterUrl = $"{ModelExtension.Properties.AppSettings.Default.TaskCenterUrl}",
                                 ServiceHost = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~")}",
                                 AgentUID = user?.UID,
-                                DefaultProcessType = (Naming.InvoiceProcessType?)token.Organization.OrganizationStatus.InvoiceClientDefaultProcessType,
+                                DefaultProcessType = (Naming.InvoiceProcessType?)token.Company.OrganizationStatus.InvoiceClientDefaultProcessType,
                             };
                             return JsonConvert.SerializeObject(info);
                         }

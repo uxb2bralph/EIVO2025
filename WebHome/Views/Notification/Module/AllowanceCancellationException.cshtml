@@ -70,7 +70,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in _model)
+                @foreach (var item in _model.ToList())
                 {
                     CancelAllowanceRootCancelAllowance dataItem = null;
                     <tr>

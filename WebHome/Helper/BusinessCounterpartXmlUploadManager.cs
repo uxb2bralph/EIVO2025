@@ -10,17 +10,17 @@ using ModelCore.Locale;
 using ModelCore.UploadManagement;
 using CommonLib.Utility;
 using WebHome.Properties;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using ModelCore.Helper;
 
 namespace WebHome.Helper
 {
-    public class BusinessCounterpartXmlUploadManager : XmlUploadManager<EIVOEntityDataContext, Organization>
+    public class BusinessCounterpartXmlUploadManager : XmlUploadManager<ApplicationDbContext, Organization>
     {
         public BusinessCounterpartXmlUploadManager() : base()
         {
         }
-        public BusinessCounterpartXmlUploadManager(GenericManager<EIVOEntityDataContext> manager)
+        public BusinessCounterpartXmlUploadManager(GenericDbContext<ApplicationDbContext> manager)
             : base(manager)
         {
         }
@@ -47,7 +47,7 @@ namespace WebHome.Helper
         {
             _userProfile = userProfile;
             if (!_masterID.HasValue)
-                _masterID = _userProfile.CurrentUserRole.OrganizationCategory.CompanyID;
+                _masterID = _userProfile.UserRole.FirstOrDefault()?.OrganizationCategory.CompanyID;
             base.ParseData(userProfile, fileName, encoding);
         }
 
@@ -67,7 +67,7 @@ namespace WebHome.Helper
             var enterprise = this.GetTable<Organization>().Where(o => o.CompanyID == _masterID)
                 .FirstOrDefault().EnterpriseGroupMember.FirstOrDefault();
 
-            String subject = (enterprise != null ? enterprise.EnterpriseGroup.EnterpriseName : "") + " 會員啟用認證信";
+            String subject = (enterprise != null ? enterprise.Enterprise.EnterpriseName : "") + " 會員啟用認證信";
 
             ThreadPool.QueueUserWorkItem(p =>
             {
@@ -143,7 +143,7 @@ namespace WebHome.Helper
 
                         relationship = new BusinessRelationship
                         {
-                            Counterpart = item.Entity,
+                            Relative = item.Entity,
                             BusinessID = (int)BusinessType,
                             MasterID = _masterID.Value,
                             CurrentLevel = (int)Naming.MemberStatusDefinition.Checked,
@@ -159,7 +159,7 @@ namespace WebHome.Helper
 
                                 relationship = new BusinessRelationship
                                 {
-                                    Counterpart = item.Entity,
+                                    Relative = item.Entity,
                                     BusinessID = (int)BusinessType,
                                     MasterID = masterID,
                                     CurrentLevel = (int)Naming.MemberStatusDefinition.Checked
@@ -169,11 +169,11 @@ namespace WebHome.Helper
 
                         var orgaCate = new OrganizationCategory
                         {
-                            Organization = item.Entity,
+                            Company = item.Entity,
                             CategoryID = (int)CategoryDefinition.CategoryEnum.相對營業人,
                         };
 
-                        this.EntityList.InsertOnSubmit(item.Entity);
+                        this.EntityList.Add(item.Entity);
 
                         var userProfile = new UserProfile
                         {
@@ -195,7 +195,7 @@ namespace WebHome.Helper
 
                         _userList.Add(userProfile);
 
-                        this.GetTable<UserRole>().InsertOnSubmit(new UserRole
+                        this.GetTable<UserRole>().Add(new UserRole
                         {
                             RoleID = (int)Naming.EIVOUserRoleID.會員,
                             UserProfile = userProfile,
@@ -216,15 +216,15 @@ namespace WebHome.Helper
                 }
                 else
                 {
-                    if (!currentItem.RelativeRelation.Any(b => b.MasterID == _masterID && b.BusinessID == (int)BusinessType))
+                    if (!currentItem.BusinessRelationshipRelative.Any(b => b.MasterID == _masterID && b.BusinessID == (int)BusinessType))
                     {
                         relationship = new BusinessRelationship
                         {
-                            Counterpart = currentItem,
+                            Relative = currentItem,
                             BusinessID = (int)BusinessType,
                             MasterID = _masterID.Value
                         };
-                        currentItem.RelativeRelation.Add(relationship);
+                        currentItem.BusinessRelationshipRelative.Add(relationship);
                     }
 
                     if (MasterGroup != null && MasterGroup.Length > 0)
@@ -234,15 +234,15 @@ namespace WebHome.Helper
                             if (masterID == _masterID)
                                 continue;
 
-                            if (!currentItem.RelativeRelation.Any(b => b.MasterID == masterID && b.BusinessID == (int)BusinessType))
+                            if (!currentItem.BusinessRelationshipRelative.Any(b => b.MasterID == masterID && b.BusinessID == (int)BusinessType))
                             {
                                 relationship = new BusinessRelationship
                                 {
-                                    Counterpart = currentItem,
+                                    Relative = currentItem,
                                     BusinessID = (int)BusinessType,
                                     MasterID = masterID
                                 };
-                                currentItem.RelativeRelation.Add(relationship);
+                                currentItem.BusinessRelationshipRelative.Add(relationship);
                             }
                         }
                     }

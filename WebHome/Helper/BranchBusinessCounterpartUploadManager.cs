@@ -10,17 +10,17 @@ using ModelCore.Locale;
 using ModelCore.UploadManagement;
 using CommonLib.Utility;
 using WebHome.Properties;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using ModelCore.Helper;
 
 namespace WebHome.Helper
 {
-    public class BranchBusinessCounterpartUploadManager : CsvUploadManager<EIVOEntityDataContext, OrganizationBranch, ItemUpload<OrganizationBranch>>
+    public class BranchBusinessCounterpartUploadManager : CsvUploadManager<ApplicationDbContext, OrganizationBranch, ItemUpload<OrganizationBranch>>
     {
         public BranchBusinessCounterpartUploadManager() : base() {
 
         }
-        public BranchBusinessCounterpartUploadManager(GenericManager<EIVOEntityDataContext> manager)
+        public BranchBusinessCounterpartUploadManager(GenericDbContext<ApplicationDbContext> manager)
             : base(manager)
         {
         }
@@ -46,7 +46,7 @@ namespace WebHome.Helper
         {
             _userProfile = userProfile;
             if (!_masterID.HasValue)
-                _masterID = _userProfile.CurrentUserRole.OrganizationCategory.CompanyID;
+                _masterID = _userProfile.UserRole.FirstOrDefault()?.OrganizationCategory.CompanyID;
             base.ParseData(userProfile, fileName, encoding);
         }
 
@@ -63,7 +63,7 @@ namespace WebHome.Helper
             var enterprise = this.GetTable<Organization>().Where(o => o.CompanyID == _masterID)
                 .FirstOrDefault().EnterpriseGroupMember.FirstOrDefault();
 
-            String subject = (enterprise != null ? enterprise.EnterpriseGroup.EnterpriseName : "") + " 會員啟用認證信";
+            String subject = (enterprise != null ? enterprise.Enterprise.EnterpriseName : "") + " 會員啟用認證信";
 
             ThreadPool.QueueUserWorkItem(p =>
             {
@@ -134,9 +134,9 @@ namespace WebHome.Helper
             item.Entity = this.EntityList.Where(o => o.BranchNo == column[5]).FirstOrDefault();
             if (item.Entity != null)
             {
-                if (item.Entity.Organization.ReceiptNo != column[1])
+                if (item.Entity.Company.ReceiptNo != column[1])
                 {
-                    if (item.Entity.Organization.OrganizationBranch.Count == 1)
+                    if (item.Entity.Company.OrganizationBranch.Count == 1)
                     {
                         int relativeID = item.Entity.CompanyID;
                         this.DeleteAllOnSubmit<BusinessRelationship>(r => r.MasterID == _masterID && r.RelativeID == relativeID);
@@ -153,10 +153,10 @@ namespace WebHome.Helper
                 {
                     BranchNo = column[5]
                 };
-                this.GetTable<OrganizationBranch>().InsertOnSubmit(item.Entity);
+                this.GetTable<OrganizationBranch>().Add(item.Entity);
 
-                var orgItem = _items.Where(i => i.Entity.Organization.ReceiptNo == column[1])
-                    .Select(i => i.Entity.Organization).FirstOrDefault();
+                var orgItem = _items.Where(i => i.Entity.Company.ReceiptNo == column[1])
+                    .Select(i => i.Entity.Company).FirstOrDefault();
 
                 if (orgItem == null)
                 {
@@ -175,43 +175,43 @@ namespace WebHome.Helper
                         OrganizationExtension = new OrganizationExtension { }
                     };
 
-                    this.GetTable<Organization>().InsertOnSubmit(orgItem);
+                    this.GetTable<Organization>().Add(orgItem);
 
                     var relationship = new BusinessRelationship
                     {
-                        Counterpart = orgItem,
+                        Relative = orgItem,
                         BusinessID = (int)BusinessType,
                         MasterID = _masterID.Value,
                         CurrentLevel = (int)Naming.MemberStatusDefinition.Checked
                     };
-                    orgItem.RelativeRelation.Add(relationship);
+                    orgItem.BusinessRelationshipRelative.Add(relationship);
 
                     var orgaCate = new OrganizationCategory
                     {
-                        Organization = orgItem,
+                        Company = orgItem,
                         CategoryID = (int)Naming.CategoryID.COMP_E_INVOICE_B2C_BUYER
                     };
                     orgItem.OrganizationCategory.Add(orgaCate);
 
                     orgItem.OrganizationBranch.Add(item.Entity);
-                    item.Entity.Organization = orgItem;
+                    item.Entity.Company = orgItem;
 
                     checkUser(column, orgaCate, column[5]);
 
                 }
                 else
                 {
-                    if(!orgItem.RelativeRelation.ToList().Any(r=>r.MasterID==_masterID))
+                    if(!orgItem.BusinessRelationshipRelative.ToList().Any(r=>r.MasterID==_masterID))
                     {
                         var relation = new BusinessRelationship
                         {
-                            Counterpart = orgItem,
+                            Relative = orgItem,
                             BusinessID = (int)BusinessType,
                             MasterID = _masterID.Value,
                             CurrentLevel = (int)Naming.MemberStatusDefinition.Checked
                         };
-                        this.GetTable<BusinessRelationship>().InsertOnSubmit(relation);
-                        orgItem.RelativeRelation.Add(relation);
+                        this.GetTable<BusinessRelationship>().Add(relation);
+                        orgItem.BusinessRelationshipRelative.Add(relation);
                     }
 
                     var orgaCate = orgItem.OrganizationCategory.ToList()
@@ -222,10 +222,10 @@ namespace WebHome.Helper
                         orgaCate = new OrganizationCategory
                         {
                             CategoryID = (int)Naming.CategoryID.COMP_E_INVOICE_B2C_BUYER,
-                            Organization = orgItem
+                            Company = orgItem
                         };
 
-                        this.GetTable<OrganizationCategory>().InsertOnSubmit(orgaCate);
+                        this.GetTable<OrganizationCategory>().Add(orgaCate);
                         orgItem.OrganizationCategory.Add(orgaCate);
                     }
 
@@ -235,7 +235,7 @@ namespace WebHome.Helper
                     //currentUser.Address = column[3];
 
                     orgItem.OrganizationBranch.Add(item.Entity);
-                    item.Entity.Organization = orgItem;
+                    item.Entity.Company = orgItem;
 
                     checkUser(column, orgaCate, column[5]);
                 }
@@ -248,16 +248,16 @@ namespace WebHome.Helper
             item.Entity.Addr = column[3];
             item.Entity.Phone = column[4];
 
-            item.Entity.Organization.CompanyName = column[0];
-            item.Entity.Organization.ReceiptNo = column[1];
-            item.Entity.Organization.ContactEmail = column[2];
-            item.Entity.Organization.Addr = column[3];
-            item.Entity.Organization.Phone = column[4];
-            if (item.Entity.Organization.OrganizationExtension == null)
+            item.Entity.Company.CompanyName = column[0];
+            item.Entity.Company.ReceiptNo = column[1];
+            item.Entity.Company.ContactEmail = column[2];
+            item.Entity.Company.Addr = column[3];
+            item.Entity.Company.Phone = column[4];
+            if (item.Entity.Company.OrganizationExtension == null)
             {
-                item.Entity.Organization.OrganizationExtension = new OrganizationExtension { };
+                item.Entity.Company.OrganizationExtension = new OrganizationExtension { };
             }
-            item.Entity.Organization.OrganizationExtension.CustomerNo = column[5];
+            item.Entity.Company.OrganizationExtension.CustomerNo = column[5];
 
             return _bResult;
         }
@@ -295,7 +295,7 @@ namespace WebHome.Helper
                 this.DeleteAllOnSubmit<UserRole>(r => r.UID == userProfile.UID);
             }
 
-            this.GetTable<UserRole>().InsertOnSubmit(new UserRole
+            this.GetTable<UserRole>().Add(new UserRole
             {
                 RoleID = (int)Naming.RoleID.分店相對營業人,
                 UserProfile = userProfile,

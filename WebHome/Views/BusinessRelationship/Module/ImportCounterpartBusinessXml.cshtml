@@ -16,7 +16,7 @@
 
     ModelStateDictionary _modelState;
     ModelSource<InvoiceItem> models;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _profile = Context.GetUser();

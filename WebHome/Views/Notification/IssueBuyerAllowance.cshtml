@@ -97,16 +97,16 @@
                     折讓單狀態 = i.InvoiceAllowanceCancellation != null ? "已作廢" : null,
                 });
 
-        IEnumerable<InvoiceAllowanceDetail> details = items.SelectMany(a => a.InvoiceAllowanceDetails);
+        IEnumerable<InvoiceAllowanceItem> details = items.SelectMany(a => a.InvoiceAllowanceDetails);
         var allowanceDetails = details.Select(i =>
                 new
                 {
-                    折讓單號碼 = i.InvoiceAllowance.AllowanceNumber,
-                    原發票號碼 = i.InvoiceAllowanceItem.InvoiceNo,
-                    原發票日期 = i.InvoiceAllowanceItem.InvoiceDate,
-                    未稅金額 = i.InvoiceAllowanceItem.Amount,
-                    稅額 = i.InvoiceAllowanceItem.Tax,
-                    備註 = i.InvoiceAllowanceItem.Remark
+                    折讓單號碼 = i.Allowance.FirstOrDefault().AllowanceNumber,
+                    原發票號碼 = i.InvoiceNo,
+                    原發票日期 = i.InvoiceDate,
+                    未稅金額 = i.Amount,
+                    稅額 = i.Tax,
+                    備註 = i.Remark
                 });
 
         using (DataSet ds = new DataSet())

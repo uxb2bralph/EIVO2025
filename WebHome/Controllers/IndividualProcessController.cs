@@ -320,15 +320,15 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/ReportInputError.cshtml");
             }
 
-            var item = UserProfileFactory.CreateInstance(viewModel.PID, viewModel.Password);
+            using UserProfileManager userManager = new UserProfileManager(models);
+            var item = UserProfileFactory.CreateInstance(userManager, viewModel.PID, viewModel.Password);
             if (item == null)
             {
                 ModelState.AddModelError("PID", "登入失敗!!");
                 return View("~/Views/Shared/ReportInputError.cshtml");
             }
 
-            item = item.LoadInstance(models);
-            var carrier = item.InvoiceUserCarrier.FirstOrDefault();
+            var carrier = item.LoadInstance(models).InvoiceUserCarrier.FirstOrDefault();
             if (carrier == null)
             {
                 ModelState.AddModelError("PID", "會員未申請載具!!");
@@ -362,7 +362,7 @@ namespace WebHome.Controllers
             }
             else
             {
-                viewModel.Token = item.UID.EncryptKey();
+                viewModel.Token = item.Entity.UID.EncryptKey();
                 return View("~/Views/IndividualProcess/ApplyUserCarrierFromLocal.cshtml", carrier);
             }
         }

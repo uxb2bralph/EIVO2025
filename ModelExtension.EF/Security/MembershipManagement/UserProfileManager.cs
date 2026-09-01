@@ -1,4 +1,5 @@
 ﻿using CommonLib.Core.DataWork;
+using Microsoft.EntityFrameworkCore;
 using ModelCore.DataEntity ;
 using ModelCore.DataEntityWrapper;
 using ModelCore.Helper;
@@ -18,30 +19,37 @@ namespace ModelCore.Security.MembershipManagement
         public UserProfileManager() : base() { }
         public UserProfileManager(GenericDbContext<ApplicationDbContext> mgr) : base(mgr) { }
 
+        /// <summary>
+        /// 登入使用者的查詢；一次載入 profile 快取後仍會用到的導覽。
+        /// </summary>
+        /// <remarks>
+        /// 登入後的 <see cref="UserProfileWrapper"/> 會被快取在 HttpContext（甚至跨請求傳遞），
+        /// 但建立它的 DbContext 在方法結束時就已釋放。View 與權限判斷會存取
+        /// <c>CurrentUserRole.OrganizationCategory.Company</c> 等導覽，若維持 lazy loading
+        /// 便會在 context 釋放後拋出 LazyLoadOnDisposedContextWarning，因此在此一次載入。
+        /// </remarks>
+        private IQueryable<UserProfile> LoginUserProfile => _db.UserProfile
+                .Include(u => u.UserRole).ThenInclude(r => r.OrganizationCategory).ThenInclude(c => c.Company)
+                .Include(u => u.UserProfileStatus);
+
+        private UserProfileWrapper BuildLoginProfile(UserProfile item)
+        {
+            UserProfileWrapper result = new UserProfileWrapper(item);
+            result.DetermineUserRole();
+            this.GetCurrentSiteMenu(result);
+            return result;
+        }
+
         public UserProfileWrapper? GetUserProfile(int uid)
         {
-            UserProfileWrapper? result = null;
-            var item = _db.UserProfile.Where(u => u.UID == uid).FirstOrDefault();
-            if (item != null)
-            {
-                result = new UserProfileWrapper(item);
-                result.DetermineUserRole();
-                this.GetCurrentSiteMenu(result);
-            }
-            return result;
+            var item = LoginUserProfile.Where(u => u.UID == uid).FirstOrDefault();
+            return item == null ? null : BuildLoginProfile(item);
         }
 
         public UserProfileWrapper? GetUserProfileByPID(string pid)
         {
-            UserProfileWrapper? result = null;
-            var item = _db.UserProfile.Where(u => u.PID == pid/* & u.UserProfileStatus.CurrentLevel != (int)Naming.MemberStatusDefinition.Mark_To_Delete*/).FirstOrDefault();
-            if (item != null)
-            {
-                result = new UserProfileWrapper(item);
-                result.DetermineUserRole();
-                this.GetCurrentSiteMenu(result);
-            }
-            return result;
+            var item = LoginUserProfile.Where(u => u.PID == pid/* & u.UserProfileStatus.CurrentLevel != (int)Naming.MemberStatusDefinition.Mark_To_Delete*/).FirstOrDefault();
+            return item == null ? null : BuildLoginProfile(item);
         }
 
 
@@ -73,10 +81,7 @@ namespace ModelCore.Security.MembershipManagement
             UserAuth? auth = GetTable<UserAuth>().Where(a => a.Thumbprint == cert.Thumbprint).FirstOrDefault();
             if (auth != null && auth.AuthID == auth.UserProfile.UserAuth.OrderByDescending(a => a.AuthID).FirstOrDefault()?.AuthID)
             {
-                UserProfileWrapper item = new UserProfileWrapper(auth.UserProfile);
-                item.DetermineUserRole();
-                GetCurrentSiteMenu(item);
-                return item;
+                return GetUserProfile(auth.UID);
             }
             return null;
         }
@@ -115,10 +120,7 @@ namespace ModelCore.Security.MembershipManagement
             {
                 item.LogonTime = DateTime.Now;
                 this.SubmitChanges();
-                UserProfileWrapper result = new UserProfileWrapper(item.UserProfile);
-                result.DetermineUserRole();
-                GetCurrentSiteMenu(result);
-                return result;
+                return GetUserProfile(item.UID);
             }
             return null;
         }

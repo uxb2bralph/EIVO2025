@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 
 
 using ClosedXML.Excel;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 using WebHome.Helper;
 using WebHome.Models;
 using WebHome.Models.ViewModel;
@@ -29,6 +29,7 @@ using CommonLib.Utility;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using WebHome.Helper.Security.Authorization;
 using System.Threading.Tasks;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers
 {
@@ -207,7 +208,7 @@ namespace WebHome.Controllers
             viewModel.No = original.No;
             viewModel.InvoiceDate = viewModel.InvoiceDate ?? original.InvoiceDate;
 
-            InvoiceViewModelValidator<InvoiceItem> validator = new InvoiceViewModelValidator<InvoiceItem>(this.DataSource, seller);
+            InvoiceViewModelValidator validator = new InvoiceViewModelValidator(new ModelSource(this.DataSource), seller);
             var exception = validator.Validate(viewModel);
             if (exception != null)
             {
@@ -226,14 +227,14 @@ namespace WebHome.Controllers
                 // 1. 建立新發票（沿用原號），取得新的 InvoiceID
                 InvoiceItem newItem = validator.InvoiceItem;
                 newItem.CDS_Document.ProcessType = (int?)viewModel.InvoiceProcessType;
-                if (original.InvoiceTrackCode != null)
+                if (original.Track != null)
                 {
                     newItem.TrackID = original.TrackID;
-                    original.InvoiceTrackCode = null;
+                    original.Track = null;
                     models.SubmitChanges();
                 }
 
-                models!.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+                models!.GetTable<InvoiceItem>().Add(newItem);
                 newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
                 models.SubmitChanges();
 
@@ -248,7 +249,7 @@ namespace WebHome.Controllers
                 //if (assignment != null)
                 //{
                 //    models.DeleteAny<InvoiceNoAssignment>(a => a.InvoiceID == originalID);
-                //    models.GetTable<InvoiceNoAssignment>().InsertOnSubmit(new InvoiceNoAssignment
+                //    models.GetTable<InvoiceNoAssignment>().Add(new InvoiceNoAssignment
                 //    {
                 //        InvoiceID = newItem.InvoiceID,
                 //        IntervalID = assignment.IntervalID,
@@ -278,7 +279,7 @@ namespace WebHome.Controllers
         /// <summary>
         /// 發票修改權限：ROLE_SYS 可修改所有發票；ROLE_SELLER 僅可修改本身營業人或代理項下營業人所開立之發票。
         /// </summary>
-        private bool CanModifyInvoice(UserProfile profile, InvoiceItem item)
+        private bool CanModifyInvoice(UserProfileWrapper profile, InvoiceItem item)
         {
             if (profile == null)
             {
@@ -346,13 +347,13 @@ namespace WebHome.Controllers
                 viewModel.CarrierId2 = carrier.CarrierNo2;
             }
 
-            var details = item.InvoiceDetails.ToList();
-            viewModel.Brief = details.Select(d => (String?)d.InvoiceProduct?.Brief).ToArray();
-            viewModel.ItemNo = details.Select(d => d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.ItemNo).ToArray();
-            viewModel.ItemRemark = details.Select(d => d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.Remark).ToArray();
-            viewModel.Piece = details.Select(d => (int?)d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.Piece).ToArray();
-            viewModel.UnitCost = details.Select(d => d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.UnitCost).ToArray();
-            viewModel.CostAmount = details.Select(d => d.InvoiceProduct?.InvoiceProductItem.FirstOrDefault()?.CostAmount).ToArray();
+            var details = item.Product.ToList();
+            viewModel.Brief = details.Select(d => (String?)d?.Brief).ToArray();
+            viewModel.ItemNo = details.Select(d => d?.InvoiceProductItem.FirstOrDefault()?.ItemNo).ToArray();
+            viewModel.ItemRemark = details.Select(d => d?.InvoiceProductItem.FirstOrDefault()?.Remark).ToArray();
+            viewModel.Piece = details.Select(d => (int?)d?.InvoiceProductItem.FirstOrDefault()?.Piece).ToArray();
+            viewModel.UnitCost = details.Select(d => d?.InvoiceProductItem.FirstOrDefault()?.UnitCost).ToArray();
+            viewModel.CostAmount = details.Select(d => d?.InvoiceProductItem.FirstOrDefault()?.CostAmount).ToArray();
 
             return viewModel;
         }
@@ -377,7 +378,7 @@ namespace WebHome.Controllers
             viewModel.SellerName = seller.CompanyName;
             viewModel.SellerReceiptNo = seller.ReceiptNo;
 
-            //using (TrackNoManager mgr = new TrackNoManager(new GenericDbContext<EIVOEntityDataContext>(models.DataContext), seller.CompanyID))
+            //using (TrackNoManager mgr = new TrackNoManager(new GenericDbContext<ApplicationDbContext>(models.DataContext), seller.CompanyID))
             //{
             //    if (!mgr.ApplyInvoiceDate(viewModel.InvoiceDate.Value))
             //    {
@@ -388,7 +389,7 @@ namespace WebHome.Controllers
             //    viewModel.No = String.Format("{0:00000000}", mgr.PeekInvoiceNo());
             //}
 
-            InvoiceViewModelValidator<InvoiceItem> validator = new InvoiceViewModelValidator<InvoiceItem>(this.DataSource, seller);
+            InvoiceViewModelValidator validator = new InvoiceViewModelValidator(new ModelSource(this.DataSource), seller);
             var exception = validator.Validate(viewModel);
             if (exception != null)
             {
@@ -431,7 +432,7 @@ namespace WebHome.Controllers
             viewModel.SellerName = seller.CompanyName;
             viewModel.SellerReceiptNo = seller.ReceiptNo;
 
-            InvoiceViewModelValidator<InvoiceItem> validator = new InvoiceViewModelValidator<InvoiceItem>(this.DataSource, seller);
+            InvoiceViewModelValidator validator = new InvoiceViewModelValidator(new ModelSource(this.DataSource), seller);
             var exception = validator.Validate(viewModel);
             if (exception != null)
             {
@@ -448,7 +449,7 @@ namespace WebHome.Controllers
                     return View("~/Views/DataView/Module/InvoiceContent.cshtml", newItem);
                 }
 
-                models!.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+                models!.GetTable<InvoiceItem>().Add(newItem);
                 newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
                 if (viewModel.Counterpart == true || !String.IsNullOrEmpty(viewModel.BuyerReceiptNo) || !String.IsNullOrEmpty(viewModel.EMail))
                 {
@@ -485,7 +486,7 @@ namespace WebHome.Controllers
             viewModel.SellerName = seller.CompanyName;
             viewModel.SellerReceiptNo = seller.ReceiptNo;
 
-            A0401ViewModelValidator<InvoiceItem> validator = new A0401ViewModelValidator<InvoiceItem>(this.DataSource, seller);
+            A0401ViewModelValidator validator = new A0401ViewModelValidator(new ModelSource(this.DataSource), seller);
             var exception = validator.Validate(viewModel);
             if (exception != null)
             {
@@ -499,7 +500,7 @@ namespace WebHome.Controllers
                 return View("~/Views/DataView/Module/InvoiceContent.cshtml", newItem);
             }
 
-            models!.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+            models!.GetTable<InvoiceItem>().Add(newItem);
             newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
             //newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
             models.SubmitChanges();
@@ -525,7 +526,7 @@ namespace WebHome.Controllers
             viewModel.SellerName = seller.CompanyName;
             viewModel.SellerReceiptNo = seller.ReceiptNo;
 
-            A0101ViewModelValidator<InvoiceItem> validator = new A0101ViewModelValidator<InvoiceItem>(this.DataSource, seller);
+            A0101ViewModelValidator validator = new A0101ViewModelValidator(new ModelSource(this.DataSource), seller);
             var exception = validator.Validate(viewModel);
             if (exception != null)
             {
@@ -539,7 +540,7 @@ namespace WebHome.Controllers
                 return View("~/Views/DataView/Module/InvoiceContent.cshtml", newItem);
             }
 
-            models!.GetTable<InvoiceItem>().InsertOnSubmit(newItem);
+            models!.GetTable<InvoiceItem>().Add(newItem);
             newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.待傳送, Naming.InvoiceProcessType.A0101);
             models.SubmitChanges();
 
@@ -576,7 +577,7 @@ namespace WebHome.Controllers
 
             InvoiceAllowance newItem = validator.Allowance;
             //newItem.CDS_Document.ProcessType = (int)viewModel.ProcessType;
-            models!.GetTable<InvoiceAllowance>().InsertOnSubmit(newItem);
+            models!.GetTable<InvoiceAllowance>().Add(newItem);
             if (newItem.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.G0401)
             {
                 newItem.CDS_Document.PushStepQueueOnSubmit(models, validator.Seller!.StepReadyToAllowanceMIG(), Naming.InvoiceProcessType.G0401);

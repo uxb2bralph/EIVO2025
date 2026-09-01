@@ -39,8 +39,8 @@
 
     for (int idx = 0; idx < 2; idx++)
     {
-        var invoiceItems = models.DataContext.GetInvoiceReport(_viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
-        var allowanceItems = models.DataContext.GetAllowanceReport(_viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
+        var invoiceItems = models.GetInvoiceReport(_viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
+        var allowanceItems = models.GetAllowanceReport(_viewModel.SellerID, dateFrom, dateFrom.AddMonths(1));
 
         foreach (var g in invoiceItems)
         {

@@ -34,6 +34,7 @@ using ModelCore.Security.MembershipManagement;
 using CommonLib.Core.AspNetMvc;
 using Microsoft.AspNetCore.WebUtilities;
 using ModelCore.Security;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers
 {
@@ -59,14 +60,15 @@ namespace WebHome.Controllers
 
             if(WebHome.Properties.AppSettings.Default.UseGoogleAuthenticator)
             {
-                var item = UserProfileFactory.CreateInstance(viewModel.PID!, viewModel.Password!);
-                if (item == null)
+                using UserProfileManager userManager = new UserProfileManager(models!);
+                var profile = UserProfileFactory.CreateInstance(userManager, viewModel.PID!, viewModel.Password!);
+                if (profile == null)
                 {
                     ModelState.AddModelError("PID", "login failed !!");
                     return View("~/Views/Account/CbsLogin.cshtml");
                 }
 
-                item = item.LoadInstance(models!).PrepareTwoFactorKey(models!);
+                var item = profile.LoadInstance(models!).PrepareTwoFactorKey(models!);
 
                 return View("~/Views/Account/TwoFactorLogin.cshtml", item);
 
@@ -74,15 +76,15 @@ namespace WebHome.Controllers
 
             LoginHandler login = new LoginHandler(this);
             String msg;
-            if (!login.ProcessLogin(viewModel.PID!, viewModel.Password!, out msg, out UserProfile member))
+            if (!login.ProcessLogin(viewModel.PID!, viewModel.Password!, out msg, out UserProfileWrapper? member))
             {
                 ModelState.AddModelError("PID", msg);
                 return View("~/Views/Account/CbsLogin.cshtml");
             }
 
-            if (member.Expiration < DateTime.Today)
+            if (member!.Entity.Expiration < DateTime.Today)
             {
-                return View("~/Views/Account/ChangePassword.cshtml", member);
+                return View("~/Views/Account/ChangePassword.cshtml", member.Entity);
             }
 
             viewModel.ReturnUrl = viewModel.ReturnUrl.GetEfficientString();
@@ -93,7 +95,7 @@ namespace WebHome.Controllers
         [AllowAnonymous]
         public ActionResult CbsLogin()
         {
-            //UserProfile profile = HttpContext.GetUser();
+            //UserProfileWrapper profile = HttpContext.GetUser();
             //if (profile == null)
             //    return View();
             //else
@@ -448,7 +450,7 @@ namespace WebHome.Controllers
 
             try
             {
-                models.GetTable<UserProfile>().DeleteOnSubmit(item);
+                models.GetTable<UserProfile>().Remove(item);
                 models.SubmitChanges();
             }
             catch(Exception ex)

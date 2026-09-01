@@ -13,7 +13,7 @@
 @{
     UserProfileViewModel _viewModel;
     ModelSource<InvoiceItem> models;
-    UserProfile _profile;
+    UserProfileWrapper _profile;
     UserProfile _model = this.Model as UserProfile;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
@@ -28,7 +28,7 @@
         </th>
         <td colspan="2" class="tdleft">
             @{
-                var orgItem = _model?.UserRole.FirstOrDefault()?.OrganizationCategory.Organization;
+                var orgItem = _model?.UserRole.FirstOrDefault()?.OrganizationCategory.Company;
                 @(await Component.InvokeAsync(typeof(WebHome.Components.SellerSelectorViewComponent), new InquireInvoiceViewModel { FieldName = "EncSellerID", Encrypt = true, SellerID = orgItem?.CompanyID, Title = orgItem?.CompanyName }));
             }
         </td>

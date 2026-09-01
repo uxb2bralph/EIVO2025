@@ -39,7 +39,7 @@
 <body>
     <form id="theForm" runat="server">
         @{ String invoicePrintView;}
-        @if (_viewModel?.UseCustomView == true && (invoicePrintView = _model.Organization.OrganizationStatus.InvoicePrintView.GetEfficientString()) != null)
+        @if (_viewModel?.UseCustomView == true && (invoicePrintView = _model.Seller.OrganizationStatus.InvoicePrintView.GetEfficientString()) != null)
         {
             await Html.RenderPartialAsync(invoicePrintView, _model);
         }

@@ -51,7 +51,7 @@
     void ShowBody(dynamic po)
     {
         InvoiceAllowance item = (InvoiceAllowance)po;
-        <td>@Html.Raw(String.Join("<br/>",item.InvoiceAllowanceDetails.Select(d=>d.InvoiceAllowanceItem.Remark)))</td>
+        <td>@Html.Raw(String.Join("<br/>",item.InvoiceAllowanceDetails.Select(d=>d.Remark)))</td>
     }
 
     void ShowFooter(dynamic item)

@@ -17,16 +17,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using ModelCore.Security.MembershipManagement;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Helper
 {
     public static class LoginExtension
     {
 
-        public static async Task SignOnAsync(this HttpContext context, UserProfile profile, bool remeberMe = true)
+        public static async Task SignOnAsync(this HttpContext context, UserProfileWrapper profile, bool remeberMe = true)
         {
             //帳密都輸入正確，ASP.net Core要多寫三行程式碼 
-            Claim[] claims = new[] { new Claim("Name", profile.PID) }; //Key取名"Name"，在登入後的頁面，讀取登入者的帳號會用得到，自己先記在大腦
+            Claim[] claims = new[] { new Claim("Name", profile.Entity.PID) }; //Key取名"Name"，在登入後的頁面，讀取登入者的帳號會用得到，自己先記在大腦
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);//Scheme必填
             ClaimsPrincipal principal = new ClaimsPrincipal(claimsIdentity);
 
@@ -46,7 +47,7 @@ namespace WebHome.Helper
 
             if (remeberMe)
             {
-                context.Response.Cookies.Append("userID", profile.PID.EncryptData(),
+                context.Response.Cookies.Append("userID", profile.Entity.PID.EncryptData(),
                     new CookieOptions
                     {
                         MaxAge = TimeSpan.FromDays(14),
@@ -54,7 +55,7 @@ namespace WebHome.Helper
             }
             else
             {
-                context.Response.Cookies.Append("userID", profile.PID.EncryptData(),
+                context.Response.Cookies.Append("userID", profile.Entity.PID.EncryptData(),
                     new CookieOptions
                     {
                         MaxAge = TimeSpan.FromHours(24),
@@ -64,7 +65,7 @@ namespace WebHome.Helper
 
             /// process sign-on user profile
             /// 
-            var roles = profile.UserRole.Select(r => r.UserRoleDefinition).ToArray();
+            var roles = profile.Entity.UserRole.Select(r => r.UserRoleDefinition).ToArray();
         }
 
 
@@ -100,20 +101,20 @@ namespace WebHome.Helper
             context.ClearCache();
         }
 
-        public static UserProfile GetUser(this HttpContext context)
+        public static UserProfileWrapper GetUser(this HttpContext context)
         {
             var result = context.GetUserAsync();
             result.Wait();
             return result.Result;
         }
 
-        public static async Task<UserProfile> GetUserAsync(this HttpContext context)
+        public static async Task<UserProfileWrapper?> GetUserAsync(this HttpContext context)
         {
-            UserProfile profile = (UserProfile)context.GetCacheValue("userProfile");
+            UserProfileWrapper? profile = (UserProfileWrapper?)context.GetCacheValue("userProfile");
             //CommonLib.Core.Utility.FileLogger.Logger.Debug("profile cache:" + (profile != null));
             if (profile == null)
             {
-                if (context.User.Identity.IsAuthenticated)
+                if (context.User.Identity?.IsAuthenticated == true)
                 {
                     //CommonLib.Core.Utility.FileLogger.Logger.Debug("Has Identity:" + context.User.Identity.Name);
                     profile = (context.User.Identity as ClaimsIdentity)?
@@ -145,7 +146,7 @@ namespace WebHome.Helper
             return profile;
         }
 
-        private static UserProfile? getLoginUser(this String pid)
+        private static UserProfileWrapper? getLoginUser(this String pid)
         {
             using(UserProfileManager models = new UserProfileManager())
             {

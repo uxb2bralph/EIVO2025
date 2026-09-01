@@ -46,7 +46,7 @@
                     未稅金額 = i.InvoiceAmountType.SalesAmount,
                     稅額 = i.InvoiceAmountType.TaxAmount,
                     含稅金額 = i.InvoiceAmountType.TotalAmount,
-                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : null,
+                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.Currency.AbbrevName : null,
                     買受人名稱 = i.InvoiceBuyer.CustomerName,
                     買受人統編 = i.InvoiceBuyer.ReceiptNo,
                     //連絡人名稱 = i.InvoiceBuyer.ContactName,
@@ -74,7 +74,7 @@
                     未稅金額 = i.InvoiceAmountType.SalesAmount,
                     稅額 = i.InvoiceAmountType.TaxAmount,
                     含稅金額 = i.InvoiceAmountType.TotalAmount,
-                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.CurrencyType.AbbrevName : null,
+                    幣別 = i.InvoiceAmountType.CurrencyID.HasValue ? i.InvoiceAmountType.Currency.AbbrevName : null,
                     買受人名稱 = i.InvoiceBuyer.CustomerName,
                     買受人統編 = i.InvoiceBuyer.ReceiptNo,
                     //連絡人名稱 = i.InvoiceBuyer.ContactName,
@@ -108,16 +108,16 @@
                 折讓單狀態 = i.InvoiceAllowanceCancellation != null ? "已作廢" : null,
             });
 
-    IQueryable<InvoiceAllowanceDetail> details = allowance.SelectMany(a => a.InvoiceAllowanceDetails);
+    IQueryable<InvoiceAllowanceItem> details = allowance.SelectMany(a => a.InvoiceAllowanceDetails);
     var allowanceDetails = details.Select(i =>
             new
             {
-                折讓單號碼 = i.InvoiceAllowance.AllowanceNumber,
-                原發票號碼 = i.InvoiceAllowanceItem.InvoiceNo,
-                原發票日期 = i.InvoiceAllowanceItem.InvoiceDate,
-                未稅金額 = i.InvoiceAllowanceItem.Amount,
-                稅額 = i.InvoiceAllowanceItem.Tax,
-                備註 = i.InvoiceAllowanceItem.Remark
+                折讓單號碼 = i.Allowance.FirstOrDefault().AllowanceNumber,
+                原發票號碼 = i.InvoiceNo,
+                原發票日期 = i.InvoiceDate,
+                未稅金額 = i.Amount,
+                稅額 = i.Tax,
+                備註 = i.Remark
             });
 
     allowance = _viewModel.InquireAllowanceCancellation(models);
@@ -145,12 +145,12 @@
     var cancelledAllowanceDetails = details.Select(i =>
             new
             {
-                折讓單號碼 = i.InvoiceAllowance.AllowanceNumber,
-                原發票號碼 = i.InvoiceAllowanceItem.InvoiceNo,
-                原發票日期 = i.InvoiceAllowanceItem.InvoiceDate,
-                未稅金額 = i.InvoiceAllowanceItem.Amount,
-                稅額 = i.InvoiceAllowanceItem.Tax,
-                備註 = i.InvoiceAllowanceItem.Remark
+                折讓單號碼 = i.Allowance.FirstOrDefault().AllowanceNumber,
+                原發票號碼 = i.InvoiceNo,
+                原發票日期 = i.InvoiceDate,
+                未稅金額 = i.Amount,
+                稅額 = i.Tax,
+                備註 = i.Remark
             });
 
     String xlsxFile = System.IO.Path.Combine(Logger.LogDailyPath, $"日報表({_model.ReceiptNo})-{(_viewModel.DateFrom ?? DateTime.Today.AddDays(-1)):yyyyMMdd}.xlsx");

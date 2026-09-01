@@ -36,16 +36,15 @@
 
     if (_model != null)
     {
-        __FIRST_PAGE_ITEM_COUNT = _model.Organization.LogoURL != null ? 12 : 14;
+        __FIRST_PAGE_ITEM_COUNT = _model.Seller.LogoURL != null ? 12 : 14;
 
-        _products = models.GetTable<InvoiceDetail>().Where(d => d.InvoiceID == _model.InvoiceID)
-            .Join(models.GetTable<InvoiceProduct>(), d => d.ProductID, p => p.ProductID, (d, p) => p)
+        _products = models.GetTable<InvoiceProduct>().Where(p => p.Invoice.Any(i => i.InvoiceID == _model.InvoiceID))
             .Join(models.GetTable<InvoiceProductItem>(), d => d.ProductID, i => i.ProductID, (p, i) => i)
             .OrderBy(i => i.ItemID).ToArray();
 
         if (_products.Length == 0)
         {
-            _products = _model.InvoiceDetails.SelectMany(d => d.InvoiceProduct.InvoiceProductItem).ToArray();
+            _products = _model.Product.SelectMany(d => d.InvoiceProductItem).ToArray();
         }
 
         _pageCount = _products.Length > __FIRST_PAGE_ITEM_COUNT
@@ -73,30 +72,30 @@
         <div class="pageOne" style="max-height:27cm;overflow-y:auto;">
             @{
                 String height = $"height: {17+tableOffset}cm;";
-                if (_model.Organization.EnglishName != null)
+                if (_model.Seller.EnglishName != null)
                 {
                     height = $"height: {14.5 + tableOffset}cm;";
                     <div class="title" style="padding: 0px;">
                         <div style="  text-align: left;    margin-left: 20px;    font-size: xx-large;    font-family: serif;font-weight:bolder">
-                            @if (_model.Organization.LogoURL != null)
+                            @if (_model.Seller.LogoURL != null)
                             {
-                                <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Organization.LogoURL))' />
+                                <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Seller.LogoURL))' />
                             }
                             else
                             {
-                                <text>@(_model.Organization.EnglishName)</text>
+                                <text>@(_model.Seller.EnglishName)</text>
                             }
                         </div>
                         <div style="margin-top: -20px;font-size: 20px;font-weight: bold;">
-                            @(_model.Organization.CompanyName)
+                            @(_model.Seller.CompanyName)
                         </div>
                     </div>
                 }
-                else if (_model.Organization.LogoURL != null)
+                else if (_model.Seller.LogoURL != null)
                 {
                     height = $"height: {14.5 + tableOffset}cm;";
                     <div class="title">
-                        <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Organization.LogoURL))' />
+                        <img id="logo" style="max-width:5.2cm;max-height:1.7cm;" src='@( ModelExtension.Properties.AppSettings.Default.HostUrl + VirtualPathUtility.ToAbsolute("~/" + _model.Seller.LogoURL))' />
                     </div>
                 }
                 else
@@ -139,7 +138,7 @@
                                 @for (_itemIdx = 0; _itemIdx < __FIRST_PAGE_ITEM_COUNT && _itemIdx < _products.Length; _itemIdx++)
                                 {
                                     var prodItem = _products[_itemIdx];
-                                    var product = prodItem.InvoiceProduct;
+                                    var product = prodItem.Product;
                                     <tr>
                                         <td>
                                             @if (product.Brief?.IndexOf('\n') >= 0)
@@ -155,7 +154,7 @@
                                         <td align="right">@(String.Format("{0:##,###,###,##0.##}", prodItem.UnitCost))</td>
                                         <td align="right">@(String.Format("{0:##,###,###,##0.##}", prodItem.CostAmount))</td>
                                         <td>
-                                            @if (_itemIdx == 0 && _model.Organization.ReceiptNo == "80279131")
+                                            @if (_itemIdx == 0 && _model.Seller.ReceiptNo == "80279131")
                                             {
                                                 <span style="font-weight: bolder; font-size:large;">更正發票請於收到發票後5日內辦理逾期恕不受理</span>
                                             }
@@ -285,7 +284,7 @@
                                     @for (int idx = 0; idx < __PAGE_ITEM_COUNT && _itemIdx < _products.Length; idx++, _itemIdx++)
                                     {
                                         var prodItem = _products[_itemIdx];
-                                        var product = prodItem.InvoiceProduct;
+                                        var product = prodItem.Product;
                                         <tr>
                                             <td>
                                                 @if (product.Brief?.IndexOf('\n') >= 0)

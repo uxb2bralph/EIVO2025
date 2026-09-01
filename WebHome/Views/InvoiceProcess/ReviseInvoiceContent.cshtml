@@ -16,18 +16,23 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
+@using WebHome.Infrastructure.BackgroundTasks
 
 @functions
 {
-    UserProfile? profile;
-    static void DoProcess(int taskID, ReviseInvoiceViewModel viewModel, UserProfile? profile)
+    UserProfileWrapper? profile;
+
+    //背景作業：由 BackgroundTaskService 於請求結束後執行。
+    //使用者只以 uid/roleIndex 傳入，在此以自己的 ModelSource 重新載入，
+    //不可沿用請求的 UserProfileWrapper（其實體由請求的 context 追蹤）。
+    static void DoProcess(int taskID, ReviseInvoiceViewModel viewModel, int? uid, int? roleIndex)
     {
-        Task.Run(() =>
-        {
             try
             {
                 using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
                 {
+                    UserProfileWrapper? profile = db.ReloadProfile(uid, roleIndex);
                     db.BuildInvoiceQuery(viewModel, profile, null);
                     Exception? exception = null;
 
@@ -36,7 +41,11 @@
                     String stageF0701 = ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
                     try
                     {
-                        foreach (var item in db.Items.ToList())
+                        //迴圈內會存取 InvoiceSeller / InvoiceCancellation，先一次載入避免逐筆 lazy loading。
+                        foreach (var item in db.Items
+                            .Include(i => i.InvoiceSeller)
+                            .Include(i => i.InvoiceCancellation)
+                            .ToList())
                         {
                             db.ProcessVoidInvoiceRequest(Naming.VoidActionMode.修改營業人資料, viewModel, item);
                             item.CreateF0701().Save(System.IO.Path.Combine(stageF0701, "F0701_" + item.TrackCode + item.No + ".xml"));
@@ -58,7 +67,7 @@
                         exception = ex;
                     }
 
-                    ProcessRequest taskItem = db.GetTable<ProcessRequest>()
+                    ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
                         .Where(t => t.TaskID == taskID).FirstOrDefault();
 
                     if (taskItem != null)
@@ -70,7 +79,7 @@
                                 DataContent = exception.Message,
                                 LogTime = DateTime.Now,
                             };
-                            db.GetTable<ExceptionLog>().InsertOnSubmit(logItem);
+                            db.GetTable<ExceptionLog>().Add(logItem);
                             db.SubmitChanges();
 
                             taskItem.LogID = logItem.LogID;
@@ -86,9 +95,6 @@
             {
                 Logger.Error(ex);
             }
-
-        });
-
     }
 }
 @{
@@ -107,15 +113,19 @@
 
     ProcessRequest processItem = new ProcessRequest
     {
-        Sender = profile?.UID,
+        Sender = profile?.Entity.UID,
         SubmitDate = DateTime.Now,
         ProcessStart = DateTime.Now,
         ViewModel = _viewModel.JsonStringify(),
     };
-    models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+    models.GetTable<ProcessRequest>().Add(processItem);
     models.SubmitChanges();
 
-    DoProcess(processItem.TaskID, _viewModel, profile);
+    int taskID = processItem.TaskID;
+    ReviseInvoiceViewModel jobViewModel = _viewModel;
+    var (jobUID, jobRoleIndex) = profile.ForBackgroundWork();
+    Context.EnqueueBackgroundWork("InvoiceProcess/ReviseInvoiceContent",
+        _ => DoProcess(taskID, jobViewModel, jobUID, jobRoleIndex));
 
     await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckTask.cshtml",
     new AttachmentViewModel

@@ -16,6 +16,7 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
 
 @using Newtonsoft.Json
 
@@ -29,7 +30,10 @@
     int[] _sort = null;
     int _pageSize;
 
-    _model = (IQueryable<UserProfile>)this.Model;
+    //DataItem 每一列會存取 UserRole → OrganizationCategory → Company，
+    //先一次載入避免 N+1（須在 Skip/Take 之前）。
+    _model = ((IQueryable<UserProfile>)this.Model)
+        .Include(u => u.UserRole).ThenInclude(r => r.OrganizationCategory).ThenInclude(c => c.Company);
 
     if (_viewModel.Sort != null && _viewModel.Sort.Length > 0)
     {
@@ -68,10 +72,10 @@
             switch (idx)
             {
                 case 1:
-                    _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null) : _order.ThenBy(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null);
+                    _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Company.CompanyName : null) : _order.ThenBy(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Company.CompanyName : null);
                     break;
                 case -1:
-                    _order = _order == null ? _model.OrderByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null) : _order.ThenByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Organization.CompanyName : null);
+                    _order = _order == null ? _model.OrderByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Company.CompanyName : null) : _order.ThenByDescending(i => i.UserRole.Count > 0 ? i.UserRole.First().OrganizationCategory.Company.CompanyName : null);
                     break;
                 case 2:
                     _order = _order == null ? _model.OrderBy(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0) : _order.ThenBy(i => i.UserRole.Count > 0 ? i.UserRole.First().RoleID : 0);
@@ -120,7 +124,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in _items)
+        @foreach (var item in _items.ToList())
         {
             await Html.RenderPartialAsync("~/Views/Account/Module/DataItem.cshtml", item);
         }

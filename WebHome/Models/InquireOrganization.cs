@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using ModelCore.DataEntity;
 using CommonLib.Utility;
+using CommonLib.Core.DataWork;
 using ModelCore.Models.ViewModel;
 using ModelCore.Models;
 
@@ -11,7 +12,7 @@ namespace WebHome.Models
 {
     public partial class InquireOrganizationReceiptNo : CommonInquiry<Organization, OrganizationQueryViewModel>
     {
-        public override void BuildQueryExpression(ModelSource<Organization> models)
+        public override void BuildQueryExpression(ModelSource<ApplicationDbContext, Organization> models)
         {
             QueryViewModel.ReceiptNo = QueryViewModel.ReceiptNo.GetEfficientString();
             if (QueryViewModel.ReceiptNo!=null)
@@ -27,7 +28,7 @@ namespace WebHome.Models
     public partial class InquireCompanyName : CommonInquiry<Organization, OrganizationQueryViewModel>
     {
 
-        public override void BuildQueryExpression(ModelSource<Organization> models)
+        public override void BuildQueryExpression(ModelSource<ApplicationDbContext, Organization> models)
         {
             QueryViewModel.CompanyName = QueryViewModel.CompanyName.GetEfficientString();
             if (QueryViewModel.CompanyName!=null)
@@ -42,7 +43,7 @@ namespace WebHome.Models
 
     public partial class InquireOrganizationStatus : CommonInquiry<Organization, OrganizationQueryViewModel>
     {
-        public override void BuildQueryExpression(ModelSource<Organization> models)
+        public override void BuildQueryExpression(ModelSource<ApplicationDbContext, Organization> models)
         {
             if (QueryViewModel.OrganizationStatus.HasValue)
             {

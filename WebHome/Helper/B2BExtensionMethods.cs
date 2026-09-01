@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading;
 
 using ModelCore.DataEntity;
-using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 
 using ModelCore.Locale;
 using CommonLib.Utility;
@@ -31,7 +31,7 @@ namespace WebHome.Helper
                 Directory.CreateDirectory(TempForReceivePDF);
         }
 
-        //public static void ReceiveInvoiceItem(this UserProfile userProfile, GenericDbContext<EIVOEntityDataContext> mgr, InvoiceItem item)
+        //public static void ReceiveInvoiceItem(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, InvoiceItem item)
         //{
         //    userProfile.MoveToNextStep(item.CDS_Document, mgr);
         //    ThreadPool.QueueUserWorkItem(t =>
@@ -41,54 +41,54 @@ namespace WebHome.Helper
             
         //}
 
-        public static void IssueInvoiceItem(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, InvoiceItem item)
+        public static void IssueInvoiceItem(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, InvoiceItem item)
         {
             item.InvoiceDate = DateTime.Now;
             userProfile.MoveToNextStep(item.CDS_Document, mgr);
         }
 
-        public static void ReceiveInvoiceCancellation(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, CDS_Document item)
+        public static void ReceiveInvoiceCancellation(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, CDS_Document item)
         {
             userProfile.MoveToNextStep(item, mgr);
         }
 
-        public static void IssueInvoiceCancellation(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, CDS_Document item)
+        public static void IssueInvoiceCancellation(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, CDS_Document item)
         {
             userProfile.MoveToNextStep(item, mgr);
         }
 
-        public static void IssueInvoiceAllowance(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, InvoiceAllowance item)
+        public static void IssueInvoiceAllowance(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, InvoiceAllowance item)
         {
             userProfile.MoveToNextStep(item.CDS_Document, mgr);
         }
 
-        public static void ReceiveInvoiceAllowance(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, InvoiceAllowance item)
+        public static void ReceiveInvoiceAllowance(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, InvoiceAllowance item)
         {
             userProfile.MoveToNextStep(item.CDS_Document, mgr);
         }
 
 
-        public static void IssueAllowanceCancellation(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, CDS_Document item)
+        public static void IssueAllowanceCancellation(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, CDS_Document item)
         {
             userProfile.MoveToNextStep(item, mgr);
         }
 
-        public static void ReceiveAllowanceCancellation(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, CDS_Document item)
+        public static void ReceiveAllowanceCancellation(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, CDS_Document item)
         {
             userProfile.MoveToNextStep(item, mgr);
         }
 
-        public static void ReceiveReceipt(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, CDS_Document item)
+        public static void ReceiveReceipt(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, CDS_Document item)
         {
             userProfile.MoveToNextStep(item, mgr);
         }
 
-        public static void ReceiveReceiptCancellation(this UserProfile userProfile, GenericManager<EIVOEntityDataContext> mgr, CDS_Document item)
+        public static void ReceiveReceiptCancellation(this UserProfile userProfile, GenericDbContext<ApplicationDbContext> mgr, CDS_Document item)
         {
             userProfile.MoveToNextStep(item, mgr);
         }
 
-        public static bool MoveToNextStep(this UserProfile userProfile, CDS_Document item, GenericManager<EIVOEntityDataContext> mgr)
+        public static bool MoveToNextStep(this UserProfile userProfile, CDS_Document item, GenericDbContext<ApplicationDbContext> mgr)
         {
             var flowStep = item.DocumentFlowStep;
             if (flowStep != null)
@@ -96,11 +96,11 @@ namespace WebHome.Helper
                 var currentStep = mgr.GetTable<DocumentFlowControl>().Where(f => f.StepID == flowStep.CurrentFlowStep).First();
                 if (currentStep.NextStep.HasValue)
                 {
-                    var nextStep = currentStep.NextStepItem;
+                    var nextStep = currentStep.NextStepNavigation;
                     flowStep.CurrentFlowStep = nextStep.StepID;
                     item.CurrentStep = nextStep.LevelID;
 
-                    mgr.GetTable<DocumentProcessLog>().InsertOnSubmit(new DocumentProcessLog
+                    mgr.GetTable<DocumentProcessLog>().Add(new DocumentProcessLog
                     {
                         DocID = flowStep.DocID,
                         StepDate = DateTime.Now,
@@ -116,7 +116,7 @@ namespace WebHome.Helper
         }
 
 
-        public static Naming.InvoiceCenterBusinessType? CheckBusinessType(this InvoiceItem invoice, GenericManager<EIVOEntityDataContext> mgr,int companyID)
+        public static Naming.InvoiceCenterBusinessType? CheckBusinessType(this InvoiceItem invoice, GenericDbContext<ApplicationDbContext> mgr,int companyID)
         {
             if (invoice.InvoiceSeller.SellerID == companyID)
             {
@@ -243,7 +243,7 @@ namespace WebHome.Helper
             return fileName;
         }
 
-        public static String PrepareToDownload(this GenericManager<EIVOEntityDataContext> mgr, InvoiceItem item,bool? isMail)
+        public static String PrepareToDownload(this GenericDbContext<ApplicationDbContext> mgr, InvoiceItem item,bool? isMail)
         {
             String fileName = item.CreatePdfFile();
 
@@ -252,10 +252,10 @@ namespace WebHome.Helper
 
                 var docQ = mgr.GetTable<DocumentSubscriptionQueue>();
 
-                if (item.InvoiceBuyer?.Organization?.OrganizationStatus?.EntrustToPrint == true
+                if (item.InvoiceBuyer?.Buyer?.OrganizationStatus?.EntrustToPrint == true
                     && !docQ.Any(q => q.DocID == item.InvoiceID) && (bool)!isMail)
                 {
-                    docQ.InsertOnSubmit(new DocumentSubscriptionQueue { DocID = item.InvoiceID });
+                    docQ.Add(new DocumentSubscriptionQueue { DocID = item.InvoiceID });
                     mgr.SubmitChanges();
                 }
 
@@ -304,7 +304,7 @@ namespace WebHome.Helper
             return fileName;
         }
 
-        public static String? PrepareToDownload(this GenericManager<EIVOEntityDataContext> mgr, InvoiceAllowance item)
+        public static String? PrepareToDownload(this GenericDbContext<ApplicationDbContext> mgr, InvoiceAllowance item)
         {
             String? fileName = item.CreatePdfFile();
 
@@ -313,10 +313,10 @@ namespace WebHome.Helper
 
                 var docQ = mgr.GetTable<DocumentSubscriptionQueue>();
 
-                if (item.InvoiceAllowanceBuyer?.Organization?.OrganizationStatus?.EntrustToPrint == true
+                if (item.InvoiceAllowanceBuyer?.Buyer?.OrganizationStatus?.EntrustToPrint == true
                     && !docQ.Any(q => q.DocID == item.AllowanceID))
                 {
-                    docQ.InsertOnSubmit(new DocumentSubscriptionQueue { DocID = item.AllowanceID });
+                    docQ.Add(new DocumentSubscriptionQueue { DocID = item.AllowanceID });
                     mgr.SubmitChanges();
                 }
 

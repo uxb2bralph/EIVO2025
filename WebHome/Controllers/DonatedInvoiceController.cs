@@ -14,6 +14,7 @@ using ModelCore.Models.ViewModel;
 using Microsoft.Net.Http.Headers;
 using WebHome.Helper.Security.Authorization;
 using ModelCore.Models;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers
 {
@@ -25,7 +26,7 @@ namespace WebHome.Controllers
 
         protected ModelSourceInquiry<InvoiceItem> createModelInquiry()
         {
-            UserProfile userProfile = HttpContext.GetUser();
+            UserProfileWrapper userProfile = HttpContext.GetUser();
 
 
             return (ModelSourceInquiry<InvoiceItem>)(new InquireDonatedInvoice { ControllerName = "InquireInvoice", ActionName = "ByDonation" })

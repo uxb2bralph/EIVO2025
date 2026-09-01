@@ -16,6 +16,7 @@
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
 @using Microsoft.AspNetCore.Mvc.Razor
+@using Microsoft.EntityFrameworkCore
 
 @using Newtonsoft.Json
 @functions
@@ -34,36 +35,31 @@
 
     await Html.RenderPartialAsync("~/Views/OrganizationQuery/Module/CompanyItemSorting.cshtml");
 
-    IQueryable<Organization> items;
     int pageIndex = _viewModel.PageIndex ?? 0;
     int pageSize = _viewModel.PageSize ?? 10;
 
-    if (TempData["SortedItems"] == null)
+    IQueryable<Organization> source = (TempData["SortedItems"] as IQueryable<Organization>) ?? _model;
+
+    source = source
+        .Include(o => o.OrganizationStatus!)
+            .ThenInclude(s => s.CurrentLevelNavigation)
+        .Include(o => o.OrganizationExtension)
+        .Include(o => o.OrganizationCategory)
+        .Include(o => o.EnterpriseGroupMember)
+        .Include(o => o.MasterOrganization)
+        .Include(o => o.InvoiceIssuerAgentAgent);
+
+    if (_viewModel.Paging != false)
     {
-        if (_viewModel.Paging == false)
-        {
-            items = _model;
-        }
-        else
-        {
-            items = _model
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
-        }
+        source = source
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize);
     }
-    else
-    {
-        if (_viewModel.Paging == false)
-        {
-            items = ((IQueryable<Organization>)TempData["SortedItems"]);
-        }
-        else
-        {
-            items = ((IQueryable<Organization>)TempData["SortedItems"])
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize);
-        }
-    }
+
+    //先具體化資料列：Razor 逐筆列舉 IQueryable 時 DataReader 仍開啟，
+    //此時延遲載入 (Lazy Loading) 會在同一連線再發一次查詢，
+    //導致「已經開啟與這個 Connection 建立關聯的 DataReader」例外。
+    List<Organization> items = source.ToList();
 
 }
 @{

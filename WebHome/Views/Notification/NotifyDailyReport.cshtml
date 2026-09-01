@@ -124,7 +124,7 @@
         orgItems = orgItems.Where(o => o.ReceiptNo == _viewModel.ReceiptNo);
     }
 
-    foreach (var item in orgItems)
+    foreach (var item in orgItems.ToList())
     {
         _viewModel.SellerID = _viewModel.CompanyID = item.CompanyID;
         var invoice = models.GetTable<InvoiceItem>().InquireInvoice(_viewModel, models, ref effective, false);

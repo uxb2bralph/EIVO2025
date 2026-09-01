@@ -46,7 +46,7 @@
         Writer.Write(welfare.Organization.CompanyName);}
 
         </td>*@
-    <td>@(item.OrganizationStatus != null ? item.OrganizationStatus.LevelExpression?.Description : null)</td>
+    <td>@(item.OrganizationStatus != null ? item.OrganizationStatus.CurrentLevelNavigation?.Description : null)</td>
     <td>
         <div class="btn-group dropdown" data-toggle="dropdown">
             <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>

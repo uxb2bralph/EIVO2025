@@ -86,7 +86,7 @@ namespace WebHome.Controllers
         protected String getInvoiceViewPath(InvoiceItem item, out String[]? useThermalPOSArgs, String? paperStyle = null, Naming.InvoiceProcessType? processType = null)
         {
             useThermalPOSArgs = null;
-            if (((paperStyle == "B2B" || item.Organization.HybridB2B() == true || item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101) && item.InvoiceBuyer.CustomerName?.Length > 4) && !item.InvoiceBuyer.IsB2C())
+            if (((paperStyle == "B2B" || item.Seller.HybridB2B() == true || item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101) && item.InvoiceBuyer.CustomerName?.Length > 4) && !item.InvoiceBuyer.IsB2C())
             {
                 return "~/Views/DataView/A0401.cshtml";
             }
@@ -299,13 +299,13 @@ namespace WebHome.Controllers
 
                 ProcessRequest processItem = new ProcessRequest
                 {
-                    Sender = profile.UID,
+                    Sender = profile.Entity.UID,
                     SubmitDate = DateTime.Now,
                     ProcessStart = DateTime.Now,
                     ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".zip"),
                     ViewModel = viewModel.JsonStringify(),
                 };
-                models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+                models.GetTable<ProcessRequest>().Add(processItem);
                 models.SubmitChanges();
 
                 viewModel.TaskID = processItem.TaskID;
@@ -329,7 +329,7 @@ namespace WebHome.Controllers
                 String outFile = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".zip");
 
                 var items = models.GetTable<DocumentPrintQueue>()
-                    .Where(i => i.UID == profile.UID)
+                    .Where(i => i.UID == profile.Entity.UID)
                     .Join(models.GetTable<CDS_Document>()
                             .Where(d => d.DocType == (int)Naming.DocumentTypeDefinition.E_Invoice),
                         i => i.DocID, d => d.DocID, (i, d) => i);
@@ -352,9 +352,9 @@ namespace WebHome.Controllers
                     {
                         foreach (var doc in items.ToArray())
                         {
-                            InvoiceItem item = doc.CDS_Document.InvoiceItem;
+                            InvoiceItem item = doc.Doc.InvoiceItem;
                             var pdfFile = await GetInvoicePDFAsync(item, viewModel);
-                            models.MarkPrintedLog(item, profile);
+                            models.MarkPrintedLog(item, profile.Entity);
     
                             zip.CreateEntryFromFile(pdfFile, Path.GetFileName(pdfFile));
                         }
@@ -547,7 +547,7 @@ namespace WebHome.Controllers
             var profile = HttpContext.GetUser();
 
             var items = models.GetTable<DocumentPrintQueue>()
-                .Where(i => i.UID == profile.UID)
+                .Where(i => i.UID == profile.Entity.UID)
                 .Join(models.GetTable<CDS_Document>()
                         .Where(d => d.DocType == (int)Naming.DocumentTypeDefinition.E_Allowance),
                     i => i.DocID, d => d.DocID, (i, d) => i);
@@ -596,7 +596,7 @@ namespace WebHome.Controllers
             var profile = HttpContext.GetUser();
 
             var items = models!.GetTable<DocumentPrintQueue>()
-                .Where(i => i.UID == profile.UID)
+                .Where(i => i.UID == profile.Entity.UID)
                 .Join(models.GetTable<CDS_Document>()
                     .Where(d => d.DocType == (int)Naming.DocumentTypeDefinition.E_Invoice),
                     i => i.DocID, d => d.DocID, (i, d) => i);
@@ -621,7 +621,7 @@ namespace WebHome.Controllers
             var profile = HttpContext.GetUser();
 
             var items = models.GetTable<DocumentPrintQueue>()
-                .Where(i => i.UID == profile.UID)
+                .Where(i => i.UID == profile.Entity.UID)
                 .Join(models.GetTable<CDS_Document>()
                         .Where(d => d.DocType == (int)Naming.DocumentTypeDefinition.E_Allowance),
                     i => i.DocID, d => d.DocID, (i, d) => i);
@@ -817,13 +817,13 @@ namespace WebHome.Controllers
 
             ProcessRequest processItem = new ProcessRequest
             {
-                Sender = HttpContext.GetUser()?.UID,
+                Sender = HttpContext.GetUser()?.Entity.UID,
                 SubmitDate = DateTime.Now,
                 ProcessStart = DateTime.Now,
                 ResponsePath = System.IO.Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".zip"),
                 ViewModel = viewModel.JsonStringify(),
             };
-            models.GetTable<ProcessRequest>().InsertOnSubmit(processItem);
+            models.GetTable<ProcessRequest>().Add(processItem);
             models.SubmitChanges();
 
             viewModel.TaskID = processItem.TaskID;

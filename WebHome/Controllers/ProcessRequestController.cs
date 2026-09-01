@@ -104,8 +104,8 @@ namespace WebHome.Controllers
             viewModel.QuickSearch = viewModel.QuickSearch.GetEfficientString();
             if (viewModel.QuickSearch != null)
             {
-                items = items.Where(p => p.UserProfile.PID == viewModel.QuickSearch
-                    || p.Organization.ReceiptNo == viewModel.QuickSearch);
+                items = items.Where(p => p.SenderNavigation.PID == viewModel.QuickSearch
+                    || p.Agent.ReceiptNo == viewModel.QuickSearch);
             }
 
             viewModel.RecordCount = items.Count();

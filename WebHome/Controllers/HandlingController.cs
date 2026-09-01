@@ -82,7 +82,7 @@ namespace WebHome.Controllers
             {
                 if (!item.IsEnterpriseGroupMember())
                 {
-                    models.GetTable<EnterpriseGroupMember>().InsertOnSubmit(
+                    models.GetTable<EnterpriseGroupMember>().Add(
                         new EnterpriseGroupMember
                         {
                             EnterpriseID = (int)Naming.EnterpriseGroup.網際優勢股份有限公司,
@@ -278,7 +278,7 @@ namespace WebHome.Controllers
                 if (exclusiveNo?.Length > 0)
                 {
                     //models.GetTable<UserProfileProperty>()
-                    //    .InsertOnSubmit(new UserProfileProperty 
+                    //    .Add(new UserProfileProperty 
                     //    {
                     //        UID = profile.UID,
                     //        PropertyID = (int)UserProfileProperty.PropertyType.ExclusiveBuyerMail,
@@ -394,7 +394,7 @@ namespace WebHome.Controllers
                             TrackingNo1 = mailNo,
                             TrackingNo2 = m.MailNo2
                         };
-                        table.InsertOnSubmit(item);
+                        table.Add(item);
                     }
                     else
                     {
@@ -516,7 +516,7 @@ namespace WebHome.Controllers
                 var ChkCode = GetPostChkcode(MailNo1, MailNo2, MailNo3, zipcode);
 
 
-                models.GetTable<DocumentPostLog>().InsertOnSubmit
+                models.GetTable<DocumentPostLog>().Add
                 (new DocumentPostLog
                 {
                     InvoiceID = item.InvoiceID,

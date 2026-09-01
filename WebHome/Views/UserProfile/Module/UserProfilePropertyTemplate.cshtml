@@ -22,7 +22,7 @@
     String id = (String)paramItems[0];
     UserProfileProperty.PropertyType property = (UserProfileProperty.PropertyType)paramItems[1];
     var item = models.GetTable<UserProfileProperty>()
-                    .Where(p => p.UID == profile.UID)
+                    .Where(p => p.UID == profile.Entity.UID)
                     .Where(p => p.PropertyID == (int)property)
                     .FirstOrDefault();
     paramItems[2] = item?.ToPlainText();
@@ -34,7 +34,7 @@
             var $target = $('#@(id)');
             $target.on('change', function (event) {
                 var viewModel = {
-                    'UID':@(profile.UID),
+                    'UID':@(profile.Entity.UID),
                     'PropertyID':@((int)property),
                     'Property': $target.val()
                 };

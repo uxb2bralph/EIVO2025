@@ -31,22 +31,22 @@
 
 }
 <p>
-    若您對此發票內容或消費有任何疑問，請連絡@(_model.Organization.CompanyName)
-    @if (_model.Organization.OrganizationExtension?.CustomNotification != null)
+    若您對此發票內容或消費有任何疑問，請連絡@(_model.Seller.CompanyName)
+    @if (_model.Seller.OrganizationExtension?.CustomNotification != null)
     {
-        Write(new HtmlString(System.Web.HttpUtility.HtmlDecode(_model.Organization.OrganizationExtension?.CustomNotification)));
+        Write(new HtmlString(System.Web.HttpUtility.HtmlDecode(_model.Seller.OrganizationExtension?.CustomNotification)));
     }
-    else if (!String.IsNullOrEmpty(_model.Organization.OrganizationExtension.BusinessContactPhone))
+    else if (!String.IsNullOrEmpty(_model.Seller.OrganizationExtension.BusinessContactPhone))
     {
-        <text>(@(_model.Organization.OrganizationExtension.BusinessContactPhone))</text>
+        <text>(@(_model.Seller.OrganizationExtension.BusinessContactPhone))</text>
     }
-    else if (!String.IsNullOrEmpty(_model.Organization.ContactEmail))
+    else if (!String.IsNullOrEmpty(_model.Seller.ContactEmail))
     {
-        <text>(@(_model.Organization.ContactEmail))</text>
+        <text>(@(_model.Seller.ContactEmail))</text>
     }
     。
 </p>
-@if (_model.Organization.OrganizationSettings.Any(s => s.Settings == "AllowPrintAll"))
+@if (_model.Seller.OrganizationSettings.Any(s => s.Settings == "AllowPrintAll"))
 {
     <p>
         列印電子發票證明聯請<a href="@Html.Raw($"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("GetPrint","IndividualProcess",new { KeyID = _model.InvoiceID.EncryptKey() })}")">按此</a>。

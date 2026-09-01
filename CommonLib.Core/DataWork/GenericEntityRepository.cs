@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq.Expressions;
 using System.Collections;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -139,6 +140,26 @@ namespace CommonLib.Core.DataWork
             return _db!.Set<TTable>();
         }
 
+        public IDbContextTransaction EnterTransaction()
+        {
+            if (_db!.Database.GetDbConnection().State != ConnectionState.Open)
+            {
+                _db.Database.GetDbConnection().Open();
+            }
+
+            return _db.Database.BeginTransaction();
+        }
+
+        public IDbContextTransaction EnterTransaction(IsolationLevel isolationLevel)
+        {
+            if (_db!.Database.GetDbConnection().State != ConnectionState.Open)
+            {
+                _db.Database.GetDbConnection().Open();
+            }
+
+            return _db.Database.BeginTransaction(isolationLevel);
+        }
+
         public DbCommand GetCommand(IQueryable query)
         {
             //var sqlCmd = _db.Database.GetDbConnection().CreateCommand();
@@ -154,6 +175,18 @@ namespace CommonLib.Core.DataWork
         }
 
         public DbConnection Connection => _db!.Database.GetDbConnection();
+
+        public IQueryable GetTable(Type entityType)
+        {
+            var setMethod = typeof(DbContext).GetMethods()
+                .First(m => m.Name == nameof(DbContext.Set) && m.IsGenericMethod && m.GetParameters().Length == 0);
+            return (IQueryable)setMethod.MakeGenericMethod(entityType).Invoke(_db!, null)!;
+        }
+
+        public IEnumerable<TResult> ExecutePagingQuery<TResult>(IQueryable<TResult> query, int skipCount, int takeCount)
+        {
+            return query.Skip(skipCount).Take(takeCount).ToList();
+        }
 
         public int ExecuteCommand(string command, params Object[] parameters)
         {

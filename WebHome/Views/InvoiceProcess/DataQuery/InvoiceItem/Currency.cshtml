@@ -52,7 +52,7 @@
     void ShowBody(dynamic po)
     {
         InvoiceItem item = (InvoiceItem)po;
-        <td>@(item.InvoiceAmountType.CurrencyType?.AbbrevName)</td>
+        <td>@(item.InvoiceAmountType.Currency?.AbbrevName)</td>
     }
 
     void ShowFooter(dynamic item)

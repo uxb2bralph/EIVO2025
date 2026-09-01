@@ -216,7 +216,7 @@ namespace WebHome.Controllers
                     InvoiceIssuerAgent? cycleAgent = null;
                     if (CheckAgentCycle(item.CompanyID, id, out cycleAgent))
                     {
-                        ModelState.AddModelError("Message", $"發生循環經銷({cycleAgent!.InvoiceIssuer.ReceiptNo}, {cycleAgent.InvoiceIssuer.CompanyName})!!");
+                        ModelState.AddModelError("Message", $"發生循環經銷({cycleAgent!.Issuer.ReceiptNo}, {cycleAgent.Issuer.CompanyName})!!");
                     }
                 }
             }
@@ -259,7 +259,7 @@ namespace WebHome.Controllers
                     InvoiceIssuerAgent? cycleAgent = null;
                     if (CheckAgentCycle(id, item.CompanyID, out cycleAgent))
                     {
-                        ModelState.AddModelError("Message", $"發生循環經銷({cycleAgent!.InvoiceIssuer.ReceiptNo}, {cycleAgent.InvoiceIssuer.CompanyName})!!");
+                        ModelState.AddModelError("Message", $"發生循環經銷({cycleAgent!.Issuer.ReceiptNo}, {cycleAgent.Issuer.CompanyName})!!");
                     }
                 }
             }
@@ -435,7 +435,7 @@ namespace WebHome.Controllers
                 if (viewModel.Fee[i] > 0)
                 {
                     models.GetTable<ExtraBillingItem>()
-                        .InsertOnSubmit(new ExtraBillingItem 
+                        .Add(new ExtraBillingItem 
                         {
                             CompanyID = item.CompanyID,
                             ItemName = viewModel.ItemName[i],
@@ -610,7 +610,7 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult CustomSettings(CustomSmtpHost viewModel)
+        public ActionResult CustomSettings(CustomSmtpHostDto viewModel)
         {
             Organization item = null;
             if (viewModel.KeyID != null)
@@ -623,7 +623,7 @@ namespace WebHome.Controllers
             return View("~/Views/Organization/Module/CustomSettings.cshtml", item);
         }
 
-        public ActionResult CommitSmtpSettings(CustomSmtpHost viewModel)
+        public ActionResult CommitSmtpSettings(CustomSmtpHostDto viewModel)
         {
             ViewBag.ViewModel = viewModel;
             CustomSmtpHost item = viewModel.CommitCustomSmtpHost(models, ModelState);
@@ -637,7 +637,7 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult DisableSmtpSettings(CustomSmtpHost viewModel)
+        public ActionResult DisableSmtpSettings(CustomSmtpHostDto viewModel)
         {
             ViewBag.ViewModel = viewModel;
 
@@ -655,7 +655,7 @@ namespace WebHome.Controllers
             return Json(new { result = true, recordCount });
         }
 
-        public ActionResult LoadSmtpSettings(CustomSmtpHost viewModel)
+        public ActionResult LoadSmtpSettings(CustomSmtpHostDto viewModel)
         {
             ViewBag.ViewModel = viewModel;
             var item = viewModel.LoadCustomSmtpHostFor(models);

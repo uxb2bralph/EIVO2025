@@ -16,7 +16,7 @@
 @using ModelCore.Helper
 @{
 
-    UserProfile _profile;
+    UserProfileWrapper _profile;
 
     _profile = Context.GetUser();
 }
@@ -30,7 +30,7 @@
             {
                 <input type="button" class="btn mr-2" name="btnBuyer" value="下載買受人資料" onclick="uiInvoiceQuery.saveBuyer();" />
             }
-            @if (_profile.IsSystemAdmin() || _profile.CurrentUserRole.OrganizationCategory.Organization.ReceiptNo == "43460094")
+            @if (_profile.IsSystemAdmin() || _profile.CurrentUserRole.OrganizationCategory.Company.ReceiptNo == "43460094")
             {
                 <input type="button" class="btn mr-2" name="btnPrint" value="ERP下載" onclick="uiInvoiceQuery.downloadERP();" />
                 <script>
