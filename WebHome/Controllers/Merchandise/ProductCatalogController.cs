@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
 using WebHome.Helper.Security.Authorization;
 using ModelCore.DataEntityWrapper;
+using ModelCore.DTOs;
 
 namespace WebHome.Controllers.Merchandise
 {
@@ -204,7 +205,8 @@ namespace WebHome.Controllers.Merchandise
             ViewResult result = (ViewResult)InquireProduct(viewModel);
             IQueryable<ProductCatalog> items = (IQueryable<ProductCatalog>)result.Model;
 
-            return Content(JsonConvert.SerializeObject(items.ToArray()), "application/json");
+            //序列化實體會被 lazy loading proxy 的 Supplier 導覽帶出循環參考，改回傳 DTO。
+            return Content(JsonConvert.SerializeObject(items.ToList().Select(p => p.ToDto()).ToArray()), "application/json");
 
         }
 

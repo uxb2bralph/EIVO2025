@@ -15,7 +15,7 @@ using System.IO;
 using System.IO.Compression;
 using CommonLib.Utility;
 using System.Threading;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Data;
 using ClosedXML.Excel;
 using System.Data.Linq;
@@ -34,6 +34,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using CommonLib.Core.Controllers;
 using ModelCore.DataEntityWrapper;
+using Microsoft.EntityFrameworkCore;
+using WebHome.Infrastructure.BackgroundTasks;
 
 namespace WebHome.Controllers
 {
@@ -459,7 +461,7 @@ namespace WebHome.Controllers
                 {
                     發票號碼 = i.TrackCode + i.No,
                     發票日期 = i.InvoiceDate,
-                    附件檔名 = i.CDS_Document.Attachment.Count > 0 ? i.CDS_Document.Attachment.First().KeyName : null,
+                    附件檔名 = i.CDS_Document.Attachment.Select(a => a.KeyName).FirstOrDefault(),
                     客戶ID = i.InvoiceBuyer.CustomerID,
                     序號 = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : null,
                     發票開立人 = i.InvoiceSeller.CustomerName,
@@ -701,7 +703,38 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> CreateMonthlyReportXlsxAsync(InquireInvoiceViewModel viewModel)
+        /// <summary>
+        /// 月報表查詢，抽成不依賴 HttpContext 的靜態方法，讓背景作業能以自己的 DbContext 重建同一份查詢。
+        /// </summary>
+        public static (IQueryable<Organization> Sellers, IQueryable<InvoiceItem> Invoices) BuildMonthlyReportQuery(
+            CommonLib.Core.DataWork.GenericDbContext<ApplicationDbContext> models,
+            InquireInvoiceViewModel viewModel,
+            UserProfileWrapper? profile)
+        {
+            ModelSource<InvoiceItem> dataSource = new ModelSource<InvoiceItem>(models);
+            dataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
+            dataSource.BuildQuery();
+
+            IQueryable<Organization> sellerItems = models.GetTable<Organization>();
+            sellerItems = models.FilterOrganizationByRole(profile, sellerItems);
+
+            if (viewModel.SellerID.HasValue)
+            {
+                sellerItems = sellerItems.Where(o => o.CompanyID == viewModel.SellerID);
+            }
+
+            if (viewModel.AgentID.HasValue)
+            {
+                sellerItems = sellerItems
+                    .Join(models.GetTable<InvoiceIssuerAgent>()
+                            .Where(a => a.AgentID == viewModel.AgentID),
+                        o => o.CompanyID, a => a.IssuerID, (o, a) => o);
+            }
+
+            return (sellerItems, dataSource.Items);
+        }
+
+        public ActionResult CreateMonthlyReportXlsx(InquireInvoiceViewModel viewModel)
         {
             ViewResult result = (ViewResult)InquireSummary(viewModel);
             IQueryable<Organization> items = result.Model as IQueryable<Organization>;
@@ -711,9 +744,10 @@ namespace WebHome.Controllers
                 return result;
             }
 
+            var profile = HttpContext.GetUser();
             ProcessRequest processItem = new ProcessRequest
             {
-                Sender = HttpContext.GetUser()?.Entity.UID,
+                Sender = profile?.Entity.UID,
                 SubmitDate = DateTime.Now,
                 ProcessStart = DateTime.Now,
                 ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
@@ -721,10 +755,13 @@ namespace WebHome.Controllers
             models.GetTable<ProcessRequest>().Add(processItem);
             models.SubmitChanges();
 
-            _dbInstance = false;
-
-            SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items);
-            SaveAsExcel(processItem, viewModel, items);
+            //原本以 _dbInstance = false 讓 Task.Run 續用請求的 DbContext；
+            //改為背景佇列 + 自建 DbContext 之後，這裡恢復正常釋放。
+            int taskID = processItem.TaskID;
+            String resultFile = processItem.ResponsePath;
+            var (jobUID, jobRoleIndex) = profile.ForBackgroundWork();
+            HttpContext.EnqueueBackgroundWork("InvoiceQuery/CreateMonthlyReportXlsx",
+                _ => SaveAsExcel(taskID, resultFile, viewModel, jobUID, jobRoleIndex));
 
             return View("~/Views/Shared/Module/PromptCheckDownload.cshtml",
                     new AttachmentViewModel
@@ -736,17 +773,21 @@ namespace WebHome.Controllers
 
         }
 
-        private void SaveAsExcel(ProcessRequest taskItem, InquireInvoiceViewModel viewModel, IQueryable<Organization> items)
+        //背景作業：不可沿用請求的 models／profile，改以 viewModel + uid/roleIndex 重建查詢。
+        private static void SaveAsExcel(int taskID, String resultFile, InquireInvoiceViewModel viewModel, int? uid, int? roleIndex)
         {
-            Task.Run(() =>
+            try
             {
-                Exception exception = null;
-                try
+                using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
+                using (DataSet ds = new DataSet())
                 {
-                    using (DataSet ds = new DataSet())
-                    {
-                        IQueryable<InvoiceItem> dataItems = DataSource.Items;
+                    UserProfileWrapper? profile = db.ReloadProfile(uid, roleIndex);
+                    var (sellerItems, invoiceItems) = BuildMonthlyReportQuery(db, viewModel, profile);
 
+                    Exception? exception = null;
+
+                    try
+                    {
                         DataTable table = new DataTable();
                         table.Columns.Add(new DataColumn("開立發票營業人", typeof(String)));
                         table.Columns.Add(new DataColumn("統編", typeof(String)));
@@ -757,92 +798,124 @@ namespace WebHome.Controllers
 
                         ds.Tables.Add(table);
 
-                        //var invoiceItems = items.GroupJoin(DataSource.Items,
-                        //        o => o.CompanyID, i => i.SellerID, (o, i) => new { Seller = o, Items = i });
+                        //每家開立人各查一次 Count 會是 N+1，且會在列舉 sellerItems 的同時
+                        //於同一條連線再開 DataReader；改成一次 GROUP BY 取回。
+                        var countBySeller = invoiceItems
+                            .Where(i => i.SellerID.HasValue)
+                            .GroupBy(i => i.SellerID!.Value)
+                            .Select(g => new { SellerID = g.Key, Count = g.Count() })
+                            .ToDictionary(x => x.SellerID, x => x.Count);
 
-                        foreach (var item in items.OrderBy(o => o.ReceiptNo))
+                        foreach (var item in sellerItems
+                                                .Include(o => o.OrganizationExtension)
+                                                .OrderBy(o => o.ReceiptNo)
+                                                .ToList())
                         {
                             DataRow r = table.NewRow();
 
                             r[0] = item.CompanyName;
                             r[1] = item.ReceiptNo;
                             r[2] = $"{item.OrganizationExtension?.GoLiveDate:yyyy/MM/dd}";
-                            r[3] = dataItems.Count(i => i.SellerID == item.CompanyID);
+                            r[3] = countBySeller.TryGetValue(item.CompanyID, out var invoiceCount) ? invoiceCount : 0;
                             r[4] = $"{item.OrganizationExtension?.ExpirationDate:yyyy/MM/dd}";
 
                             table.Rows.Add(r);
                         }
 
-                        foreach (var yy in dataItems.GroupBy(i => i.InvoiceDate.Value.Year))
-                        {
-                            foreach (var mm in yy.GroupBy(i => i.InvoiceDate.Value.Month))
+                        //日統計一次 GROUP BY 取回，再於記憶體內依年月分頁籤。
+                        var daily = invoiceItems
+                            .Where(i => i.InvoiceDate.HasValue)
+                            .GroupBy(i => new
                             {
-                                table = new DataTable();
-                                table.Columns.Add(new DataColumn("日期", typeof(String)));
-                                table.Columns.Add(new DataColumn("未作廢總筆數", typeof(int)));
-                                table.Columns.Add(new DataColumn("未作廢總金額", typeof(decimal)));
-                                table.Columns.Add(new DataColumn("已作廢總筆數", typeof(int)));
-                                table.Columns.Add(new DataColumn("已作廢總金額", typeof(decimal)));
-                                table.TableName = $"月報表({yy.Key}-{mm.Key})";
+                                i.InvoiceDate!.Value.Year,
+                                i.InvoiceDate!.Value.Month,
+                                i.InvoiceDate!.Value.Day,
+                            })
+                            .Select(g => new
+                            {
+                                g.Key.Year,
+                                g.Key.Month,
+                                g.Key.Day,
+                                EffectiveCount = g.Count(i => i.InvoiceCancellation == null),
+                                EffectiveAmount = g.Sum(i => i.InvoiceCancellation == null ? i.InvoiceAmountType!.TotalAmount : 0m),
+                                CancelledCount = g.Count(i => i.InvoiceCancellation != null),
+                                CancelledAmount = g.Sum(i => i.InvoiceCancellation != null ? i.InvoiceAmountType!.TotalAmount : 0m),
+                            })
+                            .ToList();
 
-                                ds.Tables.Add(table);
+                        foreach (var month in daily
+                                                .GroupBy(d => new { d.Year, d.Month })
+                                                .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month))
+                        {
+                            table = new DataTable();
+                            table.Columns.Add(new DataColumn("日期", typeof(String)));
+                            table.Columns.Add(new DataColumn("未作廢總筆數", typeof(int)));
+                            table.Columns.Add(new DataColumn("未作廢總金額", typeof(decimal)));
+                            table.Columns.Add(new DataColumn("已作廢總筆數", typeof(int)));
+                            table.Columns.Add(new DataColumn("已作廢總金額", typeof(decimal)));
+                            table.TableName = $"月報表({month.Key.Year}-{month.Key.Month})";
 
-                                IEnumerable<InvoiceItem> v0, v1;
-                                DataRow r;
+                            ds.Tables.Add(table);
 
-                                foreach (var item in mm.GroupBy(i => i.InvoiceDate.Value.Day).OrderBy(g => g.Key))
-                                {
-                                    r = table.NewRow();
-                                    r[0] = item.Key.ToString();
-                                    v0 = item.Where(i => i.InvoiceCancellation == null);
-                                    v1 = item.Where(i => i.InvoiceCancellation != null);
-                                    r[1] = v0.Count();
-                                    r[2] = v0.Sum(i => i.InvoiceAmountType.TotalAmount);
-                                    r[3] = v1.Count();
-                                    r[4] = v1.Sum(i => i.InvoiceAmountType.TotalAmount);
-                                    table.Rows.Add(r);
-                                }
-
-                                v0 = mm.Where(i => i.InvoiceCancellation == null);
-                                v1 = mm.Where(i => i.InvoiceCancellation != null);
+                            DataRow r;
+                            foreach (var item in month.OrderBy(d => d.Day))
+                            {
                                 r = table.NewRow();
-                                r[0] = "總計";
-                                r[1] = v0.Count();
-                                r[2] = v0.Sum(i => i.InvoiceAmountType.TotalAmount);
-                                r[3] = v1.Count();
-                                r[4] = v1.Sum(i => i.InvoiceAmountType.TotalAmount);
+                                r[0] = item.Day.ToString();
+                                r[1] = item.EffectiveCount;
+                                r[2] = item.EffectiveAmount ?? 0m;
+                                r[3] = item.CancelledCount;
+                                r[4] = item.CancelledAmount ?? 0m;
                                 table.Rows.Add(r);
-
                             }
+
+                            r = table.NewRow();
+                            r[0] = "總計";
+                            r[1] = month.Sum(d => d.EffectiveCount);
+                            r[2] = month.Sum(d => d.EffectiveAmount ?? 0m);
+                            r[3] = month.Sum(d => d.CancelledCount);
+                            r[4] = month.Sum(d => d.CancelledAmount ?? 0m);
+                            table.Rows.Add(r);
                         }
 
                         using (var xls = ds.ConvertToExcel())
                         {
-                            xls.SaveAs(taskItem.ResponsePath);
+                            xls.SaveAs(resultFile);
                         }
                     }
-
-                }
-                catch (Exception ex)
-                {
-                    exception = ex;
-                    Logger.Error(ex);
-                }
-
-                if (exception != null)
-                {
-                    taskItem.Log = new ExceptionLog
+                    catch (Exception ex)
                     {
-                        DataContent = exception.Message
-                    };
+                        Logger.Error(ex);
+                        exception = ex;
+                    }
+
+                    ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
+                        .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                    if (taskItem != null)
+                    {
+                        if (exception != null)
+                        {
+                            var logItem = new ExceptionLog
+                            {
+                                DataContent = exception.Message,
+                                LogTime = DateTime.Now,
+                            };
+                            db.GetTable<ExceptionLog>().Add(logItem);
+                            db.SubmitChanges();
+
+                            taskItem.LogID = logItem.LogID;
+                        }
+
+                        taskItem.ProcessComplete = DateTime.Now;
+                        db.SubmitChanges();
+                    }
                 }
-
-                taskItem.ProcessComplete = DateTime.Now;
-                models.SubmitChanges();
-
-                models.Dispose();
-
-            });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
         }
 
         public ActionResult InvoiceSummaryGridPage(int index, int size, InquireInvoiceViewModel viewModel)

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ModelCore.DataEntity;
 
 namespace WebHome.Helper
@@ -55,6 +55,22 @@ namespace WebHome.Helper
                 .Include(a => a.Currency)
                 .Include(a => a.InvoiceAllowanceDetails)
                 .Include(a => a.CDS_Document).ThenInclude(d => d.DataProcessLog);
+        }
+
+        /// <summary>
+        /// 配號區間清單（InvoiceNo/Module/DataItem）每列會用到的導覽屬性。
+        /// </summary>
+        /// <remarks>
+        /// DataItem 會取用 InvoiceTrackCodeAssignment 的 Seller/Track，以及 InvoiceNoSegment；
+        /// 這些都是參考型導覽，一次 LEFT JOIN 載入不會放大列數。
+        /// InvoiceNoAssignment／InvoiceNoAllocation 是資料量可能很大的集合，維持 lazy loading。
+        /// </remarks>
+        public static IQueryable<InvoiceNoInterval> IncludeInvoiceNoIntervalListNavigations(this IQueryable<InvoiceNoInterval> items)
+        {
+            return items
+                .Include(i => i.InvoiceTrackCodeAssignment).ThenInclude(a => a.Seller)
+                .Include(i => i.InvoiceTrackCodeAssignment).ThenInclude(a => a.Track)
+                .Include(i => i.InvoiceNoSegment);
         }
 
         /// <summary>

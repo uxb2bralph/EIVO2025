@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 @using System.Web
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -134,7 +134,7 @@
                 }
 
                 clearErrors();
-                $('').launchDownload('@Html.Raw(VirtualPathUtility.ToAbsolute("~/Helper/GetSample?data=WinningNo"))', $formData);
+                $('').launchDownload('@Html.Raw(VirtualPathUtility.ToAbsolute("~/Helper/GetSample.ashx?data=WinningNo"))', $formData);
             },
         };
     });

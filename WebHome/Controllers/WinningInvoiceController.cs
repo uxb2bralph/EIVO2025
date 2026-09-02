@@ -89,20 +89,34 @@ namespace WebHome.Controllers
             dataSource.BuildQuery();
             dataSource.Items = dataSource.Items.Where(i => i.InvoiceWinningNumber != null);
 
-            return dataSource.Items
+            //先把分組的彙總值投影出來再 Join；直接把 IGrouping 帶進 Join 的 result selector
+            //會讓 EF Core 無法翻譯（GroupBy 之後群組元素已不存在於 SQL 結果中）。
+            var summary = dataSource.Items
                 .GroupBy(i => i.SellerID)
-                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    SellerID = g.Key,
+                    WinningCount = g.Count(),
+                    DonationCount = g.Count(i => i.InvoiceDonation != null),
+                });
+
+            return summary
                 .Join(models.GetTable<Organization>(),
-                    g => g.Key, o => o.CompanyID, (g, o) =>
-                        new WinningInvoiceReportItem
+                    s => s.SellerID, o => (int?)o.CompanyID, (s, o) =>
+                        new
                         {
-                            Addr = o.Addr,
-                            SellerName = o.CompanyName,
-                            SellerReceiptNo = o.ReceiptNo,
-                            WinningCount = g.Count(),
-                            DonationCount = g.Where(i => i.InvoiceDonation != null).Count()
-                        }
-                );
+                            o.CompanyID,
+                            Item = new WinningInvoiceReportItem
+                            {
+                                Addr = o.Addr,
+                                SellerName = o.CompanyName,
+                                SellerReceiptNo = o.ReceiptNo,
+                                WinningCount = s.WinningCount,
+                                DonationCount = s.DonationCount,
+                            }
+                        })
+                .OrderBy(r => r.CompanyID)
+                .Select(r => r.Item);
         }
 
         private IQueryable<WinningInvoiceReportItem> InquireWinningInvoice(InquireInvoiceViewModel viewModel)

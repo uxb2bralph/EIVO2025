@@ -1,0 +1,140 @@
+@using System.IO
+@using System.Linq.Expressions
+@using System.Threading.Tasks
+@using System.Data
+@using ClosedXML.Excel
+
+
+@using WebHome.Helper
+@using WebHome.Models
+@using WebHome.Models.ViewModel
+@using ModelCore.Models.ViewModel
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Security.MembershipManagement
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using CommonLib.DataAccess
+@using WebHome.Infrastructure.BackgroundTasks
+
+@functions
+{
+    ModelSource<InvoiceItem>? models;
+    IQueryable<InvoiceItem>? _model;
+    InquireInvoiceViewModel? _viewModel;
+    UserProfileWrapper? profile;
+
+    //背景作業：由 BackgroundTaskService 於請求結束後執行。
+    //不可沿用請求的 models／_model／profile，改以 viewModel + uid/roleIndex 重建同一份查詢
+    //（與 DonatedInvoiceController.InquireReport 共用 BuildDonatedInvoiceReport）。
+    static void SaveAsExcel(int taskID, String resultFile, InquireInvoiceViewModel viewModel, int? uid, int? roleIndex)
+    {
+        try
+        {
+            using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
+            using (DataSet ds = new DataSet())
+            {
+                UserProfileWrapper? profile = db.ReloadProfile(uid, roleIndex);
+                IQueryable<InvoiceItem> items =
+                    DonatedInvoiceController.BuildDonatedInvoiceReport(db, viewModel, profile);
+
+                Exception? exception = null;
+
+                try
+                {
+                    DataTable table = items
+                        .Select(d => new
+                        {
+                            AgencyCode = d.InvoiceDonation != null ? d.InvoiceDonation.AgencyCode : "",
+                            SellerName = d.InvoiceSeller.CustomerName,
+                            InvoiceNo = d.TrackCode + d.No,
+                            IsWinning = d.InvoiceWinningNumber != null ? "是" : "否",
+                        })
+                        .ToDataTable();
+
+                    table.TableName = "捐贈統計";
+                    table.Columns[0].ColumnName = "愛心碼";
+                    table.Columns[1].ColumnName = "開立發票營業人";
+                    table.Columns[2].ColumnName = "發票號碼";
+                    table.Columns[3].ColumnName = "是否中獎";
+                    ds.Tables.Add(table);
+
+                    using (XLWorkbook xls = ds.ConvertToExcel())
+                    {
+                        xls.SaveAs(resultFile);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"{ex}\r\n{items}");
+                    exception = ex;
+                }
+
+                ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
+                    .Where(t => t.TaskID == taskID).FirstOrDefault();
+
+                if (taskItem != null)
+                {
+                    if (exception != null)
+                    {
+                        var logItem = new ExceptionLog
+                        {
+                            DataContent = exception.Message,
+                            LogTime = DateTime.Now,
+                        };
+                        db.GetTable<ExceptionLog>().Add(logItem);
+                        db.SubmitChanges();
+
+                        taskItem.LogID = logItem.LogID;
+                    }
+
+                    taskItem.ProcessComplete = DateTime.Now;
+                    db.SubmitChanges();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex);
+        }
+    }
+
+}
+@{
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _viewModel = (InquireInvoiceViewModel)ViewBag.ViewModel;
+    _model = (IQueryable<InvoiceItem>)this.Model;
+    profile = Context.GetUser();
+}
+@{
+    ProcessRequest processItem = new ProcessRequest
+    {
+        Sender = profile?.Entity.UID,
+        SubmitDate = DateTime.Now,
+        ProcessStart = DateTime.Now,
+        ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
+    };
+
+    models.GetTable<ProcessRequest>().Add(processItem);
+    models.SubmitChanges();
+
+    int taskID = processItem.TaskID;
+    String resultFile = processItem.ResponsePath;
+    InquireInvoiceViewModel jobViewModel = _viewModel;
+    var (jobUID, jobRoleIndex) = profile.ForBackgroundWork();
+    Context.EnqueueBackgroundWork("DonatedInvoice/CreateXlsx",
+        _ => SaveAsExcel(taskID, resultFile, jobViewModel, jobUID, jobRoleIndex));
+
+    await Html.RenderPartialAsync("~/Views/Shared/Module/PromptCheckDownload.cshtml",
+        new AttachmentViewModel
+        {
+            TaskID = processItem.TaskID,
+            FileName = processItem.ResponsePath,
+            FileDownloadName = $"捐贈統計表({DateTime.Today:yyyy-MM-dd}).xlsx",
+        });
+}

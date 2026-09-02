@@ -68,7 +68,7 @@ namespace WebHome.Controllers
                 x509Store.Open(OpenFlags.ReadOnly);
                 var items = x509Store.Certificates.Cast<X509Certificate2>();
                 x509Store.Close();
-                return View("~/Views/SignXml/Module/CertificateOptions.ascx", items);
+                return View("~/Views/SignXml/Module/CertificateOptions.cshtml", items);
             }
 
             return Json(new { result = false,message = "not found!!" });

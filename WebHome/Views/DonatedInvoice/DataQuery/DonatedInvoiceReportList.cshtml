@@ -1,0 +1,44 @@
+@using System.IO
+@using System.Linq.Expressions
+
+@using WebHome.Controllers
+@using ModelCore.DataEntity
+@using ModelCore.Helper
+@using ModelCore.Locale
+@using ModelCore.Models.ViewModel
+@using CommonLib.Core.Utility
+@using CommonLib.Utility
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@using Microsoft.AspNetCore.Mvc.Razor
+
+@using Newtonsoft.Json
+@{
+
+    ModelStateDictionary _modelState;
+    ModelSource<InvoiceItem> models;
+
+    models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
+    _modelState = (ModelStateDictionary)ViewBag.ModelState;
+    QueryViewModel _viewModel = (QueryViewModel)ViewBag.ViewModel;
+    IQueryable<InvoiceItem> _model = (IQueryable<InvoiceItem>)this.Model;
+
+}
+@{
+    ViewBag.TableColumns = new string[]
+    {
+                "~/Views/DonatedInvoice/DataField/AgencyCode.cshtml",
+                "~/Views/DonatedInvoice/DataField/SellerName.cshtml",
+                "~/Views/DonatedInvoice/DataField/InvoiceNo.cshtml",
+                "~/Views/DonatedInvoice/DataField/IsWinning.cshtml",
+            };
+}
+@{
+    if (_viewModel.InitQuery != true && _viewModel.PageIndex.HasValue)
+    {
+        await Html.RenderPartialAsync("~/Views/Common/Module/TableBody.cshtml", _model);
+    }
+    else
+    {
+        await Html.RenderPartialAsync("~/Views/Common/Module/TableSkeleton.cshtml", _model);
+    }
+}

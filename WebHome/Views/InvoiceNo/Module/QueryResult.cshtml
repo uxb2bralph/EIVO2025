@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -21,6 +21,9 @@
 
     IQueryable<InvoiceNoInterval> _model;
     _model = (IQueryable<InvoiceNoInterval>)this.Model;
+    //每一列都會延遲載入導覽屬性；先具體化清單把 DataReader 關掉，
+    //否則同一條連線上會出現「已經開啟與這個 Connection 建立關聯的 DataReader」。
+    var _items = _model.ToList();
     InquireNoIntervalViewModel? _viewModel = ViewBag.ViewModel as InquireNoIntervalViewModel;
 }
 
@@ -31,7 +34,7 @@
 
 <div class="border_gray query_result">
     @{
-        var recordCount = _model.Count();
+        var recordCount = _items.Count;
         bool hasOrg = false;
     }
     @if (_viewModel?.SellerID.HasValue == true)
@@ -49,7 +52,7 @@
 
     @if (recordCount > 0)
     {
-        await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _model);
+        await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _items);
         if (_viewModel?.BranchRelation == true)
         {
             <table id="tblAction" width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -67,7 +70,7 @@
         {
             <font color="red">查無資料!!</font>
         }
-        await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _model);
+        await Html.RenderPartialAsync("~/Views/InvoiceNo/Module/IntervalItemList.cshtml", _items);
     }
 </div>
 

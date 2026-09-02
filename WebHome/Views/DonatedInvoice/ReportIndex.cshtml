@@ -12,14 +12,14 @@
 
 @using WebHome.Helper
 @{
-    Layout = "~/Views/Template/MvcMainPage.cshtml";
+    Layout = "~/Views/Template/QueryIndex.cshtml";
     ViewBag.ActionName = "首頁 > 統計報表";
 }
 
-@section headContent {
-
-}
-@{
-    await Html.RenderPartialAsync("~/Views/DonatedInvoice/Module/InquireDonation.cshtml");
+@section QueryForm
+{
+    @{
+        await Html.RenderPartialAsync("~/Views/DonatedInvoice/Module/InquireDonation.cshtml");
+    }
 }
 

@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Linq;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -431,7 +431,7 @@ namespace WebHome.Controllers
                     InvoiceID = i.InvoiceID,
                     發票號碼 = i.TrackCode + i.No,
                     發票日期 = i.InvoiceDate,
-                    附件檔名 = i.CDS_Document.Attachment.Count > 0 ? i.CDS_Document.Attachment.First().KeyName : null,
+                    附件檔名 = i.CDS_Document.Attachment.Select(a => a.KeyName).FirstOrDefault(),
                     附件檔頁數 = 0,
                     客戶ID = i.InvoiceBuyer.CustomerID,
                     序號 = i.InvoicePurchaseOrder != null ? i.InvoicePurchaseOrder.OrderNo : null,
@@ -449,7 +449,10 @@ namespace WebHome.Controllers
                     是否中獎 = i.InvoiceWinningNumber.PrizeType,
                     載具類別 = i.InvoiceCarrier.CarrierType,
                     載具號碼 = i.InvoiceCarrier.CarrierNo,
-                    備註 = i.Product.First().InvoiceProductItem.First().Remark
+                    //Product.First().InvoiceProductItem.First() 會被 EF Core 翻成
+                    //「以 InvoiceProductItem 全表掃描，再用相關子查詢比對 ProductID」的非 sargable 述詞；
+                    //改成沿著導覽 SelectMany 之後取 FirstOrDefault，才會產生走 InvoiceDetails.InvoiceID 的相關子查詢。
+                    備註 = i.Product.SelectMany(p => p.InvoiceProductItem).Select(t => t.Remark).FirstOrDefault()
                     //備註 = String.Join("", i.InvoiceDetails.Select(t => t.InvoiceProduct.InvoiceProductItem.FirstOrDefault())
                     //    .Select(p => p.Remark))
                 });
@@ -1443,7 +1446,7 @@ namespace WebHome.Controllers
             else
             {
                 ViewBag.Message = "請選擇下載資料!!";
-                return View("~/Views/Shared/ShowMessage.aspx");
+                return View("~/Views/Shared/AlertMessage.cshtml");
             }
 
         }
@@ -1459,7 +1462,7 @@ namespace WebHome.Controllers
             else
             {
                 ViewBag.Message = "請選擇下載資料!!";
-                return View("~/Views/Shared/ShowMessage.aspx");
+                return View("~/Views/Shared/AlertMessage.cshtml");
             }
         }
 
@@ -1469,12 +1472,14 @@ namespace WebHome.Controllers
             {
                 var idList = chkItem.ToList();
                 var items = models!.GetTable<InvoiceItem>().Where(i => idList.Contains(i.InvoiceID));
-                return zipItems(items, i => i.CreateF0501(), "F0501");
+                //未作廢的發票沒有 F0501：CreateF0501 內部會對 null 的 CancelInvoice 取值而 NRE，
+                //先在此濾掉（zipItems 對 null 會略過該筆）。
+                return zipItems(items, i => i.InvoiceCancellation == null ? null : i.CreateF0501(), "F0501");
             }
             else
             {
                 ViewBag.Message = "請選擇下載資料!!";
-                return View("~/Views/Shared/ShowMessage.aspx");
+                return View("~/Views/Shared/AlertMessage.cshtml");
             }
 
         }
@@ -1487,11 +1492,15 @@ namespace WebHome.Controllers
                 Directory.CreateDirectory(temp);
             }
             String outFile = Path.Combine(temp, Guid.NewGuid().ToString() + ".zip");
+            //convertTo 會沿著導覽屬性 lazy load；若 items 仍是未具體化的查詢，
+            //迴圈期間 DataReader 未關閉，同一條連線上會出現
+            //「已經開啟與這個 Connection 建立關聯的 DataReader」。
+            var itemList = items as IList<InvoiceItem> ?? items.ToList();
             using (var zipOut = System.IO.File.Create(outFile))
             {
                 using (ZipArchive zip = new ZipArchive(zipOut, ZipArchiveMode.Create))
                 {
-                    foreach (var item in items)
+                    foreach (var item in itemList)
                     {
                         var docItem = convertTo(item);
                         if(docItem == null)

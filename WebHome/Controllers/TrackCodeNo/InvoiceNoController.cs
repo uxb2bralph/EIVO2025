@@ -59,7 +59,8 @@ namespace WebHome.Controllers.TrackCodeNo
             var profile = HttpContext.GetUser();
             ViewBag.ViewModel = viewModel;
 
-            IQueryable<InvoiceNoInterval> items = viewModel.InquireInvoiceNoInterval(models!, profile);
+            IQueryable<InvoiceNoInterval> items = viewModel.InquireInvoiceNoInterval(models!, profile)
+                                                    .IncludeInvoiceNoIntervalListNavigations();
             return View("~/Views/InvoiceNo/Module/QueryResult.cshtml", items);
         }
 

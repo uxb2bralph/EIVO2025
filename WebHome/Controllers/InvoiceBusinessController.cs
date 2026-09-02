@@ -105,7 +105,7 @@ namespace WebHome.Controllers
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "POS機編號錯誤!!");
             }
 
-            return View("~/Views/InvoiceBusiness/POSDevice/EditItem.ascx", item);
+            return View("~/Views/InvoiceBusiness/POSDevice/EditItem.cshtml", item);
 
         }
 

@@ -65,7 +65,7 @@ namespace WebHome.Controllers
             item.LogoURL = "LOGO/" + fileName;
             models.SubmitChanges();
 
-            return View("~/Views/Organization/LogoUpdated.ascx", item);
+            return View("~/Views/Organization/LogoUpdated.cshtml", item);
 
         }
 
