@@ -28,7 +28,7 @@ namespace WebHome.Controllers
             return View();
         }
 
-        public ActionResult SearchCompany(String term, bool? encrypt)
+        public ActionResult SearchCompany([FromJsonOrForm] String term, bool? encrypt)
         {
             IQueryable<Organization> items = models.GetTable<Organization>();
 
@@ -50,7 +50,7 @@ namespace WebHome.Controllers
                 }).JsonStringify(), "application/json");
         }
 
-        public ActionResult SearchHeadquarter(String term, bool? encrypt)
+        public ActionResult SearchHeadquarter([FromJsonOrForm] String term, bool? encrypt)
         {
             IQueryable<Organization> items = models!
                 .GetTable<Organization>()
@@ -75,7 +75,7 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult GetCompany(String term)
+        public ActionResult GetCompany([FromJsonOrForm] String term)
         {
             IQueryable<Organization> items = models.GetTable<Organization>();
 
@@ -102,8 +102,13 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult SearchCounterpart(EncQueryViewModel viewModel)
+        public ActionResult SearchCounterpart([FromJsonOrForm] EncQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             GetCounterpart(viewModel?.Term!);
 
             IQueryable<Organization> items = (IQueryable<Organization>)ViewBag.DataItems;
@@ -134,7 +139,7 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult GetCounterpart(String term)
+        public ActionResult GetCounterpart([FromJsonOrForm] String term)
         {
             var profile = HttpContext.GetUser();
 
@@ -158,7 +163,7 @@ namespace WebHome.Controllers
 
                 if (item != null)
                 {
-                    return Content(item.JsonStringify(), "application/json");
+                    return Content(item.JsonStringifyShallow(), "application/json");
                 }
                 else
                 {
@@ -182,15 +187,25 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult ReportError(ActionResultViewModel viewModel)
+        public ActionResult ReportError([FromJsonOrForm] ActionResultViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View("~/Views/Home/Module/ReportError.cshtml");
         }
 
         [Authorize]
-        public ActionResult Download(QueryViewModel viewModel)
+        public ActionResult Download([FromJsonOrForm] QueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             if (viewModel.KeyID != null)
             {
                 String fileName = viewModel.KeyID.DecryptData();

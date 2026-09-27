@@ -190,7 +190,7 @@ namespace TaskCenter.Helper.RequestAction
                 var file = Request.Form.Files[0];
                 switch(viewModel.ProcessType)
                 {
-                    case Naming.InvoiceProcessType.C0401:
+                    case Naming.InvoiceProcessType.F0401:
                     case Naming.InvoiceProcessType.C0501:
                     case Naming.InvoiceProcessType.D0401:
                     case Naming.InvoiceProcessType.D0501:

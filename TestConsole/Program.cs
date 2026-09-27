@@ -1,52 +1,53 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Data;
+using System.Data.Linq;
+using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Net;
 using System.Net.Http;
+using System.Net.Security;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
+using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.Schema;
+using System.Xml.Serialization;
+using Business.Helper;
+using ClosedXML.Excel;
+using CommonLib.Core.Utility;
+using CommonLib.DataAccess;
+using CommonLib.Security.UseCrypto;
+using CommonLib.Utility;
+using DocumentFormat.OpenXml.EMMA;
+using MailKit.Net.Smtp;
+using MimeKit;
 using ModelCore.DataEntity;
 using ModelCore.Helper;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Threading;
-using System.Data.Linq;
-using Business.Helper;
-using System.Net;
-using TestConsole.ServiceReference1;
-using ClosedXML.Excel;
-using System.Data;
 using ModelCore.InvoiceManagement;
+using ModelCore.InvoiceManagement.ErrorHandle;
 using ModelCore.InvoiceManagement.InvoiceProcess;
-using ModelCore.Schema.EIVO;
-using System.Security.Cryptography;
-using ModelCore.Schema.TXN;
 using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
-using System.Collections.Specialized;
-using DocumentFormat.OpenXml.EMMA;
-using System.Reflection;
-using System.Linq.Dynamic.Core;
-using ProcessorUnit.Execution;
-using System.Windows.Forms;
-using ModelCore.InvoiceManagement.ErrorHandle;
-using System.ComponentModel;
-using MimeKit;
-using MailKit.Net.Smtp;
-using System.Net.Security;
-using System.Diagnostics;
-using System.Xml.Schema;
-using CommonLib.Core.Utility;
-using CommonLib.Utility;
-using CommonLib.Security.UseCrypto;
-using CommonLib.DataAccess;
-using System.Xml.Serialization;
+using ModelCore.Schema.EIVO;
 using ModelCore.Schema.TurnKey.Invoice;
-using System.Data.SqlClient;
+using ModelCore.Schema.TXN;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using ProcessorUnit.Execution;
+using TestConsole.ServiceReference1;
 
 namespace TestConsole
 {
@@ -58,8 +59,8 @@ namespace TestConsole
             // Register code page provider for non-Unicode encodings (e.g., 950/Big5)
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             FileLogger.Logger.OutputWriter = Console.Out;
-            Logger.Info($"Process start at {DateTime.Now}");
-
+            Logger.Info($"Process start at {DateTime.Now}, Processor ID:{ProcessorUnit.Properties.AppSettings.Default.ProcessorID}");
+            System.Diagnostics.Debugger.Launch();
             //ExternalPdfWrapper.AppSettings.Default.UseSelenium = true;
             //ExternalPdfWrapper.AppSettings.Default.Save();
             //var pdf = new ExternalPdfWrapper.PdfUtility();
@@ -118,7 +119,7 @@ namespace TestConsole
 
             //}
 
-            //DataSet ds = @"G:\temp\test.xlsx".ImportExcelXLS();
+            //DataSet ds = @"G:\temp\test.xlsx".ImportExcelByClosedXML();
             //test14();
             //test15();
             //test16();
@@ -157,7 +158,7 @@ namespace TestConsole
             //test35(args);
             //test36();
             //test37();
-            //test38();
+            test38();
 
             //string postData = "card_ban=97162640&card_no1=1234&card_no2=987654321&card_type=BG0001&token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R5IjoiSldUIiwia2lkIjoiMDEifQ..wNSlKWvyuPo20rYz.9AH2ig6DWLTn1CEGDiSx72SNQVpsYKeNQ4SmI4xqcAcHuriic_2XokWfDBqJNi1uN1pO1iJk3WlANXVRG6W4MYFp_bKiuYRo1wITDo_xCy26WrkjSOQhtZfbltrzdFHPnKvMzBoiqu6njirr9uBPJFSlI7Qu8Er56NWnzWJNRtOUrkEcB4JQYdWZ2pfFvqKMDtmI_4iFWwNgCjHX3P1WWTxcnDKq5R_oX8xx_u9a3NhsKgEwOwCl3hyPawJmq9vWswbmCM5BSTYSVk5PHeWRKik9LTBd1KZuw3005RXlVRAYqJKrkvdOUMpmdmFFbfopZK4t4UjtfhXpvSXhAJbipgDL_EJSlbB09xrly3DCK5B2WMmUZ6TJ07ryOuhQ9ZhtxfFIzin6VeKu_YNT0D8nugegMVqWjXHJrw4BMBxchy5MCUZB_CMLyBGZvemCHDZrPOjckFEiORLt6D7TXJOOBQN5kCXE43zYxcv__bAqHtcOjR3q6Yy7i51caI2zmlgkS_G.oIjs4WBcUsTJkXmuw4_Z9g";
 
@@ -188,11 +189,11 @@ namespace TestConsole
             //string output = Convert.ToBase64String(result);
 
             //Console.WriteLine(output);
-            //Task.Run(() => {
+            //ProcessRequest.Run(() => {
             //    while (true)
             //    {
             //        Console.WriteLine(DateTime.Now);
-            //        Task.Run(() => 
+            //        ProcessRequest.Run(() => 
             //        {
             //            MessageBox.Show("test...");
             //        });
@@ -326,9 +327,9 @@ namespace TestConsole
             //var result = crypto.VerifyXmlSignature(doc);
             //Console.WriteLine(result);
 
-            new Class1().Test5();
+            //new Class1().Test5();
 
-            Console.ReadKey();
+            //Console.ReadKey();
         }
 
         private static void test50()
@@ -339,7 +340,7 @@ namespace TestConsole
                     .Where(i => i.InvoiceDate >= new DateTime(2025, 1, 1))
                     .Where(i => i.InvoiceSeller.ReceiptNo == "70762419");
 
-                SqlCommand sqlCmd = (SqlCommand)models.DataContext.GetCommand(items);
+                SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items);
                 Console.WriteLine(sqlCmd.CommandText);
                 var sqlText = sqlCmd.ToExecutableSql();
                 Console.WriteLine(sqlText);
@@ -804,7 +805,9 @@ namespace TestConsole
                                 Allowance = new AutomationItemAllowance
                                 {
                                     AllowanceNumber = d.AllowanceNumber,
-                                    InvoiceNumber = d.InvoiceAllowanceDetails.Select(a => a.InvoiceAllowanceItem.InvoiceNo).ToArray()
+                                    InvoiceNumber = d.InvoiceAllowanceDetails.Select(a => a.InvoiceNo).ToArray(),
+                                    AllowanceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewAllowance}?keyID={HttpUtility.UrlEncode(d.AllowanceID.EncryptKey())}",
+                                    AllowancePdf = $"{ModelExtension.Properties.AppSettings.Default.AllowancePdfUrl}?keyID={HttpUtility.UrlEncode(d.AllowanceID.EncryptKey())}",
                                 },
                             }));
                         }
@@ -931,14 +934,18 @@ namespace TestConsole
                 return;
             }
 
-            var processor = new InvoiceExcelRequestForIssuerProcessor();
+            //var processor = new InvoiceExcelRequestForIssuerProcessor();
+            //processor.ProcessRequestItem(taskID);
+
+            var processor = new InvoiceExcelRequestForCBEProcessor();
             processor.ProcessRequestItem(taskID);
+
 
         }
 
         private static void test37()
         {
-            using (ModelSource<EIVOEntityDataContext> models = new ModelSource<EIVOEntityDataContext>())
+            using (ModelSource<ApplicationDbContext> models = new ModelSource<ApplicationDbContext>())
             {
                 String expr = "ReceiptNo.StartsWith(@0)";
                 IQueryable items = models.GetTable<Organization>()

@@ -27,7 +27,9 @@
 
 <div class="border_gray">
     <!--表格 開始-->
-    @{ await Html.RenderPartialAsync("~/Views/UserProfile/Module/ItemForm.cshtml");}
+    @{ 
+        await Html.RenderPartialAsync("~/Views/UserProfile/Module/ItemForm.cshtml");
+    }
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
         <tr>

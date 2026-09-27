@@ -28,13 +28,13 @@ namespace ModelCore.Helper
             return decVal.HasValue ? Math.Round(decVal.Value, decimals) : 0;
         }
 
-        //public static ModelCore.Schema.TurnKey.C0401.CDS_Document CreateC0401(this CDS_Document item, bool withExtension = false)
+        //public static ModelCore.Schema.TurnKey.F0401.CDS_Document CreateC0401(this CDS_Document item, bool withExtension = false)
         //{
-        //    var result = new ModelCore.Schema.TurnKey.C0401.CDS_Document
+        //    var result = new ModelCore.Schema.TurnKey.F0401.CDS_Document
         //    {
-        //        Main = new Schema.TurnKey.C0401.Main
+        //        Main = new Schema.TurnKey.F0401.Main
         //        {
-        //            Buyer = new Schema.TurnKey.C0401.MainBuyer
+        //            Buyer = new Schema.TurnKey.F0401.MainBuyer
         //            {
         //                //選擇性欄位不提供給大平台
         //                //Address = item.InvoiceBuyer.Address.GetEfficientStringMaxSize(0,100).InsteadOfNullOrEmpty(""),
@@ -51,15 +51,15 @@ namespace ModelCore.Helper
         //                //RoleRemark = item.InvoiceBuyer.RoleRemark.GetEfficientStringMaxSize(0, 40).InsteadOfNullOrEmpty(""),
         //                //TelephoneNumber = item.InvoiceBuyer.Phone.GetEfficientStringMaxSize(0, 26).InsteadOfNullOrEmpty("")
         //            },
-        //            BuyerRemark = (ModelCore.Schema.TurnKey.C0401.BuyerRemarkEnum?)item.BuyerRemark,
+        //            BuyerRemark = (ModelCore.Schema.TurnKey.F0401.BuyerRemarkEnum?)item.BuyerRemark,
         //            BuyerRemarkSpecified = item.BuyerRemark.HasValue,
         //            Category = item.Category,
         //            CheckNumber = item.CheckNo,
-        //            CustomsClearanceMark = (ModelCore.Schema.TurnKey.C0401.CustomsClearanceMarkEnum?)item.CustomsClearanceMark,
+        //            CustomsClearanceMark = (ModelCore.Schema.TurnKey.F0401.CustomsClearanceMarkEnum?)item.CustomsClearanceMark,
         //            CustomsClearanceMarkSpecified = item.CustomsClearanceMark.HasValue,
-        //            InvoiceType = (ModelCore.Schema.TurnKey.C0401.InvoiceTypeEnum?)((int?)item.InvoiceType) ?? Schema.TurnKey.C0401.InvoiceTypeEnum.Item07,
-        //            //DonateMark = (Schema.TurnKey.C0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
-        //            DonateMark = string.IsNullOrEmpty(item.DonateMark) ? Schema.TurnKey.C0401.DonateMarkEnum.Item0 : (Schema.TurnKey.C0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
+        //            InvoiceType = (ModelCore.Schema.TurnKey.F0401.InvoiceTypeEnum?)((int?)item.InvoiceType) ?? Schema.TurnKey.F0401.InvoiceTypeEnum.Item07,
+        //            //DonateMark = (Schema.TurnKey.F0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
+        //            DonateMark = string.IsNullOrEmpty(item.DonateMark) ? Schema.TurnKey.F0401.DonateMarkEnum.Item0 : (Schema.TurnKey.F0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
         //            CarrierType = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierType : "",
         //            //CarrierTypeSpecified = item.InvoiceCarrier != null ? true : false,
         //            CarrierId1 = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierNo : "",
@@ -79,7 +79,7 @@ namespace ModelCore.Helper
         //            //PermitWord = item.PermitWord,
         //            RelateNumber = item.RelateNumber,
         //            //TaxCenter = item.TaxCenter,
-        //            Seller = new Schema.TurnKey.C0401.MainSeller
+        //            Seller = new Schema.TurnKey.F0401.MainSeller
         //            {
         //                //選擇性欄位不提供給大平台
         //                Address = item.InvoiceSeller.Address.GetEfficientStringMaxSize(0, 100).InsteadOfNullOrEmpty(""),
@@ -94,7 +94,7 @@ namespace ModelCore.Helper
         //            },
         //        },
         //        Details = buildC0401Details(item),
-        //        Amount = new Schema.TurnKey.C0401.Amount
+        //        Amount = new Schema.TurnKey.F0401.Amount
         //        {
         //            CurrencySpecified = false,
         //            DiscountAmount = item.InvoiceAmountType.DiscountAmount.HasValue ? item.InvoiceAmountType.DiscountAmount.Value.ToFix(item.InvoiceAmountType.Currency?.Decimals ?? 0) : 0,
@@ -106,14 +106,14 @@ namespace ModelCore.Helper
         //            ZeroTaxSalesAmount = item.InvoiceAmountType.ZeroTaxSalesAmount.ToFix(item.InvoiceAmountType.Currency?.Decimals ?? 0),
         //            TaxAmount = item.InvoiceBuyer.IsB2C() ? 0 : item.InvoiceAmountType.TaxAmount.ToFix(item.InvoiceAmountType.Currency?.Decimals ?? 0),
         //            TaxRate = item.InvoiceAmountType.TaxRate.HasValue ? item.InvoiceAmountType.TaxRate.ToFix(2) : 0.05m,
-        //            TaxType = (Schema.TurnKey.C0401.TaxTypeEnum)((int)item.InvoiceAmountType.TaxType.Value),
+        //            TaxType = (Schema.TurnKey.F0401.TaxTypeEnum)((int)item.InvoiceAmountType.TaxType.Value),
         //            TotalAmount = item.InvoiceAmountType.TotalAmount.ToFix(item.InvoiceAmountType.Currency?.Decimals ?? 0)
         //        }
         //    };
         //    if (item.InvoiceAmountType.CurrencyID.HasValue)
         //    {
         //        result.Amount.CurrencySpecified = true;
-        //        result.Amount.Currency = (Schema.TurnKey.C0401.CurrencyCodeEnum)Enum.Parse(typeof(Schema.TurnKey.C0401.CurrencyCodeEnum), item.InvoiceAmountType.Currency.AbbrevName);
+        //        result.Amount.Currency = (Schema.TurnKey.F0401.CurrencyCodeEnum)Enum.Parse(typeof(Schema.TurnKey.F0401.CurrencyCodeEnum), item.InvoiceAmountType.Currency.AbbrevName);
         //    }
 
         //    if (withExtension)
@@ -139,7 +139,7 @@ namespace ModelCore.Helper
         //        //    {
         //        //        var log = turnkeyDB.GetTable<V_Invoice>()
         //        //                .Where(i => i.InvoiceNo == result.Main.InvoiceNumber)
-        //        //                .Where(i => i.DocType == "C0401" || i.DocType == "A0401")
+        //        //                .Where(i => i.DocType == "F0401" || i.DocType == "A0401")
         //        //                .ToList()
         //        //                .OrderByDescending(i => i.MESSAGE_DTS).FirstOrDefault();
         //        //        if (log != null)
@@ -158,15 +158,15 @@ namespace ModelCore.Helper
         //    return result;
         //}
 
-        //private static Schema.TurnKey.C0401.DetailsProductItem[] buildC0401Details(CDS_Document item)
+        //private static Schema.TurnKey.F0401.DetailsProductItem[] buildC0401Details(CDS_Document item)
         //{
-        //    List<ModelCore.Schema.TurnKey.C0401.DetailsProductItem> items = new List<Schema.TurnKey.C0401.DetailsProductItem>();
+        //    List<ModelCore.Schema.TurnKey.F0401.DetailsProductItem> items = new List<Schema.TurnKey.F0401.DetailsProductItem>();
         //    foreach (var detailItem in item.Product)
         //    {
         //        detailItem.Product.InvoiceProductItem.ToList();
         //        foreach (var productItem in detailItem.Product.InvoiceProductItem)
         //        {
-        //            items.Add(new ModelCore.Schema.TurnKey.C0401.DetailsProductItem
+        //            items.Add(new ModelCore.Schema.TurnKey.F0401.DetailsProductItem
         //            {
         //                Amount = productItem.CostAmount ?? 0m,   //productItem.CostAmount.HasValue ? productItem.CostAmount.Value.ToFix(item.InvoiceAmountType.Currency?.Decimals ?? 0) : 0m,
         //                Description = detailItem.Product.Brief,
@@ -903,7 +903,7 @@ namespace ModelCore.Helper
                     CustomsClearanceMark = (CustomsClearanceMarkEnum?)item.CustomsClearanceMark,
                     CustomsClearanceMarkSpecified = item.CustomsClearanceMark.HasValue,
                     InvoiceType = item.InvoiceType == (byte)InvoiceTypeEnum.Item08 ? InvoiceTypeEnum.Item08 : InvoiceTypeEnum.Item07,
-                    //DonateMark = (Schema.TurnKey.C0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
+                    //DonateMark = (Schema.TurnKey.F0401.DonateMarkEnum)(int.Parse(item.DonateMark)),
                     DonateMark = string.IsNullOrEmpty(item.DonateMark) ? DonateMarkEnum.Item0 : (DonateMarkEnum)(int.Parse(item.DonateMark)),
                     CarrierType = item.InvoiceCarrier != null ? item.InvoiceCarrier.CarrierType : "",
                     //CarrierTypeSpecified = item.InvoiceCarrier != null ? true : false,

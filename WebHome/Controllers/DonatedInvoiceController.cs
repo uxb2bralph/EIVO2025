@@ -15,6 +15,7 @@ using WebHome.Helper.Security.Authorization;
 using ModelCore.Models;
 using ModelCore.DataEntityWrapper;
 using Microsoft.EntityFrameworkCore;
+using ModelCore.Helper;
 
 namespace WebHome.Controllers
 {
@@ -70,8 +71,13 @@ namespace WebHome.Controllers
             return View(DataSource.Inquiry);
         }
 
-        public ActionResult InquireReport(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireReport([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             IQueryable<InvoiceItem> items = BuildDonatedInvoiceReport(models!, viewModel, HttpContext.GetUser());
 
@@ -80,8 +86,13 @@ namespace WebHome.Controllers
             return PageResult(viewModel, items);
         }
 
-        public ActionResult CreateXlsx(InquireInvoiceViewModel viewModel)
+        public ActionResult CreateXlsx([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             IQueryable<InvoiceItem> items = BuildDonatedInvoiceReport(models!, viewModel, HttpContext.GetUser());
             viewModel.RecordCount = items.Count();

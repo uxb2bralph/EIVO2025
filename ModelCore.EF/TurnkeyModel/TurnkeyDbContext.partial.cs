@@ -28,7 +28,7 @@ namespace ModelCore.TurnkeyModel
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(AppSettings.Default.ConnectionString,
+            optionsBuilder.UseSqlServer(AppSettings.Default.EINVTurnkey2ConnectionString,
                         sqlOptions => sqlOptions.CommandTimeout((int)TimeSpan.FromMinutes(30).TotalSeconds))
                     .LogTo((sql) =>
                     {

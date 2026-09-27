@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Helper
@@ -55,7 +55,7 @@
 
             clearErrors();
             showLoading();
-            $.post('@(Url.Action("InquireMonthlyReport", "InvoiceQuery"))', $formData, function (data) {
+            $.postJSON('@(Url.Action("InquireMonthlyReport", "InvoiceQuery"))', $formData, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     alert(data.message);

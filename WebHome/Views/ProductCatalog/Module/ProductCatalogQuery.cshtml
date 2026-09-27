@@ -76,7 +76,7 @@
                 if (confirm('確定刪除此項目?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@Html.Raw(Url.Action("DeleteItem","ProductCatalog",new { displayType = (int)Naming.FieldDisplayType.Edit }))', { 'keyID': keyID }, function (data) {
+                    $.postJSON('@Html.Raw(Url.Action("DeleteItem","ProductCatalog",new { displayType = (int)Naming.FieldDisplayType.Edit }))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -118,7 +118,7 @@
 
             $inquiryAgent.loadItem = function (viewModel, onload) {
                 showLoading();
-                $.post('@Html.Raw(Url.Action("ProcessDataItem","ProductCatalog"))', viewModel, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("ProcessDataItem","ProductCatalog"))', viewModel, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
@@ -137,7 +137,7 @@
             viewModel.keyID = keyID;
             viewModel.supplierID = $('#queryArea [name="SupplierID"]').val();
             clearErrors();
-            $.post('@Html.Raw(Url.Action("CommitItem","ProductCatalog"))', viewModel, function (data) {
+            $.postJSON('@Html.Raw(Url.Action("CommitItem","ProductCatalog"))', viewModel, function (data) {
                 if ($.isPlainObject(data)) {
                     if (data.result) {
                         $inquiryAgent.dataItem(data.keyID, $tr, function () {

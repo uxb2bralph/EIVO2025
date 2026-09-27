@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
+using CommonLib.Core.Utility;
+using CommonLib.DataAccess;
 using CommonLib.Utility;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ModelCore.DataEntity;
 using ModelCore.DTOs;
@@ -32,6 +37,8 @@ namespace TaskCenter.Core.Controllers
     public class InvoiceNoIntervalController : ApiBaseController
     {
         private readonly IInvoiceNoIntervalService _service;
+
+        private const string ExcelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
         public InvoiceNoIntervalController(
             IInvoiceNoIntervalService service,
@@ -640,6 +647,306 @@ namespace TaskCenter.Core.Controllers
                 });
                 models!.SubmitChanges();
             }
+        }
+
+        /// <summary>
+        /// 下載「上傳發票字軌號碼」範本（遷移自 InvoiceNoController.GetUploadInvoiceTrackCodeSampleAsync）。
+        /// 欄位與範例資料沿用舊版 UploadInvoiceTrackField 之順序。
+        /// </summary>
+        [HttpGet("UploadTrackCodeSample")]
+        [Produces(ExcelContentType)]
+        [ProducesResponseType(typeof(FileContentResult), 200)]
+        public IActionResult UploadTrackCodeSample()
+        {
+            var table = new DataTable("發票字軌號碼");
+            table.Columns.Add("營業人統編");
+            table.Columns.Add("年份");
+            table.Columns.Add("發票期別");
+            table.Columns.Add("字軌");
+            table.Columns.Add("發票起號");
+            table.Columns.Add("發票迄號");
+
+            var row = table.NewRow();
+            row[0] = "42523557";
+            row[1] = "109";
+            row[2] = "1";
+            row[3] = "CY";
+            row[4] = "00000001";
+            row[5] = "00000100";
+            table.Rows.Add(row);
+
+            using var ds = new DataSet();
+            ds.Tables.Add(table);
+
+            using var xls = ds.ConvertToExcel();
+            using var ms = new MemoryStream();
+            xls.SaveAs(ms);
+
+            return File(ms.ToArray(), ExcelContentType, "UploadInvoiceTrackCodeSample.xlsx");
+        }
+
+        /// <summary>
+        /// 上傳發票字軌號碼 Excel 並回傳預覽（遷移自 InvoiceNoController.UploadToPreview + ValidateUploadData）。
+        /// 逐列解析後解析開立人（依角色範圍以統編查詢）與字軌（年度 + 期別 + 字軌），並套用配號區間驗證；
+        /// 通過者回傳加密後的 RowKey 供 CommitUploadTrackCode 匯入，未通過者以 Message 說明原因。
+        /// </summary>
+        /// <param name="excelFile">發票字軌號碼 Excel（單一檔案，欄位順序同範本）</param>
+        [HttpPost("UploadTrackCodeToPreview")]
+        [ProducesResponseType(typeof(ResponseDto<List<UploadTrackCodeRowDto>>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        [ProducesResponseType(typeof(BaseResponseDto), 500)]
+        public IActionResult UploadTrackCodeToPreview(IFormFile? excelFile)
+        {
+            if (excelFile == null || excelFile.Length == 0)
+            {
+                return CreateBadRequestResponse("未選取檔案或檔案上傳失敗!!");
+            }
+
+            try
+            {
+                // 儲存上傳檔至當日記錄目錄（沿用舊版以 Ticks 前綴避免檔名衝突）。
+                var fileName = Path.Combine(
+                    CommonLib.Core.Utility.Logger.LogDailyPath,
+                    $"{DateTime.Now.Ticks}_{Path.GetFileName(excelFile.FileName)}");
+                using (var fs = new FileStream(fileName, FileMode.Create))
+                {
+                    excelFile.CopyTo(fs);
+                }
+
+                using var ds = fileName.ImportExcelByClosedXML();
+                if (ds.Tables.Count == 0)
+                {
+                    return CreateBadRequestResponse("Excel檔未包含工作表!!");
+                }
+
+                var rows = new List<UploadTrackCodeRowDto>();
+                foreach (DataRow r in ds.Tables[0].Rows)
+                {
+                    var item = new UploadTrackCodeRowDto { };
+                    try
+                    {
+                        // 欄位順序沿用舊版 UploadInvoiceTrackField（統編 / 年份 / 期別 / 字軌 / 起號 / 迄號）。
+                        item.ReceiptNo = r.GetString(0).GetEfficientString();
+                        item.Year = r.GetData<short>(1);
+                        item.PeriodNo = r.GetData<int>(2);
+                        item.TrackCode = r.GetString(3).GetEfficientString();
+                        item.StartNo = r.GetData<int>(4);
+                        item.EndNo = r.GetData<int>(5);
+                    }
+                    catch (Exception ex)
+                    {
+                        item.Message = ex.Message;
+                    }
+                    rows.Add(item);
+                }
+
+                ValidateUploadTrackCodeRows(rows);
+
+                return CreateSuccessResponse(rows, "Common.Retrieved");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Error previewing uploaded invoice track code excel");
+                return CreateErrorResponse(500, ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 匯入預覽通過之發票字軌號碼（遷移自 InvoiceNoController.CommitUpload）。
+        /// 逐列還原加密內容後重新檢查角色範圍與配號區間驗證，通過者建立配號區間並回報「已匯入成功」。
+        /// </summary>
+        [HttpPost("CommitUploadTrackCode")]
+        [ProducesResponseType(typeof(ResponseDto<List<UploadTrackCodeRowDto>>), 200)]
+        [ProducesResponseType(typeof(BaseResponseDto), 400)]
+        public IActionResult CommitUploadTrackCode([FromBody] UploadTrackCodeCommitDto dto)
+        {
+            if (dto?.RowKeys == null || dto.RowKeys.Count == 0)
+            {
+                return CreateBadRequestResponse("資料錯誤!!");
+            }
+
+            var results = new List<UploadTrackCodeRowDto>();
+
+            foreach (var rowKey in dto.RowKeys)
+            {
+                UploadTrackCodePayloadDto? payload = null;
+                try
+                {
+                    payload = JsonSerializer.Deserialize<UploadTrackCodePayloadDto>(rowKey.DecryptData());
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Error decrypting uploaded invoice track code row");
+                }
+
+                if (payload == null)
+                {
+                    results.Add(new UploadTrackCodeRowDto { Message = "資料錯誤!!" });
+                    continue;
+                }
+
+                var row = new UploadTrackCodeRowDto
+                {
+                    ReceiptNo = payload.ReceiptNo,
+                    Year = payload.Year,
+                    PeriodNo = payload.PeriodNo,
+                    TrackCode = payload.TrackCode,
+                    StartNo = payload.StartNo,
+                    EndNo = payload.EndNo,
+                    RowKey = rowKey,
+                };
+                results.Add(row);
+
+                if (!CanAccessSeller(payload.SellerId))
+                {
+                    row.Message = "無權存取此開立人資料!!";
+                    continue;
+                }
+
+                // 預覽後資料可能已被其他人異動，匯入前重新驗證（沿用舊版 CommitUpload 再次呼叫 CommitItem 之做法）。
+                var editDto = new InvoiceNoIntervalEditDto
+                {
+                    TrackId = payload.TrackId,
+                    StartNo = payload.StartNo,
+                    EndNo = payload.EndNo,
+                };
+                var errors = ValidateInterval(editDto, payload.SellerId, null);
+                if (errors.Count > 0)
+                {
+                    row.Message = string.Join("、", errors);
+                    continue;
+                }
+
+                try
+                {
+                    CreateIntervalForUpload(payload.SellerId, payload.TrackId, payload.StartNo, payload.EndNo);
+                    row.Committed = true;
+                    row.RowKey = null; // 已匯入，避免前端重複送出
+                    row.Message = "已匯入成功";
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(ex, "Error importing invoice no interval for seller {SellerId}", payload.SellerId);
+                    row.Message = ex.Message;
+                }
+            }
+
+            return CreateSuccessResponse(results, "Common.Saved");
+        }
+
+        /// <summary>
+        /// 逐列解析上傳內容之開立人 / 字軌並套用配號區間驗證（遷移自 InvoiceNoController.ValidateUploadData）。
+        /// 通過者填入加密後的 RowKey；未通過者填入 Message。
+        /// </summary>
+        private void ValidateUploadTrackCodeRows(List<UploadTrackCodeRowDto> rows)
+        {
+            // 開立人以角色範圍解析（舊版：系統管理查全部 Organization，其餘查其代理之開立人）。
+            var sellerScope = UploadSellerScope();
+
+            foreach (var row in rows.Where(r => r.Message == null))
+            {
+                var receiptNo = row.ReceiptNo;
+                var seller = receiptNo == null
+                    ? null
+                    : sellerScope
+                        .Where(o => o.ReceiptNo == receiptNo)
+                        .Select(o => new
+                        {
+                            o.CompanyID,
+                            o.CompanyName,
+                            ExpirationDate = (DateTime?)o.OrganizationExtension!.ExpirationDate,
+                        })
+                        .FirstOrDefault();
+
+                if (seller != null)
+                {
+                    row.CompanyName = seller.CompanyName;
+                    row.ExpirationDate = seller.ExpirationDate?.ToString("yyyy/MM/dd");
+                }
+
+                // 字軌以「西元年（民國年 + 1911）+ 期別 + 字軌」查詢（沿用舊版）。
+                int? trackId = null;
+                if (row.Year.HasValue && row.PeriodNo.HasValue && row.TrackCode != null)
+                {
+                    var year = (short)(row.Year.Value + 1911);
+                    var periodNo = (short)row.PeriodNo.Value;
+                    var trackCode = row.TrackCode;
+                    trackId = models!.GetTable<InvoiceTrackCode>()
+                        .Where(t => t.Year == year && t.PeriodNo == periodNo && t.TrackCode == trackCode)
+                        .Select(t => (int?)t.TrackID)
+                        .FirstOrDefault();
+                }
+
+                var editDto = new InvoiceNoIntervalEditDto
+                {
+                    TrackId = trackId,
+                    StartNo = row.StartNo,
+                    EndNo = row.EndNo,
+                };
+
+                var errors = ValidateInterval(editDto, seller?.CompanyID, null);
+                if (errors.Count > 0)
+                {
+                    row.Message = string.Join("、", errors);
+                    continue;
+                }
+
+                // 通過驗證：整列內容加密後交由前端回送（沿用舊版 KeyItems）。
+                row.RowKey = JsonSerializer.Serialize(new UploadTrackCodePayloadDto
+                {
+                    SellerId = seller!.CompanyID,
+                    TrackId = trackId!.Value,
+                    StartNo = row.StartNo!.Value,
+                    EndNo = row.EndNo!.Value,
+                    ReceiptNo = row.ReceiptNo,
+                    Year = row.Year,
+                    PeriodNo = row.PeriodNo,
+                    TrackCode = row.TrackCode,
+                }).EncryptData();
+            }
+        }
+
+        /// <summary>上傳匯入可解析之開立人範圍（系統管理為全部營業人，其餘為其角色可存取之開立人）。</summary>
+        private IQueryable<Organization> UploadSellerScope()
+        {
+            if (IsAdmin())
+            {
+                return models!.GetTable<Organization>();
+            }
+
+            var categoryId = User.GetCategoryId();
+            var companyId = User.GetCompanyId();
+            if (categoryId == null || companyId == null)
+            {
+                return models!.GetTable<Organization>().Where(o => false);
+            }
+
+            return OrganizationScope.AllowedOrganizations(models!, categoryId.Value, companyId.Value);
+        }
+
+        /// <summary>建立匯入之配號區間（同 CommitItem 之新增分支：先確保字軌指派存在）。</summary>
+        private void CreateIntervalForUpload(int sellerId, int trackId, int startNo, int endNo)
+        {
+            var hasAssignment = models!.GetTable<InvoiceTrackCodeAssignment>()
+                .Any(t => t.SellerID == sellerId && t.TrackID == trackId);
+            if (!hasAssignment)
+            {
+                models!.GetTable<InvoiceTrackCodeAssignment>().Add(new InvoiceTrackCodeAssignment
+                {
+                    SellerID = sellerId,
+                    TrackID = trackId,
+                });
+                models!.SubmitChanges();
+            }
+
+            models!.GetTable<InvoiceNoInterval>().Add(new InvoiceNoInterval
+            {
+                SellerID = sellerId,
+                TrackID = trackId,
+                StartNo = startNo,
+                EndNo = endNo,
+            });
+            models!.SubmitChanges();
         }
 
         /// <summary>目前給號（等同 InvoiceNoInterval.CurrentAllocatingNo()，改以查詢取回避免載入整個明細集合）。</summary>

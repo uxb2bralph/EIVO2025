@@ -6,6 +6,7 @@
 @using ModelCore.DataEntity
 @using ModelCore.Helper
 @using ModelCore.Locale
+@using ModelCore.Models.ViewModel
 @using CommonLib.Core.Utility
 @using CommonLib.Utility
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -13,7 +14,8 @@
 
 @using WebHome.Helper
 @{
-    Layout = "~/Views/Template/MvcMainPage.cshtml";
+    UserProfileViewModel _viewModel = (UserProfileViewModel)ViewBag.ViewModel;
+    Layout = _viewModel?.WaitForCheck == true ? "~/Views/Template/ContentPage.cshtml" : "~/Views/Template/MvcMainPage.cshtml";
     ViewBag.ActionName = "首頁 > 會員管理";
 }
 @section headContent {

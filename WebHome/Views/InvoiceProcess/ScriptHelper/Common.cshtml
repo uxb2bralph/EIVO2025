@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -50,11 +50,11 @@
                 $formData.actionTitle = '@(_viewModel.ActionTitle)';
 
                 showLoading();
-                $.post('@(Url.Action("Inquire","InvoiceProcess",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+                $.postJSON('@(Url.Action("Inquire","InvoiceProcess",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
 
                     hideLoading();
                     if ($.isPlainObject(data)) {
-                        alert(data.message);
+                        alertModal(data.message);
                     } else {
                         if ($this.initQuery) {
 
@@ -86,7 +86,7 @@
                 }
 
                 showLoading();
-                $.post('@(Url.Action("Print","InvoiceProcess"))', $formData, function (data) {
+                $.postJSON('@(Url.Action("Print","InvoiceProcess"))', $formData, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
@@ -104,7 +104,7 @@
             submitTask: function (viewModel) {
                 viewModel.ProcessModel = @((int)ProcessRequestViewModel.ProcessModelDefinition.ByTask);
                 showLoading();
-                $.post('@(Url.Action("ZipInvoicePDF", "DataView"))', viewModel, function (data) {
+                $.postJSON('@(Url.Action("ZipInvoicePDF", "DataView"))', viewModel, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
@@ -136,7 +136,7 @@
                 var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
                 $formData = $.extend($formData, $('input[name="chkItem"]').serializeObject());
                 showLoading();
-                $.post('@(Url.Action("CreateXlsx2024","InvoiceProcess"))', $formData, function (data) {
+                $.postJSON('@(Url.Action("CreateXlsx2024","InvoiceProcess"))', $formData, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         if (data.message != undefined) {
@@ -172,7 +172,7 @@
                 uiInvoiceQuery.refreshDataRow = function () {
                     $tr.empty();
                     showLoading();
-                    $.post('@(Url.Action("LoadInvoiceItem", "InvoiceProcess",new { _viewModel.ResultAction }))', { 'keyID': keyID }, function (data) {
+                    $.postJSON('@(Url.Action("LoadInvoiceItem", "InvoiceProcess",new { _viewModel.ResultAction }))', { 'keyID': keyID }, function (data) {
                         hideLoading();
                         if ($.isPlainObject(data)) {
                             alert(data.message);
@@ -183,7 +183,7 @@
                 };
 
                 showLoading();
-                $.post('@(Url.Action("EditInvoiceBuyer", "InvoiceProcess"))', {'keyID':keyID}, function (data) {
+                $.postJSON('@(Url.Action("EditInvoiceBuyer", "InvoiceProcess"))', {'keyID':keyID}, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
@@ -199,7 +199,7 @@
                 uiInvoiceQuery.refreshDataRow = function () {
                     $tr.empty();
                     showLoading();
-                    $.post('@(Url.Action("LoadInvoiceItem", "InvoiceProcess",new { _viewModel.ResultAction }))', { 'keyID': keyID }, function (data) {
+                    $.postJSON('@(Url.Action("LoadInvoiceItem", "InvoiceProcess",new { _viewModel.ResultAction }))', { 'keyID': keyID }, function (data) {
                         hideLoading();
                         if ($.isPlainObject(data)) {
                             alert(data.message);
@@ -210,7 +210,7 @@
                 };
 
                 showLoading();
-                $.post('@(Url.Action("ArrangeAttachment", "InvoiceProcess"))', {'keyID':keyID}, function (data) {
+                $.postJSON('@(Url.Action("ArrangeAttachment", "InvoiceProcess"))', {'keyID':keyID}, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
@@ -223,7 +223,7 @@
                 if (confirm('確定刪除此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("DeleteAttachment", "InvoiceProcess"))', { 'keyID': keyID }, function (data) {
+                    $.postJSON('@(Url.Action("DeleteAttachment", "InvoiceProcess"))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();

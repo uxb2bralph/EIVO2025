@@ -87,7 +87,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 {
                     OwnerID = _owner?.CompanyID ?? _seller!.CompanyID
                 },
-                ProcessType = (int)(processType ?? Naming.InvoiceProcessType.C0401),
+                ProcessType = (int)(processType ?? Naming.InvoiceProcessType.F0401),
             };
             _container.DonateMark = _donation == null ? "0" : "1";
             _container.SellerID = _seller!.CompanyID;
@@ -169,7 +169,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
             _container.InvoiceDate = invoiceDate;
 
-            var ex = CheckInvoiceNo(null!, invoiceDate, _invItem.InvoiceNumber);
+            var ex = CheckInvoiceNo(_container, invoiceDate, _invItem.InvoiceNumber);
             if (ex != null)
             {
                 return ex;
@@ -215,6 +215,9 @@ namespace ModelCore.InvoiceManagement.Validator
             {
                 return new Exception(String.Format("發票號碼錯誤:{0}，TAG:< InvoicNumber />", _invItem.InvoiceNumber));
             }
+
+            item.TrackCode = trackCode;
+            item.No = no;
 
             return null;
         }

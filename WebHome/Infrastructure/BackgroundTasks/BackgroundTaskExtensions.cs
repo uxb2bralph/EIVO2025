@@ -19,7 +19,7 @@ namespace WebHome.Infrastructure.BackgroundTasks
         }
 
         /// <summary>
-        /// 從 View / Controller 排入背景工作，取代 <c>Task.Run</c>。
+        /// 從 View / Controller 排入背景工作，取代 <c>ProcessRequest.Run</c>。
         /// </summary>
         /// <remarks>
         /// <paramref name="workItem"/> 是在請求結束之後才執行，內部不可使用 <c>HttpContext</c>、
@@ -43,7 +43,7 @@ namespace WebHome.Infrastructure.BackgroundTasks
 
         /// <summary>
         /// 同步版本的 <see cref="EnqueueBackgroundWork(HttpContext, string, Func{CancellationToken, ValueTask})"/>，
-        /// 方便直接搬移原本 <c>Task.Run(() =&gt; { ... })</c> 的內容。
+        /// 方便直接搬移原本 <c>ProcessRequest.Run(() =&gt; { ... })</c> 的內容。
         /// </summary>
         public static bool EnqueueBackgroundWork(this HttpContext context, string name, Action<CancellationToken> workItem)
         {

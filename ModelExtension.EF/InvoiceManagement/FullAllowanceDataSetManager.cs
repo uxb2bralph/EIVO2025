@@ -30,7 +30,7 @@ namespace ModelCore.InvoiceManagement
             FullAllowanceDataSetValidator validator = new FullAllowanceDataSetValidator(this, owner);
             DataTable result = InitializeAllowanceResponseTable();
 
-            IEnumerable<DataRow> allowanceItems = item.Tables["CDS_Document"].Rows.Cast<DataRow>();
+            IEnumerable<DataRow> allowanceItems = item.Tables["Allowance"].Rows.Cast<DataRow>();
 
             if (allowanceItems.Count()>0)
             {
@@ -97,10 +97,10 @@ namespace ModelCore.InvoiceManagement
         public override DataTable InitializeAllowanceResponseTable()
         {
             DataTable table = new DataTable();
-            table.Columns.Add(new DataColumn("CDS_Document No", typeof(String)));
+            table.Columns.Add(new DataColumn("Allowance No", typeof(String)));
             table.Columns.Add(new DataColumn("Status Code", typeof(int)));
             table.Columns.Add(new DataColumn("Description", typeof(String)));
-            table.Columns.Add(new DataColumn("CDS_Document No", typeof(String)));
+            table.Columns.Add(new DataColumn("Invoice No", typeof(String)));
             table.Columns.Add(new DataColumn("Data No", typeof(String)));
             table.TableName = "Process Result";
             return table;

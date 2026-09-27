@@ -114,11 +114,10 @@ namespace ModelCore.Models.ViewModel
         public String? IssuerNo { get; set; }
     }
 
-    public partial class InquireNoIntervalViewModel : QueryViewModel
+    public partial class InquireNoIntervalViewModel : EncQueryViewModel
     {
         public int? Year { get; set; }
         public int? PeriodNo { get; set; }
-        public int? SellerID { get; set; }
         public String? SelectIndication { get; set; }
         public bool? BranchRelation { get; set; }
         public bool? WriteToMIG { get; set; }
@@ -394,6 +393,20 @@ namespace ModelCore.Models.ViewModel
         [NotMapped]
         public List<QueryResultDataColumnHelper>? DataColumns { get; set; }
         public Naming.ActionType? ProcessAction { get; set; }
+        public int? DocID { get; set; }
+        [JsonIgnore]
+        public int? id
+        {
+            get
+            {
+                return DocID;
+            }
+
+            set
+            {
+                DocID = value;
+            }
+        }
     }
 
     public class QueryResultDataColumnHelper
@@ -410,20 +423,6 @@ namespace ModelCore.Models.ViewModel
 
     public class DocumentQueryViewModel : ProcessRequestViewModel
     {
-        [JsonIgnore]
-        public int? id
-        {
-            get
-            {
-                return DocID;
-            }
-
-            set
-            {
-                DocID = value;
-            }
-        }
-        public int? DocID { get; set; }
         public String? Reason { get; set; }
         public bool? NameOnly { get; set; }
         public bool? AppendAttachment { get; set; }

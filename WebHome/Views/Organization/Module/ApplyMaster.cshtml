@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -83,7 +83,7 @@
                 ...$form.serializeObject()
             };
             showLoading();
-            $.post('@(Url.Action("CommitMaster","Organization"))', viewModel, function (data) {
+            $.postJSON('@(Url.Action("CommitMaster","Organization"))', viewModel, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {

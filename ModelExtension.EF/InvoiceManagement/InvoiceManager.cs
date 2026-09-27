@@ -193,6 +193,10 @@ namespace ModelCore.InvoiceManagement
                             ModelExtension.Properties.AppSettings.Default.F0701Outbound,
                             "F0701_" + original.TrackCode + original.No + ".xml"));
 
+                        // 原發票號結尾加星號，標記為已被取代
+                        original.No = original.No + "*";
+                        this.SubmitChanges();
+
                         eventItems.Add(newItem);
                     }
                     catch (Exception ex)
@@ -470,7 +474,7 @@ namespace ModelCore.InvoiceManagement
         //                {
         //                    OwnerID = seller.CompanyID
         //                },
-        //                ProcessType = (int)Naming.InvoiceProcessType.C0401,
+        //                ProcessType = (int)Naming.InvoiceProcessType.F0401,
         //            },
         //            DonateMark = "0",
         //            PrintMark = "Y",
@@ -651,7 +655,7 @@ namespace ModelCore.InvoiceManagement
                             {
                                 DocDate = DateTime.Now,
                                 DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
-                                ProcessType = (int)Naming.InvoiceProcessType.C0401,
+                                ProcessType = (int)Naming.InvoiceProcessType.F0401,
                             },
                             DonateMark = "0",
                             PrintMark = "Y",

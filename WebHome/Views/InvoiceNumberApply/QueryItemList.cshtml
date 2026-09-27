@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -62,7 +62,7 @@
 <script type="text/javascript">
 
    function transferCompany(value) {
-       $.post('@(Url.Action("TransferOrganization", "InvoiceNumberApply"))'
+       $.postJSON('@(Url.Action("TransferOrganization", "InvoiceNumberApply"))'
            , { 'businessID': value }
            , function (data) {
                 if ($.isPlainObject(data)) {
@@ -79,7 +79,7 @@
     }
 
     function moveFile(value) {
-       $.post('@(Url.Action("MoveFile", "InvoiceNumberApply"))'
+       $.postJSON('@(Url.Action("MoveFile", "InvoiceNumberApply"))'
            , { 'businessID': value }
            , function (data) {
                 if ($.isPlainObject(data)) {

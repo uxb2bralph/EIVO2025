@@ -128,7 +128,7 @@ function printLabel(row: { entrustToPrint: boolean | null }): string {
           <input
             ref="fileInput"
             type="file"
-            accept=".xlsx,.xls"
+            accept=".xlsx,.xlsm"
             class="hidden-file"
             @change="onFileChange"
           />

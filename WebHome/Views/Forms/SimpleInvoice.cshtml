@@ -70,7 +70,7 @@
                     <script>
                         $global.onBusiness = function (buyerID) {
                             showLoading();
-                            $.post('@Html.Raw(Url.Action("Organization", "DataEntity"))', { 'id': buyerID, 'encSellerID': $('[name="EncSellerID"]').val() }, function (data) {
+                            $.postJSON('@Html.Raw(Url.Action("Organization", "DataEntity"))', { 'id': buyerID, 'encSellerID': $('[name="EncSellerID"]').val() }, function (data) {
                                 hideLoading();
                                 if ($.isPlainObject(data) && data) {
                                     $('input[name="BuyerReceiptNo"]').val(data.ReceiptNo);
@@ -339,7 +339,7 @@
                     var $formData = $form.serializeObject();
                     $formData.ForPreview = forPreview;
                     showLoading();
-                    $.post('@Html.Raw(Url.Action(_commitAction, "InvoiceBusiness", new { _viewModel.InvoiceProcessType }))', $formData, function (data) {
+                    $.postJSON('@Html.Raw(Url.Action(_commitAction, "InvoiceBusiness", new { _viewModel.InvoiceProcessType }))', $formData, function (data) {
                         hideLoading();
                         if ($.isPlainObject(data)) {
                             alert(data.message);

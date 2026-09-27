@@ -90,7 +90,7 @@ namespace WebHome.Controllers.Merchandise
 
         }
 
-        public ActionResult ProcessDataItem(ProductCatalogQueryViewModel viewModel)
+        public ActionResult ProcessDataItem([FromJsonOrForm] ProductCatalogQueryViewModel viewModel)
         {
             ViewResult result = (ViewResult)InquireProduct(viewModel);
             result.ViewName = "~/Views/ProductCatalog/Module/ProductCatalogTable.cshtml";
@@ -107,7 +107,7 @@ namespace WebHome.Controllers.Merchandise
             return result;
         }
 
-        public ActionResult CommitItem(ProductCatalogQueryViewModel viewModel)
+        public ActionResult CommitItem([FromJsonOrForm] ProductCatalogQueryViewModel viewModel)
         {
             UserProfileWrapper profile = HttpContext.GetUser();
             ViewBag.ViewModel = viewModel;
@@ -175,7 +175,7 @@ namespace WebHome.Controllers.Merchandise
 
         }
 
-        public ActionResult DeleteItem(ProductCatalogQueryViewModel viewModel)
+        public ActionResult DeleteItem([FromJsonOrForm] ProductCatalogQueryViewModel viewModel)
         {
             UserProfileWrapper profile = HttpContext.GetUser();
             ViewBag.ViewModel = viewModel;
@@ -200,7 +200,7 @@ namespace WebHome.Controllers.Merchandise
 
         }
 
-        public ActionResult QuickSearch(ProductCatalogQueryViewModel viewModel)
+        public ActionResult QuickSearch([FromJsonOrForm] ProductCatalogQueryViewModel viewModel)
         {
             ViewResult result = (ViewResult)InquireProduct(viewModel);
             IQueryable<ProductCatalog> items = (IQueryable<ProductCatalog>)result.Model;

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using CommonLib.Utility;
 using CommonLib.Core.Utility;
 using CommonLib.DataAccess;
+using CommonLib.Core.DataWork;
 
 namespace ProcessorUnit.Execution
 {
@@ -36,9 +37,9 @@ namespace ProcessorUnit.Execution
             });
         }
 
-        public ExecutorForeverBase ChainedExecutor { get; set; }
+        public ExecutorForeverBase ChainedExecutor { get; set; } = null!;
 
-        protected GenericManager<EIVOEntityDataContext> models;
+        protected GenericDbContext<ApplicationDbContext> models = null!;
         
         protected virtual void DoSomething()
         {

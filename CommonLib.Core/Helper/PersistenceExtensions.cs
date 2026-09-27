@@ -41,7 +41,15 @@ namespace CommonLib.Core.Helper
                     if (File.Exists(objectPath))
                     {
                         content = File.ReadAllText(objectPath);
-                        File.Delete(objectPath);
+                        String backupPath = Path.Combine(FileLogger.Logger.LogDailyPath, Path.GetFileName(objectPath));
+                        try
+                        {
+                            File.Move(objectPath, backupPath, true);
+                        }
+                        catch
+                        {
+                            File.Delete(objectPath);
+                        }
                     }
                     return content;
                 }

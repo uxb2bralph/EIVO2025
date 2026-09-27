@@ -63,8 +63,13 @@ namespace WebHome.Controllers
             return View(DataSource.Inquiry);
         }
 
-        public ActionResult InquireReport(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireReport([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             IQueryable<WinningInvoiceReportItem> items = InquireWinningInvoice(viewModel);
 
             viewModel.ResultView = "~/Views/WinningInvoice/DataQuery/WinningInvoiceReportList.cshtml";
@@ -178,10 +183,15 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult CreateXlsx(InquireInvoiceViewModel viewModel)
+        public ActionResult CreateXlsx([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //原本以 _dbInstance = false 阻止請求結束時釋放 DbContext，
-            //供 CreateXlsx.cshtml 的 Task.Run 續用；該報表已改為背景作業自建 DbContext，
+            //供 CreateXlsx.cshtml 的 ProcessRequest.Run 續用；該報表已改為背景作業自建 DbContext，
             //這裡恢復正常釋放。
             IQueryable<WinningInvoiceReportItem> items = InquireWinningInvoice(viewModel);
             viewModel.RecordCount = items.Count();
@@ -189,8 +199,13 @@ namespace WebHome.Controllers
             return View("~/Views/WinningInvoice/Module/CreateXlsx.cshtml", items);
         }
 
-        public ActionResult PrintResult(InquireInvoiceViewModel viewModel)
+        public ActionResult PrintResult([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             //ViewBag.HasQuery = true;
             var profile = HttpContext.GetUser();

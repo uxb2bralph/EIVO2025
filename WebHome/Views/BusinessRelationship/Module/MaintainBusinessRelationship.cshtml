@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 @using WebHome.Controllers
@@ -210,7 +210,7 @@
             commitItem: function (value) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("CommitItem","BusinessRelationship"))', $.param($tr.find('input,select,textarea')), function (data) {
+                $.postJSON('@(Url.Action("CommitItem","BusinessRelationship"))', $tr.find('input,select,textarea').serializeObject(), function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -260,7 +260,7 @@
                 if (confirm('確認刪除此營業人關係?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("DeleteItem","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                    $.postJSON('@(Url.Action("DeleteItem","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -275,7 +275,7 @@
                 if (confirm('確認停用列印?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("SetEntrustToPrint","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
+                    $.postJSON('@(Url.Action("SetEntrustToPrint","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
                         if (data) {
                             var $data = $(data);
                             if ($data.is('tr')) {
@@ -295,7 +295,7 @@
                 if (confirm('確認啟用此營業人自動接收?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("SetEntrusting","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
+                    $.postJSON('@(Url.Action("SetEntrusting","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID, status: onoff }, function (data) {
                         if (data) {
                             var $data = $(data);
                             if ($data.is('tr')) {
@@ -315,7 +315,7 @@
                 if (confirm('確認啟用此營業人?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("Activate","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                    $.postJSON('@(Url.Action("Activate","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
                         if (data) {
                             var $data = $(data);
                             if ($data.is('tr')) {
@@ -335,7 +335,7 @@
                 if (confirm('確認停用此營業人?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("Deactivate","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
+                    $.postJSON('@(Url.Action("Deactivate","BusinessRelationship"))', { businessID: businessID, masterID: masterID, relativeID: relativeID }, function (data) {
                         if (data) {
                             var $data = $(data);
                             if ($data.is('tr')) {
@@ -352,7 +352,7 @@
             },
 
             inquireUser: function (value) {
-                $.post('@(Url.Action("AccountIndex","Account",new { showTab = true, roleID = (int)Naming.RoleQueryDefinition.分店相對營業人 }))', { 'sellerID': value }, function (data) {
+                $.postJSON('@(Url.Action("AccountIndex","Account",new { showTab = true, roleID = (int)Naming.RoleQueryDefinition.分店相對營業人 }))', { 'sellerID': value }, function (data) {
                     $global.createTab('@("listUser"+DateTime.Now.Ticks)', '使用者管理', data, true);
                 });
             },

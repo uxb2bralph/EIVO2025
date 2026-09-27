@@ -13,5 +13,5 @@ public partial class ProcessRequestQueue
 
     public virtual ProcessorUnit? Actor { get; set; }
 
-    public virtual ProcessRequest Task { get; set; } = null!;
+    public virtual ProcessRequest ProcessRequest { get; set; } = null!;
 }

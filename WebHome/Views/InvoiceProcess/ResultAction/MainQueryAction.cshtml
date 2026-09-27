@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -39,7 +39,7 @@
                         var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
                         $formData = $.extend($formData, $('input[name="chkItem"]').serializeObject());
                         showLoading();
-                        $.post('@(Url.Action("CreateCustomERPResult", "InvoiceProcess"))', $formData, function (data) {
+                        $.postJSON('@(Url.Action("CreateCustomERPResult", "InvoiceProcess"))', $formData, function (data) {
                             hideLoading();
                             if ($.isPlainObject(data)) {
                                 if (data.message != undefined) {

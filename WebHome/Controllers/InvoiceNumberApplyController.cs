@@ -62,7 +62,7 @@ namespace WebHome.Controllers
         }
 
         //[AuthorizedSysAdmin()]
-        //public ActionResult Query(InvoiceNumberApplyQueryViewModel viewModel)
+        //public ActionResult Query([FromBody] InvoiceNumberApplyQueryViewModel viewModel)
         //{
         //    service = new InvoiceNumberApplyService(viewModel.BusinessId);
 
@@ -83,8 +83,13 @@ namespace WebHome.Controllers
         //}
 
         [AuthorizedSysAdmin()]
-        public ActionResult Query(InvoiceNumberApplyQueryViewModel viewModel)
+        public ActionResult Query([FromJsonOrForm] InvoiceNumberApplyQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             service = new InvoiceNumberApplyService(viewModel.BusinessId);
@@ -164,15 +169,20 @@ namespace WebHome.Controllers
         }
 
         //[AuthorizedSysAdmin()]
-        //public ActionResult MoveFile(string businessID)
+        //public ActionResult MoveFile([FromJsonOrForm] string businessID)
         //{
         //    InvoiceNumberApplyService.MoveJsonFile(businessID);
         //    return Json(new { result = true });
         //}
 
         [AuthorizedSysAdmin()]
-        public ActionResult MoveFile(QueryViewModel viewModel)
+        public ActionResult MoveFile([FromJsonOrForm] QueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             if (viewModel.KeyID != null)
             {
                 String filePath = viewModel.KeyID.DecryptData();
@@ -183,7 +193,7 @@ namespace WebHome.Controllers
         }
 
         //[AuthorizedSysAdmin()]
-        //public ActionResult TransferOrganization(string businessID)
+        //public ActionResult TransferOrganization([FromJsonOrForm] string businessID)
         //{
         //    #region check
         //    response.BusinessID = businessID;
@@ -242,8 +252,13 @@ namespace WebHome.Controllers
         //}
 
         [AuthorizedSysAdmin()]
-        public ActionResult TransferOrganization(QueryViewModel viewModel)
+        public ActionResult TransferOrganization([FromJsonOrForm] QueryViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             String filePath = null;
             if (viewModel.KeyID != null)
             {

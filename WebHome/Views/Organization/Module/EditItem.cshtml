@@ -60,7 +60,7 @@
             var $formData = $form.serializeObject();
             $formData.CustomNotification = $('<div>').text($formData.CustomNotification).html();
             showLoading();
-            $.post('@Html.Raw(Url.Action("CommitItem","Organization",new { _viewModel.KeyID }))', $formData, function (data) {
+            $.postJSON('@Html.Raw(Url.Action("CommitItem","Organization",new { _viewModel.KeyID }))', $formData, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {

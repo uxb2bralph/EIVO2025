@@ -125,7 +125,7 @@
             },
             commitImport: function (value) {
                 var event = event || window.event;
-                $.post('@(Url.Action("CommitImport", "BusinessRelationship"))', { }, function (data) {
+                $.postJSON('@(Url.Action("CommitImport", "BusinessRelationship"))', { }, function (data) {
                     if (data.result) {
                         $('.tblAction').remove();
                         uiImportBusiness.filterMode = null;
@@ -139,7 +139,7 @@
             cancelImport: function (value) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("CancelImport", "BusinessRelationship"))', $.param($tr.find('input,select,textarea')), function (data) {
+                $.postJSON('@(Url.Action("CancelImport", "BusinessRelationship"))', $tr.find('input,select,textarea').serializeObject(), function (data) {
                     if (data.result) {
                         window.location.href = '@(Url.Action("ImportCounterpartBusiness", "BusinessRelationship"))';
                     }

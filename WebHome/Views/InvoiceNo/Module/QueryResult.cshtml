@@ -23,7 +23,7 @@
     _model = (IQueryable<InvoiceNoInterval>)this.Model;
     //每一列都會延遲載入導覽屬性；先具體化清單把 DataReader 關掉，
     //否則同一條連線上會出現「已經開啟與這個 Connection 建立關聯的 DataReader」。
-    var _items = _model.ToList();
+    var _items = _model;
     InquireNoIntervalViewModel? _viewModel = ViewBag.ViewModel as InquireNoIntervalViewModel;
 }
 
@@ -34,7 +34,7 @@
 
 <div class="border_gray query_result">
     @{
-        var recordCount = _items.Count;
+        var recordCount = _items.Count();
         bool hasOrg = false;
     }
     @if (_viewModel?.SellerID.HasValue == true)

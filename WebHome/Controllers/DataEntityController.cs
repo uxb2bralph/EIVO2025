@@ -9,6 +9,7 @@ using ModelCore.Locale;
 using ModelCore.Models.ViewModel;
 using Newtonsoft.Json;
 using WebHome.Helper;
+using ModelCore.Helper;
 
 namespace WebHome.Controllers
 {
@@ -19,8 +20,13 @@ namespace WebHome.Controllers
         }
 
         // GET: DataFlow
-        public ActionResult Organization(DocumentQueryViewModel viewModel)
+        public ActionResult Organization([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             BusinessRelationship? relation = null;
             if (viewModel?.SellerID.HasValue == true)
             {
@@ -43,13 +49,13 @@ namespace WebHome.Controllers
             }
 
             var item = models!.GetTable<Organization>().Where(o => o.CompanyID == viewModel!.id).FirstOrDefault();
-            return Content(item.JsonStringify(), "application/json");
+            return Content(item.JsonStringifyShallow(), "application/json");
         }
 
-        public ActionResult OrganizationExtension(int id)
+        public ActionResult OrganizationExtension([FromJsonOrForm] int id)
         {
             var item = models!.GetTable<OrganizationExtension>().Where(o => o.CompanyID == id).FirstOrDefault();
-            return Content(item.JsonStringify(), "application/json");
+            return Content(item.JsonStringifyShallow(), "application/json");
         }
 
     }

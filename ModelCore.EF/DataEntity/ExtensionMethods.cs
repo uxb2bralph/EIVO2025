@@ -277,14 +277,14 @@ namespace ModelCore.DataEntity
         public static string GetJsonString(this InvoiceItem item)
         {
             ///TODO: Build DTOs to avoid circular reference
-            var json = item.JsonStringify();
+            var json = item.JsonStringifyShallow();
             return json;
         }
 
         public static string GetJsonString(this InvoiceAllowance item)
         {
             ///TODO: Build DTOs to avoid circular reference
-            var json = item.JsonStringify();
+            var json = item.JsonStringifyShallow();
             return json;
         }
 

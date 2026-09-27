@@ -3,6 +3,6 @@
 
 <script>
     $(function () {
-        alert('@(System.Web.HttpUtility.JavaScriptStringEncode((String)ViewBag.Message))');
+        alert('@Html.Raw(System.Web.HttpUtility.JavaScriptStringEncode((String)ViewBag.Message))');
     });
 </script>

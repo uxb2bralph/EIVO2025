@@ -197,7 +197,7 @@ namespace TaskCenter.Controllers
                     TaskID = q.TaskID,
                     ChannelName = q.ProcessTypeNavigation!.ChannelName,
                     RequestName = q.RequestPath != null ? Path.GetFileName(q.RequestPath) : null,
-                    ExceptionMessage = q.Log != null ? q.Log.DataContent : null,
+                    ExceptionMessage = q.ExceptionLog != null ? q.ExceptionLog.DataContent : null,
                     OriginalData = GetProcessRequestContent(q)
                 })]
             });
@@ -331,7 +331,6 @@ namespace TaskCenter.Controllers
 
             switch (viewModel.ProcessType)
             {
-                case Naming.InvoiceProcessType.C0401:
                 case Naming.InvoiceProcessType.F0401:
                 case Naming.InvoiceProcessType.A0401:
                     invoiceItems = models!.GetInvoiceByAgent(models!.GetTable<InvoiceItem>(), viewModel.AgentID ?? -1);

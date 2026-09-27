@@ -47,60 +47,74 @@ namespace WebHome.Controllers.Handler
             return Content("Helper OK!");
         }
 
-        //public async Task<ActionResult> GetSampleAsync(String data)
-        //{
-        //    Response.ContentType = "text/plain";
+        /// <summary>
+        /// 下載匯入用的 Excel 範本，取代舊版 ~/Helper/GetSample.ashx。
+        /// </summary>
+        /// <param name="data">範本種類：InvoiceBuyer、TrackCode、WinningNo</param>
+        [Route("Helper/GetSample.ashx")]
+        [Route("AshxHelper/GetSample")]
+        public async Task<ActionResult> GetSampleAsync(String? data)
+        {
+            switch (data)
+            {
+                case "InvoiceBuyer":
+                    using (XLWorkbook xls = new InvoiceBuyerExchange().GetSample())
+                    {
+                        await SaveSampleAsync(xls, "修改買受人資料.xlsx");
+                    }
+                    break;
 
-        //    switch (data)
-        //    {
-        //        case "InvoiceBuyer":
-        //            var exchange = new InvoiceBuyerExchange();
-        //            using (XLWorkbook xls = exchange.GetSample())
-        //            {
-        //                await xls.SaveAsExcelAsync(Response, $"attachment;filename={HttpUtility.UrlEncode("修改買受人資料")}.xlsx");
-        //            }
-        //            break;
+                case "TrackCode":
+                    using (XLWorkbook xls = new TrackCodeExchange().GetSample())
+                    {
+                        await SaveSampleAsync(xls, "發票字軌資料.xlsx");
+                    }
+                    break;
 
-        //        case "TrackCode":
-        //            var tracodeSample = new TrackCodeExchange();
-        //            using (XLWorkbook xls = tracodeSample.GetSample())
-        //            {
-        //                await xls.SaveAsExcelAsync(Response, $"attachment;filename={HttpUtility.UrlEncode("發票字軌資料")}.xlsx");
-        //            }
-        //            break;
+                case "WinningNo":
+                    using (DataSet ds = CreateWinningNoSample())
+                    using (XLWorkbook xls = ds.ConvertToExcel())
+                    {
+                        await SaveSampleAsync(xls, "WinningSample.xlsx");
+                    }
+                    break;
 
-        //        case "WinningNo":
-        //            DataTable table = new DataTable();
-        //            table.Columns.Add(new DataColumn("期別", typeof(String)));
-        //            table.Columns.Add(new DataColumn("字軌", typeof(String)));
-        //            table.Columns.Add(new DataColumn("號碼", typeof(String)));
-        //            table.Columns.Add(new DataColumn("中獎獎別", typeof(String)));
-        //            table.Columns.Add(new DataColumn("中獎獎金", typeof(int)));
+                default:
+                    return NotFound();
+            }
 
-        //            DateTime sampleDate = (new DateTime(DateTime.Today.Year, (DateTime.Today.Month + 1) / 2 * 2, 1)).AddMonths(-2);
-        //            var row = table.NewRow();
-        //            row[0] = $"{sampleDate.Year - 1911:000}{sampleDate.Month:00}";
-        //            row[1] = "XX";
-        //            row[2] = "01234567";
-        //            row[3] = "D";
-        //            row[4] = "500";
+            return new EmptyResult { };
+        }
 
-        //            table.Rows.Add(row);
+        private Task SaveSampleAsync(XLWorkbook xls, String fileName)
+        {
+            return xls.SaveAsExcelAsync(Response, $"attachment;filename={HttpUtility.UrlEncode(fileName)}");
+        }
 
-        //            using (DataSet ds = new DataSet())
-        //            {
-        //                table.TableName = "中獎清冊";
-        //                ds.Tables.Add(table);
+        private static DataSet CreateWinningNoSample()
+        {
+            DataTable table = new DataTable();
+            table.Columns.Add(new DataColumn("期別", typeof(String)));
+            table.Columns.Add(new DataColumn("字軌", typeof(String)));
+            table.Columns.Add(new DataColumn("號碼", typeof(String)));
+            table.Columns.Add(new DataColumn("中獎獎別", typeof(String)));
+            table.Columns.Add(new DataColumn("中獎獎金", typeof(int)));
 
-        //                using var xls = ds.ConvertToExcel();
-        //                await xls.SaveAsExcelAsync(Response, $"attachment;filename={HttpUtility.UrlEncode("WinningSample")}.xlsx");
-        //            }
-        //            break;
-        //    }
+            DateTime sampleDate = (new DateTime(DateTime.Today.Year, (DateTime.Today.Month + 1) / 2 * 2, 1)).AddMonths(-2);
+            var row = table.NewRow();
+            row[0] = $"{sampleDate.Year - 1911:000}{sampleDate.Month:00}";
+            row[1] = "XX";
+            row[2] = "01234567";
+            row[3] = "D";
+            row[4] = "500";
 
-        //    return new EmptyResult();
+            table.Rows.Add(row);
 
-        //}
+            table.TableName = "中獎清冊";
+            DataSet ds = new DataSet();
+            ds.Tables.Add(table);
+            return ds;
+        }
 
     }
 }

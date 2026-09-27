@@ -152,7 +152,7 @@
                 }
 
                 showLoading();
-                $.post('@Html.Raw(_viewModel!.UrlAction)', $formData, function (data) {
+                $.postJSON('@Html.Raw(_viewModel!.UrlAction)', $formData, function (data) {
 
                     hideLoading();
                     if ($.isPlainObject(data)) {
@@ -218,7 +218,7 @@
 
                 var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
                 showLoading();
-                $.post('@(Url.Action("CreateXlsx2021","AllowanceProcess"))', $formData, function (data) {
+                $.postJSON('@(Url.Action("CreateXlsx2021","AllowanceProcess"))', $formData, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         if (data.message != undefined) {

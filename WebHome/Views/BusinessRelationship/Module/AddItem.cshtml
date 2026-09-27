@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -33,7 +33,7 @@
     <script>
             function loadCompany() {
                 showLoading();
-                $.post('@(Url.Action("GetCompany", "Home"))', { 'term': $('#@(_trID) input[name="ReceiptNo"]').val() }, function (data) {
+                $.postJSON('@(Url.Action("GetCompany", "Home"))', { 'term': $('#@(_trID) input[name="ReceiptNo"]').val() }, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data) && data) {
                         $('#@(_trID) input[name="ReceiptNo"]').val(data.ReceiptNo);

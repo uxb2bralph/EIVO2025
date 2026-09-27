@@ -81,8 +81,13 @@ namespace WebHome.Controllers
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS })]
-        public ActionResult InquireMonthlyReport(MonthlyReportQueryViewModel viewModel)
+        public ActionResult InquireMonthlyReport([FromJsonOrForm] MonthlyReportQueryViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (!viewModel.DateFrom.HasValue)
@@ -334,7 +339,7 @@ namespace WebHome.Controllers
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.Log = new ExceptionLog
+                                    taskItem.ExceptionLog = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };
@@ -360,8 +365,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult Inquire(InquireInvoiceViewModel viewModel)
+        public ActionResult Inquire([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //ViewBag.HasQuery = true;
             ViewBag.PrintAction = "PrintResult";
             ViewBag.ViewModel = viewModel;
@@ -386,8 +396,13 @@ namespace WebHome.Controllers
             return View("InvoiceReport", DataSource.Inquiry);
         }
 
-        public ActionResult InquireAttachment(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireAttachment([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //ViewBag.HasQuery = true;
             ViewBag.ViewModel = viewModel;
 
@@ -435,8 +450,13 @@ namespace WebHome.Controllers
                 .Skip(index * size).Take(size));
         }
 
-        public ActionResult DownloadCSV(InquireInvoiceViewModel viewModel)
+        public ActionResult DownloadCSV([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var profile = HttpContext.GetUser();
@@ -452,8 +472,13 @@ namespace WebHome.Controllers
             return View(DataSource.Items);
         }
 
-        public async Task<ActionResult> CreateXlsxAsync(InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> CreateXlsxAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var items = DataSource.Items.OrderBy(i => i.InvoiceID)
@@ -500,8 +525,13 @@ namespace WebHome.Controllers
             return new EmptyResult();
         }
 
-        public ActionResult AssignDownload(InquireInvoiceViewModel viewModel)
+        public ActionResult AssignDownload([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var profile = HttpContext.GetUser();
@@ -541,8 +571,13 @@ namespace WebHome.Controllers
 
 
 
-        public ActionResult PrintResult(InquireInvoiceViewModel viewModel)
+        public ActionResult PrintResult([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
             DataSource.Inquiry = viewModel.CreateInvoiceInquiry(profile);
@@ -580,7 +615,7 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult DownloadAttachment(String data)
+        public ActionResult DownloadAttachment([FromJsonOrForm] String data)
         {
             String jsonData = data;
             if (!String.IsNullOrEmpty(jsonData))
@@ -594,8 +629,13 @@ namespace WebHome.Controllers
             return Content(jsonData);
         }
 
-        public ActionResult DownloadAll(InquireInvoiceViewModel viewModel)
+        public ActionResult DownloadAll([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var profile = HttpContext.GetUser();
@@ -658,18 +698,29 @@ namespace WebHome.Controllers
             return View("InvoiceReport", DataSource.Inquiry);
         }
 
-        public ActionResult InquireSummary(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireSummary([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
-            ViewBag.ViewModel = viewModel;
-
-            if (!viewModel.InvoiceDateFrom.HasValue)
+            if (viewModel == null)
             {
-                ModelState.AddModelError("InvoiceDateFrom", "請輸入查詢起日");
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
             }
 
-            if (!viewModel.InvoiceDateTo.HasValue)
+            ViewBag.ViewModel = viewModel;
+
+            //已輸入發票號碼即可直接定位資料，日期區間改為非必填；未輸入時仍須以日期限縮查詢範圍。
+            bool hasInvoiceNo = viewModel.InvoiceNo.GetEfficientString() != null;
+
+            if (!hasInvoiceNo)
             {
-                ModelState.AddModelError("InvoiceDateTo", "請輸入查詢迄日");
+                if (!viewModel.InvoiceDateFrom.HasValue)
+                {
+                    ModelState.AddModelError("InvoiceDateFrom", "請輸入查詢起日");
+                }
+
+                if (!viewModel.InvoiceDateTo.HasValue)
+                {
+                    ModelState.AddModelError("InvoiceDateTo", "請輸入查詢迄日");
+                }
             }
 
             if (!ModelState.IsValid)
@@ -734,8 +785,13 @@ namespace WebHome.Controllers
             return (sellerItems, dataSource.Items);
         }
 
-        public ActionResult CreateMonthlyReportXlsx(InquireInvoiceViewModel viewModel)
+        public ActionResult CreateMonthlyReportXlsx([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)InquireSummary(viewModel);
             IQueryable<Organization> items = result.Model as IQueryable<Organization>;
 
@@ -755,7 +811,7 @@ namespace WebHome.Controllers
             models.GetTable<ProcessRequest>().Add(processItem);
             models.SubmitChanges();
 
-            //原本以 _dbInstance = false 讓 Task.Run 續用請求的 DbContext；
+            //原本以 _dbInstance = false 讓 ProcessRequest.Run 續用請求的 DbContext；
             //改為背景佇列 + 自建 DbContext 之後，這裡恢復正常釋放。
             int taskID = processItem.TaskID;
             String resultFile = processItem.ResponsePath;
@@ -939,8 +995,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult PrintInvoiceSummary(InquireInvoiceViewModel viewModel)
+        public ActionResult PrintInvoiceSummary([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var profile = HttpContext.GetUser();
@@ -951,14 +1012,24 @@ namespace WebHome.Controllers
             return View(DataSource.Inquiry);
         }
 
-        public ActionResult DataQueryIndex(DataQueryViewModel viewModel)
+        public ActionResult DataQueryIndex([FromJsonOrForm] DataQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View("~/Views/InvoiceQuery/DataQueryIndex.cshtml");
         }
 
-        public ActionResult InquireData(DataQueryViewModel viewModel)
+        public ActionResult InquireData([FromJsonOrForm] DataQueryViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             viewModel.CommandText = viewModel.CommandText.GetEfficientString();

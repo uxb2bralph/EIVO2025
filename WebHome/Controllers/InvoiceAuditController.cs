@@ -59,8 +59,13 @@ namespace WebHome.Controllers
             return View("~/Views/InvoiceAudit/QueryIndex.cshtml");
         }
 
-        public ActionResult InquireInvoice(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireInvoice([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
 
@@ -81,8 +86,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult InquireAllowance(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireAllowance([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
 

@@ -87,7 +87,7 @@ namespace Business.Helper.ProcessRequestProcessor
 
                 if (exception != null)
                 {
-                    taskItem.Log = new ExceptionLog
+                    taskItem.ExceptionLog = new ExceptionLog
                     {
                         DataContent = exception.Message
                     };
@@ -218,7 +218,7 @@ namespace Business.Helper.ProcessRequestProcessor
 
                 if (exception != null)
                 {
-                    taskItem.Log = new ExceptionLog
+                    taskItem.ExceptionLog = new ExceptionLog
                     {
                         DataContent = exception.Message
                     };
@@ -312,7 +312,7 @@ namespace Business.Helper.ProcessRequestProcessor
 
                 if (exception != null)
                 {
-                    taskItem.Log = new ExceptionLog
+                    taskItem.ExceptionLog = new ExceptionLog
                     {
                         DataContent = exception.Message
                     };

@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -46,7 +46,7 @@
         $input.autocomplete({
             source: function (request, response) {
                     showLoading();
-                    $.post('@(Url.Action("SearchCounterpart", "Home"))', { 'term': request.term, 'encSellerID': $('[name="EncSellerID"]').val() }, function (data) {
+                    $.postJSON('@(Url.Action("SearchCounterpart", "Home"))', { 'term': request.term, 'encSellerID': $('[name="EncSellerID"]').val() }, function (data) {
                         hideLoading();
                         if ($.isArray(data)) {
                             response(data);

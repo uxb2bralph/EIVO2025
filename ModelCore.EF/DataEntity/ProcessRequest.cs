@@ -33,7 +33,7 @@ public partial class ProcessRequest
 
     public virtual Organization? Agent { get; set; }
 
-    public virtual ExceptionLog? Log { get; set; }
+    public virtual ExceptionLog? ExceptionLog { get; set; }
 
     public virtual ProcessCompletionNotification? ProcessCompletionNotification { get; set; }
 

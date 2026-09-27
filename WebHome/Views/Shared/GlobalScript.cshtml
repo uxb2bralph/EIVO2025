@@ -27,7 +27,7 @@
 
     function showInvoiceModal(docID) {
         var element = event.target;
-        $.post('@Html.Raw(Url.Action("ShowInvoiceContent", "DataView"))', { 'docID': docID, 'DialogID': 'preivew' }, function (html) {
+        $.postJSON('@Html.Raw(Url.Action("ShowInvoiceContent", "DataView"))', { 'docID': docID, 'DialogID': 'preivew' }, function (html) {
             //            $(element).after($(html).find("#mainContent"));
             $(html).dialog({
                 width: 640,
@@ -48,7 +48,7 @@
 
     function showAllowanceModal(docID) {
         showLoading();
-        $.post('@Html.Raw(Url.Action("ShowAllowancePageView", "DataView"))', { 'id': docID }, function (data) {
+        $.postJSON('@Html.Raw(Url.Action("ShowAllowancePageView", "DataView"))', { 'id': docID }, function (data) {
             hideLoading();
             if ($.isPlainObject(data)) {
                 alert(data.message);
@@ -85,7 +85,7 @@
 
     function actionHandler(url, data, done, width, height,dialogTitle) {
         showLoading();
-        $.post(url, data, function (html) {
+        $.postJSON(url, data, function (html) {
             hideLoading();
             var $this = $('<div class="currentDialog">').append(html);
             $this.dialog({
@@ -118,7 +118,7 @@
     function commitAction(url, data, done) {
         clearErrors();
         showLoading();
-        $.post(url, data, function (data) {
+        $.postJSON(url, data, function (data) {
             hideLoading();
             if ($.isPlainObject(data)) {
                 if (typeof (done) == 'function') {
@@ -136,7 +136,7 @@
 
     function invokeAction(url, data, done) {
         showLoading();
-        $.post(url, data, function (data) {
+        $.postJSON(url, data, function (data) {
             hideLoading();
             //console.log(data);
             if ($.isPlainObject(data)) {

@@ -115,7 +115,7 @@ namespace TaskCenter.Core.DTOs
         [JsonPropertyName("orderNo")] public string? OrderNo { get; set; }
         /// <summary>發票狀態（已作廢 + 日期）。</summary>
         [JsonPropertyName("statusLabel")] public string? StatusLabel { get; set; }
-        /// <summary>大平台處理狀態（MIG；如 C0401:C）。</summary>
+        /// <summary>大平台處理狀態（MIG；如 F0401:C）。</summary>
         [JsonPropertyName("migStatus")] public string? MigStatus { get; set; }
         /// <summary>幣別。</summary>
         [JsonPropertyName("currency")] public string? Currency { get; set; }

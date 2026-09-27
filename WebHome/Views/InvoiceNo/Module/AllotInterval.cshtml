@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.IO
 @using System.Linq.Expressions
@@ -84,7 +84,7 @@
                 clearErrors();
 
                 showLoading();
-                $.post('@(Url.Action("CommitAllotment", "InvoiceNo", new { keyID = _model.IntervalID.EncryptKey() }))', $formData, function (data) {
+                $.postJSON('@(Url.Action("CommitAllotment", "InvoiceNo", new { keyID = _model.IntervalID.EncryptKey() }))', $formData, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         if (data.result) {

@@ -22,11 +22,11 @@
 
     ModelSource<InvoiceItem> models;
     InvoiceAllowance _model;
-    DocumentQueryViewModel _viewModel;
+    QueryViewModel _viewModel;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _model = (InvoiceAllowance)this.Model;
-    _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
 }
 @{ await Html.RenderPartialAsync("~/Views/DataView/Module/Allowance.cshtml", _model);}
 

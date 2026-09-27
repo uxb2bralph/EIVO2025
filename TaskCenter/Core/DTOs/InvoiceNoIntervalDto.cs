@@ -210,4 +210,95 @@ namespace TaskCenter.Core.DTOs
         [JsonPropertyName("invoiceType")]
         public int? InvoiceType { get; set; }
     }
+
+    /// <summary>
+    /// 上傳發票字軌號碼之預覽 / 匯入結果列（遷移自舊版 UploadInvoiceTrackCodeModel 與
+    /// Views/InvoiceNo/Module/PreviewInvoiceTrackCode.cshtml、EditInvoiceTrackCodeNo.cshtml）。
+    /// 預覽時 Message 為 null 者才可匯入，並以 RowKey（加密後的匯入內容）回傳；
+    /// 匯入後以 Message 呈現「已匯入成功」或錯誤原因（沿用舊版 CommitUpload 之回饋方式）。
+    /// </summary>
+    public class UploadTrackCodeRowDto
+    {
+        /// <summary>加密後的匯入內容（沿用舊版 KeyItems：JSON + EncryptData）；驗證失敗或已匯入時為 null。</summary>
+        [JsonPropertyName("rowKey")]
+        public string? RowKey { get; set; }
+
+        /// <summary>營業人統一編號。</summary>
+        [JsonPropertyName("receiptNo")]
+        public string? ReceiptNo { get; set; }
+
+        /// <summary>營業人名稱（供預覽辨識；舊版僅顯示統編）。</summary>
+        [JsonPropertyName("companyName")]
+        public string? CompanyName { get; set; }
+
+        /// <summary>營業人註記停用日期（OrganizationExtension.ExpirationDate；對應舊版「(註記停用:yyyy/MM/dd)」）。</summary>
+        [JsonPropertyName("expirationDate")]
+        public string? ExpirationDate { get; set; }
+
+        /// <summary>發票年度（民國年；上傳檔案即為民國年，西元 = Year + 1911）。</summary>
+        [JsonPropertyName("year")]
+        public int? Year { get; set; }
+
+        /// <summary>發票期別（1~6，對應雙月）。</summary>
+        [JsonPropertyName("periodNo")]
+        public int? PeriodNo { get; set; }
+
+        /// <summary>字軌（二位英文字母）。</summary>
+        [JsonPropertyName("trackCode")]
+        public string? TrackCode { get; set; }
+
+        /// <summary>發票號碼起（8 位）。</summary>
+        [JsonPropertyName("startNo")]
+        public int? StartNo { get; set; }
+
+        /// <summary>發票號碼迄（8 位）。</summary>
+        [JsonPropertyName("endNo")]
+        public int? EndNo { get; set; }
+
+        /// <summary>驗證 / 匯入訊息；預覽時為 null 表示可匯入。</summary>
+        [JsonPropertyName("message")]
+        public string? Message { get; set; }
+
+        /// <summary>是否已成功匯入（僅匯入結果使用）。</summary>
+        [JsonPropertyName("committed")]
+        public bool Committed { get; set; }
+    }
+
+    /// <summary>匯入預覽通過之字軌號碼（遷移自舊版 InvoiceNoController.CommitUpload 之 KeyItems）。</summary>
+    public class UploadTrackCodeCommitDto
+    {
+        /// <summary>預覽回傳之 RowKey 清單（僅含可匯入列）。</summary>
+        public List<string>? RowKeys { get; set; }
+    }
+
+    /// <summary>
+    /// RowKey 內加密保存的匯入內容（僅供伺服器端序列化 / 還原，不直接對外回傳）。
+    /// 沿用舊版將整列內容加密後交由前端回送的做法，匯入時不重新信任前端輸入。
+    /// </summary>
+    public class UploadTrackCodePayloadDto
+    {
+        /// <summary>開立人 CompanyID（預覽時依統編與角色範圍解析）。</summary>
+        public int SellerId { get; set; }
+
+        /// <summary>字軌識別碼（InvoiceTrackCode.TrackID）。</summary>
+        public int TrackId { get; set; }
+
+        /// <summary>發票號碼起。</summary>
+        public int StartNo { get; set; }
+
+        /// <summary>發票號碼迄。</summary>
+        public int EndNo { get; set; }
+
+        /// <summary>營業人統一編號（供匯入結果顯示）。</summary>
+        public string? ReceiptNo { get; set; }
+
+        /// <summary>發票年度（民國年，供匯入結果顯示）。</summary>
+        public int? Year { get; set; }
+
+        /// <summary>發票期別（供匯入結果顯示）。</summary>
+        public int? PeriodNo { get; set; }
+
+        /// <summary>字軌（供匯入結果顯示）。</summary>
+        public string? TrackCode { get; set; }
+    }
 }

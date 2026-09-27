@@ -7,7 +7,7 @@
 @using ModelCore.Locale
 @{
     IEnumerable<InvoiceNoInterval> _items;
-    _items = (IEnumerable<InvoiceNoInterval>)this.Model;
+    _items = ((IEnumerable<InvoiceNoInterval>)this.Model).ToList();
 }
 <table class="table table-striped itemList">
     <thead>

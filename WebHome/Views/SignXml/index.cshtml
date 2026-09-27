@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.IO
 @using System.Linq.Expressions
@@ -46,7 +46,7 @@
                     var $select = $('select[name="CertName"]');
                     $select.empty();
                     var $formData = $('form').serializeObject();
-                    $.post('@(Url.Action("ListCertificate", "SignXml"))', $formData, function (data) {
+                    $.postJSON('@(Url.Action("ListCertificate", "SignXml"))', $formData, function (data) {
                         if ($.isPlainObject(data)) {
                             alert(data.message);
                         } else {

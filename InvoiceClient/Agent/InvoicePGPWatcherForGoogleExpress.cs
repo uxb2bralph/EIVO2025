@@ -133,7 +133,7 @@ namespace InvoiceClient.Agent
                         RequestPath = invoiceRequest,
                         ProcessType = (int)Naming.InvoiceProcessType.F0401_Xml_CBE,
                     };
-                    models.GetTable<ProcessRequest>().InsertOnSubmit(requestItem);
+                    models.GetTable<ProcessRequest>().Add(requestItem);
                     models.SubmitChanges();
 
                     List<AutomationItem> automation = new List<AutomationItem>();

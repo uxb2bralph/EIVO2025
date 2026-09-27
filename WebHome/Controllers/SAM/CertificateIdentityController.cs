@@ -45,7 +45,7 @@ namespace WebHome.Controllers.SAM
         }
 
         // GET: SystemExceptionLog
-        public ActionResult OrganizationCertificate(OrganizationViewModel viewModel)
+        public ActionResult OrganizationCertificate([FromJsonOrForm] OrganizationViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel.KeyID != null)

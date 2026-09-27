@@ -100,8 +100,19 @@ namespace WebHome.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult ResetPassword(UserProfileViewModel viewModel)
+        public ActionResult ActivateAccount([FromJsonOrForm] UserProfileViewModel viewModel)
         {
+            return ResetPassword(viewModel);
+        }
+
+        [AllowAnonymous]
+        public ActionResult ResetPassword([FromJsonOrForm] UserProfileViewModel viewModel)
+        {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)EditItem(viewModel);
             UserProfile item = result.Model as UserProfile;
             if (item == null)
@@ -123,8 +134,13 @@ namespace WebHome.Controllers
 
         //[RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
         [Authorize]
-        public ActionResult Commit(UserProfileViewModel viewModel)
+        public ActionResult Commit([FromJsonOrForm] UserProfileViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (!String.IsNullOrEmpty(viewModel.KeyID))

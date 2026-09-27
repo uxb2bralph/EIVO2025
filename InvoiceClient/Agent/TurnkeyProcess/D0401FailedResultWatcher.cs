@@ -66,7 +66,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
 
                             if (cancelAllowance != null)
                             {
-                                cancelAllowance.InvoiceAllowance.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done);
+                                cancelAllowance.Allowance.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done);
                                 models.SubmitChanges();
                                 Console.WriteLine($"Allowance Failed:{item}");
                                 continue;

@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 @using System.Collections.Specialized
@@ -85,7 +85,7 @@
                             $formData.Token = '@Html.Raw(_model?["token"])';
                             clearErrors();
                             showLoading();
-                            $.post('@Html.Raw(Url.Action("ValidateUserCarrier", "IndividualProcess"))', $formData, function (data) {
+                            $.postJSON('@Html.Raw(Url.Action("ValidateUserCarrier", "IndividualProcess"))', $formData, function (data) {
                                 hideLoading();
                                 if ($.isPlainObject(data)) {
                                     alertModal(data.message);
@@ -110,7 +110,7 @@ else
                             $formData.Token = '@Html.Raw(_model?["token"])';
                             clearErrors();
                             showLoading();
-                            $.post('@Html.Raw(Url.Action("ValidateUserCarrier", "IndividualProcess"))', $formData, function (data) {
+                            $.postJSON('@Html.Raw(Url.Action("ValidateUserCarrier", "IndividualProcess"))', $formData, function (data) {
                                 hideLoading();
                                 if ($.isPlainObject(data)) {
                                     alertModal(data.message);

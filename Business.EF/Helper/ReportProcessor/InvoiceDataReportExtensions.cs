@@ -150,7 +150,7 @@ namespace Business.Helper.ReportProcessor
 
                 if (exception != null)
                 {
-                    taskItem.Log = new ExceptionLog
+                    taskItem.ExceptionLog = new ExceptionLog
                     {
                         DataContent = exception.Message
                     };

@@ -491,7 +491,9 @@ namespace Business.Helper.InvoiceProcessor
                     Allowance = new AutomationItemAllowance
                     {
                         AllowanceNumber = d.AllowanceNumber,
-                        SellerId = d.InvoiceAllowanceSeller.ReceiptNo
+                        SellerId = d.InvoiceAllowanceSeller!.ReceiptNo,
+                        AllowanceUrl = $"{ModelExtension.Properties.AppSettings.Default.ReviewAllowance}?keyID={HttpUtility.UrlEncode(d.AllowanceID.EncryptKey())}",
+                        AllowancePdf = $"{ModelExtension.Properties.AppSettings.Default.AllowancePdfUrl}?keyID={HttpUtility.UrlEncode(d.AllowanceID.EncryptKey())}",
                     },
                 }));
             }

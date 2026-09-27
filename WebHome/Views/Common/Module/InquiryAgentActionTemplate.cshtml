@@ -96,7 +96,7 @@
             $formData = $.extend({}, $inquiryAgent.viewModel, $formData);
             clearErrors();
             showLoading();
-            $.post($this.inquiryAction, $formData, function (data) {
+            $.postJSON($this.inquiryAction, $formData, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     alert(data.message);
@@ -124,7 +124,7 @@
                 if (confirm('確定刪除此項目?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post($inquiryAgent.deleteAction, { 'keyID': keyID, 'displayType':@((int)Naming.FieldDisplayType.Edit) }, function (data) {
+                    $.postJSON($inquiryAgent.deleteAction, { 'keyID': keyID, 'displayType':@((int)Naming.FieldDisplayType.Edit) }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -143,7 +143,7 @@
         $(function () {
             $inquiryAgent.loadItem = function (viewModel, onload) {
                 showLoading();
-                $.post($inquiryAgent.loadAction, viewModel, function (data) {
+                $.postJSON($inquiryAgent.loadAction, viewModel, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
@@ -200,7 +200,7 @@
                 var viewModel = $tr.find('input,select,textArea').serializeObject();
                 viewModel.keyID = keyID;
                 clearErrors();
-                $.post($inquiryAgent.commitAction, viewModel, function (data) {
+                $.postJSON($inquiryAgent.commitAction, viewModel, function (data) {
                     if ($.isPlainObject(data)) {
                         if (data.result) {
                             $inquiryAgent.dataItem(data, $tr, function () {
@@ -241,7 +241,7 @@
 
                 clearErrors();
                 showLoading();
-                $.post($inquiryAgent.downloadAction, $formData, function (data) {
+                $.postJSON($inquiryAgent.downloadAction, $formData, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         if (data.message != undefined) {

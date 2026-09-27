@@ -186,9 +186,11 @@ namespace InvoiceClient.Agent
                 //Thread.Sleep(Settings.Default.WatcherProcessDelayInSeconds * 1000);
                 String[] files;
                 bool done = false;
+                var delayThreshold = DateTime.Now.AddSeconds(-Settings.Default.WaitingSeconds);
                 do
                 {
-                    files = Directory.GetFiles(/*_watcher.Path*/_requestPath);
+                    files = Directory.GetFiles(/*_watcher.Path*/_requestPath).Where(f => File.GetLastAccessTime(f) <= delayThreshold)
+                        .ToArray();
                     if (files != null && files.Count() > 0)
                     {
                         done = true;
@@ -229,6 +231,9 @@ namespace InvoiceClient.Agent
                         items = Directory.EnumerateFiles(/*_watcher.Path*/_requestPath, "*.*", SearchOption.AllDirectories);
                         foreach (String fullPath in items)
                         {
+                            if(File.GetLastAccessTime(fullPath) > delayThreshold)
+                                continue;
+
                             hasFile = true;
                             done = true;
                             processFile(fullPath);

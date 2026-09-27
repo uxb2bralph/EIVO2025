@@ -59,8 +59,13 @@ namespace WebHome.Controllers
             return View();
         }
 
-        public ActionResult ListCertificate(CertQueryViewModel viewModel)
+        public ActionResult ListCertificate([FromJsonOrForm] CertQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             if (viewModel.CertStoreLocation.HasValue && viewModel.CertStoreName.HasValue)
             {
@@ -75,8 +80,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CreateSignature(OrganizationViewModel viewModel)
+        public ActionResult CreateSignature([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             Response.ContentType = "text/xml";
 
             OrganizationToken item = null;

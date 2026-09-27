@@ -325,7 +325,7 @@ namespace WebHome.Controllers.Accounting
                 String fileName = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, $"{DateTime.Now.Ticks}_{Path.GetFileName(file.FileName)}");
                 file.SaveAs(fileName);
 
-                using (var ds = fileName.ImportExcelXLS())
+                using (var ds = fileName.ImportExcelByClosedXML())
                 {
                     DataTable table;
                     if (ds.Tables.Count == 0
@@ -374,7 +374,7 @@ namespace WebHome.Controllers.Accounting
                 }
 
                 return View("~/Views/Shared/Module/PromptFileDownload.cshtml", 
-                    File(fileName, "application/octet-stream", "匯率資料(回應).xlsx"));
+                    PhysicalFile(fileName, "application/octet-stream", "匯率資料(回應).xlsx"));
 
             }
             catch (Exception ex)

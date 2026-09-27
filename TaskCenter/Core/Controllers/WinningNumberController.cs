@@ -358,7 +358,7 @@ namespace TaskCenter.Core.Controllers
                 models!.GetTable<ProcessRequest>().Add(processItem);
                 models.SubmitChanges();
 
-                // 背景處理（沿用舊版 Task.Run；使用獨立 DbContext 避免與請求範圍衝突）。
+                // 背景處理（沿用舊版 ProcessRequest.Run；使用獨立 DbContext 避免與請求範圍衝突）。
                 ProcessWinningNoExcel(processItem.TaskID, responsePath, requestPath);
 
                 return CreateSuccessResponse(
@@ -402,8 +402,8 @@ namespace TaskCenter.Core.Controllers
                 new WinningNoProcessStatusDto
                 {
                     Completed = completed,
-                    Failed = taskItem.Log != null,
-                    Message = taskItem.Log?.DataContent,
+                    Failed = taskItem.ExceptionLog != null,
+                    Message = taskItem.ExceptionLog?.DataContent,
                 },
                 "Common.Retrieved");
         }
@@ -468,7 +468,7 @@ namespace TaskCenter.Core.Controllers
                 try
                 {
                     using var db = new GenericDbContext<ApplicationDbContext>(new ApplicationDbContext());
-                    using var ds = excelPath.ImportExcelXLS();
+                    using var ds = excelPath.ImportExcelByClosedXML();
 
                     Exception? exception = null;
                     if (ds.Tables.Count > 0)
@@ -542,7 +542,7 @@ namespace TaskCenter.Core.Controllers
                     {
                         if (exception != null)
                         {
-                            taskItem.Log = new ExceptionLog { DataContent = exception.Message };
+                            taskItem.ExceptionLog = new ExceptionLog { DataContent = exception.Message };
                         }
                         taskItem.ProcessComplete = DateTime.Now;
                         db.SubmitChanges();

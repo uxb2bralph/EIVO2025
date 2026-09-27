@@ -35,7 +35,7 @@ namespace WebHome.Controllers
         }
 
         // GET: Handling
-        public ActionResult DisableCompany(int companyID)
+        public ActionResult DisableCompany([FromJsonOrForm] int companyID)
         {
             updateCompanyStatus(companyID, Naming.MemberStatusDefinition.Mark_To_Delete);
             return View("Index");
@@ -65,13 +65,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult EnableCompany(int companyID)
+        public ActionResult EnableCompany([FromJsonOrForm] int companyID)
         {
             updateCompanyStatus(companyID, Naming.MemberStatusDefinition.Checked);
             return View("Index");
         }
 
-        public ActionResult ApplyRelationship(int companyID)
+        public ActionResult ApplyRelationship([FromJsonOrForm] int companyID)
         {
             var item = models.GetTable<Organization>().Where(o => o.CompanyID == companyID).FirstOrDefault();
             if (item == null)
@@ -100,8 +100,13 @@ namespace WebHome.Controllers
             return View("Index");
         }
 
-        public ActionResult CommitMasterOrganization(QueryViewModel viewModel)
+        public ActionResult CommitMasterOrganization([FromJsonOrForm] QueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             int? companyID = null;
             if (viewModel.KeyID != null)
             {
@@ -133,14 +138,19 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult MailTracking(MailTrackingViewModel viewModel)
+        public ActionResult MailTracking([FromJsonOrForm] MailTrackingViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             return View("~/Views/Handling/InvoiceMailTracking.cshtml");
         }
 
-        public ActionResult InquireToTrackMail(MailTrackingViewModel viewModel)
+        public ActionResult InquireToTrackMail([FromJsonOrForm] MailTrackingViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             viewModel.StartNo = viewModel.StartNo.GetEfficientString();
             viewModel.EndNo = viewModel.EndNo.GetEfficientString();
@@ -306,24 +316,24 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult InvoiceMailItems(bool? showTable, int[] id, int[] packageID)
+        public ActionResult InvoiceMailItems([FromJsonOrForm] bool? showTable, [FromJsonOrForm] int[] id, [FromJsonOrForm] int[] packageID)
         {
             List<InvoiceItem> items = new List<InvoiceItem>();
             if (id != null && id.Length > 0)
             {
                 for (int idx = 0; idx < id.Length; idx++)
                 {
-                    var item = models.GetTable<InvoiceItem>().Where(i => i.InvoiceID == id[idx]).FirstOrDefault();
+                    var item = models!.GetTable<InvoiceItem>().Where(i => i.InvoiceID == id[idx]).FirstOrDefault();
                     if (item != null)
                     {
                         item.PackageID = packageID[idx];
+                        items.Add(item);
                     }
-                    items.Add(item);
                 }
             }
             else
             {
-                items = models.GetTable<InvoiceItem>().Where(i => false).ToList();
+                items = models!.GetTable<InvoiceItem>().Where(i => false).ToList();
             }
 
             if (showTable == true)
@@ -336,7 +346,7 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult PackInvoice(int[] id)
+        public ActionResult PackInvoice([FromJsonOrForm] int[] id)
         {
             IQueryable<InvoiceItem> items;
             if (id != null && id.Length > 0)
@@ -359,8 +369,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult CommitMailTracking(String jsonData, int? deliveryStatus)
+        public ActionResult CommitMailTracking([FromJsonOrForm] String jsonData, int? deliveryStatus)
         {
+            if (jsonData == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             var items = JsonConvert.DeserializeObject<MailTrackingCsvViewModel[]>(jsonData);
             if (items == null || items.Length == 0)
             {
@@ -493,8 +508,13 @@ namespace WebHome.Controllers
             return new EmptyResult();
         }
 
-        public ActionResult GeneratePostData(String jsonData) //Amy-1121114-郵政資訊
+        public ActionResult GeneratePostData([FromJsonOrForm] String jsonData) //Amy-1121114-郵政資訊
         {
+            if (jsonData == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             var items = JsonConvert.DeserializeObject<MailTrackingCsvViewModel[]>(jsonData);
             models.ExecuteCommand("delete DocumentPostLog ");
 

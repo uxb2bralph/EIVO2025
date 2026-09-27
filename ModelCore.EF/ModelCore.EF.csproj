@@ -33,10 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DataEntity\TurnKey2.dbml">
-      <Generator>MSLinqToSQLGenerator</Generator>
-      <LastGenOutput>TurnKey2.designer.cs</LastGenOutput>
-    </None>
     <None Update="Schema\dsUserProfile.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>dsUserProfile.Designer.cs</LastGenOutput>
@@ -48,11 +44,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="DataEntity\TurnKey2.designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>TurnKey2.dbml</DependentUpon>
-    </Compile>
     <Compile Update="Schema\dsUserProfile.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

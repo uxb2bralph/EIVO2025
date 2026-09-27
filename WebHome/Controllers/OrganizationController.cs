@@ -69,8 +69,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult EditItem(OrganizationViewModel viewModel)
+        public ActionResult EditItem([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             Organization item = null;
             if (viewModel.KeyID != null)
             {
@@ -84,8 +89,13 @@ namespace WebHome.Controllers
             return View("~/Views/Organization/Module/EditItem.cshtml", item);
         }
 
-        public ActionResult CommitItem(OrganizationViewModel viewModel)
+        public ActionResult CommitItem([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             Organization item = viewModel.CommitOrganizationViewModel(models, ModelState);
 
@@ -98,8 +108,13 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult CommitBusiness(OrganizationViewModel viewModel)
+        public ActionResult CommitBusiness([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             Organization item = viewModel.CommitOrganizationViewModelForBusiness(models, ModelState);
 
@@ -113,8 +128,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult ApplyIssuerAgent(OrganizationViewModel viewModel)
+        public ActionResult ApplyIssuerAgent([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -132,8 +152,13 @@ namespace WebHome.Controllers
             return View("~/Views/Organization/Module/ApplyIssuerAgent.cshtml", item);
         }
 
-        public ActionResult ApplyMaster(OrganizationViewModel viewModel)
+        public ActionResult ApplyMaster([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             var result = ApplyIssuerAgent(viewModel);
             Organization? item = (result as ViewResult)?.Model as Organization;
             if (item != null)
@@ -144,8 +169,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult ApplyBillingPlan(OrganizationViewModel viewModel)
+        public ActionResult ApplyBillingPlan([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization item = result.Model as Organization;
             if (item == null)
@@ -186,8 +216,13 @@ namespace WebHome.Controllers
 
             return false;
         }
-        public ActionResult CommitIssuerAgent(OrganizationViewModel viewModel, List<int>? agentID)
+        public ActionResult CommitIssuerAgent([FromJsonOrForm] OrganizationViewModel viewModel, List<int>? agentID)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization? item = result.Model as Organization;
 
@@ -298,8 +333,13 @@ namespace WebHome.Controllers
             return result;
         }
 
-        public ActionResult CommitMaster(OrganizationViewModel viewModel, int[]? masterID)
+        public ActionResult CommitMaster([FromJsonOrForm] OrganizationViewModel viewModel, int[]? masterID)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization item = result.Model as Organization;
 
@@ -332,8 +372,13 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult CommitBillingPlan(OrganizationViewModel viewModel)
+        public ActionResult CommitBillingPlan([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization item = result.Model as Organization;
 
@@ -470,8 +515,13 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult CloneBillingPlan(OrganizationViewModel viewModel)
+        public ActionResult CloneBillingPlan([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             Organization? item = null;
@@ -518,8 +568,13 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult ApplyHeadquarter(OrganizationViewModel viewModel)
+        public ActionResult ApplyHeadquarter([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             Organization? item = null;
@@ -540,8 +595,13 @@ namespace WebHome.Controllers
             return Json(new { result = true, message = result });
         }
 
-        public ActionResult RevokeHeadquarter(OrganizationViewModel viewModel)
+        public ActionResult RevokeHeadquarter([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             Organization item = null;
@@ -558,8 +618,13 @@ namespace WebHome.Controllers
             return Json(new { result = true, message = result });
         }
 
-        public ActionResult ProcessHeadquarter(OrganizationViewModel viewModel)
+        public ActionResult ProcessHeadquarter([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             Organization item = null;
@@ -574,8 +639,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult GatewaySettings(OrganizationViewModel viewModel)
+        public ActionResult GatewaySettings([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization item = result.Model as Organization;
             if (item == null)
@@ -584,8 +654,13 @@ namespace WebHome.Controllers
             return View("~/Views/Organization/Module/GatewaySettings.cshtml", item);
         }
 
-        public ActionResult CommitDefaultProcessType(OrganizationViewModel viewModel)
+        public ActionResult CommitDefaultProcessType([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization item = result.Model as Organization;
             if (item == null)
@@ -597,8 +672,13 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult CommitInvoiceNoSafetyStock(OrganizationViewModel viewModel)
+        public ActionResult CommitInvoiceNoSafetyStock([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ApplyIssuerAgent(viewModel);
             Organization item = result.Model as Organization;
             if (item == null)
@@ -610,8 +690,13 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult CustomSettings(CustomSmtpHostDto viewModel)
+        public ActionResult CustomSettings([FromJsonOrForm] CustomSmtpHostDto viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             Organization item = null;
             if (viewModel.KeyID != null)
             {
@@ -623,8 +708,13 @@ namespace WebHome.Controllers
             return View("~/Views/Organization/Module/CustomSettings.cshtml", item);
         }
 
-        public ActionResult CommitSmtpSettings(CustomSmtpHostDto viewModel)
+        public ActionResult CommitSmtpSettings([FromJsonOrForm] CustomSmtpHostDto viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             CustomSmtpHost item = viewModel.CommitCustomSmtpHost(models, ModelState);
 
@@ -637,8 +727,13 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult DisableSmtpSettings(CustomSmtpHostDto viewModel)
+        public ActionResult DisableSmtpSettings([FromJsonOrForm] CustomSmtpHostDto viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -655,8 +750,13 @@ namespace WebHome.Controllers
             return Json(new { result = true, recordCount });
         }
 
-        public ActionResult LoadSmtpSettings(CustomSmtpHostDto viewModel)
+        public ActionResult LoadSmtpSettings([FromJsonOrForm] CustomSmtpHostDto viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var item = viewModel.LoadCustomSmtpHostFor(models);
 

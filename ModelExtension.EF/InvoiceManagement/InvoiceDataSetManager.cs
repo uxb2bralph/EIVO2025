@@ -35,9 +35,9 @@ namespace ModelCore.InvoiceManagement
         public DataTable InitializeInvoiceResponseTable()
         {
             DataTable table = new DataTable();
-            table.Columns.Add(new DataColumn("CDS_Document No", typeof(String)));
+            table.Columns.Add(new DataColumn("Invoice No", typeof(String)));
             table.Columns.Add(new DataColumn("Data ID", typeof(String)));
-            table.Columns.Add(new DataColumn("CDS_Document Date", typeof(DateTime)));
+            table.Columns.Add(new DataColumn("Invoice Date", typeof(DateTime)));
             table.Columns.Add(new DataColumn("Status Code", typeof(int)));
             table.Columns.Add(new DataColumn("Description", typeof(String)));
             table.Columns.Add(new DataColumn("Seller ID", typeof(String)));
@@ -86,12 +86,12 @@ namespace ModelCore.InvoiceManagement
 
             DataTable result = InitializeInvoiceResponseTable();
 
-            IEnumerable<DataRow> invoiceItems = (item.Tables["CDS_Document"] ?? item.Tables[0])?.Rows.Cast<DataRow>();
+            IEnumerable<DataRow> invoiceItems = (item.Tables["Invoice"] ?? item.Tables[0])?.Rows.Cast<DataRow>();
             IEnumerable<DataRow> details = (item.Tables["Details"] ?? item.Tables[1])?.Rows.Cast<DataRow>();
 
             if (invoiceItems == null || details == null)
             {
-                throw new Exception("Bad CDS_Document Data Sheets");
+                throw new Exception("Bad Invoice Data Sheets");
             }            //String dataID = "";
             //foreach (DataRow row in details)
             //{
@@ -218,12 +218,12 @@ namespace ModelCore.InvoiceManagement
 
             DataTable result = InitializeInvoiceResponseTable();
 
-            IEnumerable<DataRow> invoiceItems = (item.Tables["CDS_Document"] ?? item.Tables[0])?.Rows.Cast<DataRow>();
+            IEnumerable<DataRow> invoiceItems = (item.Tables["Invoice"] ?? item.Tables[0])?.Rows.Cast<DataRow>();
             IEnumerable<DataRow> details = (item.Tables["Details"] ?? item.Tables[1])?.Rows.Cast<DataRow>();
 
             if (invoiceItems == null || details == null)
             {
-                throw new Exception("Bad CDS_Document Data Sheets");
+                throw new Exception("Bad Invoice Data Sheets");
             }
             //String dataID = "";
             //foreach (DataRow row in details)
@@ -347,12 +347,12 @@ namespace ModelCore.InvoiceManagement
 
             DataTable result = InitializeInvoiceResponseTable();
 
-            IEnumerable<DataRow> invoiceItems = (item.Tables["CDS_Document"] ?? item.Tables[0])?.Rows.Cast<DataRow>();
+            IEnumerable<DataRow> invoiceItems = (item.Tables["Invoice"] ?? item.Tables[0])?.Rows.Cast<DataRow>();
             IEnumerable<DataRow> details = (item.Tables["Details"] ?? item.Tables[1])?.Rows.Cast<DataRow>();
 
             if (invoiceItems == null || details == null)
             {
-                throw new Exception("Bad CDS_Document Data Sheets");
+                throw new Exception("Bad Invoice Data Sheets");
             }
 
             String invoiceNo = "";

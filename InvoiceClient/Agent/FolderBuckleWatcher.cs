@@ -43,7 +43,7 @@ namespace InvoiceClient.Agent
                 {
                     _waitCycle++;
                     Console.WriteLine($"fewer count:{files.Length}");
-                    Task.Delay(Settings.Default.WaitForInvoicePDFInSeconds * 1000).Wait();
+                    Task.Delay(Settings.Default.WaitingSeconds * 1000).Wait();
                     return;
                 }
 

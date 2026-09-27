@@ -42,7 +42,6 @@ namespace InvoiceClient.Agent
                 Naming.InvoiceProcessType.F0501,
                 Naming.InvoiceProcessType.G0401,
                 Naming.InvoiceProcessType.G0501,
-                Naming.InvoiceProcessType.C0401,
                 Naming.InvoiceProcessType.C0501,
                 Naming.InvoiceProcessType.A0401,
                 Naming.InvoiceProcessType.A0501,

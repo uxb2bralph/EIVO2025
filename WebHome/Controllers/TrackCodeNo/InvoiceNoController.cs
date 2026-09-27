@@ -64,14 +64,14 @@ namespace WebHome.Controllers.TrackCodeNo
             return View("~/Views/InvoiceNo/Module/QueryResult.cshtml", items);
         }
 
-        public ActionResult DownloadE0401(InquireNoIntervalViewModel viewModel)
+        public ActionResult DownloadE0401([FromJsonOrForm] InquireNoIntervalViewModel viewModel)
         {
             var profile = HttpContext.GetUser();
 
             ViewBag.ViewModel = viewModel;
 
             //原本以 _dbInstance = false 阻止請求結束時釋放 DbContext，
-            //供 DownloadE0401(.Query).cshtml 的 Task.Run 續用；兩者已改為背景作業自建 DbContext，
+            //供 DownloadE0401(.Query).cshtml 的 ProcessRequest.Run 續用；兩者已改為背景作業自建 DbContext，
             //這裡恢復正常釋放。
             IQueryable<InvoiceNoMainAssignment> items = viewModel.InquireHeaquarterNoAssignment(models!);
             if (items.Any())
@@ -323,7 +323,7 @@ namespace WebHome.Controllers.TrackCodeNo
             }
         }
 
-        public ActionResult LockInterval(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult LockInterval([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval model = result.Model as InvoiceNoInterval;
@@ -339,7 +339,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult CommitItem(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult CommitItem([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval model = result.Model as InvoiceNoInterval;
@@ -400,7 +400,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult ApplyHeadquarter(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult ApplyHeadquarter([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval? model = result.Model as InvoiceNoInterval;
@@ -430,7 +430,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult ApplyBranch(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult ApplyBranch([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)ApplyHeadquarter(viewModel);
             InvoiceNoInterval? model = result.Model as InvoiceNoInterval;
@@ -444,7 +444,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult CommitBranch([FromBody]InvoiceNoIntervalViewModel viewModel)
+        public ActionResult CommitBranch([FromJsonOrForm]InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval? model = result.Model as InvoiceNoInterval;
@@ -503,7 +503,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult EditNoInterval(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult EditNoInterval([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel.KeyID != null)
@@ -532,7 +532,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult DeleteNoInterval(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult DeleteNoInterval([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval item = result.Model as InvoiceNoInterval;
@@ -554,7 +554,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult SplitNoInterval(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult SplitNoInterval([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval item = result.Model as InvoiceNoInterval;
@@ -598,7 +598,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult CommitAllotment(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult CommitAllotment([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval item = result.Model as InvoiceNoInterval;
@@ -643,7 +643,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult AllotInterval(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult AllotInterval([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval item = result.Model as InvoiceNoInterval;
@@ -656,7 +656,7 @@ namespace WebHome.Controllers.TrackCodeNo
         }
 
 
-        public ActionResult IntervalItem(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult IntervalItem([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewResult result = (ViewResult)EditNoInterval(viewModel);
             InvoiceNoInterval item = result.Model as InvoiceNoInterval;
@@ -667,7 +667,7 @@ namespace WebHome.Controllers.TrackCodeNo
             return View("~/Views/InvoiceNo/Module/DataItem.cshtml", item);
         }
 
-        public ActionResult TrackCodeSelector(InquireNoIntervalViewModel viewModel)
+        public ActionResult TrackCodeSelector([FromJsonOrForm] InquireNoIntervalViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             return View("~/Views/InvoiceNo/Module/TrackCodeSelector.cshtml");
@@ -717,7 +717,7 @@ namespace WebHome.Controllers.TrackCodeNo
 
         }
 
-        public ActionResult EditPOSBooklets(InvoiceNoIntervalViewModel viewModel)
+        public ActionResult EditPOSBooklets([FromJsonOrForm] InvoiceNoIntervalViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             var item = models.GetTable<InvoiceNoInterval>().Where(i => i.IntervalID == viewModel.IntervalID).FirstOrDefault();
@@ -756,7 +756,7 @@ namespace WebHome.Controllers.TrackCodeNo
                 file.SaveAs(fileName);
 
                 List<UploadInvoiceTrackCodeModel> items;
-                using (var ds = fileName.ImportExcelXLS())
+                using (var ds = fileName.ImportExcelByClosedXML())
                 {
                     if (ds.Tables.Count == 0)
                     {
@@ -997,17 +997,22 @@ namespace WebHome.Controllers.TrackCodeNo
         /// </summary>
         /// <param name="viewModel"></param>
         /// <returns></returns>
-        public ActionResult CommitUpload(QueryViewModel viewModel)
+        public ActionResult CommitUpload([FromJsonOrForm] QueryViewModel viewModel)
         {
             // 取畫面資料
             if (viewModel.KeyItems != null && viewModel.KeyItems.Length > 0)
             {
-                List<UploadInvoiceTrackCodeModel> items = viewModel.KeyItems
+                List<UploadInvoiceTrackCodeModel?> items = viewModel.KeyItems
                     .Select(k => JsonConvert.DeserializeObject<UploadInvoiceTrackCodeModel>(k.DecryptData()))
                     .ToList();
 
                 foreach(var item in items)
                 {
+                    if(item == null)
+                    {
+                        continue;
+                    }
+
                     ModelState.Clear();
                     CommitItem(item);
                     if(!ModelState.IsValid)

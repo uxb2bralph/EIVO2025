@@ -1303,6 +1303,22 @@ namespace CommonLib.Utility
             return Newtonsoft.Json.JsonConvert.SerializeObject(model, CommonJsonSettings);
         }
 
+        /// <summary>
+        /// 只輸出第一層純量欄位的序列化設定，導覽屬性與集合一律略過，
+        /// 可避免 EF Core lazy-loading proxy（Castle.Proxies.*）造成的循環參考與額外查詢。
+        /// </summary>
+        public static Newtonsoft.Json.JsonSerializerSettings ShallowJsonSettings = new Newtonsoft.Json.JsonSerializerSettings
+        {
+            NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore,
+            ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
+            ContractResolver = new ShallowJsonContractResolver(),
+        };
+
+        public static String JsonStringifyShallow(this Object model)
+        {
+            return Newtonsoft.Json.JsonConvert.SerializeObject(model, ShallowJsonSettings);
+        }
+
         public static String Mask(this String source,int start, int length, char mask)
         {
             return (new StringBuilder(source)).Mask(start, length, mask).ToString();
@@ -1374,6 +1390,44 @@ namespace CommonLib.Utility
                 }
             }
             return sb.ToString();
+        }
+    }
+
+    /// <summary>
+    /// 只序列化第一層純量屬性的 ContractResolver。
+    /// 所有複雜型別（導覽屬性、集合）在序列化前即被排除，因此不會觸發 EF Core lazy loading，
+    /// 也就不會出現 "Self referencing loop detected with type 'Castle.Proxies.*'"。
+    /// </summary>
+    public class ShallowJsonContractResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
+    {
+        protected override Newtonsoft.Json.Serialization.JsonProperty CreateProperty(MemberInfo member, Newtonsoft.Json.MemberSerialization memberSerialization)
+        {
+            var property = base.CreateProperty(member, memberSerialization);
+            if (!IsScalar(property.PropertyType))
+            {
+                property.ShouldSerialize = _ => false;
+            }
+            return property;
+        }
+
+        protected static bool IsScalar(Type type)
+        {
+            if (type == null)
+            {
+                return false;
+            }
+
+            type = Nullable.GetUnderlyingType(type) ?? type;
+            return type.IsPrimitive
+                || type.IsEnum
+                || type == typeof(String)
+                || type == typeof(Decimal)
+                || type == typeof(DateTime)
+                || type == typeof(DateTimeOffset)
+                || type == typeof(TimeSpan)
+                || type == typeof(Guid)
+                || type == typeof(Uri)
+                || type == typeof(byte[]);
         }
     }
 

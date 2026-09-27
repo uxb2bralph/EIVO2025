@@ -43,11 +43,13 @@
         <br />
         @if (_viewModel.ResetPass == true)
         {
-            <span>密碼變更連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("ResetPassword","UserProfile",new { _viewModel.ResetID })}")'> 會員密碼變更 </a>
+            var action = Url.Action("ResetPassword", "UserProfile", new { _viewModel.ResetID });
+            <span>密碼變更連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{action}")'> 會員密碼變更 </a>
         }
         else
         {
-            <span>帳號啟用連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("ResetPassword","UserProfile",new { _viewModel.ResetID })}")'> 會員帳號啟用 </a>
+            var action = Url.Action("ActivateAccount", "UserProfile", new { _viewModel.ResetID });
+            <span>帳號啟用連結：</span><a href='@($"{ ModelExtension.Properties.AppSettings.Default.HostUrl}{action}")'> 會員帳號啟用 </a>
         }
         <br />
         <br />

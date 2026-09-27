@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.IO
 @using System.Linq.Expressions
@@ -131,7 +131,7 @@
                 var $formData = $tr.find('input,select,textarea').serializeObject();
                 $formData.keyID = keyID;
                 clearErrors();
-                $.post('@(Url.Action("CommitItem","InvoiceNo"))', $formData, function (data) {
+                $.postJSON('@(Url.Action("CommitItem","InvoiceNo"))', $formData, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -173,7 +173,7 @@
                 var event = event || window.event;
                 var $formData = $('#queryArea').find('input,select,textarea').serializeObject();
                 showLoading();
-                $.post('@(Url.Action("DownloadE0401","InvoiceNo"))', $formData, function (data) {
+                $.postJSON('@(Url.Action("DownloadE0401","InvoiceNo"))', $formData, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         if (data.message != undefined) {
@@ -187,7 +187,7 @@
             editItem: function (keyID) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("EditNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                $.postJSON('@(Url.Action("EditNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -204,7 +204,7 @@
                 if (confirm('確定刪除此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("DeleteNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                    $.postJSON('@(Url.Action("DeleteNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -218,7 +218,7 @@
                 if (confirm('確定' + (lock ? '鎖定' : '解除鎖定') + '此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("LockInterval", "InvoiceNo"))', { 'keyID': keyID, 'lockID': lock }, function (data) {
+                    $.postJSON('@(Url.Action("LockInterval", "InvoiceNo"))', { 'keyID': keyID, 'lockID': lock }, function (data) {
                         if ($.isPlainObject(data)) {
                             alert(data.message);
                         } else {
@@ -238,7 +238,7 @@
             showItem: function (keyID) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("IntervalItem","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                $.postJSON('@(Url.Action("IntervalItem","InvoiceNo"))', { 'keyID': keyID }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -255,7 +255,7 @@
                 if (confirm('確定分割此配號區間?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("SplitNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                    $.postJSON('@(Url.Action("SplitNoInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
                         if (data.result) {
                             alert('配號區間已分割!!')
                             uiTrackCodeNo.inquire();
@@ -268,13 +268,13 @@
                 }
             },
             assignPOSBooklets: function (value) {
-                $.post('@(Url.Action("EditPOSBooklets","InvoiceNo"))', { 'intervalID': value }, function (data) {
+                $.postJSON('@(Url.Action("EditPOSBooklets","InvoiceNo"))', { 'intervalID': value }, function (data) {
                     $global.createTab('editPOSInterval', 'POS本組數配置', data, true);
                 });
             },
             allotInterval: function (keyID) {
                 showLoading();
-                $.post('@(Url.Action("AllotInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                $.postJSON('@(Url.Action("AllotInterval","InvoiceNo"))', { 'keyID': keyID }, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);
@@ -287,7 +287,7 @@
                 if (confirm('確定指定此筆資料為主機構配號?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("ApplyHeadquarter", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                    $.postJSON('@(Url.Action("ApplyHeadquarter", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                         if ($.isPlainObject(data)) {
                             alertModal(data.message);
                         } else {
@@ -307,7 +307,7 @@
             applyBranch: function (keyID) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("ApplyBranch", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
+                $.postJSON('@(Url.Action("ApplyBranch", "InvoiceNo"))', { 'keyID': keyID }, function (data) {
                     if ($.isPlainObject(data)) {
                         alertModal(data.message);
                     } else {

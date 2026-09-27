@@ -486,6 +486,170 @@ namespace CommonLib.Core.Utility
             return output;
         }
 
+        /// <summary>
+        /// 以 ClosedXML 讀取 Excel 檔案並轉為 <see cref="DataSet"/>，取代需要安裝 Microsoft OleDb 驅動程式的
+        /// <see cref="ImportExcelXLS(string, bool)"/>。
+        /// </summary>
+        /// <param name="FileName">Excel 檔案完整路徑，僅支援 OpenXML 格式(.xlsx / .xlsm)。</param>
+        /// <param name="hasHeaders">true(預設) 表示每張工作表的第一列為欄位名稱；false 則以 F1、F2... 命名。</param>
+        /// <remarks>
+        /// 與 OleDb 版本的行為差異：
+        /// 1. 工作表順序為活頁簿的實際順序(OleDb 版本為工作表名稱的反向排序)。
+        /// 2. 工作表名稱沿用 OleDb 慣例加上「$」後綴，既有以 TableName 比對的程式碼不需修改。
+        /// 3. 欄位型別一律為 object，不做整欄型別推測，因此不會出現 OleDb 混合型別欄位取樣後把值變成 null 的狀況；
+        ///    數值為 double、日期為 DateTime、空白與錯誤值為 <see cref="DBNull"/>。
+        /// 4. 完全空白的資料列會略過。
+        /// </remarks>
+        public static DataSet ImportExcelByClosedXML(this string FileName, bool hasHeaders = true)
+        {
+            if (FileName.EndsWith(".xls", StringComparison.OrdinalIgnoreCase))
+            {
+                ///訊息會經由匯入功能回報給使用者，僅顯示檔名避免揭露伺服器路徑
+                throw new NotSupportedException(
+                    $"ClosedXML 僅支援 OpenXML 格式(.xlsx / .xlsm)，無法讀取舊版 .xls 檔案：{Path.GetFileName(FileName)}");
+            }
+
+            using (var workbook = new ClosedXML.Excel.XLWorkbook(FileName))
+            {
+                return workbook.ToDataSet(hasHeaders);
+            }
+        }
+
+        /// <summary>
+        /// 以 ClosedXML 讀取 Excel 資料流並轉為 <see cref="DataSet"/>，適用於上傳檔案不落地的情境。
+        /// </summary>
+        public static DataSet ImportExcelByClosedXML(this Stream stream, bool hasHeaders = true)
+        {
+            using (var workbook = new ClosedXML.Excel.XLWorkbook(stream))
+            {
+                return workbook.ToDataSet(hasHeaders);
+            }
+        }
+
+        /// <summary>
+        /// 將 ClosedXML 活頁簿的每一張工作表(依活頁簿順序)轉為一張 <see cref="DataTable"/>。
+        /// </summary>
+        public static DataSet ToDataSet(this ClosedXML.Excel.IXLWorkbook workbook, bool hasHeaders = true)
+        {
+            DataSet output = new DataSet();
+
+            foreach (var sheet in workbook.Worksheets)
+            {
+                DataTable table = new DataTable($"{sheet.Name}$");
+                output.Tables.Add(table);
+
+                ///僅取有內容的範圍，工作表全空時不建立任何欄位
+                var range = sheet.RangeUsed();
+                if (range == null)
+                {
+                    continue;
+                }
+
+                int columnCount = range.ColumnCount();
+                bool headerRowPending = hasHeaders;
+
+                foreach (var row in range.Rows())
+                {
+                    if (headerRowPending)
+                    {
+                        headerRowPending = false;
+                        for (int idx = 1; idx <= columnCount; idx++)
+                        {
+                            table.Columns.Add(new DataColumn(
+                                BuildExcelColumnName(table, GetExcelCellValue(row.Cell(idx)), idx), typeof(object)));
+                        }
+                        continue;
+                    }
+
+                    if (table.Columns.Count == 0)
+                    {
+                        for (int idx = 1; idx <= columnCount; idx++)
+                        {
+                            table.Columns.Add(new DataColumn($"F{idx}", typeof(object)));
+                        }
+                    }
+
+                    object[] values = new object[columnCount];
+                    bool hasValue = false;
+                    for (int idx = 1; idx <= columnCount; idx++)
+                    {
+                        values[idx - 1] = GetExcelCellValue(row.Cell(idx));
+                        hasValue = hasValue || values[idx - 1] != DBNull.Value;
+                    }
+
+                    ///略過完全空白(僅殘留格式)的資料列
+                    if (hasValue)
+                    {
+                        table.Rows.Add(values);
+                    }
+                }
+            }
+
+            return output;
+        }
+
+        /// <summary>
+        /// 取得標題列欄位名稱；空白標題以 F{欄序} 命名，重複名稱沿用 OleDb 作法於名稱後加序號。
+        /// </summary>
+        private static String BuildExcelColumnName(DataTable table, object headerValue, int columnIndex)
+        {
+            String? name = headerValue == DBNull.Value
+                ? null
+                : $"{headerValue}".GetEfficientString();
+
+            name ??= $"F{columnIndex}";
+
+            String unique = name;
+            for (int seq = 1; table.Columns.Contains(unique); seq++)
+            {
+                unique = $"{name}{seq}";
+            }
+            return unique;
+        }
+
+        /// <summary>
+        /// 讀取儲存格值：數值為 double、日期為 DateTime、時間為 TimeSpan、布林為 bool，
+        /// 空白與錯誤值(#VALUE! 等)一律回傳 <see cref="DBNull.Value"/>。
+        /// </summary>
+        private static object GetExcelCellValue(ClosedXML.Excel.IXLCell cell)
+        {
+            var value = cell.HasFormula ? cell.CachedValue : cell.Value;
+
+            ///公式優先取用存檔時的快取結果；無快取(如程式產生的檔案)時才交由 ClosedXML 計算
+            if (cell.HasFormula && (value.IsBlank || value.IsError))
+            {
+                try
+                {
+                    value = cell.Value;
+                }
+                catch (Exception ex)
+                {
+                    FileLogger.Logger.Error(ex);
+                }
+            }
+            switch (value.Type)
+            {
+                case ClosedXML.Excel.XLDataType.Blank:
+                case ClosedXML.Excel.XLDataType.Error:
+                    return DBNull.Value;
+
+                case ClosedXML.Excel.XLDataType.Boolean:
+                    return value.GetBoolean();
+
+                case ClosedXML.Excel.XLDataType.Number:
+                    return value.GetNumber();
+
+                case ClosedXML.Excel.XLDataType.DateTime:
+                    return value.GetDateTime();
+
+                case ClosedXML.Excel.XLDataType.TimeSpan:
+                    return value.GetTimeSpan();
+
+                default:
+                    return value.GetText().GetEfficientString() ?? (object)DBNull.Value;
+            }
+        }
+
         public static string ToQueryString(this object obj)
         {
             if (obj == null)

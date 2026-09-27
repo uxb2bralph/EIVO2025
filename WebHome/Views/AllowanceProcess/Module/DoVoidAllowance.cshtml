@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -32,7 +32,7 @@
         $(function () {
             $('#@(_viewID)').on('click', function (data) {
                 showLoading();
-                $.post('@Html.Raw(Url.Action("InvokeCommitAction","AllowanceProcess",new { _viewModel.CommitAction,_viewModel.ActionTitle }))', {}, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("InvokeCommitAction","AllowanceProcess",new { _viewModel.CommitAction,_viewModel.ActionTitle }))', {}, function (data) {
                     if ($.isPlainObject(data)) {
                         hideLoading();
                         alert(data.message);

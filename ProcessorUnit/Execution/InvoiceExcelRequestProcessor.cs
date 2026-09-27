@@ -45,14 +45,14 @@ namespace ProcessorUnit.Execution
         protected override void ProcessRequestItem()
         {
             ProcessRequest requestItem = queueItem.ProcessRequest;
-            String requestFile = requestItem.RequestPath.StoreTargetPath();
-            if (File.Exists(requestFile))
+            String? requestFile = requestItem?.RequestPath?.StoreTargetPath();
+            if (requestFile != null && File.Exists(requestFile))
             {
-                Organization agent = requestItem.Organization;
+                Organization? agent = requestItem!.Agent;
                 requestItem.ProcessStart = DateTime.Now;
                 models.SubmitChanges();
 
-                using (DataSet ds = requestFile.ImportExcelXLS())
+                using (DataSet ds = requestFile.ImportExcelByClosedXML())
                 {
                     int idx = 1;
                     var tables = ds.Tables.Cast<DataTable>().ToList();
@@ -90,7 +90,7 @@ namespace ProcessorUnit.Execution
                         xls.Worksheets.Add(ds);
 
                         String responseName = $"{Path.GetFileNameWithoutExtension(requestFile)}_Response.xlsx";
-                        String responsePath = Path.Combine(Path.GetDirectoryName(requestFile), responseName);
+                        String responsePath = Path.Combine(Path.GetDirectoryName(requestFile)!, responseName);
 
                         if (ProcessorUnit.Properties.AppSettings.Default.ResponsePath != null)
                         {

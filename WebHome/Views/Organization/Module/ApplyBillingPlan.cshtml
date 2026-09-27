@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -373,7 +373,7 @@
             viewModel.KeyID = '@(_viewModel.KeyID)';
             clearErrors();
             showLoading();
-            $.post('@(Url.Action("CommitBillingPlan","Organization"))', viewModel, function (data) {
+            $.postJSON('@(Url.Action("CommitBillingPlan","Organization"))', viewModel, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {

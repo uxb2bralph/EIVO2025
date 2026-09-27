@@ -74,7 +74,7 @@ namespace ModelCore.Service
                         db.SubmitChanges();
                     }
 
-                    using (DataSet ds = excelPath.ImportExcelXLS())
+                    using (DataSet ds = excelPath.ImportExcelByClosedXML())
                     {
                         Exception? exception = null;
                         if (ds.Tables.Count > 0)

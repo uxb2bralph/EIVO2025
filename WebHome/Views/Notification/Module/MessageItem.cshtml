@@ -88,7 +88,7 @@
             var $formData = $form.serializeObject();
             $formData.MailMessage = $('<div>').text($formData.MailMessage).html();
             showLoading();
-            $.post('@Html.Raw(Url.Action("CommitMessage","Notification"))', $formData, function (data) {
+            $.postJSON('@Html.Raw(Url.Action("CommitMessage","Notification"))', $formData, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {

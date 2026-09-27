@@ -6,6 +6,8 @@
 <script setup lang="ts">
 import { reactive, watch } from 'vue'
 import type { OrganizationEdit } from '@/services/organization-api'
+import E0501SettingsDialog from './E0501SettingsDialog.vue'
+import { useE0501Settings } from '@/composables/useE0501Settings'
 
 const props = defineProps<{
   /** 後端載入的營業人編輯資料 */
@@ -18,6 +20,24 @@ const emit = defineEmits<{
   (e: 'save', payload: OrganizationEdit): void
   (e: 'cancel'): void
 }>()
+
+// E0501 取號設定（遷移自舊版 ItemForm.cshtml 之 applyE0501）；沿用舊版獨立載入 / 儲存，與本表單的存檔分開。
+const {
+  e0501Visible,
+  e0501Loading,
+  e0501Saving,
+  e0501Error,
+  e0501Message,
+  e0501CompanyName,
+  e0501Data,
+  branchDownloading,
+  branchUploading,
+  openE0501,
+  closeE0501,
+  saveE0501,
+  downloadBranchTemplate,
+  uploadBranchAssignmentsFile,
+} = useE0501Settings()
 
 // 類別選項（對應舊版 OrganizationCategoryOptions.cshtml）
 const categoryOptions = [
@@ -140,9 +160,20 @@ function onSubmit() {
             </option>
           </select>
         </div>
-        <div class="field col-span-2">
+        <div class="field">
           <label>營業人店號／別名</label>
           <input v-model="form.customerNo" type="text" maxlength="16" class="form-control" />
+        </div>
+        <!-- E0501 取號設定（遷移自舊版 ItemForm.cshtml 之 applyE0501 按鈕）；新增中的營業人尚無 keyId 故不提供 -->
+        <div v-if="form.keyId" class="field action-field">
+          <label>E0501自動取號</label>
+          <button
+            type="button"
+            class="btn ghost"
+            @click="openE0501(form.keyId, form.companyName)"
+          >
+            E0501取號設定
+          </button>
         </div>
       </div>
     </section>
@@ -279,6 +310,23 @@ function onSubmit() {
       </button>
       <button type="button" class="btn ghost" :disabled="saving" @click="emit('cancel')">取消</button>
     </div>
+
+    <!-- E0501 取號設定對話框（遷移自舊版 Organization/ApplyE0501Settings） -->
+    <E0501SettingsDialog
+      :visible="e0501Visible"
+      :company-name="e0501CompanyName"
+      :loading="e0501Loading"
+      :saving="e0501Saving"
+      :error="e0501Error"
+      :message="e0501Message"
+      :data="e0501Data"
+      :branch-downloading="branchDownloading"
+      :branch-uploading="branchUploading"
+      @close="closeE0501"
+      @save="saveE0501"
+      @download-branch-template="downloadBranchTemplate"
+      @upload-branch-assignments="uploadBranchAssignmentsFile"
+    />
   </div>
 </template>
 
@@ -313,6 +361,10 @@ function onSubmit() {
 }
 .field.col-span-2 {
   grid-column: 1 / -1;
+}
+/* 與左側輸入欄位對齊：label 佔一行後按鈕靠左 */
+.field.action-field {
+  align-items: flex-start;
 }
 .field label {
   font-size: 0.82rem;

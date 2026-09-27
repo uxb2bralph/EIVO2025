@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -64,7 +64,7 @@
                 </select>
                 @*<script>
                         $('select[name="Year"]').on('change', function (evt) {
-                            $.post('@(Url.Action("TrackCodeSelector","InvoiceNo"))', { 'Year': $('select[name="Year"]').val(), 'PeriodNo': $('select[name="PeriodNo"]').val(), 'SelectIndication': '全部' }, function (data) {
+                            $.postJSON('@(Url.Action("TrackCodeSelector","InvoiceNo"))', { 'Year': $('select[name="Year"]').val(), 'PeriodNo': $('select[name="PeriodNo"]').val(), 'SelectIndication': '全部' }, function (data) {
                                 $('#trackCodeSelector').html(data);
                             });
                         });
@@ -83,7 +83,7 @@
                 @*<script>
                             $('select[name="PeriodNo"]').val('@((DateTime.Today.Month + 1) / 2)');
                             $('select[name="PeriodNo"]').on('change', function (evt) {
-                                $.post('@(Url.Action("TrackCodeSelector","InvoiceNo"))', { 'Year': $('select[name="Year"]').val(), 'PeriodNo': $('select[name="PeriodNo"]').val() }, function (data) {
+                                $.postJSON('@(Url.Action("TrackCodeSelector","InvoiceNo"))', { 'Year': $('select[name="Year"]').val(), 'PeriodNo': $('select[name="PeriodNo"]').val() }, function (data) {
                                     $('#trackCodeSelector').html(data);
                                 });
                             });

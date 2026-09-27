@@ -46,7 +46,7 @@ namespace InvoiceClient.Agent
                 {
                     _waitCycle++;
                     Console.WriteLine($"fewer count:{files.Length}");
-                    Task.Delay(Settings.Default.WaitForInvoicePDFInSeconds * 1000).Wait();
+                    Task.Delay(Settings.Default.WaitingSeconds * 1000).Wait();
                     return;
                 }
 
@@ -116,7 +116,7 @@ namespace InvoiceClient.Agent
 
                 //if(Settings.Default.PackerCycleDelayInSeconds>0 && _files.Count< __MaxFileCount)
                 //{
-                //    Task.Delay(Settings.Default.PackerCycleDelayInSeconds * 1000)
+                //    ProcessRequest.Delay(Settings.Default.PackerCycleDelayInSeconds * 1000)
                 //        .Wait();
                 //}
             }

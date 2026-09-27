@@ -9,6 +9,7 @@ using WebHome.Helper;
 using ModelCore.Models.ViewModel;
 
 using CommonLib.Utility;
+using ModelCore.Helper;
 
 namespace WebHome.Controllers
 {
@@ -19,8 +20,13 @@ namespace WebHome.Controllers
         }
 
         // GET: DataFlow
-        public ActionResult SellerSelector(InquireInvoiceViewModel viewModel)
+        public ActionResult SellerSelector([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             if ((viewModel.FieldName = viewModel.FieldName.GetEfficientString()) == null)
             {

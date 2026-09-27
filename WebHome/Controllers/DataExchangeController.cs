@@ -177,8 +177,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult CheckResource(AttachmentViewModel viewModel)
+        public ActionResult CheckResource([FromJsonOrForm] AttachmentViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             if (viewModel.KeyID != null)
             {
                 viewModel = JsonConvert.DeserializeObject<AttachmentViewModel>(viewModel.KeyID.DecryptData())!;
@@ -200,7 +205,7 @@ namespace WebHome.Controllers
                         return Json(new { result = true, KeyID = viewModel.JsonStringify().EncryptData() });
                     }
 
-                    return Json(new { result = false, KeyID = viewModel.JsonStringify().EncryptData(), message = taskItem.Log?.DataContent });
+                    return Json(new { result = false, KeyID = viewModel.JsonStringify().EncryptData(), message = taskItem.ExceptionLog?.DataContent });
 
                 }
             }
@@ -208,8 +213,13 @@ namespace WebHome.Controllers
             return Json(new { result = false, KeyID = viewModel.JsonStringify().EncryptData() });
         }
 
-        public ActionResult CheckProcessRequest(AttachmentViewModel viewModel)
+        public ActionResult CheckProcessRequest([FromJsonOrForm] AttachmentViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             if (viewModel.KeyID != null)
             {
                 viewModel.TaskID = viewModel.DecryptKeyValue();
@@ -277,8 +287,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult MaintainData(DataTableQueryViewModel viewModel)
+        public ActionResult MaintainData([FromJsonOrForm] DataTableQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View("~/Views/DataExchange/MaintainData.cshtml");
         }
@@ -305,8 +320,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult ShowDataTable(DataTableQueryViewModel viewModel)
+        public ActionResult ShowDataTable([FromJsonOrForm] DataTableQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             var type = PrepareDataTable(viewModel);
             if (type == null)
             {
@@ -405,8 +425,13 @@ namespace WebHome.Controllers
             return View("~/Views/DataExchange/Module/DataItem.cshtml", dataItem);
         }
 
-        public ActionResult EditItem(DataTableQueryViewModel viewModel)
+        public ActionResult EditItem([FromJsonOrForm] DataTableQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)DataItem(viewModel);
             result.ViewName = "~/Views/DataExchange/Module/EditItem.cshtml";
             return result;

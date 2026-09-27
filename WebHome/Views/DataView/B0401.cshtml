@@ -21,11 +21,11 @@
 @{
     ModelSource<InvoiceItem> models;
     InvoiceAllowance _model;
-    DocumentQueryViewModel _viewModel;
+    QueryViewModel _viewModel;
 
     models = (ModelSource<InvoiceItem>)ViewContext.HttpContext.Items["Models"]!;
     _model = (InvoiceAllowance)this.Model;
-    _viewModel = (DocumentQueryViewModel)ViewBag.ViewModel;
+    _viewModel = (QueryViewModel)ViewBag.ViewModel;
 }
 <!DOCTYPE html>
 <html>

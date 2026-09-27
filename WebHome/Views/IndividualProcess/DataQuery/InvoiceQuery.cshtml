@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -75,7 +75,7 @@
 
         clearErrors();
         showLoading();
-        $.post('@Html.Raw(Url.Action("Inquire", "IndividualProcess"))', $formData, function (data) {
+        $.postJSON('@Html.Raw(Url.Action("Inquire", "IndividualProcess"))', $formData, function (data) {
             if ($.isPlainObject(data)) {
                 hideLoading();
                 alert(data.message);

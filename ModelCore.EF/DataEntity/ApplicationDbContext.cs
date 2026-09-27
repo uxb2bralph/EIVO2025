@@ -2484,7 +2484,7 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey(d => d.AgentID)
                 .HasConstraintName("FK_ProcessRequest_Organization");
 
-            entity.HasOne(d => d.Log).WithMany(p => p.ProcessRequest)
+            entity.HasOne(d => d.ExceptionLog).WithMany(p => p.ProcessRequest)
                 .HasForeignKey(d => d.LogID)
                 .HasConstraintName("FK_ProcessRequest_ExceptionLog");
 
@@ -2543,7 +2543,7 @@ public partial class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK_ProcessRequestQueue_ProcessorUnit");
 
-            entity.HasOne(d => d.Task).WithOne(p => p.ProcessRequestQueue)
+            entity.HasOne(d => d.ProcessRequest).WithOne(p => p.ProcessRequestQueue)
                 .HasForeignKey<ProcessRequestQueue>(d => d.TaskID)
                 .HasConstraintName("FK_ProcessRequestQueue_ProcessRequest");
         });

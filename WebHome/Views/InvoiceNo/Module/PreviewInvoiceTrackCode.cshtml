@@ -65,7 +65,7 @@
                     var $formData = $('#queryResult').find('input,select,textarea').serializeObject();
                     clearErrors();
                     showLoading();
-                    $.post('@(Url.Action("CommitUpload", "InvoiceNo"))', $formData, function (data) {
+                    $.postJSON('@(Url.Action("CommitUpload", "InvoiceNo"))', $formData, function (data) {
                         hideLoading();
                         if ($.isPlainObject(data)) {
                             if (data.result) {

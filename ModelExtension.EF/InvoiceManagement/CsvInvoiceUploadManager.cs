@@ -171,7 +171,7 @@ namespace ModelCore.InvoiceManagement
                         {
                             OwnerID = _sellerID
                         },
-                        ProcessType = (int)Naming.InvoiceProcessType.C0401,
+                        ProcessType = (int)Naming.InvoiceProcessType.F0401,
                     },
                     DonateMark = "0",
                     InvoiceDate = _uploadInvoiceDate,

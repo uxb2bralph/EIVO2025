@@ -93,6 +93,14 @@ namespace ModelCore.DataEntity
         public Naming.Truth? E0501InitialLock { get; set; }
         public int? E0501ReservedBooklets { get; set; }
         public ZeroTaxRateReasonEnum? ZeroTaxRateReason { get; set; }
+        public BranchInvoiceNoAssignmentModel[]? BranchInvoiceNoAssignments { get; set; }
+    }
+
+    public class BranchInvoiceNoAssignmentModel
+    {
+        public String? ReceiptNo { get; set; }
+        public Naming.Truth? InitialLock { get; set; }
+        public int? Booklets { get; set; }
     }
 
     public partial class CategoryDefinition
@@ -129,12 +137,15 @@ namespace ModelCore.DataEntity
 
     public partial class Organization
     {
+        ///唯讀衍生屬性，DataContractSerializer 無法還原(唯讀集合沒有 Add)，序列化時一律排除
         [NotMapped]
+        [IgnoreDataMember]
         public virtual IEnumerable<InvoiceIssuerAgent> BranchRelation
         {
             get => this.InvoiceIssuerAgentAgent.Where(a => a.RelationType == (int)ModelCore.DataEntity.InvoiceIssuerAgent.RelationTypeEnum.MasterBranch);
         }
 
+        [IgnoreDataMember]
         public virtual Organization? Headquarter
         {
             get => this.AsInvoiceIssuer.Where(a => a.RelationType == (int)ModelCore.DataEntity.InvoiceIssuerAgent.RelationTypeEnum.MasterBranch).FirstOrDefault()?.Agent;

@@ -25,7 +25,7 @@ namespace ModelCore.Schema.EIVO.B2B {
     public partial class BuyerInvoiceRoot {
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
+        [System.Xml.Serialization.XmlElementAttribute("Invoice")]
         public BuyerInvoiceRootInvoice[] Invoice;
     }
     
@@ -57,7 +57,7 @@ namespace ModelCore.Schema.EIVO.B2B {
         public string InvoiceType;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
+        [System.Xml.Serialization.XmlElementAttribute("InvoiceItem")]
         public BuyerInvoiceRootInvoiceInvoiceItem[] InvoiceItem;
         
         /// <remarks/>

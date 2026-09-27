@@ -59,7 +59,7 @@
             this.groupBox3.Size = new System.Drawing.Size(805, 155);
             this.groupBox3.TabIndex = 16;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "GUI PDF Task";
+            this.groupBox3.Text = "GUI PDF ProcessRequest";
             // 
             // btnInvService
             // 

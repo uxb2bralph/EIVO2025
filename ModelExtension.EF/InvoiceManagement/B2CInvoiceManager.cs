@@ -108,7 +108,7 @@ namespace ModelCore.InvoiceManagement
                                 {
                                     OwnerID = seller.CompanyID
                                 },
-                                ProcessType = (int)Naming.InvoiceProcessType.C0401,
+                                ProcessType = (int)Naming.InvoiceProcessType.F0401,
                             },
                             DonateMark = invItem.DonateMark,
                             PrintMark = invItem.PrintMark,

@@ -67,7 +67,7 @@ namespace WebHome.Controllers
             return Content(DateTime.Now.ToString());
         }
 
-        public ActionResult QRCode(String data, int? width, int? height, int? margin)
+        public ActionResult QRCode([FromJsonOrForm] String data, int? width, int? height, int? margin)
         {
             //if (!String.IsNullOrEmpty(data))
             //{
@@ -134,8 +134,13 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> CheckInvoiceNoAsync(POSDeviceViewModel viewModel)
+        public async Task<ActionResult> CheckInvoiceNoAsync([FromJsonOrForm] POSDeviceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //if (String.IsNullOrEmpty(Request.ContentType) && String.IsNullOrEmpty(Request.Params["Query_String"]))
             //{
             //    using (StreamReader reader = new StreamReader(Request.InputStream, Request.ContentEncoding))
@@ -175,13 +180,23 @@ namespace WebHome.Controllers
             });
         }
 
-        public ActionResult Echo(POSDeviceViewModel viewModel)
+        public ActionResult Echo([FromJsonOrForm] POSDeviceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             return Json(viewModel);
         }
 
-        public ActionResult EditItem(DataTableQueryViewModel viewModel)
+        public ActionResult EditItem([FromJsonOrForm] DataTableQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             JObject json = JObject.Parse(RequestBody);
             DbSet<Organization> org = models.GetTable<Organization>();

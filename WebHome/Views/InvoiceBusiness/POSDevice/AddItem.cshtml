@@ -22,7 +22,7 @@
                 if (confirm('確定刪除此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("DeletePOS", new { id = _model.CompanyID }))', { 'deviceID': value }, function (data) {
+                    $.postJSON('@(Url.Action("DeletePOS", new { id = _model.CompanyID }))', { 'deviceID': value }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();
@@ -35,7 +35,7 @@
             function commitPOS(value) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("CommitPOS", new { id = _model.CompanyID }))', 'deviceID=' + value + '&' + $.param($tr.find('input,select,textarea')), function (data) {
+                $.postJSON('@(Url.Action("CommitPOS", new { id = _model.CompanyID }))', $.extend({ deviceID: value }, $tr.find('input,select,textarea').serializeObject()), function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -55,7 +55,7 @@
             function editPOS(value) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("EditPOS", new { id = _model.CompanyID }))', 'deviceID=' + value , function (data) {
+                $.postJSON('@(Url.Action("EditPOS", new { id = _model.CompanyID }))', { deviceID: value }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -72,7 +72,7 @@
             function showPOS(value) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("DataItem", new { id = _model.CompanyID }))', 'deviceID=' + value , function (data) {
+                $.postJSON('@(Url.Action("DataItem", new { id = _model.CompanyID }))', { deviceID: value }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -89,7 +89,7 @@
             function generateCode() {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@(Url.Action("GenerateGUID"))' , function (data) {
+                $.postJSON('@(Url.Action("GenerateGUID"))', null, function (data) {
                     if (data) {
                         $tr.find('input').val(data);
                     }

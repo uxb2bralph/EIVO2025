@@ -42,7 +42,7 @@
         ProcessRequest item = this.Model as ProcessRequest;
         if (item.LogID.HasValue)
         {
-            <text>@Html.Raw(item.Log.DataContent)</text>
+            <text>@Html.Raw(item.ExceptionLog.DataContent)</text>
         }
         break;
 

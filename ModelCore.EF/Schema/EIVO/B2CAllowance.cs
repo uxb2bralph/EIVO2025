@@ -25,9 +25,17 @@ namespace ModelCore.Schema.EIVO {
     public partial class AllowanceRoot {
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
+        [System.Xml.Serialization.XmlElementAttribute("Allowance")]
         public AllowanceRootAllowance[] Allowance;
-        
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(IsNullable = true)]
+        public System.Nullable<short> Notification;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool NotificationSpecified;
+
         /// <remarks/>
         public string ProcessType;
     }

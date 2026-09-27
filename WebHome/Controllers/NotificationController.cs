@@ -42,8 +42,13 @@ namespace WebHome.Controllers
         }
 
         // GET: Notification
-        public ActionResult IssueAllowance([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult IssueAllowance([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -61,8 +66,13 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueAllowance.cshtml", item);
         }
 
-        public ActionResult DataUploadExceptionList([FromBody] ExceptionLogQueryViewModel viewModel)
+        public ActionResult DataUploadExceptionList([FromJsonOrForm] ExceptionLogQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var items = models.GetTable<ExceptionLog>().Where(g => g.ExceptionReplication != null);
@@ -75,8 +85,13 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/DataUploadExceptionList.cshtml", items);
         }
 
-        public ActionResult IssueA0401([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult IssueA0401([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //Request.SaveAsAsync(Path.Combine(Logger.LogDailyPath,$"{DateTime.Now.Ticks}.txt"), includeHeader: true).Wait();
             ViewBag.ViewModel = viewModel;
 
@@ -94,8 +109,13 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueA0401.cshtml", item);
         }
 
-        public ActionResult CommissionedToReceiveA0401([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult CommissionedToReceiveA0401([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
 
@@ -106,8 +126,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult NotifyToReceiveA0401([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult NotifyToReceiveA0401([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
 
@@ -118,8 +143,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult ActivateUser(UserProfileViewModel viewModel)
+        public ActionResult ActivateUser([FromJsonOrForm] UserProfileViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             if (viewModel.KeyID != null)
             {
@@ -156,8 +186,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult IssueC0401([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult IssueC0401([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
 
@@ -167,8 +202,13 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueC0401.cshtml", item);
         }
 
-        public ActionResult IssueC0701([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult IssueC0701([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
 
@@ -179,8 +219,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult IssueWinningInvoice([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult IssueWinningInvoice([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)IssueA0401(viewModel);
             InvoiceItem item = result.Model as InvoiceItem;
 
@@ -190,8 +235,13 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueWinningInvoice.cshtml", item);
         }
 
-        public ActionResult IssueC0501([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult IssueC0501([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -210,8 +260,13 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueC0501.cshtml", item);
         }
 
-        public ActionResult IssueAllowanceCancellation([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult IssueAllowanceCancellation([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -230,14 +285,24 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/IssueAllowanceCancellation.cshtml", item);
         }
 
-        public ActionResult IssueCustomMessage([FromBody] DocumentQueryViewModel viewModel)
+        public ActionResult IssueCustomMessage([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View("IssueCustomMessage");
         }
 
-        public ActionResult NotifyProcessException(ProcessRequestQueryViewModel viewModel)
+        public ActionResult NotifyProcessException([FromJsonOrForm] ProcessRequestQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
 
@@ -255,8 +320,13 @@ namespace WebHome.Controllers
             return Content("Data not found!!");
         }
 
-        public ActionResult SendDailyReport([FromBody] InquireInvoiceViewModel viewModel)
+        public ActionResult SendDailyReport([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             Organization item = models.GetTable<Organization>().Where(c => c.CompanyID == viewModel.SellerID)
@@ -293,14 +363,24 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult SendMessage([FromBody] MailMessageViewModel viewModel)
+        public ActionResult SendMessage([FromJsonOrForm] MailMessageViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View("~/Views/Notification/SendMessage.cshtml");
         }
 
-        public ActionResult CommitMessage(MailMessageViewModel viewModel)
+        public ActionResult CommitMessage([FromJsonOrForm] MailMessageViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -332,7 +412,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult NotifyTwoFactorSettings([FromBody] UserProfileViewModel viewModel)
+        public ActionResult NotifyTwoFactorSettings([FromJsonOrForm] UserProfileViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel.KeyID != null)
@@ -362,8 +442,13 @@ namespace WebHome.Controllers
             return View("~/Views/Notification/NotifySystemAnnouncement.cshtml", mailTo);
         }
 
-        public ActionResult NotifyLowerInvoiceNoStock([FromBody] OrganizationViewModel viewModel)
+        public ActionResult NotifyLowerInvoiceNoStock([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)

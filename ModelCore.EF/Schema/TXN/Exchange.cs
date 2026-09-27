@@ -25,7 +25,7 @@ namespace ModelCore.Schema.TXN {
     public partial class Automation {
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("InvoiceAllowanceDetails")]
+        [System.Xml.Serialization.XmlElementAttribute("Item")]
         public AutomationItem[] Item;
     }
     
@@ -141,6 +141,12 @@ namespace ModelCore.Schema.TXN {
         
         /// <remarks/>
         public string AllowanceNumber;
+        
+        /// <remarks/>
+        public string AllowanceUrl;
+        
+        /// <remarks/>
+        public string AllowancePdf;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("InvoiceNumber")]
@@ -286,7 +292,7 @@ namespace ModelCore.Schema.TXN {
         public RootResult Result;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute("InvoiceAllowanceDetails", IsNullable=false)]
+        [System.Xml.Serialization.XmlArrayItemAttribute("Item", IsNullable=false)]
         public AutomationItem[] Automation;
     }
     
@@ -348,7 +354,7 @@ namespace ModelCore.Schema.TXN {
         public RootResponseInvoiceNo[] InvoiceNo;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
+        [System.Xml.Serialization.XmlElementAttribute("Invoice")]
         public object[] Invoice;
         
         /// <remarks/>
@@ -360,7 +366,7 @@ namespace ModelCore.Schema.TXN {
         public object[] RejectInvoice;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
+        [System.Xml.Serialization.XmlElementAttribute("Allowance")]
         public object[] Allowance;
         
         /// <remarks/>

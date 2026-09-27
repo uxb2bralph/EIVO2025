@@ -109,7 +109,7 @@ namespace ModelCore.Models.ViewModel
                     {
                         OwnerID = _owner.CompanyID
                     },
-                    ProcessType = (int)Naming.InvoiceProcessType.C0401,
+                    ProcessType = (int)Naming.InvoiceProcessType.F0401,
                 },
                 DonateMark = _donation == null ? "0" : "1",
                 InvoiceType = _invItem.InvoiceType,

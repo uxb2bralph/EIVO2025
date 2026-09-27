@@ -40,7 +40,7 @@ namespace WebHome.Controllers
         }
 
         // GET: InvoiceBusiness
-        public ActionResult ApplyPOSDevice(int? id)
+        public ActionResult ApplyPOSDevice([FromJsonOrForm] int? id)
         {
             var item = models.GetTable<Organization>().Where(o => o.CompanyID == id).FirstOrDefault();
             if (item == null)
@@ -134,8 +134,12 @@ namespace WebHome.Controllers
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
-        public ActionResult EditInvoice(DocumentQueryViewModel viewModel)
+        public ActionResult EditInvoice([FromJsonOrForm] DocumentQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             int? invoiceID = viewModel.DocID;
             if (!String.IsNullOrEmpty(viewModel.KeyID))
@@ -163,8 +167,13 @@ namespace WebHome.Controllers
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
-        public ActionResult CommitEditInvoice(InvoiceViewModel viewModel)
+        public ActionResult CommitEditInvoice([FromJsonOrForm] InvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (String.IsNullOrEmpty(viewModel.KeyID))
@@ -258,9 +267,9 @@ namespace WebHome.Controllers
                 //    models.SubmitChanges();
                 //}
 
-                //// 4. 原發票號結尾加星號，標記為已被取代
-                //original.No = original.No + "*";
-                //models.SubmitChanges();
+                // 4. 原發票號結尾加星號，標記為已被取代
+                original.No = original.No + "*";
+                models.SubmitChanges();
 
                 tran.Commit();
 
@@ -358,8 +367,13 @@ namespace WebHome.Controllers
             return viewModel;
         }
 
-        public ActionResult UploadData(InvoiceViewModel viewModel)
+        public ActionResult UploadData([FromJsonOrForm] InvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View("~/Views/InvoiceBusiness/UploadData.cshtml");
         }
@@ -406,8 +420,13 @@ namespace WebHome.Controllers
             return View("PrintInvoice");
         }
 
-        public ActionResult InitializeCommittingInvoice(InvoiceViewModel viewModel)
+        public ActionResult InitializeCommittingInvoice([FromJsonOrForm] InvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var seller = models.GetTable<Organization>().Where(o => o.CompanyID == viewModel.SellerID).FirstOrDefault();
@@ -420,8 +439,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult CommitInvoice(InvoiceViewModel viewModel)
+        public ActionResult CommitInvoice([FromJsonOrForm] InvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)InitializeCommittingInvoice(viewModel);
             Organization seller = result.Model as Organization;
             if (seller == null)
@@ -476,6 +500,11 @@ namespace WebHome.Controllers
 
         public ActionResult CommitA0401(InvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)InitializeCommittingInvoice(viewModel);
             Organization seller = result.Model as Organization;
             if (seller == null)
@@ -514,8 +543,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CommitA0101(InvoiceViewModel viewModel)
+        public ActionResult CommitA0101([FromJsonOrForm] InvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)InitializeCommittingInvoice(viewModel);
             Organization seller = result.Model as Organization;
             if (seller == null)
@@ -553,7 +587,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> CommitAllowance([FromBody] AllowanceViewModel viewModel)
+        public async Task<ActionResult> CommitAllowance([FromJsonOrForm] AllowanceViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
 
@@ -593,8 +627,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult EncryptContent(String content,String key)
+        public ActionResult EncryptContent([FromJsonOrForm] String content,String key)
         {
+            if (content == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             com.tradevan.qrutil.QREncrypter qrencrypter = new com.tradevan.qrutil.QREncrypter();
             return Content(qrencrypter.AESEncrypt(content, key));
         }

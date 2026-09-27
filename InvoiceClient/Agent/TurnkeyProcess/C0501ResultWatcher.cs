@@ -66,7 +66,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
 
                             if (cancelItem != null)
                             {
-                                cancelItem.InvoiceItem.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done);
+                                cancelItem.Invoice.CDS_Document.ChildDocument.FirstOrDefault()?.CDS_Document.PushLogOnSubmit(models, Naming.InvoiceStepDefinition.MIG_C, Naming.DataProcessStatus.Done);
                                 models.SubmitChanges();
                                 Console.WriteLine($"InvoiceCancellation Good:{item}");
                                 continue;

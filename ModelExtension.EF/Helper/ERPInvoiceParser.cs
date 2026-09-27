@@ -137,7 +137,7 @@ namespace ModelCore.Helper
             DateTime.TryParse(column[(int)CSV_M.InvoiceDate], out invoiceDate);
             taxType = column[(int)CSV_M.TaxType].GetEfficientString() ?? "1";
 
-            _invoice = new XElement("CDS_Document",
+            _invoice = new XElement("Invoice",
                     new XElement("InvoiceNumber", column[(int)CSV_M.InvoiceNumber]),
                     new XElement("InvoiceDate", $"{invoiceDate:yyyy/MM/dd}"),
                     new XElement("InvoiceTime", $"{invoiceDate:HH:mm:ss}"),
@@ -171,7 +171,7 @@ namespace ModelCore.Helper
                 return;
             }
 
-            XElement item = new XElement("CDS_Document",
+            XElement item = new XElement("InvoiceItem",
                             new XElement("Description", column[(int)CSV_D.Description]),
                             new XElement("Quantity", column[(int)CSV_D.Quantity]),
                             new XElement("UnitPrice", column[(int)CSV_D.UnitPrice]),

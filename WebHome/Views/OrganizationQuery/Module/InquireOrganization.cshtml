@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -157,13 +157,13 @@
     }
 
     function editCompany(value) {
-        $.post('@(Url.Action("EditItem", "Organization"))', { 'keyID': value }, function (data) {
+        $.postJSON('@(Url.Action("EditItem", "Organization"))', { 'keyID': value }, function (data) {
             $global.createTab('editOrganization', '營業人管理', data, true);
         });
     }
 
     function customSettings(value) {
-        $.post('@(Url.Action("CustomSettings", "Organization"))', { 'keyID': value }, function (data) {
+        $.postJSON('@(Url.Action("CustomSettings", "Organization"))', { 'keyID': value }, function (data) {
             $global.createTab('customSettings', '營業人客製化服務設訂', data, true);
         });
     }
@@ -198,7 +198,7 @@
 
     function applyCertificate(value) {
         showLoading();
-        $.post('@(Url.Action("OrganizationCertificate", "CertificateIdentity"))', { 'companyID': value }, function (data) {
+        $.postJSON('@(Url.Action("OrganizationCertificate", "CertificateIdentity"))', { 'companyID': value }, function (data) {
             hideLoading();
             if ($.isPlainObject(data)) {
                 alert(data.message);
@@ -209,19 +209,19 @@
     }
 
     function applyAgency(value) {
-        $.post('@(Url.Action("ApplyIssuerAgent", "Organization"))', { 'keyID': value }, function (data) {
+        $.postJSON('@(Url.Action("ApplyIssuerAgent", "Organization"))', { 'keyID': value }, function (data) {
             $global.createTab('applyIssuerAgent', '發票經銷商', data, true);
         });
     }
 
     function applyMaster(value) {
-        $.post('@(Url.Action("ApplyMaster", "Organization"))', { 'keyID': value }, function (data) {
+        $.postJSON('@(Url.Action("ApplyMaster", "Organization"))', { 'keyID': value }, function (data) {
             $global.createTab('applyMaster', '指派主機構', data, true);
         });
     }
 
     function applyBilling(value) {
-        $.post('@(Url.Action("ApplyBillingPlan", "Organization"))', { 'keyID': value }, function (data) {
+        $.postJSON('@(Url.Action("ApplyBillingPlan", "Organization"))', { 'keyID': value }, function (data) {
             $global.createTab('applyBilling', '收費標準', data, true);
         });
     }
@@ -260,14 +260,14 @@
         }
 
     function inquireUser(value) {
-        $.post('@(Url.Action("AccountIndex", "Account", new { showTab = true }))', { 'sellerID': value }, function (data) {
+        $.postJSON('@(Url.Action("AccountIndex", "Account", new { showTab = true }))', { 'sellerID': value }, function (data) {
             $global.createTab('@("listUser" + DateTime.Now.Ticks)', '使用者管理', data, true);
         });
     }
 
         function createCompany(keyID) {
 
-            $.post('@(Url.Action("EditItem", "Organization"))', { 'keyID': keyID }, function (data) {
+            $.postJSON('@(Url.Action("EditItem", "Organization"))', { 'keyID': keyID }, function (data) {
                 $global.createTab('editOrganization', '營業人管理', data, true);
             });
         }

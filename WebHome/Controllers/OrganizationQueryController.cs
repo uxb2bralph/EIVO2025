@@ -10,6 +10,7 @@ using WebHome.Models;
 using ModelCore.DataEntity;
 using ModelCore.Models.ViewModel;
 using ModelCore.DataEntityWrapper;
+using ModelCore.Helper;
 
 namespace WebHome.Controllers
 {
@@ -49,8 +50,13 @@ namespace WebHome.Controllers
         //    return View("~/Views/OrganizationQuery/InquiryResult.cshtml", DataSource.Inquiry);
         //}
 
-        public ActionResult InquireCompany(OrganizationQueryViewModel viewModel)
+        public ActionResult InquireCompany([FromJsonOrForm] OrganizationQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             ModelSource<Organization> tmpModels = new ModelSource<Organization>(models);

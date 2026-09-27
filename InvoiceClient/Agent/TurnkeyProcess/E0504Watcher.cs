@@ -153,7 +153,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
                     .Where(i => invoiceDate.HasValue && i.InvoiceDate >= invoiceDate);
 
             String? sellerId = innerText(selectNode(detail, "Seller"), "Identifier");
-            candidates = candidates.Where(i => sellerId != null && i.Organization.ReceiptNo == sellerId);
+            candidates = candidates.Where(i => sellerId != null && i.Seller != null && i.Seller.ReceiptNo == sellerId);
 
             ///發票號碼於各期別會重複配發，僅比對同期別之發票，並優先取用開立日期相符者
             var invoice = candidates
@@ -183,7 +183,7 @@ namespace InvoiceClient.Agent.TurnkeyProcess
                     InvoiceID = invoice.InvoiceID,
                 };
 
-                models.GetTable<InvoiceWinningNumber>().InsertOnSubmit(winningInvoice);
+                models.GetTable<InvoiceWinningNumber>().Add(winningInvoice);
             }
 
             //winningInvoice.PrizeType = prizeType?.ToString() ?? prizeTypeCode;

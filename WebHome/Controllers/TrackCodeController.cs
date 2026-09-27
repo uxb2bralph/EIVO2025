@@ -46,8 +46,12 @@ namespace WebHome.Controllers
             return View();
         }
 
-        public ActionResult Inquire(TrackCodeQueryViewModel viewModel)
+        public ActionResult Inquire([FromJsonOrForm] TrackCodeQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             ViewBag.ViewModel = viewModel;
             IQueryable<InvoiceTrackCode> items = models.GetTable<InvoiceTrackCode>()
@@ -64,7 +68,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult EditItem(int? id)
+        public ActionResult EditItem([FromJsonOrForm] int? id)
         {
             var item = models.GetTable<InvoiceTrackCode>()
                 .Where(d => d.TrackID == id)
@@ -79,7 +83,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult DeleteItem(int? id)
+        public ActionResult DeleteItem([FromJsonOrForm] int? id)
         {
             var item = models.DeleteAny<InvoiceTrackCode>(d => d.TrackID == id);
 
@@ -92,7 +96,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult DataItem(int? id)
+        public ActionResult DataItem([FromJsonOrForm] int? id)
         {
             var item = models.GetTable<InvoiceTrackCode>()
                 .Where(d => d.TrackID == id)
@@ -107,8 +111,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CommitItem(TrackCodeViewModel viewModel)
+        public ActionResult CommitItem([FromJsonOrForm] TrackCodeViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             viewModel.TrackCode = viewModel.TrackCode.GetEfficientString();

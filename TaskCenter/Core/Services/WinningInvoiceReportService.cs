@@ -19,7 +19,7 @@ namespace TaskCenter.Core.Services
     /// ReportGridPage / Module/CreateXlsx.cshtml）。
     ///
     /// 與舊版的差異（刻意）：
-    /// (1) 舊版匯出是「建 ProcessRequest → 背景 Task 產檔 → 前端輪詢下載」；此處改為同步產檔直接
+    /// (1) 舊版匯出是「建 ProcessRequest → 背景 ProcessRequest 產檔 → 前端輪詢下載」；此處改為同步產檔直接
     ///     回傳 Excel（與已遷移的發票統計表 / 發票月報表一致）。
     /// (2) 舊版 ReportGridPage 先 Skip/Take 再 Join Organization，若開立人已不存在會使該頁少列；
     ///     此處先 Join 再分頁，總筆數與分頁一致。

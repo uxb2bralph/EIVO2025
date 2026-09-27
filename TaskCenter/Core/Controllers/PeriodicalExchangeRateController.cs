@@ -195,7 +195,7 @@ namespace TaskCenter.Core.Controllers
                     excelFile.CopyTo(fs);
                 }
 
-                using var ds = fileName.ImportExcelXLS();
+                using var ds = fileName.ImportExcelByClosedXML();
                 var table = ds.Tables.Count == 0
                     ? null
                     : ds.Tables.Cast<DataTable>().FirstOrDefault(t => t.TableName.Contains("匯率"));

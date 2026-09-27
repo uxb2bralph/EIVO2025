@@ -41,6 +41,7 @@ using Business.Helper.ProcessRequestProcessor;
 using ModelCore.InvoiceManagement.Validator;
 using CommonLib.Core.Controllers;
 using ModelCore.InvoiceManagement.InvoiceProcess;
+using System.Data.Entity;
 
 namespace WebHome.Controllers
 {
@@ -52,28 +53,50 @@ namespace WebHome.Controllers
         }
 
         // GET: DataView
-        public ActionResult ShowAllowancePageView(DocumentQueryViewModel viewModel)
+        public ActionResult ShowAllowancePageView([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
+
+            var items = models!.GetTable<InvoiceAllowance>().AsNoTracking();
 
             if (viewModel.KeyID != null)
             {
                 viewModel.id = viewModel.DecryptKeyValue();
             }
 
-            var item = models.GetTable<InvoiceAllowance>().Where(a => a.AllowanceID == viewModel.id).FirstOrDefault();
+            if(viewModel.id.HasValue)
+            {
+                items = items.Where(i => i.AllowanceID == viewModel.id);
+            }
+            else
+            {
+                items = items.Where(i => i.AllowanceNumber == viewModel.AllowanceNo)
+                            .Where(i => i.InvoiceAllowanceSeller != null && i.InvoiceAllowanceSeller.ReceiptNo == viewModel.ReceiptNo)
+                            .Where(a => a.InvoiceAllowanceDetails.Any(d => d.InvoiceNo == viewModel.InvoiceNo));
+            }
+
+            var item = items.FirstOrDefault();
             if (item == null)
             {
                 return View("~/Views/Shared/AlertMessage.cshtml", model: "資料錯誤!!");
             }
 
-
             return View("~/Views/DataView/Module/Allowance.cshtml", item);
         }
 
-        public ActionResult ShowAllowance(RenderStyleViewModel viewModel)
+        public ActionResult ShowAllowance([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
-            ViewResult result = (ViewResult)ShowAllowancePageView(viewModel);
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
+            ViewResult result = (ViewResult)ShowAllowancePageView(queryModel);
 
             InvoiceAllowance? item = result.Model as InvoiceAllowance;
             if (item == null)
@@ -83,7 +106,7 @@ namespace WebHome.Controllers
             return View(getAllowanceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item);
         }
 
-        protected String getInvoiceViewPath(InvoiceItem item, out String[]? useThermalPOSArgs, String? paperStyle = null, Naming.InvoiceProcessType? processType = null)
+        protected String GetInvoiceViewPath(InvoiceItem item, out String[]? useThermalPOSArgs, String? paperStyle = null, Naming.InvoiceProcessType? processType = null)
         {
             useThermalPOSArgs = null;
             if (((paperStyle == "B2B" || item.Seller.HybridB2B() == true || item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.A0101) && item.InvoiceBuyer.CustomerName?.Length > 4) && !item.InvoiceBuyer.IsB2C())
@@ -119,8 +142,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public async Task<ActionResult> PrintSingleInvoiceAsPDFAsync(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
+        public async Task<ActionResult> PrintSingleInvoiceAsPDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ShowInvoice(viewModel, queryModel);
             InvoiceItem item = result.Model as InvoiceItem;
             if (item == null)
@@ -130,7 +158,7 @@ namespace WebHome.Controllers
 
             this.TempData["viewModel"] = viewModel.JsonStringify();
             String[] useThermalPOSArgs;
-            String pdfFile = await this.CreateContentAsPDFAsync(getInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
+            String pdfFile = await this.CreateContentAsPDFAsync(GetInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
 
             if (pdfFile != null)
             {
@@ -183,9 +211,14 @@ namespace WebHome.Controllers
             return routeValues;
         }
 
-        public ActionResult PrintInvoiceAsPDF(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
+        public ActionResult PrintInvoiceAsPDF([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
-            String workUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{WebHome.Properties.AppSettings.Default.ApplicationPath}/{Url.Action("ShowInvoice", "DataView", Merge(viewModel, queryModel))}";
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
+            String workUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{Url.Action("ShowInvoice", "DataView", Merge(viewModel, queryModel))}";
             String pdfFile = Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.pdf");
 
             workUrl.ConvertHtmlToPDF(pdfFile, 1);
@@ -201,8 +234,13 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> GetCustomerInvoicePDFAsync(RenderStyleViewModel viewModel, bool? ackDel, bool? html)
+        public async Task<ActionResult> GetCustomerInvoicePDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel, bool? ackDel, bool? html)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             viewModel.UseCustomView = viewModel.UseCustomView ?? true;
             this.TempData["viewModel"] = viewModel.JsonStringify();
@@ -229,7 +267,7 @@ namespace WebHome.Controllers
                 if (html == true)
                 {
                     String[] useThermalPOSArgs;
-                    return View(getInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item);
+                    return View(GetInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item);
                 }
                 else
                 {
@@ -266,7 +304,7 @@ namespace WebHome.Controllers
             {
                 String[] useThermalPOSArgs;
                 this.TempData["viewModel"] = viewModel.JsonStringify();
-                String pdfFile = await this.CreateContentAsPDFAsync(getInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
+                String pdfFile = await this.CreateContentAsPDFAsync(GetInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
                 if (pdfFile != null)
                 {
                     if (System.IO.File.Exists(outputFile))
@@ -284,11 +322,16 @@ namespace WebHome.Controllers
         {
             String[] useThermalPOSArgs;
             this.TempData["viewModel"] = viewModel.JsonStringify();
-            return await this.CreateContentAsPDFAsync(getInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle, viewModel.ProcessType), item, ModelExtension.Properties.AppSettings.Default.SessionTimeout, useThermalPOSArgs);
+            return await this.CreateContentAsPDFAsync(GetInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle, viewModel.ProcessType), item, ModelExtension.Properties.AppSettings.Default.SessionTimeout, useThermalPOSArgs);
         }
 
-        public async Task<ActionResult> ZipInvoicePDFAsync(RenderStyleViewModel viewModel)
+        public async Task<ActionResult> ZipInvoicePDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var profile = HttpContext.GetUser();
@@ -367,8 +410,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public async Task<ActionResult> GetCustomerAllowancePDFAsync(RenderStyleViewModel viewModel, bool? ackDel, bool? html)
+        public async Task<ActionResult> GetCustomerAllowancePDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel, bool? ackDel, bool? html)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             this.TempData["viewModel"] = viewModel.JsonStringify();
 
@@ -445,7 +493,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult ShowInvoicePageView(DocumentQueryViewModel viewModel, InquireInvoiceViewModel queryModel)
+        public ActionResult ShowInvoicePageView([FromJsonOrForm] DocumentQueryViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
             ViewBag.ViewModel = viewModel;
 
@@ -454,24 +502,37 @@ namespace WebHome.Controllers
                 viewModel.DocID = viewModel.DecryptKeyValue();
             }
 
-            var item = models.GetTable<InvoiceItem>().Where(a => a.InvoiceID == viewModel.DocID).FirstOrDefault();
+            var item = models!.GetTable<InvoiceItem>().Where(a => a.InvoiceID == viewModel.DocID)
+                .AsNoTracking()
+                .FirstOrDefault();
+
             if(item == null)
             {
                 if(queryModel != null)
                 {
                     if(queryModel.InvoiceDate.HasValue)
                     {
-                        var seller = models.GetTable<Organization>().Where(s => s.ReceiptNo == queryModel.ReceiptNo).FirstOrDefault();
-                        if(seller!=null)
+                        var seller = models.GetTable<Organization>().Where(s => s.ReceiptNo == queryModel.ReceiptNo)
+                            .AsNoTracking()
+                            .FirstOrDefault();
+
+                        if (seller != null)
                         {
                             queryModel.InvoiceNo = queryModel.InvoiceNo.GetEfficientString();
                             var match = queryModel.InvoiceNo.ParseInvoiceNo();
                             if (match.Success)
                             {
-                                item = models.GetTable<InvoiceItem>()
+                                var query = models.GetTable<InvoiceItem>()
                                     .Where(i => i.TrackCode == match.Groups[1].Value && i.No == match.Groups[2].Value)
                                     .Where(i => i.InvoiceDate >= queryModel.InvoiceDate && i.InvoiceDate < queryModel.InvoiceDate.Value.AddDays(1))
-                                    .Where(i => i.SellerID == seller.CompanyID)
+                                    .Where(i => i.SellerID == seller.CompanyID);
+
+                                if(queryModel.Status == "Review")
+                                {
+                                    query = query.Where(i => i.RandomNo == queryModel.RandomNo);
+                                }
+
+                                item = query.AsNoTracking()
                                     .FirstOrDefault();
                             }
                         }
@@ -487,33 +548,81 @@ namespace WebHome.Controllers
             return View("~/Views/DataView/ShowInvoicePageView.cshtml", item);
         }
 
-        public ActionResult ReviewInvoice(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
+        public ActionResult ReviewInvoice([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             viewModel.UseCBEView = true;
+            queryModel.Status = "Review";
             return ShowInvoice(viewModel, queryModel);
         }
 
-        public async Task<ActionResult> ReviewInvoiceAsPDFAsync(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
+        public ActionResult ReviewAllowance([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+            viewModel.PaperStyle = "B2B";
+            return ShowAllowance(viewModel, queryModel);
+        }
+
+        public async Task<ActionResult> ReviewInvoiceAsPDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
+        {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             viewModel.UseCBEView = true;
             viewModel.PaperStyle = "CBE";
             return await PrintSingleInvoiceAsPDFAsync(viewModel, queryModel);
         }
 
-
-        public ActionResult ShowInvoice(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
+        public async Task<ActionResult> ReviewAllowanceAsPDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
+            viewModel.PaperStyle = "B2B";
+            return await PrintSingleAllowanceAsPDFAsync(viewModel, queryModel);
+        }
+
+
+        public ActionResult ShowInvoice([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
+        {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ShowInvoicePageView(viewModel, queryModel);
 
             InvoiceItem item = result.Model as InvoiceItem;
             if (item == null)
                 return result;
+
+            if(queryModel.Status == "Review")
+            {
+                viewModel.PaperStyle = "CBE";
+            }
+
             String[] useThermalPOSArgs;
-            return View(getInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item);
+            return View(GetInvoiceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item);
         }
 
-        public ActionResult ShowInvoiceContent(DocumentQueryViewModel viewModel, InquireInvoiceViewModel queryModel)
+        public ActionResult ShowInvoiceContent([FromJsonOrForm] DocumentQueryViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ShowInvoicePageView(viewModel, queryModel);
 
             InvoiceItem item = result.Model as InvoiceItem;
@@ -523,8 +632,13 @@ namespace WebHome.Controllers
             return View("~/Views/DataView/Module/InvoiceContent.cshtml", item);
         }
 
-        public ActionResult PrintSingleInvoice(RenderStyleViewModel viewModel, InquireInvoiceViewModel queryModel)
+        public ActionResult PrintSingleInvoice([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)ShowInvoicePageView(viewModel, queryModel);
 
             InvoiceItem item = result.Model as InvoiceItem;
@@ -535,8 +649,13 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult PrintA0401(RenderStyleViewModel viewModel)
+        public ActionResult PrintA0401([FromJsonOrForm] RenderStyleViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             viewModel.PaperStyle = viewModel.PaperStyle ?? "B2B";
             return PrintInvoice(viewModel);
         }
@@ -555,8 +674,13 @@ namespace WebHome.Controllers
             return View("~/Views/DataView/PrintB0401.cshtml", items);
         }
 
-        public async Task<ActionResult> PrintA0401AsPDFAsync(RenderStyleViewModel viewModel)
+        public async Task<ActionResult> PrintA0401AsPDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)PrintA0401(viewModel);
             IQueryable<DocumentPrintQueue> items = result.Model as IQueryable<DocumentPrintQueue>;
             String pdfFile = await this.CreateContentAsPDFAsync("~/Views/DataView/PrintA0401.cshtml", items, Properties.Settings.Default.SessionTimeoutInMinutes);
@@ -590,8 +714,13 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult PrintInvoice(RenderStyleViewModel viewModel)
+        public ActionResult PrintInvoice([FromJsonOrForm] RenderStyleViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
 
@@ -610,8 +739,13 @@ namespace WebHome.Controllers
         }
 
         [Authorize]
-        public ActionResult PrintC0401(RenderStyleViewModel viewModel)
+        public ActionResult PrintC0401([FromJsonOrForm] RenderStyleViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             return PrintInvoice(viewModel);
         }
 
@@ -631,8 +765,13 @@ namespace WebHome.Controllers
 
         public static readonly String[] ThermalPOSPaper = new String[] { Settings.Default.ThermalPOS };
 
-        public async Task<ActionResult> PrintC0401AsPDFAsync(RenderStyleViewModel viewModel)
+        public async Task<ActionResult> PrintC0401AsPDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             this.TempData["viewModel"] = viewModel.JsonStringify();
             ViewResult result = (ViewResult)PrintC0401(viewModel);
@@ -762,9 +901,9 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> PrintSingleAllowanceAsPDFAsync(RenderStyleViewModel viewModel)
+        public async Task<ActionResult> PrintSingleAllowanceAsPDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
-            ViewResult result = (ViewResult)ShowAllowance(viewModel);
+            ViewResult result = (ViewResult)ShowAllowance(viewModel, queryModel);
             InvoiceAllowance? item = result.Model as InvoiceAllowance;
             if (item == null)
             {
@@ -802,8 +941,13 @@ namespace WebHome.Controllers
             return View(allowance);
         }
 
-        public ActionResult ZipInvoicePackagePDF(RenderStyleViewModel viewModel, String jsonData)
+        public ActionResult ZipInvoicePackagePDF([FromJsonOrForm] RenderStyleViewModel viewModel, String jsonData)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             var items = JsonConvert.DeserializeObject<MailTrackingCsvViewModel[]>(jsonData);
             if (items == null || items.Length == 0)
             {

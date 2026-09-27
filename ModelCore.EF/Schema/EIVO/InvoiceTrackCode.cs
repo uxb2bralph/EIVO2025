@@ -25,7 +25,7 @@ namespace ModelCore.Schema.EIVO {
     public partial class InvoiceTrackCodeRoot {
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("Track")]
+        [System.Xml.Serialization.XmlElementAttribute("InvoiceTrackCode")]
         public InvoiceTrackCodeRootInvoiceTrackCode[] InvoiceTrackCode;
     }
     

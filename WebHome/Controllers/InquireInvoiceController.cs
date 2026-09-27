@@ -38,42 +38,73 @@ namespace WebHome.Controllers
         {
         }
 
-        public ActionResult BySeller(InquireInvoiceViewModel viewModel)
+        public ActionResult BySeller([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var userProfile = HttpContext.GetUser();
             var orgItems = userProfile.InitializeOrganizationQuery(models);
             return View(orgItems);
         }
 
-        public ActionResult ByBuyer(InquireInvoiceViewModel viewModel)
+        public ActionResult ByBuyer([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
-            ViewBag.ViewModel = viewModel;
-            return View();
-        }
-        public ActionResult ByBuyerName(InquireInvoiceViewModel viewModel)
-        {
-            ViewBag.ViewModel = viewModel;
-            return View();
-        }
-        public ActionResult ByCustomerID(InquireInvoiceViewModel viewModel)
-        {
-            ViewBag.ViewModel = viewModel;
-            return View();
-        }
-
-        public ActionResult ByInvoiceDate(InquireInvoiceViewModel viewModel)
-        {
-            ViewBag.ViewModel = viewModel;
-
-            if (!viewModel.InvoiceDateFrom.HasValue)
+            if (viewModel == null || !ModelState.IsValid)
             {
-                ModelState.AddModelError("InvoiceDateFrom", "請輸入查詢起日");
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
             }
 
-            if (!viewModel.InvoiceDateTo.HasValue)
+            ViewBag.ViewModel = viewModel;
+            return View();
+        }
+        public ActionResult ByBuyerName([FromJsonOrForm] InquireInvoiceViewModel viewModel)
+        {
+            if (viewModel == null || !ModelState.IsValid)
             {
-                ModelState.AddModelError("InvoiceDateTo", "請輸入查詢迄日");
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
+            ViewBag.ViewModel = viewModel;
+            return View();
+        }
+        public ActionResult ByCustomerID([FromJsonOrForm] InquireInvoiceViewModel viewModel)
+        {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
+            ViewBag.ViewModel = viewModel;
+            return View();
+        }
+
+        public ActionResult ByInvoiceDate([FromJsonOrForm] InquireInvoiceViewModel viewModel)
+        {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
+            ViewBag.ViewModel = viewModel;
+
+            //已輸入發票號碼即可直接定位資料，日期區間改為非必填；未輸入時仍須以日期限縮查詢範圍。
+            bool hasInvoiceNo = viewModel.InvoiceNo.GetEfficientString() != null;
+
+            if (!hasInvoiceNo)
+            {
+                if (!viewModel.InvoiceDateFrom.HasValue)
+                {
+                    ModelState.AddModelError("InvoiceDateFrom", "請輸入查詢起日");
+                }
+
+                if (!viewModel.InvoiceDateTo.HasValue)
+                {
+                    ModelState.AddModelError("InvoiceDateTo", "請輸入查詢迄日");
+                }
             }
 
             if (viewModel.InvoiceDateFrom.HasValue && viewModel.InvoiceDateTo.HasValue)
@@ -96,13 +127,18 @@ namespace WebHome.Controllers
             return View();
         }
 
-        public ActionResult ByConsumption(InquireInvoiceViewModel viewModel)
+        public ActionResult ByConsumption([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View();
         }
 
-        public ActionResult ByPeriod(String dateFrom, String dateTo)
+        public ActionResult ByPeriod([FromJsonOrForm] String dateFrom, String dateTo)
         {
             DateTime endDate;
             if (dateTo == null || !DateTime.TryParse(dateTo, out endDate))
@@ -153,26 +189,46 @@ namespace WebHome.Controllers
             return View(items);
         }
 
-        public ActionResult ByDonation(InquireInvoiceViewModel viewModel)
+        public ActionResult ByDonation([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View();
         }
 
-        public ActionResult ByDonatory(InquireInvoiceViewModel viewModel)
+        public ActionResult ByDonatory([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View();
         }
 
-        public ActionResult ByAttachment(InquireInvoiceViewModel viewModel)
+        public ActionResult ByAttachment([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View();
         }
 
-        public ActionResult ByAgent(InquireInvoiceViewModel viewModel)
+        public ActionResult ByAgent([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var userProfile = HttpContext.GetUser();
             IQueryable<Organization> items = models.GetTable<Organization>()

@@ -48,6 +48,11 @@ namespace WebHome.Controllers
 
         public ActionResult ShowData(ProcessRequestQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)InquireRequest(viewModel);
             viewModel.ResultView = "~/Views/ProcessRequest/Module/ProcessRequestTable.cshtml";
             result.ViewName = "~/Views/ProcessRequest/ShowData.cshtml";
@@ -55,8 +60,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult InquireRequest(ProcessRequestQueryViewModel viewModel)
+        public ActionResult InquireRequest([FromJsonOrForm] ProcessRequestQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
 

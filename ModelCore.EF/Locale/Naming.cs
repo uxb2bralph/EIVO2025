@@ -502,7 +502,6 @@ namespace ModelCore.Locale
 
         public enum InvoiceProcessType
         {
-            C0401 = 1,
             C0501 = 2,
             D0401 = 3,
             D0501 = 4,

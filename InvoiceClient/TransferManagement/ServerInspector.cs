@@ -45,11 +45,13 @@ namespace InvoiceClient.TransferManagement
                 try
                 {
                     Root token = invSvc.CreateMessageToken("讀取用戶端資料");
-                    XmlNode doc = invSvc.GetRegisteredMember(token.ConvertToXml().Sign());
-                    if (doc != null)
+                    XmlDocument doc = invSvc.GetRegisteredMember(token.ConvertToXml().Sign());
+                    ///伺服端未回應資料時會被包成 <Response>，直接反序列化會拋出 SerializationException
+                    if (doc?.DocumentElement?.LocalName == "Organization")
                     {
                         return doc.DeserializeDataContract<ModelCore.DataEntity.Organization>();
                     }
+                    Logger.Warn($"無法取得用戶端註冊資料，伺服端回應:{doc?.OuterXml}");
                 }
                 catch (Exception ex)
                 {
@@ -67,14 +69,15 @@ namespace InvoiceClient.TransferManagement
         } = AppSettings.Default.ServiceInfo ?? null!;
         public static void PrepareServiceInfo()
         {
-            if(@ServiceInfo == null)
+            if (@ServiceInfo == null)
             {
                 using (eInvoiceServiceClient invSvc = InvoiceWatcher.CreateInvoiceService())
                 {
                     try
                     {
                         Root token = invSvc.CreateMessageToken("讀取系統服務資訊");
-                        String result = invSvc.GetServiceInfo(token.ConvertToXml().Sign());
+                        var signedToken = token.ConvertToXml().Sign();
+                        String result = invSvc.GetServiceInfo(signedToken);
                         if (result != null)
                         {
                             Logger.Info("ServerInfo:" + result);

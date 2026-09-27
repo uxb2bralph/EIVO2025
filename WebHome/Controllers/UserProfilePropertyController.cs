@@ -27,7 +27,7 @@ namespace WebHome.Controllers
         }
 
         [HttpPost]
-        public JsonResult UpdateProperty(int uid, int propertyId, string property)
+        public JsonResult UpdateProperty([FromJsonOrForm] int uid, [FromJsonOrForm] int propertyId, [FromJsonOrForm] string property)
         {
             UserProfileProperty item = null;
             if (string.IsNullOrEmpty(property))

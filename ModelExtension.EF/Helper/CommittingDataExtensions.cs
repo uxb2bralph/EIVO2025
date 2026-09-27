@@ -266,8 +266,8 @@ namespace ModelCore.Helper
             viewModel.UserProfileValueCheck(creator, modelState);
             if (viewModel.PID != null)
             {
-                if ((item != null && models.GetTable<UserProfileDto>().Any(u => u.UID != item.UID && u.PID == viewModel.PID))
-                   || (item == null && models.GetTable<UserProfileDto>().Any(u => u.PID == viewModel.PID)))
+                if ((item != null && models.GetTable<UserProfile>().Any(u => u.UID != item.UID && u.PID == viewModel.PID))
+                   || (item == null && models.GetTable<UserProfile>().Any(u => u.PID == viewModel.PID)))
                 {
                     modelState.AddModelError("PID", "這個帳號已被使用，請更換申請帳號!!");
                 }

@@ -199,7 +199,7 @@ namespace ModelCore.InvoiceManagement
                         },
                         ProcessType = _seller.IsEnterpriseGroupMember() 
                                         ? (int)Naming.InvoiceProcessType.A0401
-                                        : (int)Naming.InvoiceProcessType.C0401,
+                                        : (int)Naming.InvoiceProcessType.F0401,
                     },
                     DonateMark = _seller.OrganizationStatus.PrintAll == true ? "0" : (!String.IsNullOrEmpty(column[(int)FieldIndex.對方統編]) ? "0" : (String.IsNullOrEmpty(column[(int)FieldIndex.發票捐贈對象]) ? "0" : "1")),
                     InvoiceDonation = _seller.OrganizationStatus.PrintAll == true ? null : (!String.IsNullOrEmpty(column[(int)FieldIndex.對方統編]) ? null : (String.IsNullOrEmpty(column[(int)FieldIndex.發票捐贈對象]) ? null : new InvoiceDonation

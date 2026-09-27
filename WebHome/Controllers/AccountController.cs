@@ -107,8 +107,13 @@ namespace WebHome.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public ActionResult TwoFactorAuth(TwoFactorViewModel viewModel)
+        public ActionResult TwoFactorAuth([FromJsonOrForm] TwoFactorViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             if (viewModel.KeyID != null)
             {
@@ -162,8 +167,13 @@ namespace WebHome.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<ActionResult> LoginToProcess(CbsLoginViewModel viewModel)
+        public async Task<ActionResult> LoginToProcess([FromJsonOrForm] CbsLoginViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             _ = await CbsLogin(viewModel);
             return Json(new { result = ModelState.IsValid });
@@ -212,7 +222,7 @@ namespace WebHome.Controllers
 
 
 
-        public async Task<ActionResult> CaptchaImgAsync(String code)
+        public async Task<ActionResult> CaptchaImgAsync([FromQuery] String code)
         {
 
             string captcha = Encoding.Default.GetString(AppResource.Instance.Decrypt(Convert.FromBase64String(code)));
@@ -283,8 +293,13 @@ namespace WebHome.Controllers
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS,Naming.RoleID.ROLE_SELLER })]
-        public ActionResult AccountIndex(UserAccountQueryViewModel viewModel, bool? showTab)
+        public ActionResult AccountIndex([FromJsonOrForm] UserAccountQueryViewModel viewModel, bool? showTab)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             ViewBag.ShowTab = showTab;
 
@@ -305,8 +320,13 @@ namespace WebHome.Controllers
         }
 
         [AuthorizedSysAdmin()]
-        public ActionResult SystemAccountIndex(UserAccountQueryViewModel viewModel, bool? showTab)
+        public ActionResult SystemAccountIndex([FromJsonOrForm] UserAccountQueryViewModel viewModel, bool? showTab)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             ViewBag.ShowTab = showTab;
 
@@ -316,8 +336,12 @@ namespace WebHome.Controllers
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
-        public ActionResult Inquire(UserAccountQueryViewModel viewModel)
+        public ActionResult Inquire([FromJsonOrForm] UserAccountQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             var profile = HttpContext.GetUser();
 
@@ -370,8 +394,13 @@ namespace WebHome.Controllers
         }
 
         [AuthorizedSysAdmin()]
-        public ActionResult InquireSystemAccount(UserAccountQueryViewModel viewModel)
+        public ActionResult InquireSystemAccount([FromJsonOrForm] UserAccountQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<UserProfile> items = (IQueryable<UserProfile>)result.Model;
             items = items.Where(u => u.UserRole.Any(r => r.RoleID == (int)Naming.RoleID.ROLE_SYS));
@@ -379,9 +408,9 @@ namespace WebHome.Controllers
             return View(result.ViewName, items);
         }
 
-        public ActionResult DataItem(int? id)
+        public ActionResult DataItem([FromJsonOrForm] int? id)
         {
-            var item = models.GetTable<UserProfile>().Where(d => d.UID == id).FirstOrDefault();
+            var item = models!.GetTable<UserProfile>().Where(d => d.UID == id).FirstOrDefault();
 
             if (item == null)
             {
@@ -392,7 +421,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult SendConfirmation(int? id)
+        public ActionResult SendConfirmation([FromJsonOrForm] int? id)
         {
             var item = models.GetTable<UserProfile>().Where(u => u.UID == id).FirstOrDefault();
             if (item != null)
@@ -404,7 +433,7 @@ namespace WebHome.Controllers
             return View("~/Views/Shared/AlertMessage.cshtml", model: "帳號資料錯誤!!");
         }
 
-        public ActionResult Deactivate(int? id)
+        public ActionResult Deactivate([FromJsonOrForm] int? id)
         {
             ViewResult result = (ViewResult)DataItem(id);
             var item = result.Model as UserProfile;
@@ -417,7 +446,7 @@ namespace WebHome.Controllers
             return result;
         }
 
-        public ActionResult Activate(int? id)
+        public ActionResult Activate([FromJsonOrForm] int? id)
         {
             ViewResult result = (ViewResult)DataItem(id);
             var item = result.Model as UserProfile;
@@ -430,7 +459,7 @@ namespace WebHome.Controllers
             return result;
         }
 
-        public ActionResult DeleteItem(int? id)
+        public ActionResult DeleteItem([FromJsonOrForm] int? id)
         {
             var item = models.GetTable<UserProfile>().Where(d => d.UID == id).FirstOrDefault();
 
@@ -463,8 +492,13 @@ namespace WebHome.Controllers
         }
 
         [AllowAnonymous]
-        public ActionResult CBESignUp(OrganizationViewModel viewModel)
+        public ActionResult CBESignUp([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             Organization item = null;
             if (viewModel.KeyID != null)
             {
@@ -478,8 +512,13 @@ namespace WebHome.Controllers
             return View("~/Views/Organization/CBE_SignUp.cshtml", item);
         }
 
-        public ActionResult CommitCBESignUp(OrganizationViewModel viewModel)
+        public ActionResult CommitCBESignUp([FromJsonOrForm] OrganizationViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -499,7 +538,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult ChangeLanguage(String lang)
+        public ActionResult ChangeLanguage([FromJsonOrForm] String lang)
         {
             var cLang = lang.GetEfficientString() ?? Settings.Default.DefaultUILanguage;
             Response.Cookies.Append("cLang", cLang);
@@ -511,8 +550,13 @@ namespace WebHome.Controllers
             return View("~/Views/Shared/Error.cshtml");
         }
 
-        public ActionResult CommitPassword(UserProfileViewModel viewModel)
+        public ActionResult CommitPassword([FromJsonOrForm] UserProfileViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var profile = HttpContext.GetUser();

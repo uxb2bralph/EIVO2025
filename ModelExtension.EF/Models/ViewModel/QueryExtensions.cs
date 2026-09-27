@@ -204,7 +204,7 @@ namespace ModelCore.Models.ViewModel
 
             //if (viewModel.ProcessType.HasValue)
             //{
-            //    if (viewModel.ProcessType == Naming.InvoiceProcessType.C0401)
+            //    if (viewModel.ProcessType == Naming.InvoiceProcessType.F0401)
             //    {
             //        items = items
             //            .Join(_models.GetTable<CDS_Document>()

@@ -147,6 +147,41 @@ namespace ModelCore.Helper
             }
         }
 
+        public static IQueryable<InvoiceItem> InquireInvoiceSubscription(this GenericDbContext<ApplicationDbContext> models, int? sellerID, int? agentID, Naming.ChannelIDType? channelID, String? clientID = null, bool issuerOnly = false)
+        {
+            IQueryable<CDS_Document> docItems = models.GetTable<CDS_Document>();
+            if (clientID?.Length > 0)
+            {
+                docItems = docItems.Join(models.GetTable<DocumentOwner>().Where(o => o.ClientID == clientID), d => d.DocID, o => o.DocID, (d, o) => d);
+            }
+
+            if (channelID.HasValue)
+            {
+                docItems = docItems.Where(d => d.ChannelID == (int)channelID);
+            }
+
+            if (clientID != null)
+            {
+                docItems = docItems.Join(models.GetTable<DocumentOwner>().Where(o => o.ClientID == clientID), d => d.DocID, o => o.DocID, (d, o) => d);
+            }
+
+            IQueryable<InvoiceItem> items = models.GetTable<DocumentSubscriptionQueue>()
+                .Join(docItems, s => s.DocID, d => d.DocID, (s, d) => d)
+                .Join(models.GetTable<InvoiceItem>(), d => d.DocID, i => i.InvoiceID, (d, i) => i);
+            IQueryable<InvoiceItem> queryItems = items.AsNoTracking();
+
+            if (sellerID.HasValue)
+            {
+                queryItems = items.Where(i => i.SellerID == sellerID);
+            }
+            else if (agentID.HasValue)
+            {
+                queryItems = models.GetInvoiceByAgent(items, agentID.Value, issuerOnly);
+            }
+
+            return queryItems;
+        }
+
         public static DataSet GetDataSetResult<TEntity>(this ModelSource<TEntity> models)
             where TEntity : class, new()
         {
@@ -275,7 +310,7 @@ namespace ModelCore.Helper
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.Log = new ExceptionLog
+                                    taskItem.ExceptionLog = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };

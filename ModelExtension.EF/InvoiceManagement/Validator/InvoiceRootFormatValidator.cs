@@ -81,7 +81,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 {
                     OwnerID = _owner?.CompanyID ?? _seller!.CompanyID
                 },
-                ProcessType = (int)(processType ?? Naming.InvoiceProcessType.C0401),
+                ProcessType = (int)(processType ?? Naming.InvoiceProcessType.F0401),
             };
             _container.DonateMark = _donation == null ? "0" : "1";
             _container.SellerID = _seller!.CompanyID;

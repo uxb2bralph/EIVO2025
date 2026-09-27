@@ -50,7 +50,7 @@
             var $formData = { };
             $formData.KeyID = keyID;
             showLoading();
-            $.post('@Html.Raw(Url.Action("LoadSmtpSettings", "Organization"))', $formData, function (data) {
+            $.postJSON('@Html.Raw(Url.Action("LoadSmtpSettings", "Organization"))', $formData, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                         alertModal(data.message);
@@ -67,7 +67,7 @@
             $formData.KeyID = keyID;
             clearErrors();
             showLoading();
-            $.post('@Html.Raw(Url.Action("CommitSmtpSettings", "Organization"))', $formData, function (data) {
+            $.postJSON('@Html.Raw(Url.Action("CommitSmtpSettings", "Organization"))', $formData, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {
@@ -86,7 +86,7 @@
             var $formData = {};
             $formData.KeyID = keyID;
             showLoading();
-            $.post('@Html.Raw(Url.Action("DisableSmtpSettings", "Organization"))', $formData, function (data) {
+            $.postJSON('@Html.Raw(Url.Action("DisableSmtpSettings", "Organization"))', $formData, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {

@@ -58,7 +58,7 @@
                 <script>
                     $(function () {
                         function getTaxNo(sellerID) {
-                            $.post('@Html.Raw(Url.Action("OrganizationExtension", "DataEntity"))', { 'id': sellerID }, function (data) {
+                            $.postJSON('@Html.Raw(Url.Action("OrganizationExtension", "DataEntity"))', { 'id': sellerID }, function (data) {
                                 if (data) {
                                     $('input[name="TaxNo"]').val(data.TaxNo);
                                 }

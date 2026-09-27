@@ -1,11 +1,12 @@
-﻿using CommonLib.Core.Utility;
-using ModelCore.DataEntity;
-using ModelExtension.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommonLib.Core.DataWork;
+using CommonLib.Core.Utility;
+using ModelCore.DataEntity;
+using ModelExtension.Properties;
 
 namespace ModelCore.Notification
 {
@@ -46,5 +47,25 @@ namespace ModelCore.Notification
 
             return null;
         }
+
+        public static void PushProcessExceptionNotification(this GenericDbContext<ApplicationDbContext> models, ProcessRequest requestItem, Organization notified, DateTime? bookingTime = null)
+        {
+            if (requestItem != null && notified != null)
+            {
+                if (!models.GetTable<ProcessExceptionNotification>().Any(n => n.TaskID == requestItem.TaskID && n.CompanyID == notified.CompanyID))
+                {
+                    models.GetTable<ProcessExceptionNotification>().Add(
+                            new ProcessExceptionNotification
+                            {
+                                TaskID = requestItem.TaskID,
+                                CompanyID = notified.CompanyID,
+                                BookingTime = bookingTime
+                            }
+                        );
+                    models.SubmitChanges();
+                }
+            }
+        }
+
     }
 }

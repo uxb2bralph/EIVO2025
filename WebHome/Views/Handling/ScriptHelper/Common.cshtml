@@ -41,7 +41,7 @@
 
                 clearErrors();
                 //showLoading();
-                $.post('@Html.Raw(Url.Action("InquireToTrackMail","Handling",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("InquireToTrackMail","Handling",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
                     if ($.isPlainObject(data)) {
                         //hideLoading();
                         $('#loadingOverlay1').css('display', 'none');
@@ -59,13 +59,13 @@
             showDetails: function () {
                 var items = Enumerable.From(uiHandling.items);
                 if (!uiHandling.$result) {
-                    $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = true }))', { 'id': items.Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
+                    $.postJSON('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = true }))', { 'id': items.Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
                         uiHandling.$result = $(data);
                         $('.queryAction').after(uiHandling.$result);
                         uiHandling.$result = uiHandling.$result.find('table.itemList > tbody');
                     });
                 } else {
-                    $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = false }))', { 'id': Enumerable.From(uiHandling.items).Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
+                    $.postJSON('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = false }))', { 'id': Enumerable.From(uiHandling.items).Select(function (i) { return i.InvoiceID; }).ToArray(), 'packageID': items.Select(function (i) { return i.PackageID; }).ToArray() }, function (data) {
                         $(data).appendTo(uiHandling.$result);
                     });
                 }
@@ -92,7 +92,7 @@
                         });
                 });
 
-                $.post('@Html.Raw(Url.Action("PackInvoice","Handling"))', { 'id': items }, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("PackInvoice","Handling"))', { 'id': items }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -125,7 +125,7 @@
                     items.push(current.InvoiceID);
                 });
 
-                $.post('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = false }))', { 'id': items, 'packageID': items }, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("InvoiceMailItems","Handling",new { showTable = false }))', { 'id': items, 'packageID': items }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -265,17 +265,16 @@
                         };
                     }).ToArray();
 
-                $.post({
-                    url: '@Url.Action("GeneratePostData", "Handling")',
-                    data: { 'jsonData': JSON.stringify(items) },
-                    success: function (data) {
+                $.postJSON('@Url.Action("GeneratePostData", "Handling")',
+                    { 'jsonData': JSON.stringify(items) },
+                    function (data) {
                         $('#loadingOverlay2').css('display', 'none');
                         $(data).appendTo(uiHandling.$result);
-                    },
-                    error: function () {
+                    })
+                    .fail(function () {
+                        $('#loadingOverlay2').css('display', 'none');
                         alert("郵件號碼寫入失敗!!");
-                    }
-                });
+                    });
             },
 
             download: function () {
@@ -357,7 +356,7 @@
                 }
 
                 showLoading();
-                $.post('@(Url.Action("ZipInvoicePackagePDF", "DataView"))', viewModel, function (data) {
+                $.postJSON('@(Url.Action("ZipInvoicePackagePDF", "DataView"))', viewModel, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         alert(data.message);

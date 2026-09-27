@@ -12,7 +12,7 @@ namespace WebHome.Infrastructure.BackgroundTasks
     public record BackgroundWorkItem(string Name, Func<CancellationToken, ValueTask> WorkItem);
 
     /// <summary>
-    /// 背景工作佇列，用來取代散落在 View / Controller 中的 <c>Task.Run</c> 與
+    /// 背景工作佇列，用來取代散落在 View / Controller 中的 <c>ProcessRequest.Run</c> 與
     /// <c>ThreadPool.QueueUserWorkItem</c>：工作改由 <see cref="BackgroundTaskService"/>
     /// （IHostedService）統一取件執行，主機關閉時可被取消並等待收尾，例外也會集中記錄。
     /// </summary>

@@ -38,6 +38,8 @@
 										<xs:element name="SellerId" type="xs:string"/>
 										<xs:element name="AllowanceNumber" type="xs:string"/>
 										<xs:element name="InvoiceNumber" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+										<xs:element name="AllowanceUrl" type="xs:string"/>
+										<xs:element name="AllowancePdf" type="xs:string"/>
 									</xs:sequence>
 								</xs:complexType>
 							</xs:element>

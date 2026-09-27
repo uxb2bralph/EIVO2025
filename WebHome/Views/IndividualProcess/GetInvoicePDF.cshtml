@@ -22,7 +22,7 @@
 @{
     if (_model != null)
     {
-        String invoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/DataView/ShowInvoice")}?DocID={_model.InvoiceID}&UseCustomView=true";
+        String invoiceUrl = $"{ModelExtension.Properties.AppSettings.Default.HostUrl}{VirtualPathUtility.ToAbsolute("~/DataView/ReviewInvoice")}?DocID={_model.InvoiceID}&UseCustomView=true";
         String pdfFile = System.IO.Path.Combine(Logger.LogDailyPath, $"{Guid.NewGuid()}.pdf");
         invoiceUrl.ConvertHtmlToPDF(pdfFile, ModelExtension.Properties.AppSettings.Default.SessionTimeout);
         if (File.Exists(pdfFile))

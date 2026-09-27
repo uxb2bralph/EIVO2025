@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 @using Microsoft.AspNetCore.Mvc.ModelBinding
@@ -82,7 +82,7 @@
             var event = event || window.event;
             $form = $(event.target).closest('form');
             showLoading();
-            $.post('@(Url.Action("CommitIssuerAgent","Organization",new { _viewModel.KeyID }))', $form.serializeObject(), function (data) {
+            $.postJSON('@(Url.Action("CommitIssuerAgent","Organization",new { _viewModel.KeyID }))', $form.serializeObject(), function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     if (data.result) {

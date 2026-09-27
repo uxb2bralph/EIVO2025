@@ -28,23 +28,40 @@
         自&nbsp;<input name="InvoiceDateFrom" id="InvoiceDateFrom" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.InvoiceDateFrom:yyyy/MM/dd}")" />
         &nbsp;至&nbsp;
         <input name="InvoiceDateTo" id="InvoiceDateTo" class="form_date form-control" type="text" size="10" readonly="readonly" value="@($"{_viewModel?.InvoiceDateTo:yyyy/MM/dd}")" />
+        <span id="invoiceDateOptionalHint" style="color:#666; font-size:0.85em; width:100%; display:none;">（已輸入發票號碼時，日期區間可不填）</span>
         <span id="invoiceDateRangeError" style="color:red; font-size:0.9em; width:100%; margin-top:4px;"></span>
     </td>
 </tr>
 <script>
     (function () {
+        // 查詢條件若已輸入發票號碼（~/Views/InquireInvoice/ByInvoiceNo.cshtml），
+        // 即可直接以號碼定位資料，毋須再以日期區間限縮查詢範圍。
+        function hasInvoiceNo() {
+            return $('input[name="InvoiceNo"]').filter(function () {
+                return $.trim(this.value || "") !== "";
+            }).length > 0;
+        }
+
         function validateInvoiceDateRange() {
             var fromVal = $("#InvoiceDateFrom").val();
             var toVal = $("#InvoiceDateTo").val();
             var $err = $("#invoiceDateRangeError");
             $err.text("");
 
+            var dateOptional = hasInvoiceNo();
+
             if (!fromVal) {
+                if (dateOptional) {
+                    return true;
+                }
                 $err.text("請輸入查詢起日");
                 alertModal($err.text());
                 return false;
             }
             if (!toVal) {
+                if (dateOptional) {
+                    return true;
+                }
                 $err.text("請輸入查詢迄日");
                 alertModal($err.text());
                 return false;
@@ -78,6 +95,11 @@
         }
 
         $(function () {
+            // 查詢條件含發票號碼欄位時，提示日期區間為條件式必填
+            if ($('input[name="InvoiceNo"]').length) {
+                $("#invoiceDateOptionalHint").show();
+            }
+
             // 掛載驗證到 $inquiryAgent
             var hookInquiryAgent = function () {
                 if (typeof $inquiryAgent !== "undefined" && $inquiryAgent && !$inquiryAgent.__dateRangeValidationHooked) {

@@ -48,7 +48,7 @@
             }
 
             showLoading();
-            $.post('@Html.Raw(Url.Action(_viewModel.QueryAction ?? "Inquire","Account",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+            $.postJSON('@Html.Raw(Url.Action(_viewModel.QueryAction ?? "Inquire","Account",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
                 hideLoading();
                 if (data) {
                     if (onPaging) {
@@ -116,7 +116,7 @@
         };
 
         window.uiAccountQuery.dataItem = function ($tr, value) {
-            $.post('@Html.Raw(Url.Action("DataItem","Account"))', 'id=' + value, function (data) {
+            $.postJSON('@Html.Raw(Url.Action("DataItem","Account"))', { id: value }, function (data) {
                 if (data) {
                     var $data = $(data);
                     if ($data.is('tr')) {
@@ -131,7 +131,7 @@
         };
 
         window.uiAccountQuery.sendConfirmation = function (value) {
-            $.post('@Html.Raw(Url.Action("SendConfirmation","Account"))', 'id=' + value, function (data) {
+            $.postJSON('@Html.Raw(Url.Action("SendConfirmation","Account"))', { id: value }, function (data) {
                 if (data) {
                     var $data = $(data);
                     $('body').append($data);
@@ -144,7 +144,7 @@
             if (confirm('確認啟用此帳號?')) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@Html.Raw(Url.Action("Activate","Account"))', { id: value }, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("Activate","Account"))', { id: value }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -164,7 +164,7 @@
             if (confirm('確認停用此帳號?')) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@Html.Raw(Url.Action("Deactivate","Account"))', { id: value }, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("Deactivate","Account"))', { id: value }, function (data) {
                     if (data) {
                         var $data = $(data);
                         if ($data.is('tr')) {
@@ -184,7 +184,7 @@
             if (confirm('確認刪除此帳號?')) {
                 var event = event || window.event;
                 var $tr = $(event.target).closest('tr');
-                $.post('@Html.Raw(Url.Action("DeleteItem","Account"))', { id: value }, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("DeleteItem","Account"))', { id: value }, function (data) {
                     if (data.result) {
                         alert('資料已刪除!!')
                         $tr.remove();

@@ -181,7 +181,7 @@
             nothingToken: false,
             doNothing: function () {
                 this.nothingToken = true;
-                $.post('@Html.Raw(Url.Action("SystemInfo","Home"))', null, function (data) {
+                $.postJSON('@Html.Raw(Url.Action("SystemInfo","Home"))', null, function (data) {
                     if ($.isPlainObject(data)) {
                         console.log(data);
                     }
@@ -193,7 +193,7 @@
             printContent: function ($element, printDone) {
                 if ($printContainer == undefined) {
                     showLoading();
-                    $.post('@Html.Raw(Url.Action("PrintPage", "Helper"))', {}, function (data) {
+                    $.postJSON('@Html.Raw(Url.Action("PrintPage", "Helper"))', {}, function (data) {
                         hideLoading();
                         if ($.isPlainObject(data)) {
                             alertModal("無法取得列印文件!!");
@@ -527,6 +527,26 @@
             }
         });
     }
+
+    $.postJSON = function (url, data, fn) {
+        var idx = url ? url.indexOf('?') : -1;
+        var queryData = {};
+        if (idx >= 0) {
+            url.substring(idx + 1).split('&').forEach(function (pair) {
+                var parts = pair.split('=');
+                if (parts[0]) { queryData[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1] || ''); }
+            });
+            url = url.substring(0, idx);
+        }
+        var merged = $.extend({}, queryData, data || {});
+        return $.ajax({
+            url: url,
+            type: 'POST',
+            contentType: 'application/json;charset=utf-8',
+            data: JSON.stringify(merged),
+            success: fn
+        });
+    };
 
     function doPost(url, viewModel, done) {
         showLoading();

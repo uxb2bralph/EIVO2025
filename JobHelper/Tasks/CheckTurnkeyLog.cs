@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommonLib.Core.DataWork;
+using CommonLib.Core.Utility;
+using CommonLib.DataAccess;
+using CommonLib.Helper;
 using CommonLib.Utility;
+using JobHelper.Properties;
 using ModelCore.DataEntity;
 using ModelCore.Helper;
-using JobHelper.Properties;
-using CommonLib.Helper;
-using CommonLib.DataAccess;
-using CommonLib.Core.Utility;
+using ModelCore.TurnkeyModel;
 
 namespace JobHelper.Tasks
 {
@@ -50,11 +52,11 @@ namespace JobHelper.Tasks
             try
             {
                 int idx = 0;
-                TurnKey2DataContext turnkeyDB = new TurnKey2DataContext();
+                GenericDbContext<TurnkeyDbContext> turnkeyDB = new GenericDbContext<TurnkeyDbContext>(new TurnkeyDbContext());
                 {
-                    EIVOEntityDataContext db = new EIVOEntityDataContext(connString);
+                    GenericDbContext<ApplicationDbContext> db = new GenericDbContext<ApplicationDbContext>(new ApplicationDbContext(connString));
                     {
-                        ModelSource models = new ModelSource(new GenericManager<EIVOEntityDataContext>(db));
+                        ModelSource models = new ModelSource(db);
                         {
                             TurnkeyTriggerLog log = turnkeyDB.GetTable<TurnkeyTriggerLog>().FirstOrDefault();
                             if (log != null)
@@ -66,11 +68,11 @@ namespace JobHelper.Tasks
                                 if ((++idx) % 1024 == 0)
                                 {
                                     turnkeyDB.Dispose();
-                                    turnkeyDB = new TurnKey2DataContext();
+                                    turnkeyDB = new GenericDbContext<TurnkeyDbContext>(new TurnkeyDbContext());
                                     db.Dispose();
-                                    db = new EIVOEntityDataContext(connString);
+                                    db = new GenericDbContext<ApplicationDbContext>(new ApplicationDbContext(connString));
                                     models.Dispose();
-                                    models = new ModelSource(new GenericManager<EIVOEntityDataContext>(db));
+                                    models = new ModelSource(db);
                                 }
 
                                 Console.WriteLine($"Checking log {log.LogID} with message type {log.MESSAGE_TYPE} and status {log.STATUS}...");

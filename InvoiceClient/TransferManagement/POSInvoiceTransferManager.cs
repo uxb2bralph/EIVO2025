@@ -46,7 +46,7 @@ namespace InvoiceClient.TransferManagement
         {
             _SellerInvoiceWatcher = new InvoiceWatcherV2(POSReady.Settings.SellerInvoice)
             {
-                PreferredProcessType = Naming.InvoiceProcessType.C0401,
+                PreferredProcessType = Naming.InvoiceProcessType.F0401,
                 ContentName = $"({Path.GetFileName(POSReady.Settings.SellerInvoice)})",
                 TransferManager = this,
             };

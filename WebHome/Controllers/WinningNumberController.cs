@@ -51,8 +51,13 @@ namespace WebHome.Controllers
             return View("~/Views/InvoiceProcess/Index.cshtml");
         }
 
-        public ActionResult Inquire(InquireNoIntervalViewModel viewModel)
+        public ActionResult Inquire([FromJsonOrForm] InquireNoIntervalViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (!viewModel.Year.HasValue)
@@ -76,7 +81,7 @@ namespace WebHome.Controllers
             return View("~/Views/WinningNumber/Module/QueryResult.cshtml", items);
         }
 
-        public ActionResult EditItem(int? id)
+        public ActionResult EditItem([FromJsonOrForm] int? id)
         {
             ViewResult result = (ViewResult)DataItem(id);
             UniformInvoiceWinningNumber model = result.Model as UniformInvoiceWinningNumber;
@@ -87,7 +92,7 @@ namespace WebHome.Controllers
             return result;
         }
 
-        public ActionResult DeleteItem(int? id)
+        public ActionResult DeleteItem([FromJsonOrForm] int? id)
         {
             var item = models.DeleteAny<UniformInvoiceWinningNumber>(d => d.WinningID == id);
 
@@ -109,7 +114,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult DataItem(int? id)
+        public ActionResult DataItem([FromJsonOrForm] int? id)
         {
             var item = models.GetTable<UniformInvoiceWinningNumber>()
                 .Where(d => d.WinningID == id)
@@ -124,8 +129,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CommitItem(WinningNumberViewModel viewModel)
+        public ActionResult CommitItem([FromJsonOrForm] WinningNumberViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             viewModel.WinningNo = viewModel.WinningNo.GetEfficientString();
@@ -243,8 +253,13 @@ namespace WebHome.Controllers
             });
         }
 
-        public ActionResult MatchWinningInvoiceNo(InquireNoIntervalViewModel viewModel)
+        public ActionResult MatchWinningInvoiceNo([FromJsonOrForm] InquireNoIntervalViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<UniformInvoiceWinningNumber> items = result.Model as IQueryable<UniformInvoiceWinningNumber>;
             if (items != null && items.Count() > 0)
@@ -265,8 +280,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult ClearWinningInvoiceNo(InquireNoIntervalViewModel viewModel)
+        public ActionResult ClearWinningInvoiceNo([FromJsonOrForm] InquireNoIntervalViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<UniformInvoiceWinningNumber> items = result.Model as IQueryable<UniformInvoiceWinningNumber>;
             if (items != null && items.Count() > 0)
@@ -285,8 +305,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult UploadWinningNo(InquireNoIntervalViewModel viewModel, IEnumerable<IFormFile> excelFile)
+        public ActionResult UploadWinningNo([FromJsonOrForm] InquireNoIntervalViewModel viewModel, IEnumerable<IFormFile> excelFile)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (excelFile == null || excelFile.Count() < 1)
@@ -336,7 +361,7 @@ namespace WebHome.Controllers
 
                     using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
                     {
-                        using (DataSet ds = excelPath.ImportExcelXLS())
+                        using (DataSet ds = excelPath.ImportExcelByClosedXML())
                         {
                             Exception exception = null;
                             if (ds.Tables.Count > 0)
@@ -420,7 +445,7 @@ namespace WebHome.Controllers
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.Log = new ExceptionLog
+                                    taskItem.ExceptionLog = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };

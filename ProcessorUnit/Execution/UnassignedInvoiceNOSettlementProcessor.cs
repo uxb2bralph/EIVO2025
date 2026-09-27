@@ -41,8 +41,8 @@ namespace ProcessorUnit.Execution
 
                     if (viewModel.SellerID.HasValue)
                     {
-                        manager.SettleUnassignedInvoiceNOPeriodically(viewModel.Year.Value, viewModel.PeriodNo.Value, viewModel.SellerID);
-                        manager.Context.SettlementInvoiceNo(viewModel.SellerID, viewModel.Year.Value, viewModel.PeriodNo.Value);
+                        manager.ExecuteCommand("exec SettleUnassignedInvoiceNOPeriodically @Year, @PeriodNo, @SellerID", new { Year = viewModel!.Year!.Value, PeriodNo = viewModel!.PeriodNo!.Value, SellerID = viewModel.SellerID });
+                        manager.ExecuteCommand("exec SettlementInvoiceNo @SellerID, @Year, @PeriodNo", new { SellerID = viewModel.SellerID, Year = viewModel.Year.Value, PeriodNo = viewModel.PeriodNo.Value });
 
                         if (viewModel.BranchRelation == true)
                         {
@@ -51,8 +51,8 @@ namespace ProcessorUnit.Execution
 
                             foreach (var orgItem in items)
                             {
-                                manager.SettleUnassignedInvoiceNOPeriodically(viewModel.Year.Value, viewModel.PeriodNo.Value, orgItem);
-                                manager.Context.SettlementInvoiceNo(orgItem, viewModel.Year.Value, viewModel.PeriodNo.Value);
+                                manager.ExecuteCommand("exec SettleUnassignedInvoiceNOPeriodically @Year, @PeriodNo, @SellerID", new { Year = viewModel!.Year!.Value, PeriodNo = viewModel!.PeriodNo!.Value, SellerID = orgItem });
+                                manager.ExecuteCommand("exec SettlementInvoiceNo @SellerID, @Year, @PeriodNo", new { SellerID = orgItem, Year = viewModel.Year.Value, PeriodNo = viewModel.PeriodNo.Value });
                             }
                         }
                     }
@@ -60,8 +60,8 @@ namespace ProcessorUnit.Execution
                     {
                         foreach (var orgItem in items)
                         {
-                            manager.SettleUnassignedInvoiceNOPeriodically(viewModel.Year.Value, viewModel.PeriodNo.Value, orgItem);
-                            manager.Context.SettlementInvoiceNo(orgItem, viewModel.Year.Value, viewModel.PeriodNo.Value);
+                            manager.ExecuteCommand("exec SettleUnassignedInvoiceNOPeriodically @Year, @PeriodNo, @SellerID", new { Year = viewModel!.Year!.Value, PeriodNo = viewModel!.PeriodNo!.Value, SellerID = orgItem });
+                            manager.ExecuteCommand("exec SettlementInvoiceNo @SellerID, @Year, @PeriodNo", new { SellerID = orgItem, Year = viewModel.Year.Value, PeriodNo = viewModel.PeriodNo.Value });
                         }
                     }
                 }

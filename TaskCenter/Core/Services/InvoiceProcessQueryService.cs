@@ -657,7 +657,7 @@ namespace TaskCenter.Core.Services
 
         private static string? MigStatus(int? processType, bool hasMigC, bool hasMigE)
         {
-            var code = ((Naming.InvoiceProcessType?)processType)?.ToString() ?? "C0401";
+            var code = ((Naming.InvoiceProcessType?)processType)?.ToString() ?? "F0401";
             var state = hasMigC ? ":C" : hasMigE ? ":E" : ":P";
             return code + state;
         }

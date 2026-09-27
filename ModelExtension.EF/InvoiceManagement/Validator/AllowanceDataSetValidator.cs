@@ -165,7 +165,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
             if (_details == null || _details.Count() == 0)
             {
-                return new Exception("CDS_Document details not found.");
+                return new Exception("Allowance details not found.");
             }
 
             //byte? allowanceType = _allowanceItem.GetData<byte>(AllowanceField.Allowance_Type);

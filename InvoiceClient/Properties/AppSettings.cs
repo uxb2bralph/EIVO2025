@@ -139,7 +139,7 @@ namespace InvoiceClient.Properties
         public string UploadPreInvoiceFolder { get; set; } = "PreInvoice";
         public string UploadSellerInvoiceFolder { get; set; } = "SellerInvoice";
         public string VacantInvoiceNoFolder { get; set; } = "VacantInvoiceNo";
-        public int WaitForInvoicePDFInSeconds { get; set; } = 300;
+        public int WaitingSeconds { get; set; } = 300;
         public int WatcherProcessDelayInSeconds { get; set; } = 5;
         public string WelfareInfoFolder { get; set; } = "SWA";
         public int WS_TimeoutInMilliSeconds { get; set; } = 300000;

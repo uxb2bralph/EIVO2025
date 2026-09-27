@@ -1,4 +1,4 @@
-
+﻿
 
 @using System.IO
 @using System.Linq.Expressions
@@ -153,7 +153,7 @@
                 clearErrors();
 
                 showLoading();
-                $.post('@(Url.Action("CommitInvoiceBuyer", ViewBag.SimpleForm == true ? "IndividualProcess" : "InvoiceProcess", new { DialogID = _dialogID }))', $formData, function (data) {
+                $.postJSON('@(Url.Action("CommitInvoiceBuyer", ViewBag.SimpleForm == true ? "IndividualProcess" : "InvoiceProcess", new { DialogID = _dialogID }))', $formData, function (data) {
                     hideLoading();
                     if ($.isPlainObject(data)) {
                         if (data.result) {

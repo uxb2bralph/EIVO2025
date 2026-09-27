@@ -1,4 +1,4 @@
-
+﻿
 @using System.IO
 @using System.Linq.Expressions
 
@@ -39,7 +39,7 @@
 
 
             showLoading();
-            $.post('@(Url.Action("Inquire","TrackCode",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
+            $.postJSON('@(Url.Action("Inquire","TrackCode",new { resultAction = ViewBag.ResultAction }))', $formData, function (data) {
                 hideLoading();
                 if ($.isPlainObject(data)) {
                     alert(data.message);
@@ -60,7 +60,7 @@
 
             var event = event || window.event;
             var $tr = $(event.target).closest('tr');
-            $.post('@(Url.Action("EditItem","TrackCode"))', 'id=' + value, function (data) {
+            $.postJSON('@(Url.Action("EditItem","TrackCode"))', { id: value }, function (data) {
                 if (data) {
                     var $data = $(data);
                     if ($data.is('tr')) {
@@ -82,7 +82,7 @@
         };
 
         window.uiTrackCodeQuery.dataItem = function ($tr, value) {
-            $.post('@(Url.Action("DataItem","TrackCode"))', 'id=' + value, function (data) {
+            $.postJSON('@(Url.Action("DataItem","TrackCode"))', { id: value }, function (data) {
                 if (data) {
                     var $data = $(data);
                     if ($data.is('tr')) {
@@ -100,7 +100,7 @@
             var event = event || window.event;
             var $tr = $(event.target).closest('tr');
             clearErrors();
-            $.post('@(Url.Action("CommitItem","TrackCode"))', 'trackID=' + (value ? value : '') + '&' + $.param($tr.find('input,select,textarea')), function (data) {
+            $.postJSON('@(Url.Action("CommitItem","TrackCode"))', $.extend({ trackID: value || '' }, $tr.find('input,select,textarea').serializeObject()), function (data) {
                 if (data) {
                     var $data = $(data);
                     if ($data.is('tr')) {
@@ -121,7 +121,7 @@
                 if (confirm('確定刪除此筆資料?')) {
                     var event = event || window.event;
                     var $tr = $(event.target).closest('tr');
-                    $.post('@(Url.Action("DeleteItem","TrackCode"))', { 'id': value }, function (data) {
+                    $.postJSON('@(Url.Action("DeleteItem","TrackCode"))', { 'id': value }, function (data) {
                         if (data.result) {
                             alert('資料已刪除!!')
                             $tr.remove();

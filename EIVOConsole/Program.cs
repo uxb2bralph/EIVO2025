@@ -65,7 +65,7 @@ Use command:
             }
             else
             {
-                System.Diagnostics.Debugger.Launch();
+                //System.Diagnostics.Debugger.Launch();
                 Application.Run(new MyApplicationContext(() =>
                 {
                     //Console.WriteLine("Hello, World!");
@@ -99,12 +99,12 @@ Use command:
 
             void SaveE0402(InvoiceTrackCodeAssignment assignment)
             {
-                if(AppSettings.Default.ExclusiveE0402?.Contains(assignment.Organization.ReceiptNo) == true)
+                if(AppSettings.Default.ExclusiveE0402?.Contains(assignment.Seller.ReceiptNo) == true)
                 {
                     return;
                 }
 
-                if (assignment.Organization.OrganizationExtension?.AutoBlankTrackEmittance == false)
+                if (assignment.Seller.OrganizationExtension?.AutoBlankTrackEmittance == false)
                 {
                     return;
                 }

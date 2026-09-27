@@ -44,7 +44,7 @@
                     <script>
                         function loadCounterpart(term) {
                             showLoading();
-                            $.post('@Html.Raw(Url.Action("GetCounterpart", "Home"))', { 'term': term }, function (data) {
+                            $.postJSON('@Html.Raw(Url.Action("GetCounterpart", "Home"))', { 'term': term }, function (data) {
                                 hideLoading();
                                 if ($.isPlainObject(data) && data) {
                                     $('input[name="BuyerReceiptNo"]').val(data.ReceiptNo);
@@ -282,7 +282,7 @@
                         preview = window.open('', '_blank', 'popup');
                     }
 
-                    $.post('@Html.Raw(Url.Action(_viewModel.InvoiceProcessType==Naming.InvoiceProcessType.A0401
+                    $.postJSON('@Html.Raw(Url.Action(_viewModel.InvoiceProcessType==Naming.InvoiceProcessType.A0401
                                 ? "CommitA0401"
                                 : "CommitA0101", "InvoiceBusiness", new { _viewModel.InvoiceProcessType }))', $formData, function (data) {
                         hideLoading();

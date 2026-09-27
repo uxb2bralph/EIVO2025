@@ -181,8 +181,13 @@ namespace WebHome.Controllers
             return Json(new { result = true });
         }
 
-        public ActionResult InspectInvoice(POSDeviceViewModel viewModel)
+        public ActionResult InspectInvoice([FromJsonOrForm] POSDeviceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             if (viewModel.Seed == null)
             {

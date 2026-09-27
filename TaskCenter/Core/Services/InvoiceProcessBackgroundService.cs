@@ -18,7 +18,7 @@ namespace TaskCenter.Core.Services
     /// <summary>
     /// 發票處理背景服務：執行 InvoiceService 各 Apply* 端點收下的作業——發票存證（帶號／自動配號）、
     /// 發票作廢、折讓單存證、折讓單作廢（見 <see cref="InvoiceProcessJobKind"/>）。
-    /// 原本收單端點以 <c>Task.Run</c> 直接把 InvoiceManager 丟到執行緒集區處理，改為
+    /// 原本收單端點以 <c>ProcessRequest.Run</c> 直接把 InvoiceManager 丟到執行緒集區處理，改為
     /// 統一由本服務自佇列（<see cref="IInvoiceProcessQueue"/>）取件執行：
     /// <list type="bullet">
     /// <item>作業不再綁在請求生命週期上（請求 DbContext 釋放後不會影響背景處理）。</item>
@@ -29,7 +29,7 @@ namespace TaskCenter.Core.Services
     /// 每筆作業處理結束後回報佇列狀態（<c>Acknowledge</c> / <c>Abandon</c>）：檔案佇列
     /// （<c>InvoiceProcessFileQueue</c>）據此清除或保留落地的 JSON 檔案，行程中斷重啟後才能
     /// 接續處理未完成的作業；使用記憶體佇列（AppSettings.InvoiceProcessQueue.Persistent = false）
-    /// 時，行程被強制中止未處理完的作業會遺失（與原 Task.Run 行為相同）。
+    /// 時，行程被強制中止未處理完的作業會遺失（與原 ProcessRequest.Run 行為相同）。
     /// </summary>
     public class InvoiceProcessBackgroundService : BackgroundService
     {
@@ -47,7 +47,7 @@ namespace TaskCenter.Core.Services
             int workerCount = Math.Max(1, AppSettings.Default.InvoiceProcessQueue.WorkerCount);
             _logger.LogInformation("發票處理背景服務啟動，Worker 數量 = {WorkerCount}。", workerCount);
 
-            // 以 Task.Run 起 Worker：取件後的存證處理是同步（阻塞）作業，
+            // 以 ProcessRequest.Run 起 Worker：取件後的存證處理是同步（阻塞）作業，
             // 不可佔用 Host 啟動時呼叫 ExecuteAsync 的執行緒。
             var workers = Enumerable.Range(0, workerCount)
                 .Select(id => Task.Run(() => RunWorkerAsync(id, stoppingToken), CancellationToken.None))
@@ -96,7 +96,7 @@ namespace TaskCenter.Core.Services
         }
 
         /// <summary>
-        /// 執行單筆作業（原 InvoiceServiceController 各 Apply* 端點內 Task.Run 的內容）。
+        /// 執行單筆作業（原 InvoiceServiceController 各 Apply* 端點內 ProcessRequest.Run 的內容）。
         /// </summary>
         private void ProcessJob(int workerId, InvoiceProcessJob job)
         {

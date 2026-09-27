@@ -1347,7 +1347,9 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
-                            return token.Company.SerializeDataContractToXml();
+                            ///Lazy Loading Proxy 取回的是 Castle.Proxies.OrganizationProxy，
+                            ///DataContractSerializer 無法序列化，必須先轉回純資料實體
+                            return token.Company.ToPlainEntity().SerializeDataContractToXml();
                         }
                     }
                 }

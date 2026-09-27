@@ -46,8 +46,12 @@ namespace WebHome.Controllers
             return View("~/Views/AllowanceProcess/Index.cshtml");
         }
 
-        public ActionResult Inquire(InquireInvoiceViewModel viewModel)
+        public ActionResult Inquire([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             ViewBag.ViewModel = viewModel;
 
@@ -93,8 +97,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult InquireReceivedB0101(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireReceivedB0101([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             bool hasPaging = viewModel.PageIndex.HasValue;
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceAllowance> items = (result.Model as IQueryable<InvoiceAllowance>)!;
@@ -114,8 +123,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult InquireReceivedB0201(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireReceivedB0201([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             bool hasPaging = viewModel.PageIndex.HasValue;
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceAllowance> items = (result.Model as IQueryable<InvoiceAllowance>)!;
@@ -137,8 +151,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult InquireToVoid(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireToVoid([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)Index(viewModel);
             viewModel.ActionTitle = "作廢折讓";
             viewModel.CommitAction = "VoidAllowance";
@@ -147,8 +166,13 @@ namespace WebHome.Controllers
             return result;
         }
 
-        public ActionResult InvokeCommitAction(InquireInvoiceViewModel viewModel)
+        public ActionResult InvokeCommitAction([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View("~/Views/AllowanceProcess/Module/InvokeCommitAction.cshtml");
         }
@@ -228,8 +252,13 @@ namespace WebHome.Controllers
             return new EmptyResult();
         }
 
-        public ActionResult CreateXlsx2021(InquireInvoiceViewModel viewModel)
+        public ActionResult CreateXlsx2021([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceAllowance> allowanceItems = result.Model as IQueryable<InvoiceAllowance>;
 
@@ -345,7 +374,7 @@ namespace WebHome.Controllers
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.Log = new ExceptionLog
+                                    taskItem.ExceptionLog = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };
@@ -368,8 +397,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult VoidAllowance([FromBody] InquireInvoiceViewModel viewModel)
+        public ActionResult VoidAllowance([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             var chkItem = viewModel.ChkItem;
             if (chkItem != null && chkItem.Count() > 0)
@@ -391,7 +425,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> PrintAsync([FromBody] InquireInvoiceViewModel dataModel, [FromBody] RenderStyleViewModel viewModel)
+        public async Task<ActionResult> PrintAsync([FromJsonOrForm] InquireInvoiceViewModel dataModel, [FromJsonOrForm] RenderStyleViewModel viewModel)
         {
             if(dataModel == null)
             {
@@ -412,7 +446,7 @@ namespace WebHome.Controllers
                 return Json(new { result = false, message = "資料已列印請重新選擇!!" });
         }
 
-        public async Task<ActionResult> IssueAllowanceNoticeAsync([FromBody] InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> IssueAllowanceNoticeAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
             if(viewModel == null)
             {
@@ -471,7 +505,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> DeleteAllowanceAsync([FromBody] InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> DeleteAllowanceAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
             if (viewModel == null)
             {
@@ -500,7 +534,7 @@ namespace WebHome.Controllers
             }
 
         }
-        public async Task<ActionResult> CommitReceivedB0101Async([FromBody] QueryViewModel viewModel)
+        public async Task<ActionResult> CommitReceivedB0101Async([FromJsonOrForm] QueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel == null)
@@ -560,7 +594,7 @@ namespace WebHome.Controllers
             }
         }
 
-        public async Task<ActionResult> CommitReceivedB0201Async([FromBody] QueryViewModel viewModel)
+        public async Task<ActionResult> CommitReceivedB0201Async([FromJsonOrForm] QueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel == null)

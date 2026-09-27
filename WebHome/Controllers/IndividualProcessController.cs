@@ -53,8 +53,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult Inquire(InquireInvoiceViewModel viewModel,String ValidCode,String EncryptedCode)
+        public ActionResult Inquire([FromJsonOrForm] InquireInvoiceViewModel viewModel,String ValidCode,String EncryptedCode)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             ValidCode = ValidCode.GetEfficientString();
@@ -127,8 +132,13 @@ namespace WebHome.Controllers
             return View("~/Views/IndividualProcess/DataQuery/InvoiceQueryResult.cshtml", item);
         }
 
-        public ActionResult GetInvoicePDF(InquireInvoiceViewModel viewModel)
+        public ActionResult GetInvoicePDF([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if(viewModel.KeyID != null)
@@ -249,8 +259,12 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CommitInvoiceBuyer(InvoiceBuyerViewModel viewModel)
+        public ActionResult CommitInvoiceBuyer([FromJsonOrForm] InvoiceBuyerViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             InvoiceBuyer item = null;
 
@@ -312,8 +326,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult ValidateUserCarrier(LoginViewModel viewModel)
+        public ActionResult ValidateUserCarrier([FromJsonOrForm] LoginViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             if (!ModelState.IsValid)
             {

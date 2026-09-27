@@ -62,17 +62,17 @@ namespace ProcessorUnit.Execution
         protected override void ProcessRequestItem()
         {
             ProcessRequest requestItem = queueItem.ProcessRequest;
-            String requestFile = requestItem.RequestPath.StoreTargetPath();
-            if (File.Exists(requestFile))
+            String? requestFile = requestItem?.RequestPath?.StoreTargetPath();
+            if (requestFile != null && File.Exists(requestFile))
             {
-                Organization agent = requestItem.Organization;
+                Organization? agent = requestItem!.Agent;
                 requestItem.ProcessStart = DateTime.Now;
                 models.SubmitChanges();
 
                 XmlDocument uploadData = prepareDocument(requestFile);
                 var result = processRequest(uploadData, requestItem);
                 String responseName = $"{Path.GetFileNameWithoutExtension(requestFile)}_Response.xml";
-                String responsePath = Path.Combine(Path.GetDirectoryName(requestFile), responseName);
+                String responsePath = Path.Combine(Path.GetDirectoryName(requestFile)!, responseName);
 
                 if (ProcessorUnit.Properties.AppSettings.Default.ResponsePath != null)
                 {

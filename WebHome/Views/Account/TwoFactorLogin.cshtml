@@ -1,4 +1,4 @@
-@using System.IO
+﻿@using System.IO
 @using System.Linq.Expressions
 
 
@@ -93,7 +93,7 @@
         $formData.KeyID = '@Html.Raw(_model.UID.EncryptKey())';
         clearErrors();
         showLoading();
-        $.post('@Html.Raw(Url.Action("TwoFactorAuth", "Account"))', $formData, function (data) {
+        $.postJSON('@Html.Raw(Url.Action("TwoFactorAuth", "Account"))', $formData, function (data) {
             hideLoading();
             if ($.isPlainObject(data)) {
                 alert(data.message);
@@ -106,7 +106,7 @@
 
     function twoFactor() {
         showLoading();
-        $.post('@Html.Raw(Url.Action("NotifyTwoFactorSettings", "Notification"))', {'KeyID' : '@(_model.UID.EncryptKey())'}, function (data) {
+        $.postJSON('@Html.Raw(Url.Action("NotifyTwoFactorSettings", "Notification"))', {'KeyID' : '@(_model.UID.EncryptKey())'}, function (data) {
             hideLoading();
             if ($.isPlainObject(data)) {
                 alert(data.message);

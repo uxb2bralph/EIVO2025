@@ -100,7 +100,7 @@ namespace TaskCenter.Core.Controllers
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
-                    Message = "CDS_Document data retrieved successfully",
+                    Message = "Invoice data retrieved successfully",
                     Data = dataItems
                 });
             }
@@ -255,7 +255,7 @@ namespace TaskCenter.Core.Controllers
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
-                    Message = "CDS_Document data retrieved successfully",
+                    Message = "Allowance data retrieved successfully",
                     Data = dataItems
                 });
             }
@@ -422,7 +422,7 @@ namespace TaskCenter.Core.Controllers
                 return Ok(new ResponseDto<object>
                 {
                     Success = true,
-                    Message = "CDS_Document number allocation retrieved successfully",
+                    Message = "Invoice number allocation retrieved successfully",
                     Data = dataItems
                 });
             }

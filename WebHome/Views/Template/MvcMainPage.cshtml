@@ -113,7 +113,7 @@
                     <!-- /.dropdown-messages -->
                     <script>
                             function changeLanguage(lang) {
-                                $.post('@(Url.Action("ChangeLanguage", "Account"))', { 'lang': lang }, function (data) {
+                                $.postJSON('@(Url.Action("ChangeLanguage", "Account"))', { 'lang': lang }, function (data) {
                                     if ($.isPlainObject(data)) {
                                         if (data.result) {
                                             window.location.reload();

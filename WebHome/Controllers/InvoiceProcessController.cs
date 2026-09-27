@@ -93,8 +93,13 @@ namespace WebHome.Controllers
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
-        public ActionResult Index2023(InquireInvoiceViewModel viewModel)
+        public ActionResult Index2023([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ResultAction = "Common";
             ViewBag.ViewModel = viewModel;
             DataSource.Inquiry = CreateInvoiceItemInquiry(this, viewModel);
@@ -194,8 +199,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult Inquire(InquireInvoiceViewModel viewModel)
+        public ActionResult Inquire([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //ViewBag.HasQuery = true;
             //DataLoadOptions ops = new DataLoadOptions();
             //ops.LoadWith<InvoiceItem>(i => i.InvoiceBuyer);
@@ -230,8 +240,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult Inquire2023(InquireInvoiceViewModel viewModel)
+        public ActionResult Inquire2023([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if(viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             bool hasPaging = viewModel.PageIndex.HasValue;
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> items = result.Model as IQueryable<InvoiceItem>;
@@ -248,8 +263,13 @@ namespace WebHome.Controllers
             return result;
         }
 
-        public ActionResult InquireReceivedA0101(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireReceivedA0101([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             bool hasPaging = viewModel.PageIndex.HasValue;
             viewModel.BusinessType = Naming.InvoiceCenterBusinessType.進項;
             ViewResult result = (ViewResult)Inquire(viewModel);
@@ -270,8 +290,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult InquireReceivedA0201(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireReceivedA0201([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             viewModel.Cancelled = true;
             viewModel.BusinessType = Naming.InvoiceCenterBusinessType.進項;
             bool hasPaging = viewModel.PageIndex.HasValue;
@@ -295,8 +320,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult InquireReceivedA0301(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireReceivedA0301([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             bool hasPaging = viewModel.PageIndex.HasValue;
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> items = (result.Model as IQueryable<InvoiceItem>)!;
@@ -316,8 +346,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult InquireReceivedA0302(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireReceivedA0302([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             bool hasPaging = viewModel.PageIndex.HasValue;
             viewModel.BusinessType = Naming.InvoiceCenterBusinessType.進項;
             ViewResult result = (ViewResult)Inquire(viewModel);
@@ -417,6 +452,10 @@ namespace WebHome.Controllers
 
         public async Task<ActionResult> CreateXlsxAsync(InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> model = result.Model as IQueryable<InvoiceItem>;
@@ -613,7 +652,7 @@ namespace WebHome.Controllers
                             {
                                 if (exception != null)
                                 {
-                                    taskItem.Log = new ExceptionLog
+                                    taskItem.ExceptionLog = new ExceptionLog
                                     {
                                         DataContent = exception.Message
                                     };
@@ -635,8 +674,13 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CreateXlsx2021(InquireInvoiceViewModel viewModel)
+        public ActionResult CreateXlsx2021([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             this.models = new ModelSource<InvoiceItem>();
 
             ViewResult result = (ViewResult)Inquire(viewModel);
@@ -831,11 +875,16 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CreateXlsx2024(InquireInvoiceViewModel viewModel)
+        public ActionResult CreateXlsx2024([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //this.models = new ModelSource<InvoiceItem>();
             //原本以 _dbInstance = false 阻止請求結束時釋放 DbContext，
-            //供 CreateXlsx2024.cshtml 的 Task.Run 續用；該報表已改為背景作業自建 DbContext，
+            //供 CreateXlsx2024.cshtml 的 ProcessRequest.Run 續用；該報表已改為背景作業自建 DbContext，
             //這裡恢復正常釋放。
             ViewResult result = (ViewResult)Inquire(viewModel);
             IQueryable<InvoiceItem> items = result.Model as IQueryable<InvoiceItem>;
@@ -893,8 +942,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult AssignDownload(InquireInvoiceViewModel viewModel)
+        public ActionResult AssignDownload([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ModelSource<InvoiceItem> models = new ModelSource<InvoiceItem>();
             DataSource.Inquiry = CreateInvoiceItemInquiry(this, viewModel);
             DataSource.BuildQuery();
@@ -933,7 +987,7 @@ namespace WebHome.Controllers
 
 
 
-        public ActionResult Print(int[] chkItem, RenderStyleViewModel viewModel)
+        public ActionResult Print([FromJsonOrForm] int[] chkItem, [FromJsonOrForm] RenderStyleViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             var profile = HttpContext.GetUser();
@@ -984,7 +1038,7 @@ namespace WebHome.Controllers
             return View("~/Views/InvoiceProcess/Module/PrintResult.cshtml");
         }
 
-        public async Task<ActionResult> IssueInvoiceNoticeAsync([FromBody] InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> IssueInvoiceNoticeAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
             if (viewModel == null)
             {
@@ -1022,7 +1076,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> IssueWinningNoticeAsync([FromBody] InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> IssueWinningNoticeAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
             if (viewModel == null)
             {
@@ -1055,7 +1109,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> CancelInvoiceAsync([FromBody] InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> CancelInvoiceAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
             if (viewModel == null)
             {
@@ -1083,7 +1137,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> IssueAllowanceAsync([FromBody] QueryViewModel viewModel)
+        public async Task<ActionResult> IssueAllowanceAsync([FromJsonOrForm] QueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if(viewModel == null)
@@ -1127,7 +1181,7 @@ namespace WebHome.Controllers
             }
         }
 
-        public async Task<ActionResult> AuthorizeToPrintAsync([FromBody] InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> AuthorizeToPrintAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
             if (viewModel == null)
             {
@@ -1161,7 +1215,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> DesireToVoidInvoiceAsync([FromBody] InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> DesireToVoidInvoiceAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
             if (viewModel == null)
             {
@@ -1209,7 +1263,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> VoidInvoiceAsync([FromBody] ReviseInvoiceViewModel viewModel)
+        public async Task<ActionResult> VoidInvoiceAsync([FromJsonOrForm] ReviseInvoiceViewModel viewModel)
         {
             if (viewModel == null)
             {
@@ -1289,7 +1343,7 @@ namespace WebHome.Controllers
         //    if (mode == Naming.VoidActionMode.註銷作廢 
         //        || mode == Naming.VoidActionMode.索取紙本)
         //    {
-        //        String storedPath = Path.Combine(Logger.LogPath, "C0401(Outbound)").CheckStoredPath();
+        //        String storedPath = Path.Combine(Logger.LogPath, "F0401(Outbound)").CheckStoredPath();
         //        var profile = HttpContext.GetUser();
         //        foreach (var item in items)
         //        {
@@ -1522,8 +1576,13 @@ namespace WebHome.Controllers
         }
 
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
-        public ActionResult InvoiceSummary(InquireInvoiceViewModel viewModel)
+        public ActionResult InvoiceSummary([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //ViewBag.HasQuery = false;
             ViewBag.QueryAction = "InquireSummary";
             DataSource.Inquiry = CreateInvoiceItemInquiry(this, viewModel);
@@ -1531,8 +1590,13 @@ namespace WebHome.Controllers
             return View("InvoiceReport", DataSource.Inquiry);
         }
 
-        public ActionResult InquireSummary(InquireInvoiceViewModel viewModel)
+        public ActionResult InquireSummary([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             //ViewBag.HasQuery = true;
             ViewBag.PrintAction = "PrintInvoiceSummary";
             ViewBag.ViewModel = viewModel;
@@ -1560,8 +1624,13 @@ namespace WebHome.Controllers
             return View(DataSource.Items);
         }
 
-        public async Task<ActionResult> CreateInvoiceSummaryXlsxAsync(InquireInvoiceViewModel viewModel)
+        public async Task<ActionResult> CreateInvoiceSummaryXlsxAsync([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             var items = DataSource.Items.GroupBy(i => i.SellerID)
@@ -1605,8 +1674,13 @@ namespace WebHome.Controllers
             return new EmptyResult();
         }
 
-        public ActionResult PrintInvoiceSummary(InquireInvoiceViewModel viewModel)
+        public ActionResult PrintInvoiceSummary([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             DataSource.Inquiry = CreateInvoiceItemInquiry(this, viewModel);
@@ -1616,8 +1690,13 @@ namespace WebHome.Controllers
             return View(DataSource.Inquiry);
         }
 
-        public ActionResult LoadInvoiceBuyer(InvoiceBuyerViewModel viewModel)
+        public ActionResult LoadInvoiceBuyer([FromJsonOrForm] InvoiceBuyerViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             InvoiceBuyer item = null;
@@ -1638,8 +1717,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult EditInvoiceBuyer(InvoiceBuyerViewModel viewModel)
+        public ActionResult EditInvoiceBuyer([FromJsonOrForm] InvoiceBuyerViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)LoadInvoiceBuyer(viewModel);
             InvoiceBuyer item = result.Model as InvoiceBuyer;
 
@@ -1672,8 +1756,12 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult CommitInvoiceBuyer(InvoiceBuyerViewModel viewModel)
+        public ActionResult CommitInvoiceBuyer([FromJsonOrForm] InvoiceBuyerViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             ViewResult result = (ViewResult)LoadInvoiceBuyer(viewModel);
             InvoiceBuyer item = result.Model as InvoiceBuyer;
@@ -1753,8 +1841,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult DeleteAttachment(AttachmentViewModel viewModel)
+        public ActionResult DeleteAttachment([FromJsonOrForm] AttachmentViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             AttachmentViewModel tmp = viewModel;
 
@@ -1782,8 +1875,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult ArrangeAttachment(InquireInvoiceViewModel viewModel)
+        public ActionResult ArrangeAttachment([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewResult result = (ViewResult)LoadInvoiceItem(viewModel);
             InvoiceItem? item = result.Model as InvoiceItem;
 
@@ -1794,7 +1892,7 @@ namespace WebHome.Controllers
 
         }
 
-        public async Task<ActionResult> CommitReceivedA0101Async([FromBody] QueryViewModel viewModel)
+        public async Task<ActionResult> CommitReceivedA0101Async([FromJsonOrForm] QueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel == null)
@@ -1866,7 +1964,7 @@ namespace WebHome.Controllers
             }
         }
 
-        public async Task<ActionResult> CommitReceivedA0201Async([FromBody] QueryViewModel viewModel)
+        public async Task<ActionResult> CommitReceivedA0201Async([FromJsonOrForm] QueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel == null)
@@ -1927,7 +2025,7 @@ namespace WebHome.Controllers
             }
         }
 
-        public async Task<ActionResult> CommitReceivedA0301Async([FromBody] QueryViewModel viewModel)
+        public async Task<ActionResult> CommitReceivedA0301Async([FromJsonOrForm] QueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel == null)
@@ -1987,7 +2085,7 @@ namespace WebHome.Controllers
             }
         }
 
-        public async Task<ActionResult> CommitReceivedA0302Async([FromBody] QueryViewModel viewModel)
+        public async Task<ActionResult> CommitReceivedA0302Async([FromJsonOrForm] QueryViewModel viewModel)
         {
             ViewBag.ViewModel = viewModel;
             if (viewModel == null)
@@ -2047,8 +2145,13 @@ namespace WebHome.Controllers
             }
         }
 
-        public ActionResult LoadInvoiceItem(InquireInvoiceViewModel viewModel)
+        public ActionResult LoadInvoiceItem([FromJsonOrForm] InquireInvoiceViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             InvoiceItem? item = null;
@@ -2081,8 +2184,13 @@ namespace WebHome.Controllers
 
         [HttpPost]
         [RoleAuthorize(new Naming.RoleID[] { Naming.RoleID.ROLE_SYS, Naming.RoleID.ROLE_SELLER })]
-        public ActionResult DeleteInvoices([FromBody] DeleteInvoicesRequest req)
+        public ActionResult DeleteInvoices([FromJsonOrForm] DeleteInvoicesRequest req)
         {
+            if (req == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             if (req?.InvoiceNumbers == null || req.InvoiceNumbers.Count == 0)
                 return Json(new { success = false, message = "未提供發票號碼" });
 

@@ -11,6 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- [FromJsonOrForm] 散佈在各 Controller，設為全域 using 免得每個檔案都要加 -->
+    <Using Include="WebHome.Infrastructure.ModelBinding" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Views\AshxHelper\DumpExceptionLog.cshtml" />
     <Content Remove="Views\AshxHelper\GetSample.cshtml" />
     <Content Remove="Views\InvoiceBusiness\Module\InvoiceCreated.cshtml" />

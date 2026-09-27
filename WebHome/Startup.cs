@@ -141,6 +141,9 @@ namespace WebHome
             services.AddControllersWithViews(options => {
                 //↓和CSRF資安有關，這裡就加入全域驗證範圍Filter的話，待會Controller就不必再加上[AutoValidateAntiforgeryToken]屬性
                 //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+
+                //[FromJsonOrForm]：依 Content-Type 在 Body(JSON) 與 form/query 之間切換
+                options.ModelBinderProviders.Insert(0, new JsonOrFormModelBinderProvider());
             });
 
             // 明確註冊 IHtmlHelper<dynamic>
@@ -148,7 +151,7 @@ namespace WebHome
 
             services.AddScoped<IViewRenderService, ViewRenderService>();
 
-            // 背景工作佇列 + IHostedService，取代 View/Controller 內的 Task.Run
+            // 背景工作佇列 + IHostedService，取代 View/Controller 內的 ProcessRequest.Run
             services.AddBackgroundTaskQueue();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();

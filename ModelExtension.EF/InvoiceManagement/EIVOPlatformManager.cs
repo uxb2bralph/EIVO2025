@@ -170,7 +170,7 @@ namespace ModelCore.InvoiceManagement
         //                        //}
         //                        //else
         //                        {
-        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0401Outbound, $"A0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.CDS_Document.TrackCode}{item.CDS_Document.No}.xml");
+        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0401Outbound, $"A0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.Invoice.TrackCode}{item.Invoice.No}.xml");
         //                            item.CDS_Document.CreateB2BInvoiceMIG().ConvertToXml().Save(fileName);
         //                        }
         //                        break;
@@ -182,7 +182,7 @@ namespace ModelCore.InvoiceManagement
         //                        //}
         //                        //else
         //                        {
-        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0401Outbound, $"B0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.CDS_Document.AllowanceNumber}.xml");
+        //                            fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0401Outbound, $"B0401-{DateTime.Now:yyyyMMddHHmmssf}-{item.Allowance.AllowanceNumber}.xml");
         //                            item.CDS_Document.CreateG0401().ConvertToXml().Save(fileName);
         //                        }
         //                        break;

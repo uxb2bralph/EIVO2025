@@ -452,7 +452,7 @@ namespace ModelCore.InvoiceManagement.Validator
                     },
                     ProcessType = processType == Naming.InvoiceProcessType.A0101_Xlsx_Allocation_ByIssuer
                         ? (int)Naming.InvoiceProcessType.A0401
-                        : (int)Naming.InvoiceProcessType.C0401,
+                        : (int)Naming.InvoiceProcessType.F0401,
                 },
                 DonateMark = _donation == null ? "0" : "1",
                 InvoiceType = InvoiceTypeIndication == Naming.InvoiceTypeDefinition.一般稅額計算之電子發票

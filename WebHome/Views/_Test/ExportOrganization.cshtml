@@ -78,7 +78,7 @@
         Response.ContentType = "application/json";
     }
 
-    await Response.WriteAsync(items.JsonStringify());
+    await Response.WriteAsync(items.JsonStringifyShallow());
     
 
 }

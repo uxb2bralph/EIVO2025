@@ -45,7 +45,7 @@ namespace ModelCore.Schema.EIVO {
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("CDS_Document")]
+        [System.Xml.Serialization.XmlElementAttribute("Invoice")]
         public InvoiceRootInvoice[] Invoice {
             get {
                 return this.invoiceField;

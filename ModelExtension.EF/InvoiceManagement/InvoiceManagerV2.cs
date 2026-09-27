@@ -378,7 +378,7 @@ namespace ModelCore.InvoiceManagement
         //        {
         //            DocDate = DateTime.Now,
         //            DocType = (int)Naming.DocumentTypeDefinition.E_Invoice,
-        //            ProcessType = (int)Naming.InvoiceProcessType.C0401,
+        //            ProcessType = (int)Naming.InvoiceProcessType.F0401,
         //        },
         //        DonateMark = donation == null ? "0" : "1",
         //        InvoiceType = byte.Parse(invItem.InvoiceType),
@@ -459,7 +459,7 @@ namespace ModelCore.InvoiceManagement
         //}
 
 
-        //public Dictionary<int, Exception> SaveUploadInvoice_C0401(ModelCore.Schema.TurnKey.C0401.CDS_Document invoice, OrganizationToken owner)
+        //public Dictionary<int, Exception> SaveUploadInvoice_C0401(ModelCore.Schema.TurnKey.F0401.CDS_Document invoice, OrganizationToken owner)
         //{
         //    Dictionary<int, Exception> result = new Dictionary<int, Exception>();
         //    List<CDS_Document> eventItem = new List<CDS_Document>();
@@ -566,7 +566,7 @@ namespace ModelCore.InvoiceManagement
         //    return result;
         //}
 
-        //private CDS_Document ConvertToInvoiceItem(Schema.TurnKey.C0401.CDS_Document invoice, OrganizationToken owner, DateTime invoiceDate, InvoiceCarrier carrier, Company seller, bool all_printed, bool Final_printed)
+        //private CDS_Document ConvertToInvoiceItem(Schema.TurnKey.F0401.CDS_Document invoice, OrganizationToken owner, DateTime invoiceDate, InvoiceCarrier carrier, Company seller, bool all_printed, bool Final_printed)
         //{
         //    String invNo, trackCode;
         //    getInvoiceNo(invoice.Main.InvoiceNumber, out invNo, out trackCode);

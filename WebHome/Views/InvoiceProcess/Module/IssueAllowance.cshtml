@@ -45,7 +45,7 @@
             AllowanceType = Naming.AllowanceTypeDefinition.賣方開立,
             TaxAmount = _model.Sum(i => i.InvoiceAmountType.TaxAmount),
             TotalAmount = _model.Sum(i => i.InvoiceAmountType.SalesAmount),
-            ProcessType = item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.C0401
+            ProcessType = item.CDS_Document.ProcessType == (int)Naming.InvoiceProcessType.F0401
                 ? Naming.InvoiceProcessType.D0401
                 : Naming.InvoiceProcessType.B0401,
             No = Enumerable.Range(1, prodItem.Length).Select(n => (short?)n).ToArray(),

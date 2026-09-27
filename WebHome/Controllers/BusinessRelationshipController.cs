@@ -24,14 +24,24 @@ namespace WebHome.Controllers
         {
         }
 
-        public ActionResult MaintainRelationship(BusinessRelationshipQueryViewModel viewModel)
+        public ActionResult MaintainRelationship([FromJsonOrForm] BusinessRelationshipQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View("~/Views/BusinessRelationship/MaintainRelationship.cshtml");
         }
 
-        public ActionResult B2BIndex(BusinessRelationshipQueryViewModel viewModel)
+        public ActionResult B2BIndex([FromJsonOrForm] BusinessRelationshipQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
             return View();
         }
@@ -66,8 +76,13 @@ namespace WebHome.Controllers
             return View("~/Views/BusinessRelationship/ImportCounterpartBusiness.cshtml");
         }
 
-        public ActionResult UploadCounterpartBusiness(BusinessRelationshipQueryViewModel viewModel,IEnumerable<IFormFile> excelFile)
+        public ActionResult UploadCounterpartBusiness([FromJsonOrForm] BusinessRelationshipQueryViewModel viewModel,IEnumerable<IFormFile> excelFile)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (excelFile == null || excelFile.Count() < 1)
@@ -86,7 +101,7 @@ namespace WebHome.Controllers
             //}
 
             var profile = HttpContext.GetUser();
-            List<String> available = null;
+            List<String?>? available = null;
 
             if(!profile.IsSystemAdmin())
             {
@@ -100,7 +115,7 @@ namespace WebHome.Controllers
                 String fileName = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, $"{DateTime.Now.Ticks}_{Path.GetFileName(file.FileName)}");
                 file.SaveAs(fileName);
 
-                using (var ds = fileName.ImportExcelXLS())
+                using (var ds = fileName.ImportExcelByClosedXML())
                 {
                     DataTable table;
                     if (ds.Tables.Count == 0
@@ -135,7 +150,7 @@ namespace WebHome.Controllers
 
                             if (available == null || available.Contains(item.MasterNo))
                             {
-                                item.CommitBusinessRelationshipViewModel(models, ModelState);
+                                item.CommitBusinessRelationshipViewModel(models!, ModelState);
                             }
                             else
                             {
@@ -171,8 +186,13 @@ namespace WebHome.Controllers
         }
 
 
-        public ActionResult InquireBusinessRelationship(BusinessRelationshipQueryViewModel viewModel)
+        public ActionResult InquireBusinessRelationship([FromJsonOrForm] BusinessRelationshipQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             IQueryable<BusinessRelationship> items;
@@ -255,8 +275,12 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult ProcessDataItem(BusinessRelationshipQueryViewModel viewModel)
+        public ActionResult ProcessDataItem([FromJsonOrForm] BusinessRelationshipQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             ViewResult result = (ViewResult)InquireBusinessRelationship(viewModel);
             result.ViewName = "~/Views/BusinessRelationship/DataQuery/BusinessRelationshipList.cshtml";
@@ -274,8 +298,13 @@ namespace WebHome.Controllers
             return result;
         }
 
-        public ActionResult DeleteItem(BusinessRelationshipQueryViewModel viewModel)
+        public ActionResult DeleteItem([FromJsonOrForm] BusinessRelationshipQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             if (viewModel.KeyID != null)
@@ -295,7 +324,7 @@ namespace WebHome.Controllers
 
         }
 
-        public ActionResult Deactivate(int businessID, int masterID, int relativeID)
+        public ActionResult Deactivate([FromJsonOrForm] int businessID, [FromJsonOrForm] int masterID, [FromJsonOrForm] int relativeID)
         {
             var item = models.GetTable<BusinessRelationship>().Where(m => m.MasterID == masterID && m.RelativeID == relativeID && m.BusinessID == businessID).FirstOrDefault();
             if (item == null)
@@ -309,7 +338,7 @@ namespace WebHome.Controllers
             return View("~/Views/BusinessRelationship/Module/DataItem.cshtml", item);
         }
 
-        public ActionResult Activate(int businessID, int masterID, int relativeID)
+        public ActionResult Activate([FromJsonOrForm] int businessID, [FromJsonOrForm] int masterID, [FromJsonOrForm] int relativeID)
         {
             var item = models.GetTable<BusinessRelationship>().Where(m => m.MasterID == masterID && m.RelativeID == relativeID && m.BusinessID == businessID).FirstOrDefault();
             if (item == null)
@@ -323,7 +352,7 @@ namespace WebHome.Controllers
             return View("~/Views/BusinessRelationship/Module/DataItem.cshtml", item);
         }
 
-        public ActionResult SetEntrusting(int businessID, int masterID, int relativeID, bool status)
+        public ActionResult SetEntrusting([FromJsonOrForm] int businessID, [FromJsonOrForm] int masterID, [FromJsonOrForm] int relativeID, [FromJsonOrForm] bool status)
         {
             var item = models.GetTable<BusinessRelationship>().Where(m => m.MasterID == masterID && m.RelativeID == relativeID && m.BusinessID == businessID).FirstOrDefault();
             if (item == null)
@@ -337,7 +366,7 @@ namespace WebHome.Controllers
             return View("~/Views/BusinessRelationship/Module/DataItem.cshtml", item);
         }
 
-        public ActionResult SetEntrustToPrint(int businessID, int masterID, int relativeID, bool status)
+        public ActionResult SetEntrustToPrint([FromJsonOrForm] int businessID, [FromJsonOrForm] int masterID, [FromJsonOrForm] int relativeID, [FromJsonOrForm] bool status)
         {
             var item = models.GetTable<BusinessRelationship>().Where(m => m.MasterID == masterID && m.RelativeID == relativeID && m.BusinessID == businessID).FirstOrDefault();
             if (item == null)
@@ -351,8 +380,13 @@ namespace WebHome.Controllers
             return View("~/Views/BusinessRelationship/Module/DataItem.cshtml", item);
         }
 
-        public ActionResult CommitItem(BusinessRelationshipQueryViewModel viewModel)
+        public ActionResult CommitItem([FromJsonOrForm] BusinessRelationshipQueryViewModel viewModel)
         {
+            if (viewModel == null)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
             ViewBag.ViewModel = viewModel;
 
             viewModel.CompanyName = viewModel.CompanyName.GetEfficientString();
@@ -700,7 +734,7 @@ namespace WebHome.Controllers
             return new EmptyResult { };
         }
 
-        //public ActionResult CreateXlsx(BusinessRelationshipQueryViewModel viewModel)
+        //public ActionResult CreateXlsx([FromBody] BusinessRelationshipQueryViewModel viewModel)
         //{
 
         //    ViewResult result = (ViewResult)InquireBusinessRelationship(viewModel);
@@ -748,8 +782,12 @@ namespace WebHome.Controllers
 
         //}
 
-        public ActionResult CreateXlsx(BusinessRelationshipQueryViewModel viewModel)
+        public ActionResult CreateXlsx([FromJsonOrForm] BusinessRelationshipQueryViewModel viewModel)
         {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
 
             ViewResult result = (ViewResult)InquireBusinessRelationship(viewModel);
             IQueryable<BusinessRelationship> model = result.Model as IQueryable<BusinessRelationship>;

@@ -236,7 +236,7 @@ namespace TaskCenter
             builder.Services.AddScoped<ICreateInvoiceService, CreateInvoiceService>();
 
             // 發票處理背景服務：收單端點（InvoiceService/ApplyInvoice）將存證作業寫入佇列，
-            // 由 InvoiceProcessBackgroundService 取件執行，取代原本的 Task.Run。
+            // 由 InvoiceProcessBackgroundService 取件執行，取代原本的 ProcessRequest.Run。
             // 預設使用檔案佇列（作業以 JSON 落地，行程中斷重啟後接續處理）；
             // AppSettings.InvoiceProcessQueue.Persistent = false 時改用記憶體佇列。
             if (AppSettings.Default.InvoiceProcessQueue.Persistent)

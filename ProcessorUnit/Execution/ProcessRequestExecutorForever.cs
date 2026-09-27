@@ -15,7 +15,7 @@ namespace ProcessorUnit.Execution
     public class ProcessRequestExecutorForever : ExecutorForeverBase
     {
 
-        protected ProcessRequestQueue queueItem;
+        protected ProcessRequestQueue queueItem = null!;
         protected Naming.InvoiceProcessType? appliedProcessType;
         protected override void DoSomething()
         {
@@ -25,7 +25,7 @@ namespace ProcessorUnit.Execution
                 try
                 {
 
-                    _ = models.DataContext.ApplyProcessRequest(ProcessorUnit.Properties.AppSettings.Default.ProcessorID, (int?)appliedProcessType, ref taskID);
+                    _ = models.ExecuteCommand("exec ApplyProcessRequest @ProcessorID, @ProcessType, @TaskID OUTPUT", new { ProcessorID = ProcessorUnit.Properties.AppSettings.Default.ProcessorID, ProcessType = (int?)appliedProcessType, TaskID = taskID });
 
                     if (taskID.HasValue)
                     {
@@ -42,9 +42,9 @@ namespace ProcessorUnit.Execution
                         DataContent = ex.Message
                     };
                     queueItem.ProcessRequest.ProcessComplete = DateTime.Now;
-                    models.PushProcessExceptionNotification(queueItem.ProcessRequest, queueItem.ProcessRequest.Organization, DateTime.Now);
+                    models.PushProcessExceptionNotification(queueItem.ProcessRequest, queueItem.ProcessRequest.Agent!, DateTime.Now);
 
-                    models.GetTable<ProcessRequestQueue>().DeleteOnSubmit(queueItem);
+                    models.GetTable<ProcessRequestQueue>().Remove(queueItem);
                     models.SubmitChanges();
 
                 }
@@ -71,7 +71,15 @@ namespace ProcessorUnit.Execution
 
                     if (requestItem!=null)
                     {
-                        queueItem = models.GetTable<ProcessRequestQueue>().Where(q => q.TaskID == taskID).First();
+                        queueItem = models.GetTable<ProcessRequestQueue>().Where(q => q.TaskID == taskID).FirstOrDefault()!;
+                        if (queueItem == null)
+                        {
+                            queueItem = new ProcessRequestQueue
+                            {
+                                TaskID = taskID,
+                                ProcessRequest = requestItem
+                            };
+                        }
                         if (queueItem != null)
                         {
                             ProcessRequestItem();
@@ -87,9 +95,9 @@ namespace ProcessorUnit.Execution
                         DataContent = ex.Message
                     };
                     queueItem.ProcessRequest.ProcessComplete = DateTime.Now;
-                    models.PushProcessExceptionNotification(queueItem.ProcessRequest, queueItem.ProcessRequest.Organization, DateTime.Now);
+                    models.PushProcessExceptionNotification(queueItem.ProcessRequest, queueItem.ProcessRequest.Agent!, DateTime.Now);
 
-                    models.GetTable<ProcessRequestQueue>().DeleteOnSubmit(queueItem);
+                    models.GetTable<ProcessRequestQueue>().Remove(queueItem);
                     models.SubmitChanges();
 
                 }

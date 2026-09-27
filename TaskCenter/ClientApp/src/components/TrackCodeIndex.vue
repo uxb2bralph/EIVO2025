@@ -1,11 +1,13 @@
 <!--
   TrackCodeIndex.vue – 電子發票字軌維護（查詢 + 列內新增 / 修改 / 刪除）。
-  遷移自 WebHome TrackCodeController.Index / Inquire 及 CommitItem / DeleteItem。
+  遷移自 WebHome TrackCodeController.Index / Inquire 及 CommitItem / DeleteItem；
+  另含「上傳發票字軌號碼」匯入區塊（遷移自 InvoiceNo/Module/UploadInvoiceTrackCode.cshtml）。
   查詢一律帶入發票年度；列表以雙月期別呈現，字軌與類別可就地編輯，並提供固定新增列。
 -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useTrackCodeIndex } from '../composables/useTrackCodeIndex'
+import { useUploadInvoiceTrackCode } from '../composables/useUploadInvoiceTrackCode'
 import Pager from './Pager.vue'
 
 const {
@@ -47,6 +49,38 @@ const {
   invoiceTypeLabel,
 } = useTrackCodeIndex()
 
+// 上傳發票字軌號碼（遷移自 InvoiceNo/Module/UploadInvoiceTrackCode.cshtml）：
+// 下載範本 / 立即傳送 → 預覽逐列驗證結果 → 確定上傳。
+const {
+  rows: uploadRows,
+  downloadingSample,
+  uploading,
+  committing,
+  error: uploadError,
+  message: uploadMessage,
+  hasCommittable,
+  downloadSample,
+  uploadFile,
+  removeRow,
+  commitRows,
+  uploadPeriodLabel,
+  formatInvoiceNo,
+} = useUploadInvoiceTrackCode()
+
+const fileInput = ref<HTMLInputElement | null>(null)
+function pickFile() {
+  fileInput.value?.click()
+}
+function onFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file) {
+    uploadFile(file)
+  }
+  // 清空選取值，讓同一檔案可再次選取（沿用舊版每次上傳前 $file.val('')）
+  input.value = ''
+}
+
 // 管理下拉選單：紀錄目前展開的列（以 trackId 為鍵），點擊外部即關閉
 const openMenuId = ref<number | null>(null)
 function toggleMenu(trackId: number) {
@@ -67,6 +101,94 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
   <div class="track-code-page">
     <div class="page-header">
       <h1>電子發票字軌維護</h1>
+    </div>
+
+    <!-- 上傳發票字軌號碼（遷移自舊版 InvoiceNo/UploadInvoiceTrackCode 頁面之 Excel 匯入區塊）。
+         匯入內容為各營業人之發票號碼配號區間。 -->
+    <div class="card upload-card">
+      <h2 class="card-title">上傳發票字軌號碼</h2>
+      <div class="maintenance-row">
+        <span class="maintenance-label">發票字軌號碼</span>
+        <div class="maintenance-actions">
+          <button class="btn ghost" :disabled="downloadingSample" @click="downloadSample">
+            <span v-if="!downloadingSample">下載範本</span>
+            <span v-else>下載中…</span>
+          </button>
+          <input
+            ref="fileInput"
+            type="file"
+            accept=".xlsx,.xlsm"
+            class="hidden-file"
+            @change="onFileChange"
+          />
+          <button class="btn primary" :disabled="uploading" @click="pickFile">
+            <span v-if="!uploading">立即傳送</span>
+            <span v-else>處理中…</span>
+          </button>
+        </div>
+      </div>
+      <p class="maintenance-hint">
+        欄位順序：營業人統編 / 年份（民國年）/ 發票期別 / 字軌 / 發票起號 / 發票迄號，可先下載範本填寫。
+      </p>
+
+      <div v-if="uploadError" class="alert-error maintenance-alert">{{ uploadError }}</div>
+      <div v-if="uploadMessage" class="alert-success maintenance-alert">{{ uploadMessage }}</div>
+
+      <!-- 上傳預覽 / 匯入結果（遷移自 Module/PreviewInvoiceTrackCode.cshtml） -->
+      <div v-if="uploadRows.length" class="upload-preview">
+        <div class="table-wrap">
+          <table class="result-table">
+            <thead>
+              <tr>
+                <th>營業人統一編號</th>
+                <th>發票年度</th>
+                <th>月份</th>
+                <th>字軌</th>
+                <th>發票號碼起</th>
+                <th>發票號碼迄</th>
+                <th class="col-action">處理狀態</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, idx) in uploadRows" :key="`${row.receiptNo}-${row.startNo}-${idx}`">
+                <td>
+                  {{ row.receiptNo }}
+                  <span v-if="row.companyName" class="upload-company">{{ row.companyName }}</span>
+                  <span v-if="row.expirationDate" class="upload-expired">
+                    (註記停用:{{ row.expirationDate }})
+                  </span>
+                </td>
+                <td>{{ row.year }}</td>
+                <td>{{ uploadPeriodLabel(row.periodNo) }}</td>
+                <td>{{ row.trackCode }}</td>
+                <td>{{ formatInvoiceNo(row.startNo) }}</td>
+                <td>{{ formatInvoiceNo(row.endNo) }}</td>
+                <td class="col-action">
+                  <!-- 可匯入列提供「刪除」自本次匯入排除（沿用舊版做法，僅移除畫面上的列） -->
+                  <button
+                    v-if="!row.message"
+                    class="btn ghost sm"
+                    :disabled="committing"
+                    @click="removeRow(idx)"
+                  >
+                    刪除
+                  </button>
+                  <span v-else :class="row.committed ? 'upload-ok' : 'upload-error'">
+                    {{ row.message }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div v-if="hasCommittable" class="upload-actions">
+          <button class="btn primary" :disabled="committing" @click="commitRows">
+            <span v-if="!committing">確定上傳</span>
+            <span v-else>上傳中…</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- 查詢條件 -->
@@ -381,6 +503,69 @@ onUnmounted(() => document.removeEventListener('click', closeMenu))
 .alert-error {
   color: #ff8585;
   margin-bottom: 1rem;
+  white-space: pre-line;
+}
+/* 上傳發票字軌號碼 */
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 1rem;
+}
+.maintenance-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.maintenance-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+.maintenance-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+.maintenance-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+.hidden-file {
+  display: none;
+}
+.maintenance-alert {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+.alert-success {
+  color: #7ddca4;
+  white-space: pre-line;
+}
+.upload-preview {
+  margin-top: 1.25rem;
+}
+.upload-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+.upload-company {
+  color: var(--color-muted);
+  margin-left: 0.35rem;
+}
+.upload-expired {
+  color: #ffb457;
+  margin-left: 0.35rem;
+}
+.upload-ok {
+  color: #7ddca4;
+}
+.upload-error {
+  color: #ff8585;
   white-space: pre-line;
 }
 </style>
