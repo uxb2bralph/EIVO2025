@@ -51,6 +51,7 @@ namespace WebHome.Controllers.Handler
         /// 下載匯入用的 Excel 範本，取代舊版 ~/Helper/GetSample.ashx。
         /// </summary>
         /// <param name="data">範本種類：InvoiceBuyer、TrackCode、WinningNo</param>
+        [HttpGet]
         [Route("Helper/GetSample.ashx")]
         [Route("AshxHelper/GetSample")]
         public async Task<ActionResult> GetSampleAsync(String? data)

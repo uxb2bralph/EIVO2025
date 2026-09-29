@@ -220,6 +220,7 @@ namespace WebHome.Controllers
             return View("Index");
         }
 
+        [HttpGet]
         public async Task<ActionResult> GetSampleAsync()
         {
             TrackCodeExchange exchange = new TrackCodeExchange();

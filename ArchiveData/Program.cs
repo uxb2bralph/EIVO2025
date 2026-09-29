@@ -10,6 +10,7 @@ using ModelCore.DataEntity;
 using ModelCore.Helper;
 using AutoMapper;
 using Newtonsoft.Json;
+using CommonLib.Core.DataWork;
 
 namespace ArchiveData
 {
@@ -136,7 +137,7 @@ namespace ArchiveData
             bool hasItem = false;
             try
             {
-                using (GenericManager<EIVOEntityDataContext> models = new GenericManager<EIVOEntityDataContext>())
+                using (GenericDbContext<ApplicationDbContext> models = new GenericDbContext<ApplicationDbContext>())
                 {
                     // 3.1. 掃瞄 InvoiceItem 資料表, 由舊到新取得所有資料, 如果 InvoiceItem.InvoiceId % n == taskId, 則進行處理
                     IQueryable<InvoiceItem> invoiceItems = models.GetTable<InvoiceItem>()
@@ -224,7 +225,7 @@ namespace ArchiveData
             return hasItem;
         }
 
-        static void ProcessInvoiceItem(GenericManager<EIVOEntityDataContext> models, InvoiceItem item, string outputPath, bool deleteDoc)
+        static void ProcessInvoiceItem(GenericDbContext<ApplicationDbContext> models, InvoiceItem item, string outputPath, bool deleteDoc)
         {
             // 3.1.1. 處理邏輯: 根據 InvoiceItem 資料, 產生對應的 F0401 資料, 轉換成 json 格式, 依 InvoiceDate 並寫入指定的檔案
             var invoiceDate = item.InvoiceDate!.Value;
@@ -345,7 +346,7 @@ namespace ArchiveData
 
         }
 
-        static void ProcessAllowanceItem(GenericManager<EIVOEntityDataContext> models, InvoiceAllowance item, string outputPath, bool deleteDoc)
+        static void ProcessAllowanceItem(GenericDbContext<ApplicationDbContext> models, InvoiceAllowance item, string outputPath, bool deleteDoc)
         {
             // 3.2.1. 處理邏輯: 根據 InvoiceAllowance 資料, 產生對應的 G0401 資料, 轉換成 json 格式, 依 AllowanceDate 並寫入指定的檔案
             var allowanceDate = item.AllowanceDate!.Value;
@@ -353,7 +354,7 @@ namespace ArchiveData
             Directory.CreateDirectory(dateFolder);
 
             var allowanceNo = item.AllowanceNumber;
-            var jsonFile = Path.Combine(dateFolder, $"{item.InvoiceAllowanceDetails.FirstOrDefault()?.InvoiceAllowanceItem.InvoiceNo}_{allowanceNo}.json");
+            var jsonFile = Path.Combine(dateFolder, $"{item.InvoiceAllowanceDetails.FirstOrDefault()?.InvoiceNo}_{allowanceNo}.json");
 
             try
             {
