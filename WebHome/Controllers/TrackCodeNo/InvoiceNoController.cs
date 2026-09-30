@@ -295,7 +295,7 @@ namespace WebHome.Controllers.TrackCodeNo
                         && ((t.EndNo <= viewModel.EndNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.StartNo >= viewModel.StartNo) || (t.StartNo <= viewModel.StartNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.EndNo >= viewModel.EndNo))))
                     {
                         var appliedItem = table
-                                .Where(t => t.TrackID == viewModel.TrackID
+                                .Where(t => t.TrackID == model.TrackID
                                     && ((t.EndNo <= viewModel.EndNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.StartNo >= viewModel.StartNo) || (t.StartNo <= viewModel.StartNo && t.EndNo >= viewModel.StartNo) || (t.StartNo <= viewModel.EndNo && t.EndNo >= viewModel.EndNo)))
                                 .First();
                         ModelState.AddModelError("StartNo", $"本區段營業人({appliedItem.InvoiceTrackCodeAssignment.Seller.ReceiptNo})已使用!!");
