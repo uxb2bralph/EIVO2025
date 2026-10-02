@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Primitives;
 
 namespace WebHome.Infrastructure.ModelBinding
 {
@@ -22,10 +23,10 @@ namespace WebHome.Infrastructure.ModelBinding
     /// </remarks>
     public sealed class JsonBodyValueProvider : BindingSourceValueProvider
     {
-        private readonly IReadOnlyDictionary<string, string?> _values;
+        private readonly IReadOnlyDictionary<string, StringValues> _values;
         private readonly HashSet<string> _prefixes;
 
-        private JsonBodyValueProvider(IReadOnlyDictionary<string, string?> values, HashSet<string> prefixes)
+        private JsonBodyValueProvider(IReadOnlyDictionary<string, StringValues> values, HashSet<string> prefixes)
             : base(BindingSource.Form)
         {
             _values = values;
@@ -42,7 +43,7 @@ namespace WebHome.Infrastructure.ModelBinding
                 return null;
             }
 
-            var values = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+            var values = new Dictionary<string, StringValues>(StringComparer.OrdinalIgnoreCase);
             Flatten(root, string.Empty, values);
 
             var prefixes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { string.Empty };
@@ -76,7 +77,7 @@ namespace WebHome.Infrastructure.ModelBinding
         /// <summary>
         /// 物件用 <c>a.b</c>、陣列用 <c>a[0]</c> 攤平成 MVC 值提供者認得的鍵。
         /// </summary>
-        private static void Flatten(JsonElement element, string prefix, IDictionary<string, string?> values)
+        private static void Flatten(JsonElement element, string prefix, IDictionary<string, StringValues> values)
         {
             switch (element.ValueKind)
             {
@@ -96,6 +97,15 @@ namespace WebHome.Infrastructure.ModelBinding
                     {
                         Flatten(item, $"{prefix}[{index++}]", values);
                         // 陣列元素若是物件／陣列會再往下攤平，純量則直接落在 a[0]。
+                    }
+
+                    // 純量陣列另以 a 本身存一份多值，比照 form post 的 chkItem=1&chkItem=2。
+                    // CollectionModelBinder 取得 a 的值時走 BindSimpleCollection，
+                    // 否則改走 a[0]、a[1]… 的索引繫結，超過 MvcOptions.MaxModelBindingCollectionSize（1024）會丟例外
+                    // （例如列印時勾選逾千筆發票）。
+                    if (prefix.Length > 0 && TryGetScalarValues(element, out var scalars))
+                    {
+                        values[prefix] = scalars;
                     }
                     break;
 
@@ -119,6 +129,39 @@ namespace WebHome.Infrastructure.ModelBinding
                     }
                     break;
             }
+        }
+
+        /// <summary>
+        /// 陣列元素全為純量（null 略過）時回傳其字串值；含物件／陣列或為空陣列時回 false。
+        /// </summary>
+        private static bool TryGetScalarValues(JsonElement array, out StringValues values)
+        {
+            var list = new List<string?>(array.GetArrayLength());
+            foreach (var item in array.EnumerateArray())
+            {
+                switch (item.ValueKind)
+                {
+                    case JsonValueKind.Object:
+                    case JsonValueKind.Array:
+                        values = StringValues.Empty;
+                        return false;
+
+                    case JsonValueKind.Null:
+                    case JsonValueKind.Undefined:
+                        break;
+
+                    case JsonValueKind.String:
+                        list.Add(item.GetString());
+                        break;
+
+                    default:
+                        list.Add(item.GetRawText());
+                        break;
+                }
+            }
+
+            values = new StringValues(list.ToArray());
+            return list.Count > 0;
         }
 
         /// <summary>

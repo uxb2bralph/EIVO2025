@@ -108,7 +108,8 @@ namespace ModelCore.InvoiceManagement.enUS
             order = new InvoicePurchaseOrder
             {
                 OrderNo = invItem.DataNumber,
-                PurchaseDate = dataDate
+                PurchaseDate = dataDate,
+                SellerID = seller.CompanyID,
             };
 
             return null;
@@ -367,8 +368,10 @@ namespace ModelCore.InvoiceManagement.enUS
                     return new Exception(String.Format("Format of Amount error, Incorrect Amount: {0}, Incorrect TAG:< Amount />", product.CostAmount));
                 }
 
+                product.Product.InvoiceProductItem.Add(product);
+
             }
-            return null;
+            return null!;
         }
     }
 }

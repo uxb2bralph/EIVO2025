@@ -11,6 +11,7 @@ using CommonLib.Utility;
 using CommonLib.Core.DataWork;
 using ModelCore.Locale;
 using ModelCore.InvoiceManagement.Validator;
+using Microsoft.EntityFrameworkCore;
 
 namespace ModelCore.InvoiceManagement.zhTW
 {
@@ -106,10 +107,14 @@ namespace ModelCore.InvoiceManagement.zhTW
                 return new Exception("作廢日期，TAG：< CancelDate />");
             }
 
-            if (mgr.GetTable<InvoiceAllowanceItem>()
+            var allowances = mgr.GetTable<InvoiceAllowanceItem>()
                 .Where(a => a.InvoiceNo == invItem.CancelInvoiceNumber)
-                .Where(a => a.Allowance.Any(d => d.InvoiceAllowanceSeller!.SellerID == sellerID))
-                .Any())
+                .SelectMany(a => a.Allowance)
+                .Where(a => a.InvoiceAllowanceSeller != null && a.InvoiceAllowanceSeller.SellerID == sellerID)
+                .Where(a => a.InvoiceAllowanceCancellation == null)
+                .AsNoTracking();
+
+            if (allowances.Any())
             {
                 return new Exception(String.Format("欲作廢之發票已開立折讓,發票號碼:{0}", invItem.CancelInvoiceNumber));
             }

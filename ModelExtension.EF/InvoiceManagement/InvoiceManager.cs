@@ -115,7 +115,7 @@ namespace ModelCore.InvoiceManagement
                                 }
                             }
 
-                            this.SubmitChanges();
+                            this.SubmitInvoiceChanges(() => validator.RollbackAutoTrackNo(newItem));
                         }
                         else
                         {
@@ -184,7 +184,7 @@ namespace ModelCore.InvoiceManagement
                         newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
                         this.GetTable<InvoiceItem>().Add(newItem);
-                        this.SubmitChanges();
+                        this.SubmitInvoiceChanges(() => validator.RollbackAutoTrackNo(newItem));
 
                         // 2. 作廢原發票：ProcessVoidInvoiceRequest + 產出 F0701 至 F0701Outbound
                         ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
@@ -721,7 +721,11 @@ namespace ModelCore.InvoiceManagement
                             No = (seqNo++)
                         }).ToList();
 
-                        newItem.Product!.AddRange(productItems.Select(p => p.Product));
+                        foreach (var productItem in productItems)
+                        {
+                            productItem.Product!.InvoiceProductItem.Add(productItem);
+                            newItem.Product.Add(productItem.Product);
+                        }
 
                         if (owner != null)
                         {

@@ -110,7 +110,7 @@ namespace ModelCore.InvoiceManagement.Validator
             //newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
             newItem.CDS_Document.PushStepQueueOnSubmit(_models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
 
-            _models.SubmitChanges();
+            _models.SubmitInvoiceChanges(() => RollbackAutoTrackNo(newItem));
 
             if(_pdfSubscription)
             {

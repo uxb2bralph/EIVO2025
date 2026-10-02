@@ -412,12 +412,12 @@ namespace ModelCore.InvoiceManagement.Validator
                 return ex;
             }
 
-            if ((ex = checkInvoiceDelivery()) != null)
+            if ((ex = checkMandatoryFields()) != null)
             {
                 return ex;
             }
 
-            if ((ex = checkMandatoryFields()) != null)
+            if ((ex = checkInvoiceDelivery()) != null)
             {
                 return ex;
             }
@@ -496,11 +496,6 @@ namespace ModelCore.InvoiceManagement.Validator
             if (_order != null)
             {
                 _newItem.InvoicePurchaseOrder = _order;
-            }
-
-            if (_orderAudit != null)
-            {
-                _orderAudit.Invoice = _newItem;
             }
 
             _newItem.Product!.AddRange(_productItems.Select(p => p.Product));
@@ -608,7 +603,6 @@ namespace ModelCore.InvoiceManagement.Validator
         protected override Exception checkDataNumber()
         {
             _order = null;
-            _orderAudit = null;
             if (String.IsNullOrEmpty(DataID()))
             {
                 return new Exception(MessageResources.AlertDataNumber);
@@ -617,15 +611,6 @@ namespace ModelCore.InvoiceManagement.Validator
             if (DataID()?.Length > 60)
             {
                 return new Exception(String.Format(MessageResources.AlertDataNumberLimitedLength, DataID()));
-            }
-
-            if (_seller.ForcedAuditNo())
-            {
-                _orderAudit = _models.CreateInvoicePurchaseOrderAudit(_seller.CompanyID, DataID());
-                if (_orderAudit == null)
-                {
-                    return new Exception(String.Format(MessageResources.AlertDataNumberDuplicated, DataID()));
-                }
             }
 
             var po = _models.GetTable<InvoicePurchaseOrder>().Where(d => d.OrderNo == DataID()
@@ -647,7 +632,8 @@ namespace ModelCore.InvoiceManagement.Validator
             _order = new InvoicePurchaseOrder
             {
                 OrderNo = DataID(),
-                PurchaseDate = dataDate
+                PurchaseDate = dataDate,
+                SellerID = _seller.CompanyID,
             };
 
             return null;
@@ -656,7 +642,6 @@ namespace ModelCore.InvoiceManagement.Validator
         protected void buildDataNumber()
         {
             _order = null;
-            _orderAudit = null;
 
             if (!String.IsNullOrEmpty(DataID()))
             {
@@ -1028,7 +1013,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 Convert.ToInt32(!String.IsNullOrEmpty(CarrierType())
                     && !(String.IsNullOrEmpty(CarrierId1()) && String.IsNullOrEmpty(CarrierId2()))),
                 Convert.ToInt32(BuyerID() == "0000000000"),
-                Convert.ToInt32(DonateMark() == "1")];
+                Convert.ToInt32(printMark != "Y" && DonateMark() == "1")];
 
             return checkFunc();
 
@@ -1167,18 +1152,12 @@ namespace ModelCore.InvoiceManagement.Validator
                 product.Product.InvoiceProductItem.Add(product);
 
             }
-            return null;
+            return null!;
         }
 
         String printMark;
         protected override Exception checkMandatoryFields()
         {
-
-            if (BuyerID() == "0000000000" && DonateMark() != "0" && DonateMark() != "1")
-            {
-                return new Exception(String.Format(MessageResources.InvalidDonationMark, DonateMark()));
-            }
-
             if ((printMark = PrintMark().GetEfficientString()) == null)
             {
                 //return new Exception(MessageResources.InvalidPrintMark);
@@ -1198,8 +1177,16 @@ namespace ModelCore.InvoiceManagement.Validator
                 return new Exception(String.Format(MessageResources.InvalidInvoiceType, InvoiceType()));
             }
 
+            if(printMark == "Y")
+            {
 
-            return null;
+            }
+            else if (BuyerID() == "0000000000" && DonateMark() != "0" && DonateMark() != "1")
+            {
+                return new Exception(String.Format(MessageResources.InvalidDonationMark, DonateMark()));
+            }
+
+            return null!;
         }
 
         protected override Exception checkCarrierDataIsComplete()

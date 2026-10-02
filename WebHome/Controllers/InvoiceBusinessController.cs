@@ -245,7 +245,7 @@ namespace WebHome.Controllers
 
                 models!.GetTable<InvoiceItem>().Add(newItem);
                 newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
-                models.SubmitChanges();
+                models.SubmitInvoiceChanges();
 
                 // 2. 作廢原發票：ProcessVoidInvoiceRequest + 產出 F0701 至 F0701Outbound（於加星號前，確保作廢號碼正確）
                 ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
@@ -479,7 +479,7 @@ namespace WebHome.Controllers
                 {
                     //newItem.CDS_Document.PushStepQueueOnSubmit(models, Naming.InvoiceStepDefinition.已接收資料待通知, Naming.InvoiceProcessType.F0401);
                 }
-                models.SubmitChanges();
+                models.SubmitInvoiceChanges();
 
                 //EIVONotificationFactory.Notify();
 

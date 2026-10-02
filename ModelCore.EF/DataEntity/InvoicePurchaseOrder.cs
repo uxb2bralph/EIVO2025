@@ -13,7 +13,11 @@ public partial class InvoicePurchaseOrder
 
     public DateTime? PurchaseDate { get; set; }
 
+    public int? SellerID { get; set; }
+
     public virtual InvoiceItem Invoice { get; set; } = null!;
+
+    public virtual Organization? Seller { get; set; }
 
     public virtual InvoicePurchaseOrderUpload? Upload { get; set; }
 }

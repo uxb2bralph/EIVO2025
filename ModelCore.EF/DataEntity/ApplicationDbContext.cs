@@ -167,8 +167,6 @@ public partial class ApplicationDbContext : DbContext
 
     public virtual DbSet<InvoicePurchaseOrder> InvoicePurchaseOrder { get; set; }
 
-    public virtual DbSet<InvoicePurchaseOrderAudit> InvoicePurchaseOrderAudit { get; set; }
-
     public virtual DbSet<InvoicePurchaseOrderUpload> InvoicePurchaseOrderUpload { get; set; }
 
     public virtual DbSet<InvoiceSeller> InvoiceSeller { get; set; }
@@ -1848,6 +1846,10 @@ public partial class ApplicationDbContext : DbContext
 
             entity.HasIndex(e => e.OrderNo, "IX_InvoicePurchaseOrder");
 
+            entity.HasIndex(e => new { e.OrderNo, e.SellerID }, "IX_InvoicePurchaseOrder_OrderNo_SellerID")
+                .IsUnique()
+                .HasFilter("([SellerID] IS NOT NULL)");
+
             entity.Property(e => e.InvoiceID).ValueGeneratedNever();
             entity.Property(e => e.OrderNo).HasMaxLength(64);
             entity.Property(e => e.PurchaseDate).HasColumnType("datetime");
@@ -1856,28 +1858,14 @@ public partial class ApplicationDbContext : DbContext
                 .HasForeignKey<InvoicePurchaseOrder>(d => d.InvoiceID)
                 .HasConstraintName("FK_InvoicePurchaseOrder_InvoiceItem");
 
+            entity.HasOne(d => d.Seller).WithMany(p => p.InvoicePurchaseOrder)
+                .HasForeignKey(d => d.SellerID)
+                .HasConstraintName("FK_InvoicePurchaseOrder_Organization");
+
             entity.HasOne(d => d.Upload).WithMany(p => p.InvoicePurchaseOrder)
                 .HasForeignKey(d => d.UploadID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_InvoicePurchaseOrder_InvoicePurchaseOrderUpload");
-        });
-
-        modelBuilder.Entity<InvoicePurchaseOrderAudit>(entity =>
-        {
-            entity.HasKey(e => new { e.SellerID, e.OrderNo });
-
-            entity.Property(e => e.OrderNo).HasMaxLength(64);
-            entity.Property(e => e.InvoiceID).HasComment("Primary Key");
-
-            entity.HasOne(d => d.Invoice).WithMany(p => p.InvoicePurchaseOrderAudit)
-                .HasForeignKey(d => d.InvoiceID)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_InvoicePurchaseOrderAudit_InvoiceItem");
-
-            entity.HasOne(d => d.Seller).WithMany(p => p.InvoicePurchaseOrderAudit)
-                .HasForeignKey(d => d.SellerID)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_InvoicePurchaseOrderAudit_Organization");
         });
 
         modelBuilder.Entity<InvoicePurchaseOrderUpload>(entity =>

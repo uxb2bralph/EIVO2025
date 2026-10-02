@@ -368,6 +368,7 @@ namespace ModelCore.InvoiceManagement
                     No = (short)firstItem.Entity.Product.Count,
                     Remark = column[(int)FieldIndex.備註].InsteadOfNullOrEmpty(null)
                 };
+                productItem.Product.InvoiceProductItem.Add(productItem);
                 firstItem.Entity.Product.Add(productItem.Product);
 
                 if (firstItem!.Entity!.InvoicePurchaseOrder!.PurchaseDate.HasValue != true)

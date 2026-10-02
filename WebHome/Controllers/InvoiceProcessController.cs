@@ -1444,7 +1444,8 @@ namespace WebHome.Controllers
         {
             ModelExtension.Properties.AppSettings.Default.F0701Outbound.CheckStoredPath();
 
-            foreach (var item in items)
+            // 先實體化：迴圈內有 lazy loading 與 SubmitChanges，不可與開啟中的 DataReader 共用連線
+            foreach (var item in items.ToList())
             {
                 lock(typeof(InvoiceProcessController))
                 {
@@ -2270,7 +2271,6 @@ namespace WebHome.Controllers
                     //models!.ExecuteCommand("DELETE InvoicePaperRequest WHERE InvoiceID = {0}", invoiceID);
                     //models!.ExecuteCommand("DELETE B2BBuyerInvoiceTag WHERE InvoiceID = {0}", invoiceID);
                     //models!.ExecuteCommand("DELETE DocumentPostLog WHERE InvoiceID = {0}", invoiceID);
-                    //models!.ExecuteCommand("DELETE InvoicePurchaseOrderAudit WHERE InvoiceID = {0}", invoiceID);
                     //models!.ExecuteCommand("DELETE InvoicePurchaseOrder WHERE InvoiceID = {0}", invoiceID);
                     //models!.ExecuteCommand("DELETE InvoiceCancellation WHERE InvoiceID = {0}", invoiceID);
                     // 刪 DerivedDocument 及衍生的 CDS_Document

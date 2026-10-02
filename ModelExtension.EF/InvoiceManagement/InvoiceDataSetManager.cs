@@ -190,7 +190,7 @@ namespace ModelCore.InvoiceManagement
                     }
 
                     this.EntityList.Add(newItem);
-                    this.SubmitChanges();
+                    this.SubmitInvoiceChanges(() => validator.RollbackAutoTrackNo(newItem));
 
                     eventItems.Add(newItem);
                     ReportSuccess(result, newItem);
@@ -423,7 +423,7 @@ namespace ModelCore.InvoiceManagement
                             }
 
                             this.EntityList.Add(newItem);
-                            this.SubmitChanges();
+                            this.SubmitInvoiceChanges(() => validator.RollbackAutoTrackNo(newItem));
 
                             eventItems.Add(newItem);
                             ReportSuccess(result, newItem);

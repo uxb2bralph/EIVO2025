@@ -45,7 +45,6 @@ namespace ModelCore.InvoiceManagement.Validator
         protected Organization? _seller;
         protected bool _isCrossBorderMerchant;
         protected InvoicePurchaseOrder _order;
-        protected InvoicePurchaseOrderAudit _orderAudit;
         protected InvoiceBuyer _buyer;
         protected InvoiceCarrier _carrier;
         protected InvoiceDonation _donation;
@@ -251,6 +250,19 @@ namespace ModelCore.InvoiceManagement.Validator
             }
         }
 
+        /// <summary>
+        /// 新發票未能存檔時歸還自動配號（僅限 StartAutoTrackNo 期間）。
+        /// </summary>
+        public bool RollbackAutoTrackNo(InvoiceItem item)
+        {
+            if (_isAutoTrackNo && _trackNoManagerList != null && item.SellerID.HasValue
+                && _trackNoManagerList.TryGetValue(item.SellerID.Value, out var trackNoMgr))
+            {
+                return trackNoMgr.RollbackInvoiceNo(item);
+            }
+            return false;
+        }
+
         public virtual ModelStateDictionary Validate(InvoiceItem item)
         {
             ModelStateDictionary modelState = new ModelStateDictionary();
@@ -296,12 +308,12 @@ namespace ModelCore.InvoiceManagement.Validator
                 return ex;
             }
 
-            if ((ex = checkInvoiceDelivery()) != null)
+            if ((ex = checkMandatoryFields()) != null)
             {
                 return ex;
             }
 
-            if ((ex = checkMandatoryFields()) != null)
+            if ((ex = checkInvoiceDelivery()) != null)
             {
                 return ex;
             }
@@ -441,11 +453,6 @@ namespace ModelCore.InvoiceManagement.Validator
                 _container.InvoicePurchaseOrder = _order;
             }
 
-            if (_orderAudit != null)
-            {
-                _orderAudit.Invoice = _container;
-            }
-
             _container.Product!.AddRange(_productItems.Select(p => p.Product));
 
             if (_isAutoTrackNo)
@@ -581,7 +588,6 @@ namespace ModelCore.InvoiceManagement.Validator
         protected virtual Exception checkDataNumber()
         {
             _order = null;
-            _orderAudit = null;
             if (String.IsNullOrEmpty(_invItem.DataNumber))
             {
                 return new Exception(MessageResources.AlertDataNumber);
@@ -590,15 +596,6 @@ namespace ModelCore.InvoiceManagement.Validator
             if (_invItem.DataNumber?.Length > 60)
             {
                 return new Exception(String.Format(MessageResources.AlertDataNumberLimitedLength, _invItem.DataNumber));
-            }
-
-            if (_seller.ForcedAuditNo())
-            {
-                _orderAudit = _models.CreateInvoicePurchaseOrderAudit(_seller.CompanyID, _invItem.DataNumber);
-                if (_orderAudit == null)
-                {
-                    return new Exception(String.Format(MessageResources.AlertDataNumberDuplicated, _invItem.DataNumber));
-                }
             }
 
             var po = _models.GetTable<InvoicePurchaseOrder>().Where(d => d.OrderNo == _invItem.DataNumber
@@ -625,7 +622,8 @@ namespace ModelCore.InvoiceManagement.Validator
             _order = new InvoicePurchaseOrder
             {
                 OrderNo = _invItem.DataNumber,
-                PurchaseDate = dataDate
+                PurchaseDate = dataDate,
+                SellerID = _seller.CompanyID,
             };
 
             return null;
@@ -1113,8 +1111,6 @@ namespace ModelCore.InvoiceManagement.Validator
                     return new Exception(String.Format(MessageResources.InvalidPieceUnit, product.PieceUnit));
                 }
 
-                product.Product.InvoiceProductItem.Add(product);
-
                 //if (!product.UnitCost.HasValue || product.UnitCost == 0)
                 //{
                 //    return new Exception(String.Format(MessageResources.InvalidUnitPrice, product.UnitCost));
@@ -1132,17 +1128,11 @@ namespace ModelCore.InvoiceManagement.Validator
 
                 product.Product.InvoiceProductItem.Add(product);
             }
-            return null;
+            return null!;
         }
 
         protected virtual Exception checkMandatoryFields()
         {
-
-            if (_invItem.BuyerId == "0000000000" && _invItem.DonateMark != "0" && _invItem.DonateMark != "1")
-            {
-                return new Exception(String.Format(MessageResources.InvalidDonationMark, _invItem.DonateMark));
-            }
-
             if (String.IsNullOrEmpty(_invItem.PrintMark))
             {
                 //return new Exception(MessageResources.InvalidPrintMark);
@@ -1166,7 +1156,17 @@ namespace ModelCore.InvoiceManagement.Validator
                 return new Exception(String.Format(MessageResources.InvalidInvoiceType, _invItem.InvoiceType));
             }
 
-            return null;
+            if(_invItem.PrintMark == "Y")
+            {
+                _invItem.DonateMark = "0";
+            }
+            else if (_invItem.BuyerId == "0000000000" && _invItem.DonateMark != "0" && _invItem.DonateMark != "1")
+            {
+                return new Exception(String.Format(MessageResources.InvalidDonationMark, _invItem.DonateMark));
+            }
+
+
+            return null!;
         }
 
         protected virtual Exception checkCarrierDataIsComplete()

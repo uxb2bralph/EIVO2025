@@ -68,7 +68,7 @@ namespace ModelCore.InvoiceManagement.Validator
             //yuki 加一筆到ProcessRequestDocument
             //C0401Handler.PushProcessRequestDocumentOnSubmit(_models, newItem.CDS_Document, taskID);
 
-            _models.SubmitChanges();
+            _models.SubmitInvoiceChanges(() => RollbackAutoTrackNo(newItem));
 
             if (forTerms)
             {

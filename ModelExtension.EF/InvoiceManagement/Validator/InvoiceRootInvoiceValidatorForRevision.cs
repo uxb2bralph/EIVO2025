@@ -141,11 +141,6 @@ namespace ModelCore.InvoiceManagement.Validator
                 _container.InvoicePurchaseOrder = _order;
             }
 
-            if (_orderAudit != null)
-            {
-                _orderAudit.Invoice = _container;
-            }
-
             _container.Product!.AddRange(_productItems.Select(p => p.Product));
 
             DateTime invoiceDate = DateTime.Now;

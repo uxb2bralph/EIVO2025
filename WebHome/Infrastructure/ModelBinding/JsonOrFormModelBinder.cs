@@ -81,11 +81,24 @@ namespace WebHome.Infrastructure.ModelBinding
             // 保留原本的 query／route 值提供者：舊版有 $.postJSON(url + '?id=5', {...}) 這種混用寫法，
             // body 的值優先。
             var originalValueProvider = bindingContext.ValueProvider;
+            var originalModelName = bindingContext.ModelName;
             bindingContext.ValueProvider = new CompositeValueProvider
             {
                 jsonValueProvider,
                 originalValueProvider,
             };
+
+            // ParameterBinder 決定前綴時只看得到 form／query／route，JSON 請求下一律判成空前綴。
+            // 物件型別無妨（屬性本來就不帶前綴），但 int[] chkItem 這類集合會去找 "[0]" 而非
+            // "chkItem"／"chkItem[0]"，結果繫結成空陣列；因此比照 ParameterBinder 以 JSON 內容補判一次。
+            // 補判後 CollectionModelBinder 對 "chkItem":"1" 與 "chkItem":["1","2"] 都能繫結。
+            if (bindingContext.IsTopLevelObject
+                && string.IsNullOrEmpty(originalModelName)
+                && !string.IsNullOrEmpty(bindingContext.FieldName)
+                && jsonValueProvider.ContainsPrefix(bindingContext.FieldName))
+            {
+                bindingContext.ModelName = bindingContext.FieldName;
+            }
 
             try
             {
@@ -94,6 +107,7 @@ namespace WebHome.Infrastructure.ModelBinding
             finally
             {
                 bindingContext.ValueProvider = originalValueProvider;
+                bindingContext.ModelName = originalModelName;
             }
         }
 

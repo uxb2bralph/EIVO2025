@@ -95,7 +95,8 @@ namespace ModelCore.InvoiceManagement.zhTW
             order = new InvoicePurchaseOrder
             {
                 OrderNo = invItem.DataNumber,
-                PurchaseDate = dataDate
+                PurchaseDate = dataDate,
+                SellerID = seller.CompanyID,
             };
 
             return null;
@@ -316,8 +317,10 @@ namespace ModelCore.InvoiceManagement.zhTW
                 {
                     return new Exception(String.Format("金額格式錯誤，傳送資料：{0}，TAG:< Amount />", product.CostAmount));
                 }
+
+                product.Product.InvoiceProductItem.Add(product);
             }
-            return null;
+            return null!;
         }
     }
 }

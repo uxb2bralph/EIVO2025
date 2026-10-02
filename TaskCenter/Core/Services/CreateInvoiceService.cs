@@ -212,7 +212,7 @@ namespace TaskCenter.Core.Services
                 {
                     newItem.CDS_Document.PushStepQueueOnSubmit(ds, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
                 }
-                ds.SubmitChanges();
+                ds.SubmitInvoiceChanges();
 
                 return Task.FromResult(CreateInvoiceCommitResult.Success(new CreateInvoiceResultDto
                 {

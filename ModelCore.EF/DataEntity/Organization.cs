@@ -124,7 +124,7 @@ public partial class Organization
 
     public virtual ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
 
-    public virtual ICollection<InvoicePurchaseOrderAudit> InvoicePurchaseOrderAudit { get; set; } = new List<InvoicePurchaseOrderAudit>();
+    public virtual ICollection<InvoicePurchaseOrder> InvoicePurchaseOrder { get; set; } = new List<InvoicePurchaseOrder>();
 
     public virtual ICollection<InvoiceSeller> InvoiceSeller { get; set; } = new List<InvoiceSeller>();
 

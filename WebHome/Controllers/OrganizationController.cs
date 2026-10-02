@@ -216,7 +216,7 @@ namespace WebHome.Controllers
 
             return false;
         }
-        public ActionResult CommitIssuerAgent([FromJsonOrForm] OrganizationViewModel viewModel, List<int>? agentID)
+        public ActionResult CommitIssuerAgent([FromJsonOrForm] OrganizationViewModel viewModel, [FromJsonOrForm] List<int>? agentID)
         {
             if (viewModel == null)
             {
@@ -333,7 +333,7 @@ namespace WebHome.Controllers
             return result;
         }
 
-        public ActionResult CommitMaster([FromJsonOrForm] OrganizationViewModel viewModel, int[]? masterID)
+        public ActionResult CommitMaster([FromJsonOrForm] OrganizationViewModel viewModel, [FromJsonOrForm] int[]? masterID)
         {
             if (viewModel == null || !ModelState.IsValid)
             {

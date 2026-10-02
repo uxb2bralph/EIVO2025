@@ -180,6 +180,27 @@ namespace ModelCore.InvoiceManagement
             return true;
         }
 
+        /// <summary>
+        /// 發票未能存檔時歸還剛配出的號碼，避免區間內留下空號。
+        /// 只歸還本區間最後配出的一號；已跨到下一區間時不處理（原區間未用完，之後仍會再被配到）。
+        /// </summary>
+        public bool RollbackInvoiceNo(InvoiceItem item)
+        {
+            var assignment = item.InvoiceNoAssignment;
+            if (assignment == null || _currentInterval == null || !_currentNo.HasValue)
+            {
+                return false;
+            }
+
+            if (assignment.Interval == _currentInterval && assignment.InvoiceNo == _currentNo - 1)
+            {
+                _currentNo--;
+                return true;
+            }
+
+            return false;
+        }
+
         public InvoiceNoAllocation? AllocateInvoiceNo()
         {
             if (InitializeInvoiceNoInterval() == null)

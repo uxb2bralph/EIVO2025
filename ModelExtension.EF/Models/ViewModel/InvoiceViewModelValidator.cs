@@ -29,7 +29,7 @@ namespace ModelCore.Models.ViewModel
         protected InvoiceBuyer? _buyer;
         protected InvoiceCarrier? _carrier;
         protected InvoiceDonation? _donation;
-        protected IEnumerable<InvoiceProductItem>? _productItems;
+        protected List<InvoiceProduct>? _productItems;
       
 
         public InvoiceViewModelValidator(ModelSource models, Organization owner)
@@ -151,7 +151,7 @@ namespace ModelCore.Models.ViewModel
                 _newItem.InvoicePurchaseOrder = _order;
             }
 
-            _newItem.Product!.AddRange(_productItems.Select(p => p.Product));
+            _newItem.Product!.AddRange(_productItems!);
 
             if (_invItem.TrackCode == null || _invItem.No == null)
             {
@@ -206,7 +206,8 @@ namespace ModelCore.Models.ViewModel
 
             _order = new InvoicePurchaseOrder
             {
-                OrderNo = _invItem.DataNumber
+                OrderNo = _invItem.DataNumber,
+                SellerID = _seller.CompanyID,
             };
 
             return null;
@@ -414,7 +415,7 @@ namespace ModelCore.Models.ViewModel
                 }
             }
 
-            return null;
+            return null!;
         }
 
 
@@ -468,7 +469,7 @@ namespace ModelCore.Models.ViewModel
                 }
             }
 
-            return null;
+            return null!;
         }
 
 
@@ -479,46 +480,42 @@ namespace ModelCore.Models.ViewModel
                 return new Exception(MessageResources.InvalidInvoiceDetails);
             }
 
+            _productItems = new List<InvoiceProduct>();
             short seqNo = 0;
-            _productItems = _invItem.Brief.Select(i => new InvoiceProductItem
+            foreach(var brief in _invItem.Brief)
             {
-                Product = new InvoiceProduct { Brief = i },
-                CostAmount = _invItem.CostAmount[seqNo],
-                ItemNo = _invItem.ItemNo[seqNo],
-                Piece = _invItem.Piece[seqNo],
-                UnitCost = _invItem.UnitCost[seqNo],
-                Remark = _invItem.ItemRemark[seqNo],
-                TaxType = _invItem.TaxType,
-                No = (++seqNo)
-            }).ToList();
-
-
-            foreach (var product in _productItems)
-            {
-                if (String.IsNullOrEmpty(product.Product.Brief) || product.Product.Brief.Length > 256)
+                if (String.IsNullOrEmpty(brief) || brief.Length > 256)
                 {
-                    return new Exception(String.Format(MessageResources.InvalidProductDescription, product.Product.Brief));
+                    return new Exception(String.Format(MessageResources.InvalidProductDescription, brief));
                 }
 
-
-                if (!String.IsNullOrEmpty(product.PieceUnit) && product.PieceUnit.Length > 6)
+                if (_invItem.Piece != null && _invItem.Piece.Length > seqNo && _invItem.Piece[seqNo] < 0)
                 {
-                    return new Exception(String.Format(MessageResources.InvalidPieceUnit, product.PieceUnit));
+                    return new Exception(String.Format(MessageResources.InvalidQuantity, _invItem.Piece[seqNo]));
                 }
 
+                var product = new InvoiceProduct
+                {
+                    Brief = brief,
+                };
 
-                //if (!Regex.IsMatch(product.UnitCost.ToString(), __DECIMAL_AMOUNT_PATTERN))
-                //{
-                //    return new Exception(String.Format(MessageResources.InvalidUnitPrice, product.UnitCost));
-                //}
+                product.InvoiceProductItem.Add(new InvoiceProductItem
+                {
+                    CostAmount = _invItem.CostAmount?[seqNo],
+                    ItemNo = _invItem.ItemNo?[seqNo],
+                    Piece = _invItem.Piece?[seqNo],
+                    UnitCost = _invItem.UnitCost?[seqNo],
+                    Remark = _invItem.ItemRemark?[seqNo],
+                    TaxType = _invItem.TaxType,
+                    No = seqNo
+                });
 
-                //if (!Regex.IsMatch(product.CostAmount.ToString(), __DECIMAL_AMOUNT_PATTERN))
-                //{
-                //    return new Exception(String.Format(MessageResources.InvalidCostAmount, product.CostAmount));
-                //}
+                _productItems.Add(product);
 
+                seqNo++;
             }
-            return null;
+
+            return null!;
         }
 
         protected virtual Exception? checkMandatoryFields()

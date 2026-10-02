@@ -153,7 +153,7 @@
             <div>免稅銷售額：@(String.Format("{0:##,###,###,##0.##}", _model.InvoiceAmountType.FreeTaxSalesAmount))</div>
             <div>稅額：@(String.Format("{0:##,###,###,##0.##} ", _model.InvoiceAmountType.TaxAmount))</div>
           }
-          <div>備註：@(String.Join(";", _model.Product.Select(d => d.InvoiceProductItem.FirstOrDefault().Remark)).Replace("\r\n","<br/>").Replace("\n","<br/>"))</div>
+          <div>備註：@Html.Raw(String.Join(";", _model.Product.Select(d => d.InvoiceProductItem.FirstOrDefault()).Where(i => i != null && i.Remark != null).Select(i => i!.Remark)).Replace("\r\n","<br/>").Replace(oldValue: "\n",newValue: "<br/>"))</div>
           <div>退貨請憑電子發票證明聯辦理</div>
           @if (_model.InvoiceWinningNumber != null && _model.InvoiceCarrier != null && _model.InvoiceCarrier.CarrierType == "3J0002")
           {

@@ -165,8 +165,6 @@ public partial class InvoiceItem
 
     public virtual InvoicePurchaseOrder? InvoicePurchaseOrder { get; set; }
 
-    public virtual ICollection<InvoicePurchaseOrderAudit> InvoicePurchaseOrderAudit { get; set; } = new List<InvoicePurchaseOrderAudit>();
-
     public virtual InvoiceSeller? InvoiceSeller { get; set; }
 
     public virtual InvoiceWinningNumber? InvoiceWinningNumber { get; set; }

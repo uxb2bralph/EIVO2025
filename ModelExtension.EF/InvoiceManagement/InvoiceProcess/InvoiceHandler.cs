@@ -306,7 +306,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var allowance = item.Doc.InvoiceAllowance;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0101Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0101Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = allowance.CreateB0101();
                 if (xmlMIG == null)
                 {
@@ -333,7 +333,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var allowance = item.Doc.InvoiceAllowance;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0102Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0102Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = allowance.CreateB0102();
                 if (xmlMIG == null)
                 {
@@ -417,7 +417,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.Doc.InvoiceItem;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0101Outbound, $"A0101-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0101Outbound, $"A0101-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = invoiceItem.CreateA0101();
                 item.Doc.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
 
@@ -441,7 +441,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.Doc.InvoiceItem;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0401Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0401Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = invoiceItem.CreateF0401();
                 if (xmlMIG == null)
                 {
@@ -505,7 +505,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var allowance = item.Doc.InvoiceAllowance;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.G0401Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.G0401Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = allowance.CreateG0401();
                 item.Doc.PushLogOnSubmit(models, (Naming.InvoiceStepDefinition)item.StepID, Naming.DataProcessStatus.Done, xmlMIG.OuterXml);
 
@@ -564,7 +564,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.G0501Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.G0501Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}-{allowance.InvoiceAllowanceSeller.ReceiptNo}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = allowance.CreateG0501();
                 if (xmlMIG == null)
                 {
@@ -632,7 +632,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
 
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0501Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{invoice.TrackCode}{invoice.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.F0501Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{invoice.TrackCode}{invoice.No}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = invoice.CreateF0501();
                 if (xmlMIG == null)
                 {
@@ -696,7 +696,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.Doc.InvoiceItem;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0102Outbound, $"A0102-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0102Outbound, $"A0102-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = invoiceItem.CreateA0102();
                 if (xmlMIG == null)
                 {
@@ -724,7 +724,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.Doc.DerivedDocument.ParentDocument.InvoiceItem;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0202Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0202Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = invoiceItem.CreateA0202();
                 if (xmlMIG == null)
                 {
@@ -752,7 +752,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.Doc.InvoiceItem;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0301Outbound, $"A0301-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0301Outbound, $"A0301-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = invoiceItem.CreateA0301();
                 if (xmlMIG == null)
                 {
@@ -780,7 +780,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.Doc.InvoiceItem;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0302Outbound, $"A0302-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0302Outbound, $"A0302-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = invoiceItem.CreateA0302();
                 if (xmlMIG == null)
                 {
@@ -808,7 +808,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var invoiceItem = item.Doc.DerivedDocument.ParentDocument.InvoiceItem;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0201Outbound, $"A0201-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.A0201Outbound, $"A0201-{DateTime.Now:yyyyMMddHHmmssf}-{invoiceItem.TrackCode}{invoiceItem.No}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = invoiceItem.CreateA0201();
                 if (xmlMIG == null)
                 {
@@ -846,7 +846,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var allowance = item.Doc.DerivedDocument.ParentDocument.InvoiceAllowance;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0201Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0201Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = allowance?.CreateB0201();
                 if (xmlMIG == null)
                 {
@@ -882,7 +882,7 @@ namespace ModelCore.InvoiceManagement.InvoiceProcess
             var allowance = item.Doc.DerivedDocument.ParentDocument.InvoiceAllowance;
             try
             {
-                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0202Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}.xml");
+                var fileName = Path.Combine(ModelExtension.Properties.AppSettings.Default.B0202Outbound, $"{(Naming.InvoiceProcessType)item.ProcessType}-{DateTime.Now:yyyyMMddHHmmssf}-{allowance.AllowanceID}.xml".EscapeFileNameCharacter('_'));
                 var xmlMIG = allowance?.CreateB0202();
                 if (xmlMIG == null)
                 {

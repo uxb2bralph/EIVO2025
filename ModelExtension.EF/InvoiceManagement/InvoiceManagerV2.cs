@@ -225,7 +225,7 @@ namespace ModelCore.InvoiceManagement
                             }
 
                             this.EntityList.Add(newItem);
-                            this.SubmitChanges();
+                            this.SubmitInvoiceChanges(() => validator.RollbackAutoTrackNo(newItem));
 
                             eventItems.Add(newItem);
                         }

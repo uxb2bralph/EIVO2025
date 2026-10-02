@@ -269,7 +269,8 @@ namespace ModelCore.InvoiceManagement.Validator
             _order = new InvoicePurchaseOrder
             {
                 OrderNo = _invItem.DataNumber,
-                PurchaseDate = dataDate
+                PurchaseDate = dataDate,
+                SellerID = _seller?.CompanyID,
             };
 
             return null;
@@ -546,7 +547,7 @@ namespace ModelCore.InvoiceManagement.Validator
                 //}
 
             }
-            return null;
+            return null!;
         }
 
         protected override Exception checkMandatoryFields()

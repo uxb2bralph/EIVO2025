@@ -13,6 +13,7 @@ using ModelCore.InvoiceManagement.InvoiceProcess;
 using CommonLib.Core.DataWork;
 using CommonLib.Core.Utility;
 using ModelCore.Models.ViewModel;
+using System.Data.Entity;
 
 namespace ModelCore.InvoiceManagement
 {
@@ -169,7 +170,11 @@ namespace ModelCore.InvoiceManagement
                             TaxType = i.TaxType
                         });
 
-                        newItem!.Product!.AddRange(productItems.Select(p => p.Product));
+                        foreach(var productItem in productItems)
+                        {
+                            productItem.Product!.InvoiceProductItem.Add(productItem);
+                            newItem.Product.Add(productItem.Product);
+                        }
 
                         this.EntityList.Add(newItem);
                         newItem.CDS_Document.PushStepQueueOnSubmit(this, Naming.InvoiceStepDefinition.已開立, Naming.InvoiceProcessType.F0401);
@@ -275,10 +280,14 @@ namespace ModelCore.InvoiceManagement
                             continue;
                         }
 
-                        if (this.GetTable<InvoiceAllowanceItem>()
+                        var allowances = this.GetTable<InvoiceAllowanceItem>()
                             .Where(a => a.InvoiceNo == invItem.CancelInvoiceNumber)
-                            .Where(a => a.Allowance.Any(d => d.InvoiceAllowanceSeller != null && d.InvoiceAllowanceSeller.SellerID == invoice.SellerID))
-                            .Any())
+                            .SelectMany(a => a.Allowance)
+                            .Where(a => a.InvoiceAllowanceSeller != null && a.InvoiceAllowanceSeller.SellerID == invoice.SellerID)
+                            .Where(a => a.InvoiceAllowanceCancellation == null)
+                            .AsNoTracking();
+
+                        if (allowances.Any())
                         {
                             result.Add(idx, new Exception(String.Format("欲作廢之發票已開立折讓,發票號碼:{0}", invItem.CancelInvoiceNumber)));
                             continue;

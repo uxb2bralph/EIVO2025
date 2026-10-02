@@ -170,7 +170,7 @@ namespace ModelCore.Models.ViewModel
                 _newItem.InvoicePurchaseOrder = _order;
             }
 
-            _newItem.Product!.AddRange(_productItems.Select(p => p.Product));
+            _newItem.Product!.AddRange(_productItems!);
 
             if (_invItem.TrackCode == null || _invItem.No == null)
             {
