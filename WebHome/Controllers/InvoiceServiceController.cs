@@ -246,15 +246,6 @@ namespace WebHome.Controllers
             return Content(result.OuterXml, "text/xml");
         }
 
-        [HttpPost("B2CUploadInvoice")]
-        [Consumes("application/xml", "text/xml")]
-        public IActionResult B2CUploadInvoice()
-        {
-            
-            var result = _invoiceService.B2CUploadInvoice(uploadData!);
-            return Content(result.OuterXml, "text/xml");
-        }
-
         [HttpPost("ReceiveContentAsPDFForSeller")]
         [Consumes("application/xml", "text/xml")]
         public string[] ReceiveContentAsPDFForSeller( [FromQuery] string clientID)

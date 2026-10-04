@@ -86,7 +86,6 @@ namespace WebHome.Controllers
         public ActionResult B2BUploadInvoiceCancellation() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadInvoiceCancellation(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult B2BUploadReceipt() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadReceipt(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult B2BUploadReceiptCancellation() { var result = (new eInvoiceService(_httpContextAccessor!)).B2BUploadReceiptCancellation(uploadData); return Content(result?.OuterXml, "text/xml"); }
-        public ActionResult B2CUploadInvoice() { var result = (new eInvoiceService(_httpContextAccessor!)).B2CUploadInvoice(uploadData); return Content(result?.OuterXml, "text/xml"); }
         public ActionResult DeleteTempForReceivePDF(String pdfFile)
         {
             var result = (new eInvoiceService(_httpContextAccessor!)).DeleteTempForReceivePDF(uploadData,pdfFile);

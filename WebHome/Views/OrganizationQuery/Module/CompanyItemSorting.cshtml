@@ -50,5 +50,8 @@
         }
     }
 
-
+    if (TempData["SortedItems"] == null)
+    {
+        TempData["SortedItems"] = _model.OrderBy(p => p.ReceiptNo);
+    }
 }

@@ -346,9 +346,7 @@ namespace ModelCore.Models.ViewModel
         public static IQueryable<InvoiceItem> QueryEffective(this IQueryable<InvoiceItem> items, InquireInvoiceViewModel? viewModel, GenericDbContext<ApplicationDbContext> models, ref bool effective)
         {
             viewModel ??= new InquireInvoiceViewModel { };
-            // 注意：InvoiceItem.CDS_Document 為 [NotMapped] 別名，EF Core 無法翻譯，
-            // 查詢時必須使用已對應的導覽屬性 CDS_Document。
-            items = items.Where(i => i.CDS_Document.DocType == (int)Naming.DocumentTypeDefinition.E_Invoice);
+            // InvoiceItem 對應的 CDS_Document 一律為 E_Invoice，不需再 JOIN CDS_Document 篩選 DocType
             if (viewModel.Cancelled.HasValue)
             {
                 if (viewModel.Cancelled == true)

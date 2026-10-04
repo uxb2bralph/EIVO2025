@@ -720,7 +720,6 @@ ModelExtension.EF/
 │   ├── InvoiceManagerV3.cs
 │   ├── InvoiceManagerForCBE.cs
 │   ├── B2BInvoiceManager.cs
-│   ├── B2CInvoiceManager.cs
 │   ├── GoogleInvoiceManager.cs
 │   ├── GoogleInvoiceManagerV2.cs
 │   ├── GoogleInvoiceManagerV3.cs

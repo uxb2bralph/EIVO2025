@@ -193,12 +193,17 @@ namespace ModelCore.DataEntity
                     i => i.InvoiceID, b => b.InvoiceID, (i, b) => i);
             }
 
-            var issuers = mgr.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == agentID)
-                .Select(a => a.IssuerID);
+            // 先取出開立人清單，改以 SellerID IN (...) 查詢，
+            // 避免 "SellerID = @agentID OR EXISTS(...)" 使 (SellerID, InvoiceDate) 索引無法 seek
+            var sellerIDs = mgr.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == agentID)
+                .Select(a => (int?)a.IssuerID)
+                .ToList();
+            if (!excludeAgentID)
+            {
+                sellerIDs.Add(agentID);
+            }
 
-            return excludeAgentID
-                ? items.Where(i => issuers.Any(a => a == i.SellerID))
-                : items.Where(i => i.SellerID == agentID || issuers.Any(a => a == i.SellerID));
+            return items.Where(i => sellerIDs.Contains(i.SellerID));
         }
 
         public static IQueryable<InvoiceAllowance> GetAllowanceByAgent(this GenericDbContext<ApplicationDbContext> mgr, int agentID)

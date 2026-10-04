@@ -84,4 +84,9 @@
             TempData["SortedItems"] = ((TempData["SortedItems"] as IQueryable<InvoiceAllowance>) ?? (IQueryable<InvoiceAllowance>)this.Model).OrderBy(p => p.InvoiceAllowanceBuyer.ReceiptNo, _viewModel.SortType[idx]);
         }
     }
+
+    if (TempData["SortedItems"] == null)
+    {
+        TempData["SortedItems"] = _model.OrderBy(p => p.AllowanceNumber);
+    }
 }

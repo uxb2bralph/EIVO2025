@@ -105,5 +105,9 @@
 
     }
 
+    if (TempData["SortedItems"] == null)
+    {
+        TempData["SortedItems"] = _model.OrderByDescending(p => p.InvoiceDate);
+    }
 
 }
