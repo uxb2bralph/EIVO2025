@@ -16,7 +16,7 @@
     _items = models.GetTable<SystemMessage>().Where(s => s.AlwaysShow || (s.StartDate <= DateTime.Now && s.EndDate.Value.AddDays(1) > DateTime.Now));
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-tw">
 <head>
     <title>電子發票系統</title>
     <meta charset="utf-8" />
@@ -25,6 +25,8 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
 
+    <!-- Legacy content styles (Bootstrap 3 + jQuery UI + page widgets).
+         Loaded first so the new admin layout below can override layout parts. -->
     <link href="~/Content/eivo-bootstrap.css" rel="stylesheet" type="text/css" />
     <link href="~/Content/bootstrap-theme.css" rel="stylesheet" type="text/css" />
     <link href="~/css/rwd-table.min.css" rel="stylesheet" type="text/css" />
@@ -36,18 +38,17 @@
     <link href="~/App_Themes/Visitor/left-menu.css" rel="stylesheet" />
     <link href="~/App_Themes/Visitor/paper.css" rel="stylesheet" />
     <link href="~/App_Themes/Visitor/StyleSheet.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/table.css" rel="stylesheet" />    @*<!--Bootstrap Core CSS -->
-        <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">*@
+    <link href="~/App_Themes/Visitor/table.css" rel="stylesheet" />
+    <link href="~/css/eivo.css" rel="stylesheet" type="text/css" />
 
-    <!-- MetisMenu CSS -->
-    <link href="~/vendor/metisMenu/metisMenu.min.css" rel="stylesheet" type="text/css" />
+    <!-- New admin layout: Tabler Icons + Vuetify 3 base component styles -->
+    <link href="https://cdn.jsdelivr.net/npm/@@tabler/icons@3.1.0/dist/tabler-icons.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.6.11/dist/vuetify.min.css" rel="stylesheet" />
 
-    <!-- Custom CSS -->
-    <link href="~/css/sb-admin-2.css" rel="stylesheet" type="text/css" />
-
-    <!-- Custom Fonts -->
-    @*
-        <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">*@
+    <!-- Theme variables + layout skeleton + legacy DOM adapter (wins over legacy) -->
+    <link href="~/css/vuetify-theme.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/layout.css" rel="stylesheet" type="text/css" />
+    <link href="~/css/layout-adapter.css" rel="stylesheet" type="text/css" />
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -55,8 +56,6 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-
-    <link href="~/css/eivo.css" rel="stylesheet" type="text/css" />
     @{
         await Html.RenderPartialAsync("~/Views/Shared/CommonScriptInclude.cshtml");
         //await Html.RenderPartialAsync("~/Views/Shared/JsGrid.ascx");
@@ -64,346 +63,129 @@
     @RenderSection("headContent", false)
 
 </head>
-<body>
+<body class="skin--default">
 
-    <div id="wrapper">
+    <div class="layout-wrapper layout-nav-type-vertical layout-navbar-sticky layout-content-width-boxed">
 
-        <!-- Navigation -->
-        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="../Home/MainPage">電子發票系統</a>
-            </div>
-            <!-- /.navbar-header -->
+        <!-- Mobile overlay (shown when the drawer is open on small screens) -->
+        <div class="layout-overlay"></div>
 
-            <ul class="nav navbar-top-links navbar-right">
-                @if (_items.Count() > 0)
-                {
-                    <li>
-                        ‧系統公告：
-                        <marquee class="notice" scrollamount="2">
-                            @foreach (var item in _items.ToList())
-                            {
-                                <font color="#434343">@item.MessageContents</font>
-                            }
-                        </marquee>
-                    </li>
-                }
-                @*<li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-language fa-fw"></i><i class="fa fa-caret-down"></i>
+        <!-- 👉 Vertical sidebar -->
+        <div class="vertical-nav-wrapper">
+            <aside class="layout-vertical-nav">
+                <!-- Header / logo -->
+                <div class="nav-header">
+                    <a class="app-logo app-title-wrapper" href="../Home/MainPage">
+                        <img class="app-logo-img" alt="" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+PHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTAiIGZpbGw9IiM3QkE1RjYiLz48dGV4dCB4PSIyNCIgeT0iMzEiIGZvbnQtc2l6ZT0iMjYiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2VyaWZlPSJzYW5zLXNlcmlmIj7lm748L3RleHQ+PC9zdmc+" />
+                        <h1 class="app-logo-title">電子發票系統</h1>
                     </a>
-                    <ul class="dropdown-menu dropdown-messages">
-                        <li>
-                            <a href="javascript:changeLanguage('zh-TW');">
-                                繁體中文
-                            </a>
-                        </li>
-                        <li>
-                            <a href="javascript:changeLanguage('en-US');">
-                                English
-                            </a>
-                        </li>
-                    </ul>
-                    <!-- /.dropdown-messages -->
-                    <script>
-                            function changeLanguage(lang) {
-                                $.postJSON('@(Url.Action("ChangeLanguage", "Account"))', { 'lang': lang }, function (data) {
-                                    if ($.isPlainObject(data)) {
-                                        if (data.result) {
-                                            window.location.reload();
-                                        }
-                                    } else {
-                                        $(data).appendTo($('body'));
-                                    }
-                                });
-                            }
-                    </script>
-                </li>*@
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-envelope fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    @*<ul class="dropdown-menu dropdown-messages">
-                <li>
-                    <a href="#">
-                        <div>
-                            <strong>John Smith</strong>
-                            <span class="pull-right text-muted">
-                                <em>Yesterday</em>
-                            </span>
-                        </div>
-                        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <strong>John Smith</strong>
-                            <span class="pull-right text-muted">
-                                <em>Yesterday</em>
-                            </span>
-                        </div>
-                        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <strong>John Smith</strong>
-                            <span class="pull-right text-muted">
-                                <em>Yesterday</em>
-                            </span>
-                        </div>
-                        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a class="text-center" href="#">
-                        <strong>Read All Messages</strong>
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                </li>
-            </ul>*@
-                    <!-- /.dropdown-messages -->
-                </li>
-                <!-- /.dropdown -->
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-tasks fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    @*<ul class="dropdown-menu dropdown-tasks">
-                <li>
-                    <a href="#">
-                        <div>
-                            <p>
-                                <strong>Task 1</strong>
-                                <span class="pull-right text-muted">40% Complete</span>
-                            </p>
-                            <div class="progress progress-striped active">
-                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-                                    <span class="sr-only">40% Complete (success)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <p>
-                                <strong>Task 2</strong>
-                                <span class="pull-right text-muted">20% Complete</span>
-                            </p>
-                            <div class="progress progress-striped active">
-                                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-                                    <span class="sr-only">20% Complete</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <p>
-                                <strong>Task 3</strong>
-                                <span class="pull-right text-muted">60% Complete</span>
-                            </p>
-                            <div class="progress progress-striped active">
-                                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-                                    <span class="sr-only">60% Complete (warning)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <p>
-                                <strong>Task 4</strong>
-                                <span class="pull-right text-muted">80% Complete</span>
-                            </p>
-                            <div class="progress progress-striped active">
-                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-                                    <span class="sr-only">80% Complete (danger)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a class="text-center" href="#">
-                        <strong>See All Tasks</strong>
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                </li>
-            </ul>*@
-                    <!-- /.dropdown-tasks -->
-                </li>
-                <!-- /.dropdown -->
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-bell fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-alerts">
-                        <li>
-                            <a href="@(Url.Action("QueryIndex","ProcessRequest"))">
-                                <div>
-                                    <i class="fa fa-tasks fa-fw"></i>工作清單
-                                    <span class="pull-right text-muted small"></span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        @*<li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-comment fa-fw"></i>New Comment
-                            <span class="pull-right text-muted small">4 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-twitter fa-fw"></i>3 New Followers
-                            <span class="pull-right text-muted small">12 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-envelope fa-fw"></i>Message Sent
-
-                            <span class="pull-right text-muted small">4 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-tasks fa-fw"></i>New Task
-
-                            <span class="pull-right text-muted small">4 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a href="#">
-                        <div>
-                            <i class="fa fa-upload fa-fw"></i>Server Rebooted
-
-                            <span class="pull-right text-muted small">4 minutes ago</span>
-                        </div>
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li>
-                    <a class="text-center" href="#">
-                        <strong>See All Alerts</strong>
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                </li>*@
-                    </ul>
-                    <!-- /.dropdown-alerts -->
-                </li>
-                <!-- /.dropdown -->
-                <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                        <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-user">
-                        @if (_userProfile.CurrentUserRole?.RoleID == (int)Naming.RoleID.資料稽核員)
-                        {
-
-                        }
-                        else
-                        {
-                            <li>
-                                <a href="@(VirtualPathUtility.ToAbsolute(" ~/UserProfile/EditMySelf"))"><i class="fa fa-user fa-fw"></i>帳號管理</a>
-                            </li>
-                            <li class="divider"></li>
-                        }
-                        <li>
-                            <a href="@(Url.Action("Login","Account"))"><i class="fa fa-sign-out fa-fw"></i>登出</a>
-                        </li>
-                    </ul>
-                    <!-- /.dropdown-user -->
-                </li>
-                <!-- /.dropdown -->
-            </ul>
-            <!-- /.navbar-top-links -->
-            @{ await Html.RenderPartialAsync("~/Views/SiteAction/PageMenuBar.cshtml"); }
-            <!-- /.navbar-static-side -->
-        </nav>
-
-        <!-- Page Content -->
-        <div id="page-wrapper">
-
-            <ul class="nav nav-tabs" role="tablist" id="masterTab">
-                <li role="presentation" class="active">
-                    <a href="#masterHome" class="tab-link" aria-controls="masterHome" role="tab" data-toggle="tab">@(ViewBag.ActionName ?? "首頁") <i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
-                </li>
-            </ul>
-
-            <!-- Tab panes -->
-            <div class="tab-content" id="masterTabContent">
-                <div role="tabpanel" class="tab-pane active" id="masterHome">
-                    <div class="container-fluid">
-                        @if (ViewBag.ActionName != null)
-                        {
-                            @*<div class="row">
-                                    <div class="col-lg-12">
-                                        <h2 class="page-header">@ViewBag.ActionName</h2>
-                                    </div>
-                                </div>*@
-                        }
-                        <h2><br /></h2>
-                        <form id="theForm" method="post" role="form" enctype="multipart/form-data">
-                            @RenderSection("formContent", false)
-                        </form>
-                        <div class="row">
-                            @RenderBody()
-                        </div>
-                        <!-- /.row -->
+                    <!-- Collapse / pin toggle (desktop) -->
+                    <div class="header-action">
+                        <i class="tabler-circle-dot v-icon nav-pin" role="button" tabindex="0" aria-label="收合選單"></i>
                     </div>
                 </div>
-            </div>
 
-            <!-- /.container-fluid -->
+                <!-- Menu items (rendered by the role-specific menu partial,
+                     then restructured into .nav-items by layout.js) -->
+                @{ await Html.RenderPartialAsync("~/Views/SiteAction/PageMenuBar.cshtml"); }
+            </aside>
         </div>
-        <!-- /#page-wrapper -->
-    </div>
 
-    <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#c5e08a" id="footer">
-        <tr>
-            <td width="208" height="26" bgcolor="#d9e28e">
-                &nbsp;
-            </td>
-            <td align="right">
-                <span class="copyright">Powered by UXB2B</span>
-            </td>
-        </tr>
-    </table>
+        <!-- 👉 Content wrapper -->
+        <div class="layout-content-wrapper">
+
+            <!-- Top navbar (rounded pill) -->
+            <header class="layout-navbar navbar-blur">
+                <div class="navbar-content-container">
+                    <!-- Mobile hamburger -->
+                    <button type="button" class="v-btn v-btn--icon d-lg-none" id="vertical-nav-toggle-btn" aria-label="選單">
+                        <i class="tabler-menu-2 v-icon" aria-hidden="true"></i>
+                    </button>
+
+                    <!-- System announcements (marquee) -->
+                    @if (_items.Count() > 0)
+                    {
+                        <div class="search-trigger" title="系統公告">
+                            <i class="tabler-bell v-icon" aria-hidden="true"></i>
+                            <span class="d-none d-md-inline">
+                                <marquee class="notice" scrollamount="2" style="max-width: 320px; display: inline-block;">
+                                    @foreach (var item in _items.ToList())
+                                    {
+                                        @item.MessageContents
+                                    }
+                                </marquee>
+                            </span>
+                        </div>
+                    }
+
+                    <div class="v-spacer"></div>
+
+                    <!-- Language -->
+                    <button type="button" class="v-btn v-btn--icon" title="語言">
+                        <i class="tabler-language v-icon" aria-hidden="true"></i>
+                    </button>
+
+                    <!-- Theme toggle -->
+                    <button type="button" class="v-btn v-btn--icon" data-theme-toggle title="切換主題">
+                        <i class="tabler-moon-stars v-icon" aria-hidden="true"></i>
+                    </button>
+
+                    <!-- Work list / alerts -->
+                    <button type="button" class="v-btn v-btn--icon" title="工作清單" onclick="location.href='@(Url.Action("QueryIndex","ProcessRequest"))'">
+                        <i class="tabler-list-check v-icon" aria-hidden="true"></i>
+                    </button>
+
+                    <!-- User menu -->
+                    <div class="user-avatar" title="帳號管理 / 登出" onclick="location.href='@(VirtualPathUtility.ToAbsolute("~/UserProfile/EditMySelf"))'">
+                        <i class="tabler-user v-icon" aria-hidden="true"></i>
+                        <span class="badge-dot"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page content -->
+            <main class="layout-page-content">
+                <div class="page-content-container">
+
+                    <ul class="nav nav-tabs" role="tablist" id="masterTab">
+                        <li role="presentation" class="active">
+                            <a href="#masterHome" class="tab-link" aria-controls="masterHome" role="tab" data-toggle="tab">@(ViewBag.ActionName ?? "首頁") <i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab panes -->
+                    <div class="tab-content" id="masterTabContent">
+                        <div role="tabpanel" class="tab-pane active" id="masterHome">
+                            <div class="container-fluid legacy-surface">
+                                <form id="theForm" method="post" role="form" enctype="multipart/form-data">
+                                    @RenderSection("formContent", false)
+                                </form>
+                                <div class="row">
+                                    @RenderBody()
+                                </div>
+                                <!-- /.row -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="layout-footer">
+                <div class="footer-content-container">
+                    <span>電子發票系統</span>
+                    <span class="copyright">Powered by UXB2B</span>
+                </div>
+            </footer>
+
+        </div>
+        <!-- /.layout-content-wrapper -->
+    </div>
+    <!-- /.layout-wrapper -->
+
+    <!-- Layout interactions (menu restructure, collapse, accordion, theme) -->
+    <script src="~/js/layout.js"></script>
 
 </body>
 </html>

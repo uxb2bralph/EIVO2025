@@ -1,0 +1,409 @@
+/* ============================================================================
+   EIVO Layout Adapter
+   Maps the legacy Bootstrap/SB-Admin DOM (#side-menu, navbar) onto the
+   Vuetify 3 "vertical nav" admin layout used by the InsightFitPro sample.
+   Loaded AFTER vuetify-theme.css and layout.css.
+   ========================================================================== */
+
+/* ---- Base reset for the new shell -------------------------------------- */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: rgb(var(--v-theme-background));
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  font-family: "Inter", "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+}
+
+/* The old #wrapper / #page-wrapper are replaced by the layout skeleton.
+   Neutralise their legacy box model so they don't fight the new layout. */
+#wrapper {
+  display: block;
+  width: auto;
+  min-height: 100vh;
+}
+#page-wrapper {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* ---- Layout skeleton ---------------------------------------------------- */
+.layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: rgb(var(--v-theme-background));
+}
+
+/* Vertical nav wrapper (holds the fixed sidebar) */
+.vertical-nav-wrapper {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+/* The fixed sidebar itself */
+.layout-vertical-nav {
+  position: fixed;
+  z-index: 1003;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(var(--v-theme-nav-surface)) !important;
+  color: rgba(var(--v-theme-nav-on-surface), var(--v-high-emphasis-opacity));
+  box-shadow: 0 2px 8px rgba(var(--v-shadow-key-umbra-color, 0), var(--v-shadow-sm-opacity, 0.15));
+  transition: width 0.25s ease-in-out, transform 0.25s ease-in-out;
+  overflow: hidden;
+}
+
+/* Content wrapper (everything right of the sidebar) */
+.layout-content-wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-left: 260px;
+  transition: padding-left 0.25s ease-in-out;
+}
+
+/* Collapsed state */
+.layout-vertical-nav-collapsed .layout-vertical-nav:not(:hover) {
+  width: 70px;
+}
+.layout-vertical-nav-collapsed .layout-content-wrapper {
+  padding-left: 70px;
+}
+.layout-vertical-nav-collapsed .layout-vertical-nav:not(:hover) .nav-item-title,
+.layout-vertical-nav-collapsed .layout-vertical-nav:not(:hover) .nav-group-arrow,
+.layout-vertical-nav-collapsed .layout-vertical-nav:not(:hover) .app-logo-title {
+  display: none;
+}
+.layout-vertical-nav-collapsed .layout-vertical-nav:not(:hover) .nav-group-children {
+  display: none !important;
+}
+
+/* ---- Sidebar header / logo --------------------------------------------- */
+.layout-vertical-nav .nav-header {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 16px;
+  flex: 0 0 auto;
+}
+.layout-vertical-nav .app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  margin-right: auto;
+  min-width: 0;
+}
+.layout-vertical-nav .app-logo-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+.layout-vertical-nav .app-logo-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgb(var(--v-theme-primary));
+}
+.layout-vertical-nav .header-action {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: rgba(var(--v-theme-nav-on-surface), var(--v-medium-emphasis-opacity));
+}
+.layout-vertical-nav .header-action .v-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* ---- Sidebar nav items -------------------------------------------------- */
+.layout-vertical-nav .nav-items {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 8px 12px 24px;
+}
+.layout-vertical-nav .nav-items::-webkit-scrollbar {
+  width: 6px;
+}
+.layout-vertical-nav .nav-items::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-nav-on-surface), 0.2);
+  border-radius: 3px;
+}
+
+/* Group (top-level menu with children) */
+.layout-vertical-nav .nav-group > .nav-group-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: rgba(var(--v-theme-nav-on-surface), var(--v-high-emphasis-opacity));
+  transition: background-color 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+.layout-vertical-nav .nav-group > .nav-group-label:hover {
+  background-color: rgba(var(--v-theme-nav-on-surface), 0.06);
+}
+.layout-vertical-nav .nav-group.active > .nav-group-label,
+.layout-vertical-nav .nav-group.open > .nav-group-label {
+  color: rgb(var(--v-theme-primary));
+}
+.layout-vertical-nav .nav-group-label .nav-item-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+.layout-vertical-nav .nav-group-label .nav-item-title {
+  margin-right: auto;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.layout-vertical-nav .nav-group-arrow {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.2s ease;
+  opacity: 0.7;
+}
+.layout-vertical-nav .nav-group.open > .nav-group-label .nav-group-arrow {
+  transform: rotate(90deg);
+}
+
+/* Group children */
+.layout-vertical-nav .nav-group-children {
+  list-style: none;
+  margin: 2px 0 6px;
+  padding: 0 0 0 8px;
+  overflow: hidden;
+}
+.layout-vertical-nav .nav-group:not(.open) > .nav-group-children {
+  display: none;
+}
+
+/* Leaf link */
+.layout-vertical-nav .nav-link > a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: rgba(var(--v-theme-nav-on-surface), var(--v-medium-emphasis-opacity));
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.layout-vertical-nav .nav-link > a:hover {
+  background-color: rgba(var(--v-theme-nav-on-surface), 0.06);
+  color: rgba(var(--v-theme-nav-on-surface), var(--v-high-emphasis-opacity));
+}
+.layout-vertical-nav .nav-link > a .nav-item-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  opacity: 0.85;
+}
+.layout-vertical-nav .nav-link > a .nav-item-title {
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Active leaf */
+.layout-vertical-nav .nav-link > a.router-link-exact-active,
+.layout-vertical-nav .nav-link > a.active {
+  background-color: rgba(var(--v-theme-primary), 0.14);
+  color: rgb(var(--v-theme-primary));
+}
+.layout-vertical-nav .nav-link > a.router-link-exact-active .nav-item-icon,
+.layout-vertical-nav .nav-link > a.active .nav-item-icon {
+  opacity: 1;
+}
+
+/* Standalone top-level link (no children) rendered as a group label */
+.layout-vertical-nav .nav-group.nav-leaf > .nav-group-label {
+  cursor: pointer;
+}
+
+/* ---- Top navbar (rounded pill) ----------------------------------------- */
+.layout-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 12px 16px 0;
+  isolation: isolate;
+}
+.layout-navbar .navbar-content-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background-color: rgb(var(--v-theme-surface), 0.88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(var(--v-shadow-key-umbra-color, 0), var(--v-shadow-sm-opacity, 0.12));
+}
+.layout-navbar .navbar-content-container .v-spacer {
+  flex: 1 1 auto;
+}
+.layout-navbar .navbar-content-container .v-btn {
+  color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity));
+}
+.layout-navbar .navbar-content-container .v-btn:hover {
+  background-color: rgba(var(--v-theme-on-surface), 0.08);
+}
+.layout-navbar .search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+}
+.layout-navbar .search-trigger:hover {
+  background-color: rgba(var(--v-theme-on-surface), 0.06);
+}
+.layout-navbar .search-trigger .meta-key {
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(var(--v-theme-on-surface), 0.1);
+}
+.layout-navbar .user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: rgba(var(--v-theme-primary), 0.2);
+  color: rgb(var(--v-theme-primary));
+  font-weight: 600;
+  position: relative;
+}
+.layout-navbar .user-avatar .badge-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgb(var(--v-theme-success));
+}
+
+/* ---- Page content ------------------------------------------------------- */
+.layout-page-content {
+  flex: 1 1 auto;
+  padding: 24px;
+}
+.layout-page-content .page-content-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ---- Footer ------------------------------------------------------------- */
+.layout-footer {
+  flex: 0 0 auto;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(var(--v-border-color, 255), var(--v-border-opacity, 0.12));
+  color: rgba(var(--v-theme-on-background), var(--v-disabled-opacity, 0.5));
+  font-size: 0.8rem;
+}
+.layout-footer .footer-content-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ---- Mobile overlay ----------------------------------------------------- */
+.layout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1002;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-in-out;
+}
+.layout-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (max-width: 1279px) {
+  .layout-content-wrapper {
+    padding-left: 0;
+  }
+  .layout-vertical-nav {
+    transform: translateX(-260px);
+  }
+  .layout-vertical-nav.visible {
+    transform: translateX(0);
+  }
+  .layout-vertical-nav-collapsed .layout-vertical-nav:not(:hover) {
+    width: 260px;
+  }
+  .layout-vertical-nav-collapsed .layout-content-wrapper {
+    padding-left: 0;
+  }
+}
+
+/* ---- Legacy content compatibility --------------------------------------
+   The old pages render Bootstrap 3 markup (tables, forms, panels) inside the
+   content area. Keep it readable on the dark theme by giving it a light
+   "card" surface so legacy widgets stay legible. */
+.layout-page-content .container-fluid,
+.layout-page-content .row {
+  color: #212529;
+}
+.layout-page-content .legacy-surface {
+  background: #fff;
+  color: #212529;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+}
+/* Legacy tab header (masterTab) restyled to match the new look */
+.layout-page-content #masterTab {
+  border-bottom: 1px solid rgba(var(--v-border-color, 255), var(--v-border-opacity, 0.12));
+}
+.layout-page-content #masterTab > li > a {
+  color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  margin-bottom: -1px;
+}
+.layout-page-content #masterTab > li.active > a {
+  color: rgb(var(--v-theme-primary));
+  border-bottom-color: rgb(var(--v-theme-primary));
+  background: transparent;
+}
