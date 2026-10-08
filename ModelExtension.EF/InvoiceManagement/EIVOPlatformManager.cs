@@ -406,7 +406,9 @@ namespace ModelCore.InvoiceManagement
         {
             using (InvoiceManager mgr = new InvoiceManager())
             {
-                var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待開立);
+                // 先具現化：迴圈內會大量存取未 Include 的導覽屬性(延遲載入)並透過同一 mgr 建立
+                // B2BInvoiceManager 查詢憑證，若 items 仍是未關閉 reader 的 IQueryable 會與之衝突
+                var items = mgr.GetTable<CDS_Document>().Where(d => d.CurrentStep == (int)Naming.InvoiceStepDefinition.待開立).ToList();
 
                 if (items.Count() > 0)
                 {

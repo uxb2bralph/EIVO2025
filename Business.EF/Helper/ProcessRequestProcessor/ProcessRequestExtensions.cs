@@ -27,17 +27,20 @@ namespace Business.Helper.ProcessRequestProcessor
 {
     public static class ProcessRequestExtensions
     {
-        public static void ZipInvoicePDF(this int taskID)
+        public static void ZipInvoicePDF(this RenderStyleViewModel viewModel)
         {
+            if(viewModel == null)
+            {
+                return;
+            }
+
             using (GenericDbContext<ApplicationDbContext> models = new GenericDbContext<ApplicationDbContext>())
             {
                 ProcessRequest? taskItem = models.GetTable<ProcessRequest>()
-                                            .Where(p => p.TaskID == taskID)
+                                            .Where(p => p.TaskID == viewModel!.TaskID)
                                             .FirstOrDefault();
                 if (taskItem?.ViewModel == null)
                     return;
-
-                RenderStyleViewModel viewModel = JsonConvert.DeserializeObject<RenderStyleViewModel>(taskItem.ViewModel) ?? new RenderStyleViewModel { };
 
                 if (taskItem.ResponsePath == null)
                 {
@@ -53,7 +56,8 @@ namespace Business.Helper.ProcessRequestProcessor
                     var items = models.GetTable<DocumentPrintQueue>()
                         .Where(i => i.UID == taskItem.Sender)
                         .Join(models.GetTable<InvoiceItem>(),
-                            i => i.DocID, d => d.InvoiceID, (i, d) => i);
+                            i => i.DocID, d => d.InvoiceID, (i, d) => i)
+                        .ToList();
 
                     using (var zipOut = System.IO.File.Create(outFile))
                     {
@@ -76,13 +80,12 @@ namespace Business.Helper.ProcessRequestProcessor
                         }
                     }
 
-                    File.Move(outFile, taskItem.ResponsePath);
+                    File.Move(outFile, taskItem.ResponsePath, true);
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex);
                     exception = ex;
-                    Logger.Error(ex);
                 }
 
                 if (exception != null)
@@ -95,8 +98,6 @@ namespace Business.Helper.ProcessRequestProcessor
 
                 taskItem.ProcessComplete = DateTime.Now;
                 models.SubmitChanges();
-
-
             }
 
         }

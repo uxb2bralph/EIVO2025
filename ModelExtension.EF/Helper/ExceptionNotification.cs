@@ -195,7 +195,9 @@ namespace ModelCore.Helper
             }
             using (InvoiceManager mgr = new InvoiceManager())
             {
-                var items = mgr.GetTable<ExceptionLog>().Where(e => e.ExceptionReplication != null);
+                // 先具現化：迴圈內會延遲載入 item.Company 導覽屬性，且 SendExceptionNotification 可能對同一 mgr 再次查詢，
+                // 若 items 仍是未關閉 reader 的 IQueryable（含稍後的 GroupBy）將與之衝突
+                var items = mgr.GetTable<ExceptionLog>().Where(e => e.ExceptionReplication != null).ToList();
                 if (items.Count() > 0)
                 {
                     int maxLogID = items.OrderByDescending(e => e.LogID).First().LogID;

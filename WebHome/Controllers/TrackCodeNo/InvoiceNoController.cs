@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 
@@ -177,7 +178,11 @@ namespace WebHome.Controllers.TrackCodeNo
                 using (ZipArchive zip = new ZipArchive(zipOut, ZipArchiveMode.Create))
                 {
                     int count = 1;
-                    var items = vacantNoItems.GroupBy(r => new { r.SellerID, r.TrackID });
+                    //先具現化：迴圈內會對 models 另外查詢 Organization/InvoiceTrackCode，
+                    //若 vacantNoItems 仍是未具現化的 IQueryable，GroupBy 會在 DB 端執行，
+                    //與迴圈內的查詢共用同一條連線的開啟中 DataReader 而出錯。
+                    var items = vacantNoItems.AsNoTracking().ToList()
+                        .GroupBy(r => new { r.SellerID, r.TrackID });
 
                     foreach (var item in items)
                     {

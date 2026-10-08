@@ -362,7 +362,7 @@ namespace ModelCore.InvoiceManagement.Validator
 
                 item.TrackID = trackCode.TrackID;
 
-                int no = int.Parse(item.No);
+                int no = int.TryParse(item.No, out int result) ? result : -1;
                 var interval = _models.GetTable<InvoiceNoInterval>()
                     .Where(t => t.SellerID == _seller.CompanyID && t.TrackID == trackCode.TrackID && no >= t.StartNo && no <= t.EndNo)
                     .FirstOrDefault();
@@ -374,6 +374,10 @@ namespace ModelCore.InvoiceManagement.Validator
                         IntervalID = interval.IntervalID,
                         InvoiceNo = no,
                     };
+                }
+                else
+                {
+                    return new Exception(String.Format(MessageResources.InvalidTrackCode, $"{item.TrackCode}{item.No}"));
                 }
             }
             else if(_seller!.IgnoreDuplicatedNo() || processType.IgnoreDuplicatedNo())

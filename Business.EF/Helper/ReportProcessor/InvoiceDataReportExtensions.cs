@@ -57,11 +57,13 @@ namespace Business.Helper.ReportProcessor
                 {
                     taskItem.ResponsePath = Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx");
                 }
+                Console.WriteLine($"ResponsePath: {taskItem.ResponsePath}");
 
                 var issuers = models.GetTable<InvoiceIssuerAgent>().Where(a => a.AgentID == viewModel.AgentID);
                 var sellers = models.GetTable<Organization>()
                     .Where(c => c.CompanyID == viewModel.SellerID
-                        || issuers.Any(i => i.IssuerID == c.CompanyID));
+                        || issuers.Any(i => i.IssuerID == c.CompanyID))
+                    .ToList();
 
                 Exception exception = null;
 
@@ -137,6 +139,7 @@ namespace Business.Helper.ReportProcessor
                         using (var xls = ds.ConvertToExcel())
                         {
                             xls.SaveAs(taskItem.ResponsePath);
+                            Console.WriteLine($"SaveAs: {taskItem.ResponsePath}");
                         }
                     }
 
@@ -145,7 +148,6 @@ namespace Business.Helper.ReportProcessor
                 {
                     Logger.Error(ex);
                     exception = ex;
-                    Logger.Error(ex);
                 }
 
                 if (exception != null)

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Business.Helper.ReportProcessor;
 using CommonLib.Core.DataWork;
+using Microsoft.EntityFrameworkCore;
 
 namespace Business.Helper.BillingSettlement
 {
@@ -45,12 +46,20 @@ namespace Business.Helper.BillingSettlement
             lock (typeof(ExtensionMethods))
             {
                 var category = models.GetTable<OrganizationCategory>()
-                        .Where(c => c.CategoryID == (int)CategoryDefinition.CategoryEnum.發票開立營業人 
+                        .Where(c => c.CategoryID == (int)CategoryDefinition.CategoryEnum.發票開立營業人
                             || c.CategoryID == (int)CategoryDefinition.CategoryEnum.經銷商);
                 var orgItems = models.GetTable<Organization>()
-                                    .Where(o => category.Any(c => c.CompanyID == o.CompanyID));
+                                    .Where(o => category.Any(c => c.CompanyID == o.CompanyID))
+                                    .Include(o => o.OrganizationExtension)
+                                    .Include(o => o.Type)
+                                    .Include(o => o.BillingGrade)
+                                    .Include(o => o.BillingIncrement)
+                                    .Include(o => o.ExtraBillingItem)
+                                    .AsNoTracking()
+                                    .AsSplitQuery()
+                                    .ToList();
 
-                foreach(var item in orgItems) 
+                foreach(var item in orgItems)
                 {
                     if (item.OrganizationExtension?.ExpirationDate.HasValue == true
                         && item.OrganizationExtension.ExpirationDate <= settlement.StartDate)

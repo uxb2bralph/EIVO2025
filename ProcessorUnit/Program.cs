@@ -153,6 +153,9 @@ namespace ProcessorUnit
             chainedProcessor.ChainedExecutor = new DataReportProcessor { };
             chainedProcessor = chainedProcessor.ChainedExecutor;
 
+            chainedProcessor.ChainedExecutor = new ZipInvoicePdfProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
             chainedProcessor.ChainedExecutor = new AutoUpdater { };
             chainedProcessor = chainedProcessor.ChainedExecutor;
 

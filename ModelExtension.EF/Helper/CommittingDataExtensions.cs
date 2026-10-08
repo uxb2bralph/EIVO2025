@@ -329,7 +329,10 @@ namespace ModelCore.Helper
             }
 
             viewModel.KeyID = null;
-            viewModel.CommitUserRoleViewModel(models, modelState, creator);
+            if (!(viewModel.WaitForCheck == true || viewModel.EditMySelf == true))
+            {
+                viewModel.CommitUserRoleViewModel(models, modelState, creator);
+            }
 
             return item;
         }

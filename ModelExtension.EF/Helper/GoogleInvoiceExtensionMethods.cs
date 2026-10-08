@@ -33,10 +33,12 @@ namespace ModelCore.Helper
                         {
                             do
                             {
+                                // 先具現化：迴圈內 models.CheckAttachmentFromPool 會對同一 models 再次查詢與 SubmitChanges
                                 var items = models.GetTable<CustomerDefined>()
                                     .Join(models.GetTable<CDS_Document>().Where(d => d.ChannelID == (int)Naming.ChannelIDType.ForGoogleTerms),
                                         c => c.DocID, d => d.DocID, (c, d) => d)
-                                    .Select(d => d.InvoiceItem.InvoicePurchaseOrder);
+                                    .Select(d => d.InvoiceItem.InvoicePurchaseOrder)
+                                    .ToList();
 
 
                                 foreach (var item in items)

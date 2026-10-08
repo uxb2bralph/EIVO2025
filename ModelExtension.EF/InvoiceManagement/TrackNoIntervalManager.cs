@@ -86,11 +86,13 @@ namespace ModelCore.InvoiceManagement
                 trackCodeAssignment = trackCodeAssignment.Where(t => t.SellerID == sellerID);
             }
 
-            foreach (var item in trackCodeAssignment)
+            // 先具現化：避免在尚未關閉的 DataReader 上，於迴圈內再對同一 DbContext 發出查詢/寫入
+            var trackCodeAssignmentList = trackCodeAssignment.ToList();
+            foreach (var item in trackCodeAssignmentList)
             {
                 SettleUnassignedInvoiceNO(item);
             }
-            return trackCodeAssignment;
+            return trackCodeAssignmentList.AsQueryable();
         }
 
         public IQueryable<InvoiceTrackCodeAssignment> PromptTrackCodeAssignment(int year, int periodNo)
@@ -112,7 +114,8 @@ namespace ModelCore.InvoiceManagement
             if (assignment == null)
                 return;
 
-            var noIntervals = this.EntityList.Where(i => i.TrackID == assignment.TrackID && i.SellerID == assignment.SellerID);
+            // 先具現化：迴圈內會對同一 DbContext 發出多次查詢與寫入 (SubmitChanges)，不可讓 reader 保持開啟
+            var noIntervals = this.EntityList.Where(i => i.TrackID == assignment.TrackID && i.SellerID == assignment.SellerID).ToList();
             this.DeleteAll<UnassignedInvoiceNo>(u => u.SellerID == assignment.SellerID && u.TrackID == assignment.TrackID);
 
             var trackCodeItem = assignment.Track;
@@ -208,7 +211,8 @@ namespace ModelCore.InvoiceManagement
                 .Where(t => t.PeriodNo == periodNo)
                 .Join(trackCodeAssignment,
                     t => t.TrackID, a => a.TrackID, (t, a) => a)
-                .Join(this.GetTable<InvoiceNoInterval>(), a => new { a.TrackID, a.SellerID }, n => new { n.TrackID, n.SellerID }, (a, n) => n);
+                .Join(this.GetTable<InvoiceNoInterval>(), a => new { a.TrackID, a.SellerID }, n => new { n.TrackID, n.SellerID }, (a, n) => n)
+                .ToList(); // 先具現化：SettleVacantInvoiceNo 內會對同一 DbContext 再次查詢與寫入
 
             foreach (var item in items)
             {

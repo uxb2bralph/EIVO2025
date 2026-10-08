@@ -52,7 +52,7 @@
                 var event = event || window.event;
                 var $form = $(event.target).closest('form');
                 $form.ajaxForm({
-                    url: "@Html.Raw(Url.Action("Commit","UserProfile",new { WaitForCheck = _viewModel.WaitForCheck }))",
+                    url: "@Html.Raw(Url.Action("Commit","UserProfile"))",
                     beforeSubmit: function () {
                         clearErrors();
                         showLoading();

@@ -60,7 +60,6 @@ namespace TestConsole
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             FileLogger.Logger.OutputWriter = Console.Out;
             Logger.Info($"Process start at {DateTime.Now}, Processor ID:{ProcessorUnit.Properties.AppSettings.Default.ProcessorID}");
-            System.Diagnostics.Debugger.Launch();
             //ExternalPdfWrapper.AppSettings.Default.UseSelenium = true;
             //ExternalPdfWrapper.AppSettings.Default.Save();
             //var pdf = new ExternalPdfWrapper.PdfUtility();
@@ -937,7 +936,8 @@ namespace TestConsole
             //var processor = new InvoiceExcelRequestForIssuerProcessor();
             //processor.ProcessRequestItem(taskID);
 
-            var processor = new InvoiceExcelRequestForCBEProcessor();
+            //var processor = new InvoiceExcelRequestForCBEProcessor();
+            var processor = new InvoiceExcelRequestForIssuerProcessor();
             processor.ProcessRequestItem(taskID);
 
 

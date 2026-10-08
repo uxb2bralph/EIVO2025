@@ -26,6 +26,7 @@ using WebHome.Helper;
 using Business.Helper.InvoiceProcessor;
 using CommonLib.Security.UseCrypto;
 using CommonLib.Core.Utility;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebHome.Published
 {
@@ -683,17 +684,24 @@ namespace WebHome.Published
                         if (token != null)
                         {
                             var item = mgr.GetQueryByAgent(token.CompanyID)
+                                .Include(o => o.OrganizationStatus)
+                                .AsNoTracking()
                                 .Where(o => o.ReceiptNo == receiptNo).FirstOrDefault();
                             if (item != null)
                             {
                                 var queryDate = DateTime.Today.AddMonths(-2);
                                 var queryPeriod = queryDate.Month / 2 + queryDate.Month % 2;
-                                var items = mgr.GetTable<InvoiceTrackCode>().Where(t => t.Year == queryDate.Year && t.PeriodNo == queryPeriod)
+                                var assignments = mgr.GetTable<InvoiceTrackCode>().Where(t => t.Year == queryDate.Year && t.PeriodNo == queryPeriod)
                                     .Join(mgr.GetTable<InvoiceTrackCodeAssignment>().Where(n => n.SellerID == item.CompanyID),
                                         t => t.TrackID, n => n.TrackID, (t, n) => n)
                                         .Where(n => n.UnassignedInvoiceNo.Count > 0)
-                                        .GroupBy(n => n.TrackID);
-                                if (items.Count() > 0)
+                                        .Include(n => n.Track)
+                                        .Include(n => n.UnassignedInvoiceNo)
+                                        .AsNoTracking()
+                                        .AsSplitQuery()
+                                        .ToList();
+                                var items = assignments.GroupBy(n => n.TrackID);
+                                if (items.Any())
                                 {
                                     foreach (var g in items)
                                     {
@@ -707,7 +715,7 @@ namespace WebHome.Published
                                                 YearMonth = String.Format("{0:000}{1:00}", queryDate.Year - 1911, queryPeriod * 2),
                                                 InvoiceTrack = g.First().Track.TrackCode
                                             },
-                                            Details = g.Join(mgr.GetTable<UnassignedInvoiceNo>(), n => new { n.TrackID, n.SellerID }, u => new { u.TrackID, u.SellerID }, (n, u) => u)
+                                            Details = g.SelectMany(n => n.UnassignedInvoiceNo)
                                                 .Select(u => new ModelCore.Schema.TurnKey.E0402.DetailsBranchTrackBlankItem
                                                 {
                                                     InvoiceBeginNo = String.Format("{0:00000000}", u.InvoiceBeginNo),

@@ -348,16 +348,25 @@ namespace WebHome.Controllers
                     ResponsePath = System.IO.Path.Combine(Logger.LogDailyPath, Guid.NewGuid().ToString() + ".zip"),
                     ViewModel = viewModel.JsonStringify(),
                 };
-                models.GetTable<ProcessRequest>().Add(processItem);
+                models!.GetTable<ProcessRequest>().Add(processItem);
                 models.SubmitChanges();
 
                 viewModel.TaskID = processItem.TaskID;
-                viewModel.Push($"{DateTime.Now.Ticks}.json");
-
-                Task.Run(() =>
+                if (viewModel.ProcessModel == ProcessRequestViewModel.ProcessModelDefinition.ByTask)
                 {
-                    processItem.TaskID.ZipInvoicePDF();
-                });
+                    viewModel.Push($"{DateTime.Now.Ticks}.json");
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem((state) =>
+                    {
+                        viewModel!.ZipInvoicePDF();
+                    });
+                    //var t = Task.Run(() =>
+                    //{
+                    //    viewModel!.ZipInvoicePDF();
+                    //});
+                }
 
                 return View("~/Views/Shared/Module/PromptCheckDownload.cshtml",
                         new AttachmentViewModel

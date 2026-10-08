@@ -652,12 +652,23 @@ namespace WebHome.Controllers
             {
                 Directory.CreateDirectory(temp);
             }
+
+            //呼叫端多半傳入尚未具現化的 IQueryable；若在 foreach 串流列舉的同時
+            //存取 CDS_Document.Attachment 這類未 Include 的 lazy navigation，會在同一條連線
+            //上另開 DataReader 而出錯。先 Include 需要的導覽屬性並 ToList() 具現化。
+            List<InvoiceItem> materializedItems = items is IQueryable<InvoiceItem> queryableItems
+                ? queryableItems
+                    .Include(i => i.CDS_Document).ThenInclude(d => d.Attachment)
+                    .AsNoTracking()
+                    .ToList()
+                : items.ToList();
+
             String outFile = Path.Combine(temp, Guid.NewGuid().ToString() + ".zip");
             using (var zipOut = System.IO.File.Create(outFile))
             {
                 using (ZipArchive zip = new ZipArchive(zipOut, ZipArchiveMode.Create))
                 {
-                    foreach (var item in items)
+                    foreach (var item in materializedItems)
                     {
                         if (item.CDS_Document.Attachment.Count > 0)
                         {

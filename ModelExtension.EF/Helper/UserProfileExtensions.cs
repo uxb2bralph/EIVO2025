@@ -8,6 +8,7 @@ using CommonLib.Core.DataWork;
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using ModelCore.DataEntity;
 using ModelCore.Locale;
 using System.Xml.Linq;
@@ -101,7 +102,12 @@ namespace ModelCore.Helper
 
         public static IEnumerable<UserRole> UserRoleTable(this UserProfileWrapper profile, GenericDbContext<ApplicationDbContext> models)
         {
-            return models.GetTable<UserRole>().Where(r=>r.UID == profile.Entity.UID);
+            // 先具現化並 Include 導覽屬性：呼叫端以 foreach 存取 item.OrganizationCategory，
+            // 若維持 IQueryable 未關閉的 reader 期間再延遲載入該導覽屬性會與開啟的 DataReader 衝突
+            return models.GetTable<UserRole>()
+                .Include(r => r.OrganizationCategory)
+                .Where(r => r.UID == profile.Entity.UID)
+                .ToList();
         }
 
         public static bool ChooseUserRoleBySpecifiedInfo(this UserProfileWrapper  profile, GenericDbContext<ApplicationDbContext> models, int companyID, Naming.CategoryID cateID)

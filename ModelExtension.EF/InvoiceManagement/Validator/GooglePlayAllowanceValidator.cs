@@ -141,10 +141,13 @@ namespace ModelCore.InvoiceManagement.Validator
         {
             _productItems = new List<InvoiceAllowanceItem>();
             InvoiceItem? originalInvoice = null;
+            // 先具現化：下方巢狀 foreach 於列舉期間會延遲載入 p.InvoiceAllowanceItem/p.Product 等導覽屬性，
+            // 若 productItems 維持未關閉 reader 的 IQueryable 將與之衝突
             var productItems = models.GetTable<InvoiceItem>().Where(i => i.InvoiceCancellation == null)
                     .Where(i => i.SellerID == _seller!.CompanyID)
                     .Where(b => b.InvoiceBuyer != null && b.InvoiceBuyer.CustomerID == _allowanceItem.GoogleId)
-                    .SelectMany(d => d.Product.SelectMany(p => p.InvoiceProductItem));
+                    .SelectMany(d => d.Product.SelectMany(p => p.InvoiceProductItem))
+                    .ToList();
 
             _allowanceItem.TaxAmount = 0;
             _allowanceItem.TotalAmount = 0;

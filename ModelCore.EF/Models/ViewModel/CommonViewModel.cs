@@ -168,6 +168,7 @@ namespace ModelCore.Models.ViewModel
         public String? MobilePhone { get; set; }
         public String? Phone2 { get; set; }
         public bool? WaitForCheck { get; set; }
+        public bool? EditMySelf { get; set; }
         public Guid? ResetID { get; set; }
         public bool? ResetPass { get; set; }
     }

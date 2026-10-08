@@ -29,9 +29,11 @@
         <td colspan="2" class="tdleft">
             @{
                 var orgItem = _model?.UserRole.FirstOrDefault()?.OrganizationCategory.Company;
-                if(_viewModel.WaitForCheck == true)
+                if(_viewModel.WaitForCheck == true || _viewModel.EditMySelf == true)
                 {
                     @($"{orgItem?.ReceiptNo} {orgItem?.CompanyName}")
+                    <input type="hidden" name="WaitForCheck" value="@Html.Raw(_viewModel.WaitForCheck ?? false)" />
+                    <input type="hidden" name="EditMySelf" value="@Html.Raw(_viewModel.EditMySelf ?? false)" />
                 }
                 else
                 {   

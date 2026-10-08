@@ -3,12 +3,14 @@ using ModelCore.Locale;
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CommonLib.Utility;
 using CommonLib.Core.Utility;
 using ModelCore.Notification;
+using Microsoft.Data.SqlClient;
 
 namespace ProcessorUnit.Execution
 {
@@ -19,13 +21,23 @@ namespace ProcessorUnit.Execution
         protected Naming.InvoiceProcessType? appliedProcessType;
         protected override void DoSomething()
         {
-            int? taskID = null;
             using (models = new ModelSource<InvoiceItem>())
             {
                 try
                 {
+                    var taskIdParameter = new SqlParameter("@TaskID", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output,
+                        Value = DBNull.Value
+                    };
 
-                    _ = models.ExecuteCommand("exec ApplyProcessRequest @ProcessorID, @ProcessType, @TaskID OUTPUT", new { ProcessorID = ProcessorUnit.Properties.AppSettings.Default.ProcessorID, ProcessType = (int?)appliedProcessType, TaskID = taskID });
+                    _ = models.ExecuteCommand(
+                        "exec [proc].ApplyProcessRequest @ProcessorID, @ProcessType, @TaskID OUTPUT",
+                        new SqlParameter("@ProcessorID", ProcessorUnit.Properties.AppSettings.Default.ProcessorID),
+                        new SqlParameter("@ProcessType", SqlDbType.Int) { Value = (object?)(int?)appliedProcessType ?? DBNull.Value },
+                        taskIdParameter);
+
+                    int? taskID = taskIdParameter.Value is int value ? value : null;
 
                     if (taskID.HasValue)
                     {
@@ -37,16 +49,18 @@ namespace ProcessorUnit.Execution
                 catch (Exception ex)
                 {
                     Logger.Error(ex);
-                    queueItem.ProcessRequest.ExceptionLog = new ExceptionLog
+                    if (queueItem != null)
                     {
-                        DataContent = ex.Message
-                    };
-                    queueItem.ProcessRequest.ProcessComplete = DateTime.Now;
-                    models.PushProcessExceptionNotification(queueItem.ProcessRequest, queueItem.ProcessRequest.Agent!, DateTime.Now);
+                        queueItem.ProcessRequest.ExceptionLog = new ExceptionLog
+                        {
+                            DataContent = ex.Message
+                        };
+                        queueItem.ProcessRequest.ProcessComplete = DateTime.Now;
+                        models.PushProcessExceptionNotification(queueItem.ProcessRequest, queueItem.ProcessRequest.Agent!, DateTime.Now);
 
-                    models.GetTable<ProcessRequestQueue>().Remove(queueItem);
-                    models.SubmitChanges();
-
+                        models.GetTable<ProcessRequestQueue>().Remove(queueItem);
+                        models.SubmitChanges();
+                    }
                 }
             }
 

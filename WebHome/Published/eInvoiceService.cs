@@ -14,6 +14,7 @@ using System.Web.Services;
 using System.Xml;
 using CoreWCF;
 using CoreWCF.Configuration;
+using Microsoft.EntityFrameworkCore;
 
 using WebHome.Helper;
 using ModelCore.Models.ViewModel;
@@ -1837,7 +1838,11 @@ namespace WebHome.Published
 
                             lock (typeof(eInvoiceService))
                             {
-                                foreach (var item in queryItems.Take(ModelExtension.Properties.AppSettings.Default.MaxResponseCountPerBatch))
+                                //先具現化：迴圈內對 mgr 另外執行 ExecuteCommand，
+                                //若 queryItems 仍是未具現化的 IQueryable，foreach 期間的 DataReader
+                                //會與迴圈內的指令共用同一條連線而出錯。
+                                var resultItems = queryItems.Take(ModelExtension.Properties.AppSettings.Default.MaxResponseCountPerBatch).ToList();
+                                foreach (var item in resultItems)
                                 {
                                     if (mgr.ExecuteCommand("update DocumentSubscriptionQueue set WaitUntil = {1} where DocID = {0}", item.AllowanceID, executionTime) > 0)
                                     {
@@ -1939,14 +1944,20 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
+                            //先具現化並 Include 迴圈內會用到的 Invoice/InvoiceBuyer，
+                            //否則 foreach 串流期間存取這些未 Include 的 lazy navigation，
+                            //會在同一條連線上另開 DataReader 而出錯。
+                            //(DeliveryStatus 之後要修改並 SubmitChanges，entity 仍須保持追蹤，不可 AsNoTracking)
                             var items = mgr.GetTable<InvoiceItem>()
                                 .Where(i => i.SellerID == token.CompanyID)
                                 .Join(mgr.GetTable<CDS_Document>().Where(d => d.DocumentOwner.ClientID == clientID),
                                     i => i.InvoiceID, d => d.DocID, (i, d) => i)
                                 .Join(mgr.GetTable<InvoiceDeliveryTracking>()
                                     .Where(t => t.DeliveryStatus == (int)Naming.InvoiceDeliveryStatus.待傳送),
-                                i => i.InvoiceID, t => t.InvoiceID, (i, t) => t);
-                            if (items.Count() > 0)
+                                i => i.InvoiceID, t => t.InvoiceID, (i, t) => t)
+                                .Include(t => t.Invoice).ThenInclude(i => i.InvoiceBuyer)
+                                .ToList();
+                            if (items.Count > 0)
                             {
                                 StringBuilder sb = new StringBuilder();
                                 foreach (var item in items)
@@ -2000,15 +2011,21 @@ namespace WebHome.Published
                         var token = mgr.GetTable<OrganizationToken>().Where(t => t.Thumbprint == crypto.SignerCertificate.Thumbprint).FirstOrDefault();
                         if (token != null)
                         {
+                            //先具現化並 Include 迴圈內會用到的 Invoice/InvoiceBuyer，
+                            //否則 foreach 串流期間存取這些未 Include 的 lazy navigation，
+                            //會在同一條連線上另開 DataReader 而出錯。
+                            //(DeliveryStatus 之後要修改並 SubmitChanges，entity 仍須保持追蹤，不可 AsNoTracking)
                             var items = mgr.GetTable<InvoiceItem>()
                                 .Where(i => i.SellerID == token.CompanyID)
                                 .Join(mgr.GetTable<CDS_Document>().Where(d => d.DocumentOwner.ClientID == clientID),
                                     i => i.InvoiceID, d => d.DocID, (i, d) => i)
                                 .Join(mgr.GetTable<InvoiceDeliveryTracking>()
                                     .Where(t => t.DeliveryStatus == (int)Naming.InvoiceDeliveryStatus.申請退回),
-                                i => i.InvoiceID, t => t.InvoiceID, (i, t) => t);
+                                i => i.InvoiceID, t => t.InvoiceID, (i, t) => t)
+                                .Include(t => t.Invoice).ThenInclude(i => i.InvoiceBuyer)
+                                .ToList();
 
-                            if (items.Count() > 0)
+                            if (items.Count > 0)
                             {
                                 StringBuilder sb = new StringBuilder();
                                 foreach (var item in items)
@@ -2736,10 +2753,17 @@ namespace WebHome.Published
                                     VirtualPathUtility.ToAbsolute("~/Published/GetInvoicePDF.ashx")));
                             CipherDecipherSrv cipher = new CipherDecipherSrv();
 
+                            //先具現化並 Include 迴圈內用到的 InvoiceSeller/CDS_Document.CustomerDefined，
+                            //否則 foreach 串流期間存取這些未 Include 的 lazy navigation，
+                            //會在同一條連線上另開 DataReader 而出錯。
                             var items = mgr.GetTable<DocumentSubscriptionQueue>()
                                 .Join(mgr.GetTable<CDS_Document>().Where(d => d.DocumentOwner.OwnerID == token.CompanyID),
                                     q => q.DocID, d => d.DocID, (q, d) => d)
-                                .Select(d => d.InvoiceItem);
+                                .Select(d => d.InvoiceItem)
+                                .Include(i => i.InvoiceSeller)
+                                .Include(i => i.CDS_Document).ThenInclude(d => d.CustomerDefined)
+                                .AsNoTracking()
+                                .ToList();
 
                             foreach (var item in items)
                             {

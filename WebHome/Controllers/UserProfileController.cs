@@ -46,7 +46,8 @@ namespace WebHome.Controllers
             var profile = HttpContext.GetUser();
             UserProfileViewModel viewModel = new UserProfileViewModel
             {
-                WaitForCheck = forCheck
+                WaitForCheck = forCheck,
+                EditMySelf = true,
             };
 
             var item = models.GetTable<UserProfile>().Where(u => u.PID == profile.Entity.PID).FirstOrDefault();

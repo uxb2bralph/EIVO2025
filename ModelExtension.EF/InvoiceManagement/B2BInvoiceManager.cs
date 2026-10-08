@@ -541,7 +541,9 @@ namespace ModelCore.InvoiceManagement
 
         public void CheckInvoiceNo()
         {
-            var items = this.EntityList.Where(i => i.InvoiceNoAssignment == null).GroupBy(i => i.SellerID);
+            // 先具現化：迴圈內 mgr.CheckInvoiceNo 會對同一 DbContext 再次查詢(getAvailableInterval)與鎖定(ExecuteCommand)，
+            // 若 items 仍是未具現化的 IQueryable，foreach 期間保持開啟的 DataReader 會與迴圈內查詢衝突
+            var items = this.EntityList.Where(i => i.InvoiceNoAssignment == null).GroupBy(i => i.SellerID).ToList();
 
             if (items.Count() > 0)
             {
