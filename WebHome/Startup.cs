@@ -24,6 +24,7 @@ using Microsoft.Extensions.Logging;
 using WebHome.Helper;
 using CommonLib.Core.Utility;
 using System.IO;
+using System.Xml;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using WebHome.Properties;
 using CoreWCF.Description;
@@ -114,6 +115,19 @@ namespace WebHome
                     Version = "v1",
                     Description = "Swagger for WebHome project"
                 });
+
+                // 只文件化 /api/ 開頭的端點，避免 catch-all 路由（{controller}/{*actionName}）
+                // 把 MVC 頁面端點一併塞進 swagger.json
+                c.DocInclusionPredicate((docName, apiDesc) =>
+                    (apiDesc.RelativePath ?? string.Empty)
+                        .StartsWith("api/", StringComparison.OrdinalIgnoreCase));
+
+                // XmlDocument 等 XML DOM 類型會造成 schema 產生器遞迴引用而拋例外，
+                // 例外會讓 /swagger/v1/swagger.json 回傳 500 的 HTML 錯誤頁，
+                // Swagger UI 讀不到 openapi 版本欄位就會顯示
+                // "Unable to render this definition"。這裡明確對應成字串型別。
+                c.MapType<XmlDocument>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "xml" });
+                c.MapType<XmlNode>(() => new OpenApiSchema { Type = JsonSchemaType.String, Format = "xml" });
             });
 
             //services.AddDbContext<BFDataContext>(options =>
@@ -179,7 +193,13 @@ namespace WebHome
             if (env.IsDevelopment())
             {
                 // Enable Swagger middleware
-                app.UseSwagger();
+                app.UseSwagger(c =>
+                {
+                    // 明確指定輸出規格，確保 swagger.json 一定帶有 openapi 版本欄位
+                    // （Swagger UI 若拿到沒有版本欄位的內容就會顯示
+                    //   "Unable to render this definition"）
+                    c.OpenApiVersion = OpenApiSpecVersion.OpenApi3_0;
+                });
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebHome API V1");

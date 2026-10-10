@@ -1,0 +1,150 @@
+/* @page {
+  size: 5.3cm 28cm;
+  margin: 0;
+}
+@media print {
+  body {
+    zoom: 100%;
+  }
+} */
+body {
+    margin: 0;
+    font-weight: bold;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.page__break--after {
+    page-break-after: always;
+    width: 5.3cm;
+    margin: auto;
+}
+
+.page__break--paddingTop {
+    padding-top: 0px;
+}
+
+.eivo__wrapper {
+    padding: 0 7px 0 0;
+    height: 273.3px;
+    border-bottom: 1px dashed #f1f1f1;
+}
+
+.eivo__cutfield {
+    text-align: center;
+}
+
+    .eivo__cutfield .code1 {
+        margin: 0 0 0 5px;
+        padding: 0;
+        padding-top: 8px;
+    }
+
+        .eivo__cutfield .code1 img {
+            width: 100%;
+        }
+
+    .eivo__cutfield .code2 {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        margin: 0;
+        padding: 0;
+        padding-top: 5px;
+    }
+
+        .eivo__cutfield .code2 img {
+            width: 62px;
+            border: 2px solid #ffffff;
+        }
+
+.eivo__name {
+    padding: 0 0 5px;
+    font-size: 18px;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    word-break: keep-all;
+}
+
+.eivo__duration {
+    font-size: 28px;
+    font-weight: normal;
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.eivo__duration--title {
+    font-size: 24px;
+    letter-spacing: -3px;
+    font-weight: bolder;
+}
+
+.eivo__detail {
+    font-size: 21px;
+    line-height: 1;
+    text-align: center;
+}
+
+.eivo__deal {
+    padding-top: 5px;
+}
+
+    .eivo__deal div {
+        margin-left: 5px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        line-height: 1;
+    }
+
+.eivo__listfield {
+    padding: 0 10px 5px 0;
+}
+
+    .eivo__listfield .itemGroup__wrapper {
+        font-size: 12px;
+        line-height: 1.2;
+    }
+
+    .eivo__listfield .itemGroup__wrapper--border {
+        border-bottom: 1px dashed #000000;
+    }
+
+    .eivo__listfield .itemGroup__name {
+        padding: 2px 0px;
+        margin: 0;
+    }
+
+    .eivo__listfield .itemGroup__list {
+        display: flex;
+        flex-direction: row;
+    }
+
+        .eivo__listfield .itemGroup__list div {
+            width: 50%;
+            text-align: right;
+        }
+
+    .eivo__listfield .sale__wrapper {
+        padding-top: 5px;
+        border-top: 1px dashed #000000;
+        font-size: 12px;
+    }
+
+        .eivo__listfield .sale__wrapper div {
+            display: flex;
+            justify-content: space-between;
+        }
+
+.posCompany__wrapper {
+    padding-top: 10px;
+}
+
+.posCompany__name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.posCompany__address {
+    font-size: 15px;
+    font-weight: bold;
+}
