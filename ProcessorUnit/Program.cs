@@ -147,6 +147,36 @@ namespace ProcessorUnit
             chainedProcessor.ChainedExecutor = new VoidInvoiceJsonRequestProcessor { };
             chainedProcessor = chainedProcessor.ChainedExecutor;
 
+            chainedProcessor.ChainedExecutor = new VoidAllowanceJsonRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new InvoiceXmlRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new InvoiceXmlRequestForIssuerProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new VoidInvoiceXmlRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new AllowanceXmlRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new VoidAllowanceXmlRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new InvoiceMigRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new VoidInvoiceMigRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new AllowanceMigRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
+            chainedProcessor.ChainedExecutor = new VoidAllowanceMigRequestProcessor { };
+            chainedProcessor = chainedProcessor.ChainedExecutor;
+
             chainedProcessor.ChainedExecutor = new UnassignedInvoiceNOSettlementProcessor { };
             chainedProcessor = chainedProcessor.ChainedExecutor;
 

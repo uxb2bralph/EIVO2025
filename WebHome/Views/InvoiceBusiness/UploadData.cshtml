@@ -38,7 +38,7 @@
     _viewModel.InvoiceProcessType ??= Naming.InvoiceProcessType.F0401_Xlsx;
 }
 
-@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "傳送Excel資料");}
+@{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", "傳送Excel/Xml資料");}
 
 <form role="form" method="post">
     <div class="border_gray">
@@ -82,7 +82,7 @@
             }
             <tr>
                 <th colspan="2" class="Head_style_a">
-                    各項資料
+                    Excel 資料
                 </th>
             </tr>
             @{
@@ -121,10 +121,57 @@
                             Comment = "【境外電商專用】",
                             ProcessType = Naming.InvoiceProcessType.F0401_Xlsx_CBE,
                         });
+
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidInvoice.cshtml");
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadAllowance.cshtml");
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidAllowance.cshtml");
                 await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadFullAllowance.cshtml");
+            }
+            <tr>
+                <th colspan="2" class="Head_style_a">
+                    Xml 資料
+                </th>
+            </tr>
+            @{
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoiceXml.cshtml",
+                    new InvoiceRequestViewModel
+                    {
+                        Comment = "【Xml格式－系統自動配號】",
+                        ProcessType = Naming.InvoiceProcessType.F0401_Xml,
+                    });
+
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoiceXml.cshtml",
+                    new InvoiceRequestViewModel
+                    {
+                        Comment = "【Xml格式－開立人配號】",
+                        ProcessType = Naming.InvoiceProcessType.F0401_Xml_Allocation_ByIssuer,
+                    });
+
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidInvoiceXml.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadAllowanceXml.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidAllowanceXml.cshtml");
+            }
+            <tr>
+                <th colspan="2" class="Head_style_a">
+                    MIG 資料
+                </th>
+            </tr>
+            @{
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoiceMig.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidInvoiceMig.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadAllowanceMig.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidAllowanceMig.cshtml");
+            }
+            <tr>
+                <th colspan="2" class="Head_style_a">
+                    Json 資料
+                </th>
+            </tr>
+            @{
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadInvoiceJson.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidInvoiceJson.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadAllowanceJson.cshtml");
+                await Html.RenderPartialAsync("~/Views/InvoiceBusiness/Module/UploadVoidAllowanceJson.cshtml");
             }
         </table>
         <!--表格 結束-->

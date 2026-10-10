@@ -24,12 +24,14 @@ using ModelCore.InvoiceManagement;
 using ModelCore.Locale;
 using ModelCore.Helper;
 using ModelCore.Resource;
+using ModelCore.Schema.EIVO;
 
 using CommonLib.Utility;
 using ModelCore.InvoiceManagement.InvoiceProcess;
 using WebHome.Helper.Security.Authorization;
 using System.Threading.Tasks;
 using ModelCore.DataEntityWrapper;
+using Newtonsoft.Json;
 
 namespace WebHome.Controllers
 {
@@ -746,6 +748,435 @@ namespace WebHome.Controllers
             }
 
             return new EmptyResult();
+        }
+
+        public ActionResult GetInvoiceRequestXmlSample(InvoiceRequestViewModel viewModel)
+        {
+            bool byIssuer = viewModel.ProcessType == Naming.InvoiceProcessType.F0401_Xml_Allocation_ByIssuer;
+
+            InvoiceRoot sample = new InvoiceRoot
+            {
+                CompanyBan = "99999999",
+                Invoice = new[]
+                {
+                    new InvoiceRootInvoice
+                    {
+                        InvoiceNumber = byIssuer ? "AB12345678" : null,
+                        InvoiceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                        InvoiceTime = DateTime.Now.ToString("HH:mm:ss"),
+                        DataNumber = "SAMPLE0001",
+                        SellerId = "99999999",
+                        BuyerName = "買受人名稱",
+                        BuyerId = "0000000000",
+                        InvoiceType = "07",
+                        DonateMark = "0",
+                        PrintMark = "Y",
+                        RandomNumber = "1234",
+                        SalesAmount = 952,
+                        TaxType = 1,
+                        TaxRate = 0.05m,
+                        TaxAmount = 48,
+                        TotalAmount = 1000,
+                        Currency = "TWD",
+                        InvoiceItem = new[]
+                        {
+                            new InvoiceRootInvoiceInvoiceItem
+                            {
+                                Description = "商品名稱",
+                                Quantity = 1,
+                                Unit = "式",
+                                UnitPrice = 952,
+                                Amount = 952,
+                                SequenceNumber = 1,
+                            }
+                        }
+                    }
+                }
+            };
+
+            byte[] data = Encoding.UTF8.GetBytes(sample.GetXml());
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode("InvoiceRequestSample.xml")));
+            return File(data, "application/xml");
+        }
+
+        public ActionResult GetVoidInvoiceRequestXmlSample()
+        {
+            CancelInvoiceRoot sample = new CancelInvoiceRoot
+            {
+                CancelInvoice = new[]
+                {
+                    new CancelInvoiceRootCancelInvoice
+                    {
+                        CancelInvoiceNumber = "AB12345678",
+                        CancelDataNumber = "SAMPLE0001",
+                        InvoiceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                        BuyerId = "0000000000",
+                        SellerId = "99999999",
+                        CancelDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                        CancelTime = DateTime.Now.ToString("HH:mm:ss"),
+                        CancelReason = "作廢原因",
+                    }
+                }
+            };
+
+            byte[] data = Encoding.UTF8.GetBytes(sample.GetXml());
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode("VoidInvoiceRequestSample.xml")));
+            return File(data, "application/xml");
+        }
+
+        public ActionResult GetAllowanceRequestXmlSample()
+        {
+            AllowanceRoot sample = new AllowanceRoot
+            {
+                Allowance = new[]
+                {
+                    new AllowanceRootAllowance
+                    {
+                        AllowanceNumber = "AA12345678",
+                        DataNumber = "SAMPLE0001",
+                        AllowanceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                        SellerId = "99999999",
+                        SellerName = "開立人名稱",
+                        BuyerId = "0000000000",
+                        BuyerName = "買受人名稱",
+                        AllowanceType = 1,
+                        TaxAmount = 48,
+                        TotalAmount = 1000,
+                        Currency = "TWD",
+                        AllowanceItem = new[]
+                        {
+                            new AllowanceRootAllowanceAllowanceItem
+                            {
+                                OriginalInvoiceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                                OriginalInvoiceNumber = "AB12345678",
+                                Item = "商品名稱",
+                                OriginalDescription = "商品名稱",
+                                Quantity = 1,
+                                Unit = "式",
+                                UnitPrice = 952,
+                                Amount = 952,
+                                Tax = 48,
+                                AllowanceSequenceNumber = 1,
+                                TaxType = 1,
+                            }
+                        }
+                    }
+                }
+            };
+
+            byte[] data = Encoding.UTF8.GetBytes(sample.GetXml());
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode("AllowanceRequestSample.xml")));
+            return File(data, "application/xml");
+        }
+
+        public ActionResult GetVoidAllowanceRequestXmlSample()
+        {
+            CancelAllowanceRoot sample = new CancelAllowanceRoot
+            {
+                CancelAllowance = new[]
+                {
+                    new CancelAllowanceRootCancelAllowance
+                    {
+                        CancelAllowanceNumber = "AA12345678",
+                        BuyerId = "0000000000",
+                        SellerId = "99999999",
+                        AllowanceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                        CancelReason = "作廢原因",
+                        CancelDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                        CancelTime = DateTime.Now.ToString("HH:mm:ss"),
+                    }
+                }
+            };
+
+            byte[] data = Encoding.UTF8.GetBytes(sample.GetXml());
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode("VoidAllowanceRequestSample.xml")));
+            return File(data, "application/xml");
+        }
+
+        public ActionResult GetInvoiceRequestMigSample()
+        {
+            ModelCore.Schema.TurnKey.Invoice.Invoice sample = new ModelCore.Schema.TurnKey.Invoice.Invoice
+            {
+                Main = new ModelCore.Schema.TurnKey.Invoice.Main
+                {
+                    InvoiceNumber = "AB12345678",
+                    InvoiceDate = DateTime.Today.ToString("yyyyMMdd"),
+                    InvoiceTime = DateTime.Now.ToString("HH:mm:ss"),
+                    Seller = new ModelCore.Schema.TurnKey.RoleDescription
+                    {
+                        Identifier = "99999999",
+                        Name = "開立人名稱",
+                    },
+                    Buyer = new ModelCore.Schema.TurnKey.RoleDescription
+                    {
+                        Identifier = "0000000000",
+                        Name = "買受人名稱",
+                    },
+                    InvoiceType = ModelCore.Schema.TurnKey.Invoice.InvoiceTypeEnum.Item07,
+                    DonateMark = ModelCore.Schema.TurnKey.Invoice.DonateMarkEnum.Item0,
+                    PrintMark = "Y",
+                    RandomNumber = "1234",
+                },
+                Amount = new ModelCore.Schema.TurnKey.Invoice.Amount
+                {
+                    SalesAmount = 952,
+                    TaxType = ModelCore.Schema.TurnKey.TaxTypeEnum.Item1,
+                    TaxRate = 0.05m,
+                    TaxAmount = 48,
+                    TotalAmount = 1000,
+                },
+                Details = new[]
+                {
+                    new ModelCore.Schema.TurnKey.Invoice.DetailsProductItem
+                    {
+                        Description = "商品名稱",
+                        Quantity = 1,
+                        Unit = "式",
+                        UnitPrice = 952,
+                        Amount = 952,
+                        SequenceNumber = "1",
+                    }
+                }
+            };
+
+            byte[] data = Encoding.UTF8.GetBytes(sample.GetXml());
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode("InvoiceRequestSample.mig.xml")));
+            return File(data, "application/xml");
+        }
+
+        public ActionResult GetVoidInvoiceRequestMigSample()
+        {
+            ModelCore.Schema.TurnKey.Invoice.CancelInvoice sample = new ModelCore.Schema.TurnKey.Invoice.CancelInvoice
+            {
+                CancelInvoiceNumber = "AB12345678",
+                InvoiceDate = DateTime.Today.ToString("yyyyMMdd"),
+                BuyerId = "0000000000",
+                SellerId = "99999999",
+                CancelDate = DateTime.Today.ToString("yyyyMMdd"),
+                CancelTime = DateTime.Now,
+                CancelReason = "作廢原因",
+            };
+
+            byte[] data = Encoding.UTF8.GetBytes(sample.GetXml());
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode("VoidInvoiceRequestSample.mig.xml")));
+            return File(data, "application/xml");
+        }
+
+        public ActionResult GetAllowanceRequestMigSample()
+        {
+            ModelCore.Schema.TurnKey.Allowance.Allowance sample = new ModelCore.Schema.TurnKey.Allowance.Allowance
+            {
+                Main = new ModelCore.Schema.TurnKey.Allowance.Main
+                {
+                    AllowanceNumber = "AA12345678",
+                    AllowanceDate = DateTime.Today.ToString("yyyyMMdd"),
+                    Seller = new ModelCore.Schema.TurnKey.RoleDescription
+                    {
+                        Identifier = "99999999",
+                        Name = "開立人名稱",
+                    },
+                    Buyer = new ModelCore.Schema.TurnKey.RoleDescription
+                    {
+                        Identifier = "0000000000",
+                        Name = "買受人名稱",
+                    },
+                    AllowanceType = ModelCore.Schema.TurnKey.Allowance.AllowanceTypeEnum.Item1,
+                },
+                Amount = new ModelCore.Schema.TurnKey.Allowance.Amount
+                {
+                    TaxAmount = 48,
+                    TotalAmount = 1000,
+                },
+                Details = new[]
+                {
+                    new ModelCore.Schema.TurnKey.Allowance.DetailsProductItem
+                    {
+                        OriginalInvoiceDate = DateTime.Today.ToString("yyyyMMdd"),
+                        OriginalInvoiceNumber = "AB12345678",
+                        OriginalDescription = "商品名稱",
+                        Quantity = 1,
+                        Unit = "式",
+                        UnitPrice = 952,
+                        Amount = 952,
+                        Tax = 48,
+                        AllowanceSequenceNumber = "1",
+                        TaxType = ModelCore.Schema.TurnKey.TaxTypeEnum.Item1,
+                    }
+                }
+            };
+
+            byte[] data = Encoding.UTF8.GetBytes(sample.GetXml());
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode("AllowanceRequestSample.mig.xml")));
+            return File(data, "application/xml");
+        }
+
+        public ActionResult GetVoidAllowanceRequestMigSample()
+        {
+            ModelCore.Schema.TurnKey.Allowance.CancelAllowance sample = new ModelCore.Schema.TurnKey.Allowance.CancelAllowance
+            {
+                CancelAllowanceNumber = "AA12345678",
+                AllowanceType = ModelCore.Schema.TurnKey.Allowance.AllowanceTypeEnum.Item1,
+                AllowanceDate = DateTime.Today.ToString("yyyyMMdd"),
+                BuyerId = "0000000000",
+                SellerId = "99999999",
+                CancelDate = DateTime.Today.ToString("yyyyMMdd"),
+                CancelTime = DateTime.Now,
+                CancelReason = "作廢原因",
+            };
+
+            byte[] data = Encoding.UTF8.GetBytes(sample.GetXml());
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode("VoidAllowanceRequestSample.mig.xml")));
+            return File(data, "application/xml");
+        }
+
+        private ActionResult DownloadJsonSample(object envelope, String fileName)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(envelope, Formatting.Indented));
+            Response.Headers.Append("Content-Disposition", String.Format("attachment;filename={0}", HttpUtility.UrlEncode(fileName)));
+            return File(data, "application/json");
+        }
+
+        public ActionResult GetInvoiceRequestJsonSample()
+        {
+            var envelope = new
+            {
+                InvoiceRoot = new
+                {
+                    Invoice = new[]
+                    {
+                        new InvoiceRootInvoice
+                        {
+                            InvoiceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                            InvoiceTime = DateTime.Now.ToString("HH:mm:ss"),
+                            DataNumber = "SAMPLE0001",
+                            SellerId = "99999999",
+                            BuyerName = "買受人名稱",
+                            BuyerId = "0000000000",
+                            InvoiceType = "07",
+                            DonateMark = "0",
+                            PrintMark = "Y",
+                            RandomNumber = "1234",
+                            SalesAmount = 952,
+                            TaxType = 1,
+                            TaxRate = 0.05m,
+                            TaxAmount = 48,
+                            TotalAmount = 1000,
+                            Currency = "TWD",
+                            InvoiceItem = new[]
+                            {
+                                new InvoiceRootInvoiceInvoiceItem
+                                {
+                                    Description = "商品名稱",
+                                    Quantity = 1,
+                                    Unit = "式",
+                                    UnitPrice = 952,
+                                    Amount = 952,
+                                    SequenceNumber = 1,
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            return DownloadJsonSample(envelope, "InvoiceRequestSample.json");
+        }
+
+        public ActionResult GetVoidInvoiceRequestJsonSample()
+        {
+            var envelope = new
+            {
+                CancelInvoiceRoot = new
+                {
+                    CancelInvoice = new[]
+                    {
+                        new CancelInvoiceRootCancelInvoice
+                        {
+                            CancelInvoiceNumber = "AB12345678",
+                            CancelDataNumber = "SAMPLE0001",
+                            InvoiceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                            BuyerId = "0000000000",
+                            SellerId = "99999999",
+                            CancelDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                            CancelTime = DateTime.Now.ToString("HH:mm:ss"),
+                            CancelReason = "作廢原因",
+                        }
+                    }
+                }
+            };
+
+            return DownloadJsonSample(envelope, "VoidInvoiceRequestSample.json");
+        }
+
+        public ActionResult GetAllowanceRequestJsonSample()
+        {
+            var envelope = new
+            {
+                AllowanceRoot = new
+                {
+                    Allowance = new[]
+                    {
+                        new AllowanceRootAllowance
+                        {
+                            AllowanceNumber = "AA12345678",
+                            DataNumber = "SAMPLE0001",
+                            AllowanceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                            SellerId = "99999999",
+                            SellerName = "開立人名稱",
+                            BuyerId = "0000000000",
+                            BuyerName = "買受人名稱",
+                            AllowanceType = 1,
+                            TaxAmount = 48,
+                            TotalAmount = 1000,
+                            Currency = "TWD",
+                            AllowanceItem = new[]
+                            {
+                                new AllowanceRootAllowanceAllowanceItem
+                                {
+                                    OriginalInvoiceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                                    OriginalInvoiceNumber = "AB12345678",
+                                    Item = "商品名稱",
+                                    OriginalDescription = "商品名稱",
+                                    Quantity = 1,
+                                    Unit = "式",
+                                    UnitPrice = 952,
+                                    Amount = 952,
+                                    Tax = 48,
+                                    AllowanceSequenceNumber = 1,
+                                    TaxType = 1,
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            return DownloadJsonSample(envelope, "AllowanceRequestSample.json");
+        }
+
+        public ActionResult GetVoidAllowanceRequestJsonSample()
+        {
+            var envelope = new
+            {
+                CancelAllowanceRoot = new
+                {
+                    CancelAllowance = new[]
+                    {
+                        new CancelAllowanceRootCancelAllowance
+                        {
+                            CancelAllowanceNumber = "AA12345678",
+                            BuyerId = "0000000000",
+                            SellerId = "99999999",
+                            AllowanceDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                            CancelReason = "作廢原因",
+                            CancelDate = DateTime.Today.ToString("yyyy/MM/dd"),
+                            CancelTime = DateTime.Now.ToString("HH:mm:ss"),
+                        }
+                    }
+                }
+            };
+
+            return DownloadJsonSample(envelope, "VoidAllowanceRequestSample.json");
         }
 
     }

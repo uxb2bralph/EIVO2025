@@ -90,6 +90,19 @@ namespace TaskCenter.Controllers
 
         }
 
+        public async Task<ActionResult> UploadInvoiceRequestXmlAsync(InvoiceRequestViewModel viewModel)
+        {
+            await Request.SaveAsAsync(null, true);
+
+            if (!viewModel.ProcessType.HasValue)
+            {
+                viewModel.ProcessType = Naming.InvoiceProcessType.F0401_Xml;
+            }
+
+            return UploadProcessRequest(viewModel);
+
+        }
+
         public ActionResult UploadVoidInvoiceRequestXlsx(InvoiceRequestViewModel viewModel)
         {
             viewModel.ProcessType = Naming.InvoiceProcessType.F0501_Xlsx;
@@ -111,6 +124,72 @@ namespace TaskCenter.Controllers
         public ActionResult UploadVoidAllowanceRequestXlsx(InvoiceRequestViewModel viewModel)
         {
             viewModel.ProcessType = Naming.InvoiceProcessType.G0501_Xlsx;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadVoidInvoiceRequestXml(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.F0501_Xml;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadAllowanceRequestXml(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0401_Xml;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadVoidAllowanceRequestXml(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0501_Xml;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadInvoiceRequestMig(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.F0401;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadVoidInvoiceRequestMig(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.F0501;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadAllowanceRequestMig(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0401;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadVoidAllowanceRequestMig(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0501;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadInvoiceRequestJson(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.F0401_Json_CBE;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadVoidInvoiceRequestJson(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.F0501_Json;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadAllowanceRequestJson(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0401_Json;
+            return UploadProcessRequest(viewModel);
+        }
+
+        public ActionResult UploadVoidAllowanceRequestJson(InvoiceRequestViewModel viewModel)
+        {
+            viewModel.ProcessType = Naming.InvoiceProcessType.G0501_Json;
             return UploadProcessRequest(viewModel);
         }
 
