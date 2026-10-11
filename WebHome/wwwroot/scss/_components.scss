@@ -1,0 +1,110 @@
+// _components.scss — 跨頁共用元件樣式
+
+@use "tokens" as t;
+
+// ───────────────────────── 資料表格 ─────────────────────────
+// 既有查詢結果表格一律帶 .itemList；新頁面請用 .eivo-data-table。
+.eivo-data-table,
+table.itemList {
+  width: 100%;
+  margin-bottom: 1rem;
+  font-size: t.$eivo-font-size-sm;
+  border: 1px solid t.$eivo-border;
+  border-collapse: collapse;
+
+  > thead > tr > th {
+    padding: .45rem .5rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    vertical-align: middle;
+    background-color: t.$eivo-brand;
+    border: 1px solid t.$eivo-border;
+  }
+
+  > tbody > tr > td {
+    padding: .4rem .5rem;
+    vertical-align: middle;
+    border: 1px solid t.$eivo-border;
+  }
+
+  > tbody > tr:nth-child(even) {
+    background-color: t.$eivo-bg-stripe;
+  }
+
+  > tbody > tr:hover {
+    background-color: t.$eivo-bg-hover;
+  }
+}
+
+// 可排序表頭（排序圖示由 CommonScriptInclude 的 initSortable 動態插入）
+.eivo-sortable,
+table.itemList > thead > tr > th:not([aria-sort="other"]) {
+  cursor: pointer;
+  user-select: none;
+
+  > i {
+    margin-left: .25rem;
+    opacity: .75;
+  }
+}
+
+// ───────────────────────── Loading ─────────────────────────
+.eivo-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: .75rem;
+  color: #fff;
+  background-color: rgba(t.$eivo-info, .6);
+  cursor: wait;
+}
+
+// ───────────────────────── Chip / 狀態標籤 ─────────────────────────
+.eivo-chip {
+  display: inline-block;
+  padding: .15rem .5rem;
+  font-size: t.$eivo-font-size-sm;
+  line-height: t.$eivo-line-height;
+  color: t.$eivo-text-secondary;
+  background-color: t.$eivo-bg-disabled;
+  border-radius: t.$eivo-radius-pill;
+}
+
+// ───────────────────────── 列印 ─────────────────────────
+.eivo-print-area {
+  background-color: #fff;
+}
+
+@media print {
+  .eivo-topbar,
+  .eivo-sidebar,
+  .eivo-footer,
+  #masterTab {
+    display: none !important;
+  }
+
+  .eivo-main,
+  #masterTabContent {
+    padding: 0;
+  }
+}
+
+// ───────────────────────── 查詢區塊 ─────────────────────────
+// 既有查詢頁以 .border_gray 包住查詢條件（樣式仍由 App_Themes/Visitor/table.css 提供），
+// 此處僅補上與 BS5 表單元件的間距協調。
+.border_gray {
+  .form-label {
+    margin-bottom: .25rem;
+    font-size: t.$eivo-font-size-md;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: t.$eivo-font-size-md;
+  }
+}

@@ -30,11 +30,11 @@
 }
 
 <form>
-    <div class="panel panel-default">
-        <div class="panel-heading">
+    <div class="card">
+        <div class="card-header">
             主機構
         </div>
-        <div class="panel-body col-md-12">
+        <div class="card-body col-md-12">
             @{
                 var items = models.GetTable<Organization>()
                     .Where(o => o.MasterOrganization != null)
@@ -56,8 +56,8 @@
             }
         </div>
     </div>
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="card">
+        <div class="card-body">
             <div class="table-responsive">
                 <!--表格 開始-->
                 <table class="table table-striped table-bordered table-hover">

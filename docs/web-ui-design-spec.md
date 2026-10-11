@@ -2,7 +2,7 @@
 
 > **適用專案**：`WebHome`（ASP.NET Core MVC, net10.0, Razor Views）  
 > **目標 UI 框架**：Bootstrap 5.3  
-> **版本**：1.0（2026-09-27）  
+> **版本**：1.1（2026-10-10）  
 > **定位**：過渡期標準 — 本系統為 Vue 3 遷移（見 `docs/refactoring-plan.md`）完成前的過渡期 UI。新頁面與重構頁面須遵循本規格。
 
 ---
@@ -50,12 +50,12 @@
 
 | 項目 | 標準 | 現況 | 差距 |
 |------|------|------|------|
-| CSS 框架 | Bootstrap **5.3**（自架，禁 CDN） | BS3 + BS4.6 混用 | 需升級 |
-| 圖示 | Font Awesome **6 Free**（自架） | FA 4.2.0 CDN | 需升級 + 自架 |
+| CSS 框架 | Bootstrap **5.3**（自架，禁 CDN） | BS 5.3.8（`wwwroot/scss` 編譯，自架） | ✅ |
+| 圖示 | Font Awesome **6 Free**（自架） | FA 6.7.2 自架（含 `v4-shims` 相容舊名稱） | ✅ 自架完成；FA4 名稱汰換見 P2.1 |
 | JS 基礎 | jQuery **3.7.x**（過渡期保留） | jQuery 3.7.1 | ✅ |
-| 日期選擇 | jQuery UI datepicker（CSS/JS 版本一致） | CSS 1.8.14 / JS 1.13.2 | 需對齊 |
-| 樣式預處理 | SCSS（esbuild 編譯） | `site.scss` 空檔 | 需建立 |
-| 型別 | TypeScript（`wwwroot/ts/`，esbuild bundle） | 僅 stub | 需啟用 |
+| 日期選擇 | jQuery UI datepicker（CSS/JS 版本一致） | CSS 1.13.3 / JS 1.13.2 | ✅ |
+| 樣式預處理 | SCSS（`sass` CLI 編譯） | `scss/` 五個 partial → `css/site.css` | ✅ |
+| 型別 | TypeScript（`wwwroot/ts/`，esbuild bundle） | shell 行為已 TS 化（sidebar/tabs）；`$global` 仍在 Razor | 其餘見 P3.3 |
 | 表格 | 原生 `<table>` + BS5 class + 自訂排序 JS | jsGrid / DataTables / rwd-table 混雜 | 需標準化 |
 | 對話框 | BS5 Modal（統一） | jQuery UI dialog + BS modal 混用 | 需標準化 |
 
@@ -1099,12 +1099,12 @@ $.postJSON('@Url.Action("DoSomething", "Feature")', { field1: val1 }, function (
 
 | # | 工作項 | 影響範圍 | 風險 | 驗證方式 |
 |---|--------|----------|------|----------|
-| P0.1 | 資產搬入 repo：從 IFS-EIVO03 複製 Scripts/Content/css/images 至 `WebHome/wwwroot/` | `wwwroot/`、`RunWebHome.bat`、`.vscode/launch.json` | 中（路徑引用需逐一確認） | 所有頁面正常載入、無 404 |
-| P0.2 | 建立 SCSS 管線：`_tokens.scss` + `site.scss` + esbuild/sass 編譯 | `wwwroot/scss/`、`package.json` | 低 | `npm run build:es` 產出 `css/site.css` |
-| P0.3 | BS5.3 升級：引入 BS5.3 SCSS source、建立 `_bootstrap.scss` 變數覆寫 | `wwwroot/scss/`、所有引用 BS class 的 `.cshtml` | **高**（BS3→5 大量 class 變更） | 逐頁視覺比對；見附錄 A 對照表 |
-| P0.4 | FA6 自架：下載 FA6 Free 至 `wwwroot/vendor/fontawesome/`、移除 CDN link | `MvcMainPage.cshtml`、`ContentPage.cshtml`、所有引用 FA 的 view | 低 | 圖示正常顯示、無 CDN 請求 |
-| P0.5 | jQuery UI 版本對齊：CSS 升級至 1.13.x（與 JS 一致） | `wwwroot/vendor/jquery-ui/` | 低 | datepicker 正常顯示 |
-| P0.6 | 移除 `ASPNETCORE_WEBROOT` 環境變數 | `RunWebHome.bat`、`.vscode/launch.json` | 低 | 啟動後資產正常 |
+| ~~P0.1~~ ✅ | 資產搬入 repo：從 IFS-EIVO03 複製 Scripts/Content/css/images 至 `WebHome/wwwroot/` | `wwwroot/`、`RunWebHome.bat`、`.vscode/launch.json` | 中（路徑引用需逐一確認） | 已完成：70 條資產路徑全數 200 |
+| ~~P0.2~~ ✅ | 建立 SCSS 管線：`_tokens.scss` + `site.scss` + sass 編譯 | `wwwroot/scss/`、`package.json` | 低 | 已完成：`npm run build:css` 產出 `css/site.css` |
+| ~~P0.3~~ ✅ | BS5.3 升級：引入 BS5.3 SCSS source、建立 `_bootstrap.scss` 變數覆寫 | `wwwroot/scss/`、所有引用 BS class 的 `.cshtml` | **高**（BS3→5 大量 class 變更） | 已完成：class 批次遷移 + jsdom 行為驗證；視覺仍待逐頁比對 |
+| ~~P0.4~~ ✅ | FA6 自架：下載 FA6 Free 至 `wwwroot/vendor/fontawesome/`、移除 CDN link | `MvcMainPage.cshtml`、`ContentPage.cshtml`、所有引用 FA 的 view | 低 | 已完成：全站無 CDN；FA4 名稱由 `v4-shims` 相容 |
+| ~~P0.5~~ ✅ | jQuery UI 版本對齊：CSS 升級至 1.13.x（與 JS 一致） | `wwwroot/vendor/jquery-ui/` | 低 | 已完成：CSS 1.13.3 |
+| ~~P0.6~~ ✅ | 移除 `ASPNETCORE_WEBROOT` 環境變數 | `RunWebHome.bat`、`Run.bat`、`.vscode/launch.json`、`Properties/launchSettings.json` | 低 | 已完成 |
 
 **P0 完成標準**：系統以 BS5.3 + FA6 + 自架資產正常運行，功能無回歸。
 
@@ -1112,7 +1112,7 @@ $.postJSON('@Url.Action("DoSomething", "Feature")', { field1: val1 }, function (
 
 | # | 工作項 | 影響範圍 | 風險 | 驗證方式 |
 |---|--------|----------|------|----------|
-| P1.1 | 標準 Shell 重寫：`MvcMainPage.cshtml` 改用 BS5 navbar/offcanvas/nav-tabs | `Views/Template/MvcMainPage.cshtml`、`_layout.scss` | **高**（影響所有頁面） | 所有角色選單正常、tab 功能正常 |
+| ~~P1.1~~ ✅ | 標準 Shell 重寫：`MvcMainPage.cshtml` 改用 BS5 navbar/offcanvas/nav-tabs | `Views/Template/MvcMainPage.cshtml`、`ContentPage.cshtml`、`Views/SiteAction/*Menu.cshtml`、`_layout.scss`、`ts/{sidebar,tabs}.ts` | **高**（影響所有頁面） | 已完成：metisMenu/sb-admin-2 移除，改 BS5 Collapse/Tab；各角色選單待登入實測 |
 | P1.2 | 表格標準化：`TableBody`/`SortableHeader`/`QueryPaging` partial 改用 BS5 table + 自訂排序 JS | `Views/Common/Module/`、`_components.scss`、`ts/table.ts` | 中 | 查詢頁排序/分頁/斑马紋正常 |
 | P1.3 | 對話框標準化：建立 `EivoModal`（BS5 Modal）、遷移 `alertModal`/`actionHandler` | `ts/modal.ts`、`CommonScriptInclude.cshtml`、`GlobalScript.cshtml` | 中 | 所有對話框場景正常 |
 | P1.4 | 表單驗證標準化：BS5 `is-invalid` + `invalid-feedback`、遷移 `validateForm`/`clearErrors` | `ts/form.ts`、`CommonScriptInclude.cshtml` | 低 | 表單驗證錯誤顯示正常 |
@@ -1528,3 +1528,4 @@ P3 品質    2-3 週    P1 完成（可與 P2 並行）
 | 版本 | 日期 | 變更 |
 |------|------|------|
 | 1.0 | 2026-09-27 | 初版：Part A 設計規格（A.1–A.10）+ Part B 路線圖（P0–P3）+ 附錄 A/B |
+| 1.1 | 2026-10-10 | P0 全項 + P1.1 完成；更新技術基準現況欄 |

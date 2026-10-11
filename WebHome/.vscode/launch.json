@@ -1,4 +1,4 @@
-{
+﻿{
   // 使用 IntelliSense 以得知可用的屬性。
   // 暫留以檢視現有屬性的描述。
   // 如需詳細資訊，請瀏覽: https://go.microsoft.com/fwlink/?linkid=830387
@@ -31,7 +31,6 @@
       },
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_WEBROOT": "C:\\Project\\Github\\IFS-EIVO03\\eIVOGo",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation",
         "ASPNETCORE_DETAILEDERRORS": "true"
       },

@@ -31,13 +31,19 @@
 <!--交易畫面標題-->
 @{ await Html.RenderPartialAsync("~/Views/SiteAction/FunctionTitleBar.cshtml", _title);}
 
-<ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#inquireInvoice">查詢條件</a></li>
-    <li><a data-toggle="tab" href="#uploadBatch">批次</a></li>
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" data-bs-toggle="tab" href="#inquireInvoice" role="tab"
+           aria-controls="inquireInvoice" aria-selected="true">查詢條件</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link" data-bs-toggle="tab" href="#uploadBatch" role="tab"
+           aria-controls="uploadBatch" aria-selected="false">批次</a>
+    </li>
 </ul>
 
 <div class="tab-content">
-    <div id="inquireInvoice" role="tabpanel" class="tab-pane fade in active">
+    <div id="inquireInvoice" role="tabpanel" class="tab-pane fade show active">
         <div class="border_gray">
             <!--表格 開始-->
             <table id="queryArea" class="table table-striped">
@@ -99,7 +105,7 @@
 
         @{ await Html.RenderPartialAsync("~/Views/InvoiceProcess/ScriptHelper/Notify.cshtml");}
     </div>
-        <div id="uploadBatch" role="tabpanel" class="tab-pane">
+        <div id="uploadBatch" role="tabpanel" class="tab-pane fade">
             <div class="border_gray">
                 <!--表格 開始-->
                 <table class="table table-striped">

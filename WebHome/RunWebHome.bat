@@ -1,4 +1,3 @@
-set ASPNETCORE_WEBROOT=C:\Project\Github\IFS-EIVO03\eIVOGo
 SET ASPNETCORE_ENVIRONMENT=Development
 SET ASPNETCORE_HOSTINGSTARTUPASSEMBLIES=Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation
 SET LAUNCHER_PATH=bin\Debug\net10.0\WebHome.exe

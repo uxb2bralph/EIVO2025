@@ -4,8 +4,8 @@
     ViewBag.Title = "";
 }
 <script src="~/Scripts/jquery-3.7.1.min.js"></script>
-<script src="~/Scripts/bootstrap.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css">
+<script src="~/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="~/css/site.css" />
 @using (Html.BeginForm("SetAll", "InvoiceNumberApply"))
 {
     @Html.TextBoxFor(m => m.BusinessID, new { @class = "form-control", @style = "display:none" })
@@ -20,7 +20,7 @@
                     資料已送出!! 是否需下載Word檔?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">否</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">否</button>
                     <button type="submit" class="btn btn-primary">是</button>
                 </div>
             </div>

@@ -1,0 +1,52 @@
+// _tokens.scss — 設計令牌（來源：docs/web-ui-design-spec.md A.2）
+// 所有元件顏色一律引用此處令牌，禁止 hardcode hex。
+
+// ─── 品牌色（沿用現有） ───
+$eivo-brand:         #c99040;  // 表頭橘（原 .table01 th 背景）
+$eivo-brand-dark:    #a8762e;  // 品牌色 hover / active
+$eivo-brand-light:   #e8c99b;  // 品牌色淺色（選單 hover 背景）
+$eivo-accent:        #eb5e00;  // 強調橘（原 header 連結 hover 色）
+$eivo-info:          #3276b1;  // 資訊藍（原 loading overlay 色）
+
+// ─── 狀態色（對齊 BS5 語意） ───
+$eivo-success:       #198754;
+$eivo-warning:       #ffc107;
+$eivo-danger:        #dc3545;
+$eivo-info-color:    #0dcaf0;
+
+// ─── 中性色 ───
+$eivo-text:           #212529;
+$eivo-text-secondary: #495057;
+$eivo-text-muted:     #6c757d;
+$eivo-border:         #dee2e6;
+$eivo-bg:             #f8f9fa;
+$eivo-bg-content:     #ffffff;
+$eivo-bg-stripe:      #fdf5e6;  // 表格斑馬紋（原 .itemList tr:nth-child(even)）
+$eivo-bg-hover:       #f1f3f5;
+$eivo-bg-disabled:    #e9ecef;
+
+// ─── 字體 ───
+$eivo-font-family:       "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", Arial, sans-serif;
+$eivo-font-size-base:    14px;
+$eivo-font-size-sm:      12px;
+$eivo-font-size-md:      14px;
+$eivo-font-size-lg:      16px;
+$eivo-font-size-xl:      20px;
+$eivo-font-size-xxl:     24px;
+$eivo-line-height:       1.5;
+$eivo-line-height-tight: 1.2;
+
+// ─── 圓角 ───
+$eivo-radius:      4px;
+$eivo-radius-lg:   8px;
+$eivo-radius-pill: 50rem;
+
+// ─── 陰影 ───
+$eivo-shadow-sm: 0 1px 2px rgba(0, 0, 0, .05);
+$eivo-shadow:    0 .5rem 1rem rgba(0, 0, 0, .15);
+$eivo-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, .175);
+
+// ─── Shell 尺寸（_layout.scss 使用） ───
+$eivo-topbar-height:  56px;
+$eivo-sidebar-width:  250px;
+$eivo-tabbar-height:  40px;

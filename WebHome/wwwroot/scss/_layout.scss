@@ -1,0 +1,233 @@
+// _layout.scss — Shell：topbar / sidebar / tab bar / footer
+// 取代原 sb-admin-2.css（#wrapper / #page-wrapper / .sidebar / .navbar-top-links）。
+
+@use "tokens" as t;
+@use "bootstrap" as bs;
+
+// ───────────────────────── Shell 骨架 ─────────────────────────
+body.eivo-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: t.$eivo-bg;
+}
+
+.eivo-shell-body {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.eivo-main {
+  flex: 1 1 auto;
+  min-width: 0;          // 讓寬表格在 flex 容器內可水平捲動
+  display: flex;
+  flex-direction: column;
+  background-color: t.$eivo-bg-content;
+}
+
+// ───────────────────────── Topbar ─────────────────────────
+.eivo-topbar {
+  min-height: t.$eivo-topbar-height;
+  background-color: t.$eivo-brand;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-shadow: t.$eivo-shadow-sm;
+
+  .navbar-brand {
+    color: #fff;
+    font-size: t.$eivo-font-size-lg;
+    font-weight: 600;
+
+    &:hover,
+    &:focus {
+      color: #fff;
+    }
+  }
+
+  .navbar-toggler {
+    color: #fff;
+    border-color: rgba(255, 255, 255, .5);
+
+    &:focus {
+      box-shadow: 0 0 0 .2rem rgba(255, 255, 255, .35);
+    }
+  }
+
+  .nav-link {
+    color: #fff;
+    padding-left: .75rem;
+    padding-right: .75rem;
+
+    &:hover,
+    &:focus,
+    &.show {
+      color: t.$eivo-brand-light;
+    }
+  }
+}
+
+// 系統公告（取代 <marquee>）
+.eivo-topbar-notice {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 1rem;
+  padding: .25rem .75rem;
+  font-size: t.$eivo-font-size-sm;
+  color: t.$eivo-text;
+  background-color: rgba(255, 255, 255, .85);
+  border-radius: t.$eivo-radius;
+
+  // 公告常為長文：單行省略，完整內容以 title 呈現
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ───────────────────────── Sidebar ─────────────────────────
+.eivo-sidebar {
+  flex: 0 0 t.$eivo-sidebar-width;
+  width: t.$eivo-sidebar-width;
+  background-color: t.$eivo-bg-content;
+  border-right: 1px solid t.$eivo-border;
+  overflow-y: auto;
+
+  #side-menu {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    padding: .5rem 0;
+
+    ul {
+      // 二 / 三級選單：沿用 BS5 .nav，但強制直列
+      flex-direction: column;
+      flex-wrap: nowrap;
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 0;
+    }
+
+    li {
+      position: relative;
+      width: 100%;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem 1rem;
+      font-size: t.$eivo-font-size-md;
+      color: t.$eivo-text;
+      text-decoration: none;
+      border-radius: t.$eivo-radius;
+
+      &:hover,
+      &:focus {
+        background-color: t.$eivo-bg-hover;
+        color: t.$eivo-text;
+      }
+
+      &.active {
+        background-color: t.$eivo-brand;
+        color: #fff;
+      }
+    }
+
+    // 縮排：一級 16px / 二級 32px / 三級 48px
+    .nav-second-level a { padding-left: 2rem; }
+    .nav-third-level  a { padding-left: 3rem; }
+  }
+
+  // 展開箭頭（原 metisMenu 的 <span class="fa arrow">）
+  .eivo-menu-arrow {
+    margin-left: auto;
+    transition: transform .2s ease-in-out;
+  }
+
+  a[aria-expanded="true"] .eivo-menu-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+// lg 以下由 topbar hamburger 開啟 offcanvas
+.eivo-sidebar.offcanvas-lg {
+  @include bs.media-breakpoint-down(lg) {
+    width: t.$eivo-sidebar-width;
+    box-shadow: t.$eivo-shadow-lg;
+  }
+}
+
+// ───────────────────────── Master tab bar ─────────────────────────
+#masterTab.nav-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-height: t.$eivo-tabbar-height;
+  padding: 0 .5rem;
+  background-color: t.$eivo-bg;
+  border-bottom: 1px solid t.$eivo-border;
+
+  // 關閉鈕為 .nav-link 的同層手足（button 不可巢狀於 a 內），
+  // 故底線 active 樣式畫在 .nav-item 上，讓整個 tab 看起來是一體的。
+  .nav-item {
+    border-bottom: 2px solid transparent;
+
+    &:has(> .nav-link.active) {
+      border-bottom-color: t.$eivo-brand;
+    }
+
+    .btn-close {
+      flex: 0 0 auto;
+      margin-right: .5rem;
+      padding: 0;
+      font-size: .55rem;
+      opacity: .5;
+
+      &:hover { opacity: 1; }
+    }
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: .375rem;
+    max-width: 16rem;
+    padding: .4rem .75rem;
+    font-size: t.$eivo-font-size-md;
+    color: t.$eivo-text-secondary;
+    white-space: nowrap;
+    border: 0;
+    border-radius: 0;
+
+    &:hover { color: t.$eivo-brand-dark; }
+
+    &.active {
+      color: t.$eivo-brand;
+      background-color: transparent;
+      border-color: transparent;
+    }
+
+    // 標題過長以省略號收斂（完整標題見 title 屬性）
+    .eivo-tab-text {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+#masterTabContent {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 1rem 1.5rem;
+}
+
+// ───────────────────────── Footer ─────────────────────────
+.eivo-footer {
+  padding: .75rem 1.5rem;
+  font-size: t.$eivo-font-size-sm;
+  color: t.$eivo-text-muted;
+  text-align: right;
+  background-color: t.$eivo-bg;
+  border-top: 1px solid t.$eivo-border;
+}

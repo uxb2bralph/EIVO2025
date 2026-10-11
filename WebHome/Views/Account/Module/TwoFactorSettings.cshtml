@@ -35,12 +35,12 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4 col-md-offset-4">
-                <div class="panel-default">
-                    <div class="panel-body">
+                <div class="card">
+                    <div class="card-body">
                         <form id="form1" accept-charset="UTF-8" role="form" method="post">
                             <fieldset>
                                 <div>Dear @(_model.UserName),please add your two factor authentication.</div>
-                                <div class="form-group prompt">
+                                <div class="mb-3 prompt">
                                     <label for="user_login">Google Authenticator QRCode</label>
                                     @{
                                         TwoFactorAuthenticator TwoFacAuth = new TwoFactorAuthenticator();
@@ -49,7 +49,7 @@
                                         ViewBag.SetupCode = setupInfo.ManualEntryKey; }
                                     <img src="@Html.Raw(setupInfo.QrCodeSetupImageUrl)" />
                                 </div>
-                                <div class="form-group prompt">
+                                <div class="mb-3 prompt">
                                     <label>Manual Setup Code :</label>
                                     <div>@(setupInfo.ManualEntryKey)</div>
                                 </div>

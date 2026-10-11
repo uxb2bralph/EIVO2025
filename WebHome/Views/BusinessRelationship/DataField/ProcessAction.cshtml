@@ -39,9 +39,9 @@
         break;
     case Naming.FieldDisplayType.DataItem:
         BusinessRelationship item = this.Model as BusinessRelationship;
-        <div class="btn-group dropdown" data-toggle="dropdown">
-            <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-            <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+        <div class="btn-group dropdown" data-bs-toggle="dropdown">
+            <button class="btn bg-color-blueLight" data-bs-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+            <button class="btn bg-color-blueLight dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
             <ul class="dropdown-menu">
                 <li>
                     <a class="btn" onclick="$inquiryAgent.editItem('@((new {item.MasterID,item.RelativeID,item.BusinessID}).JsonStringify().EncryptData())');">編輯</a>

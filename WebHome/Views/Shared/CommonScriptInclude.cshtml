@@ -4,22 +4,23 @@
 @using Microsoft.AspNetCore.Mvc.Razor
 @using Microsoft.AspNetCore.Mvc
 
+@* 路徑一律用 ~/ 展開為應用程式根目錄，避免 ../ 在不同層級的 URL 下解析錯誤 *@
 <script type="text/javascript" src="~/Scripts/jquery-3.7.1.js"></script>
-<script type="text/javascript" src="../Scripts/jquery-ui-1.13.2.js"></script>
-<script type="text/javascript" src="../Scripts/bootstrap.bundle.js?1.1"></script>
-<script type="text/javascript" src="../Scripts/jquery.ui.datepicker-zh-TW.js"></script>
-<script type="text/javascript" src="../Scripts/jquery.form.js"></script>
-<script type="text/javascript" src="../Scripts/uxeivo.js"></script>
-<script type="text/javascript" src="../Scripts/rwd-table.js"></script>
-<script type="text/javascript" src="../Scripts/jquery.twbsPagination.js"></script>
-<script type="text/javascript" src="../vendor/metisMenu/metisMenu.min.js"></script>
-<script type="text/javascript" src="../Scripts/sb-admin-2.js"></script>
-<script type="text/javascript" src="../Scripts/math.min.js"></script>
-<script type="text/javascript" src="../Scripts/jquery.blockUI.js"></script>
-<script type="text/javascript" src="../Scripts/jquery.cookie.js"></script>
-<script type="text/javascript" src="../Scripts/linq.js"></script>
-<script type="text/javascript" src="../Scripts/linq.jquery.js"></script>
-<script type="text/javascript" src="../Scripts/stringformat-1.11.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery-ui-1.13.2.js"></script>
+<script type="text/javascript" src="~/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.ui.datepicker-zh-TW.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.form.js"></script>
+<script type="text/javascript" src="~/Scripts/uxeivo.js"></script>
+<script type="text/javascript" src="~/Scripts/rwd-table.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.twbsPagination.js"></script>
+<script type="text/javascript" src="~/Scripts/math.min.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.blockUI.js"></script>
+<script type="text/javascript" src="~/Scripts/jquery.cookie.js"></script>
+<script type="text/javascript" src="~/Scripts/linq.js"></script>
+<script type="text/javascript" src="~/Scripts/linq.jquery.js"></script>
+<script type="text/javascript" src="~/Scripts/stringformat-1.11.min.js"></script>
+@* shell 行為（sidebar 摺疊、master tab、tooltip/popover 初始化）；須在 bootstrap bundle 之後 *@
+<script type="text/javascript" src="~/js/main.js"></script>
 
 <script>
 
@@ -141,41 +142,28 @@
         }
 
         return {
+            // Bootstrap 5 已移除 jQuery 外掛介面（$(el).tab('show') 不再存在），
+            // tab 的建立／切換／關閉一律委派給 wwwroot/ts/tabs.ts（window.EivoShell.tabs）。
             registerCloseEvent: function ($tab) {
-                $tab.find(".closeTab").click(function () {
-
-                    //there are multiple elements which has .closeTab icon so close the tab whose close icon is clicked
-                    var tabContentId = $(this).parent().attr("href");
-                    $(this).parent().parent().remove(); //remove li of tab
-                    $('#masterTab a:last').tab('show'); // Select first tab
-                    $(tabContentId).remove(); //remove respective tab content
-
-                });
+                // 關閉事件已由 EivoShell.tabs.createTab 掛上，保留此方法僅為相容既有呼叫端。
             },
             removeTab: function (tabId) {
-                var $a = $('#masterTab a[href="#' + tabId + '"]');
-                $a.parent().remove(); //remove li of tab
-                $('#masterTab a:last').tab('show'); // Select first tab
-                $('#' + tabId).remove(); //remove respective tab content
+                window.EivoShell.tabs.removeTab(tabId);
             },
             showTab: function (tabId) {
-                $('#masterTab a[href="#' + tabId + '"]').tab('show');
+                window.EivoShell.tabs.showTab(tabId);
             },
             createTab: function (tabId, tabText, tabContent, show) {
                 showLoading();
-                this.removeTab(tabId);
-
-                var newTab = $('<li role="presentation"></li>')
-                    .append($('<a href="#masterHome" class="tab-link" role="tab" data-toggle="tab"></a>')
-                        .attr('href', '#' + tabId).attr('aria-controls', tabId).text(tabText)
-                        .append($('<button class="close closeTab"><i class="fa fa-times" aria-hidden="true"></i></button>')));
-                newTab.appendTo($('#masterTab'));
-                $('<div role="tabpanel" class="tab-pane"></div>').attr('id', tabId)
-                    .append(tabContent).appendTo($('#masterTabContent'));
-                this.registerCloseEvent(newTab);
-                if (show)
-                    this.showTab(tabId);
-                hideLoading();
+                try {
+                    var pane = window.EivoShell.tabs.createTab(tabId, tabText, show !== false);
+                    if (pane) {
+                        // tabContent 可能是 HTML 字串或 jQuery 物件，交給 jQuery 統一處理
+                        $(pane).append(tabContent);
+                    }
+                } finally {
+                    hideLoading();
+                }
             },
             onReady: [],
             nothingToken: false,
@@ -453,8 +441,10 @@
     }
 
     $(function () {
-        $('input[type="button"]').addClass('btn');
-        $('button').addClass('btn');
+        // 既有頁面大量使用未加 class 的 <button>/<input type=button>，此處補上 BS5 外觀。
+        // 排除 BS5 自有元件按鈕（btn-close / navbar-toggler / accordion-button 等），避免樣式衝突。
+        $('input[type="button"]').not('.btn-close, .navbar-toggler').addClass('btn');
+        $('button').not('.btn-close, .navbar-toggler, .accordion-button, .carousel-control-prev, .carousel-control-next, [data-bs-dismiss]').addClass('btn');
         //$.datepicker.setDefaults($.datepicker.regional['zh-tw']);
         datepicker($('.form_date'));
     });
@@ -496,7 +486,7 @@
 
     function alertModal(alertMessage) {
         $('<div><pre>' + alertMessage + '</pre></div>')
-            .dialog({ "title": "<div class='modal-title'><h4><i class='fa fa-clock-o'></i>訊息</h4></div>" });
+            .dialog({ "title": "<div class='modal-title'><h4><i class='fa-regular fa-clock'></i>訊息</h4></div>" });
     }
 
     function ajaxSubmitForm(form) {

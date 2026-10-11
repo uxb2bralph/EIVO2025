@@ -1,0 +1,37 @@
+// _bootstrap.scss — Bootstrap 5.3 變數覆寫後轉發
+// 其他 partial 只需 `@use "bootstrap" as bs;` 即可取得已套用品牌令牌的 BS5 API。
+
+@use "tokens" as t;
+
+@forward "bootstrap/scss/bootstrap" with (
+  $primary:   t.$eivo-brand,
+  $secondary: t.$eivo-text-secondary,
+  $success:   t.$eivo-success,
+  $info:      t.$eivo-info,
+  $warning:   t.$eivo-warning,
+  $danger:    t.$eivo-danger,
+  $light:     t.$eivo-bg,
+  $dark:      t.$eivo-text,
+
+  $font-family-sans-serif: t.$eivo-font-family,
+  // BS5 以 rem 推導 nav/input 高度，故此處需用 rem：.875rem = 14px（$eivo-font-size-base）
+  $font-size-base:         .875rem,
+  $line-height-base:       t.$eivo-line-height,
+
+  $body-color: t.$eivo-text,
+  $body-bg:    t.$eivo-bg,
+
+  $border-color:     t.$eivo-border,
+  $border-radius:    t.$eivo-radius,
+  $border-radius-sm: 2px,
+  $border-radius-lg: t.$eivo-radius-lg,
+
+  // 表格密集型系統：縮小預設 padding
+  $table-cell-padding-y:    .4rem,
+  $table-cell-padding-x:    .5rem,
+  $input-btn-padding-y:     .3rem,
+  $input-btn-padding-x:     .6rem,
+
+  // 品牌橘上僅放白字（WCAG：#c99040 對白字對比不足，故降低自動反轉門檻）
+  $min-contrast-ratio: 2.2
+);

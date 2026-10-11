@@ -5,22 +5,26 @@
 @using ModelCore.DataEntity
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
     <title>電子發票系統</title>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="~/Content/eivo-bootstrap.css" rel="stylesheet" type="text/css" />
+
+    @* BS5.3（含品牌令牌）→ FontAwesome 6 → jQuery UI → 舊版頁面樣式 *@
+    <link href="~/css/site.css" rel="stylesheet" type="text/css" />
+    <link href="~/vendor/fontawesome/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/vendor/fontawesome/css/v4-shims.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/vendor/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
     <link href="~/css/rwd-table.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/jquery-ui-1.8.14.custom.css" rel="stylesheet" />
+    @* 以下為既有頁面內容樣式，須後於 site.css 載入以保留原有視覺 *@
     <link href="~/App_Themes/Visitor/body.css" rel="stylesheet" />
     <link href="~/App_Themes/Visitor/content.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/header.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/left-menu.css" rel="stylesheet" />
     <link href="~/App_Themes/Visitor/paper.css" rel="stylesheet" />
     <link href="~/App_Themes/Visitor/StyleSheet.css" rel="stylesheet" />
-    <link href="~/App_Themes/Visitor/table.css" rel="stylesheet" />    
-    @{ 
+    <link href="~/App_Themes/Visitor/table.css" rel="stylesheet" />
+
+    @{
         await Html.RenderPartialAsync("~/Views/Shared/CommonScriptInclude.cshtml");
     }
     @RenderSection("headContent", false)

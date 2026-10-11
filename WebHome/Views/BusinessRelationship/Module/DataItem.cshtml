@@ -42,9 +42,9 @@
                 @(_model.Relative.OrganizationStatus.EntrustToPrint.HasValue ? (_model.Relative.OrganizationStatus.EntrustToPrint == true ? "主動列印" : "停用列印") : "未設定")
             </td>
             <td>
-                <div class="btn-group dropdown" data-toggle="dropdown">
-                    <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-                    <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+                <div class="btn-group dropdown" data-bs-toggle="dropdown">
+                    <button class="btn bg-color-blueLight" data-bs-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+                    <button class="btn bg-color-blueLight dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
                     <ul class="dropdown-menu">
                         <li><a class="btn" onclick="uiInquireBusiness.edit(@(_model.RelativeID));">編輯</a></li>
                         @if (_model.CurrentLevel == (int)Naming.MemberStatusDefinition.Mark_To_Delete)
@@ -98,9 +98,9 @@ else
             @(_model.Relative.OrganizationStatus.EntrustToPrint.HasValue ? (_model.Relative.OrganizationStatus.EntrustToPrint == true ? "主動列印" : "停用列印") : "未設定")
         </td>
         <td>
-            <div class="btn-group dropdown" data-toggle="dropdown">
-                <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">請選擇功能</button>
-                <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+            <div class="btn-group dropdown" data-bs-toggle="dropdown">
+                <button class="btn bg-color-blueLight" data-bs-toggle="dropdown" aria-expanded="false">請選擇功能</button>
+                <button class="btn bg-color-blueLight dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li><a class="btn" onclick="uiInquireBusiness.edit(@(_model.RelativeID));">編輯</a></li>
                     @if (_model.CurrentLevel == (int)Naming.MemberStatusDefinition.Mark_To_Delete)

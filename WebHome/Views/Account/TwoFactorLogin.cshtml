@@ -30,7 +30,9 @@
 <html>
 <head>
     <title>電子發票系統</title>
-    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
+    <link href="~/vendor/fontawesome/css/all.min.css" rel="stylesheet" />
+    <link href="~/vendor/fontawesome/css/v4-shims.min.css" rel="stylesheet" />
     <link href="~/css/CBSLogin.css" rel="stylesheet" />
     <style>
         .error {
@@ -45,12 +47,12 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4 col-md-offset-4">
-                <div class="panel-default">
-                    <div class="panel-body">
+                <div class="card">
+                    <div class="card-body">
                         <form id="form1" accept-charset="UTF-8" role="form" method="post">
                             <fieldset>
                                 @*<div>Dear @(_model.UserName),please login by two factor.</div>
-        <div class="form-group prompt">
+        <div class="mb-3 prompt">
             <label for="user_login">Google Authenticator QRCode</label>
             @{
                 TwoFactorAuthenticator TwoFacAuth = new TwoFactorAuthenticator();
@@ -59,17 +61,17 @@
                 ViewBag.SetupCode = setupInfo.ManualEntryKey; }
             <img src="@Html.Raw(setupInfo.QrCodeSetupImageUrl)" />
         </div>
-        <div class="form-group prompt">
+        <div class="mb-3 prompt">
             <label>Manual Setup Code :</label>
             <div>@(setupInfo.ManualEntryKey)</div>
         </div>*@
-                                <div class="form-group prompt">
+                                <div class="mb-3 prompt">
                                     <label>egui.uxifs.com(@(_model.PID))</label>
                                     <label>Google Authenticator OTP code</label>
                                     <input class="form-control" name="CodeDigit" type="text" value="" required>
                                 </div>
                                 <button id="btn" type="button" class="btn btn-inverted btn-block mb-4">Sign In</button>
-                                <div class="form-group prompt">
+                                <div class="mb-3 prompt">
                                     <a class="form-sublink" href="javascript:twoFactor();">Google Authenticator Settings</a>
                                 </div>
                             </fieldset>

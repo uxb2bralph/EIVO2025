@@ -1,0 +1,10 @@
+// site.scss — 樣式主入口；編譯產物 wwwroot/css/site.css
+//
+// 載入順序：BS5（已套用品牌令牌）→ FontAwesome 6 → shell → 元件 → utility。
+// 注意：App_Themes/Visitor/*.css 等舊樣式在 Layout 中「後於」本檔載入，
+// 以保留既有頁面的視覺（h1/h2/a 等）。
+
+@use "bootstrap";
+@use "layout";
+@use "components";
+@use "utilities";

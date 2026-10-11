@@ -1,0 +1,16 @@
+// _utilities.scss — 自訂 utility（僅放 BS5 未提供者）
+
+@use "tokens" as t;
+
+// 既有頁面以 <font color> / inline style 標示的強調文字，改用此類別
+.text-eivo-brand  { color: t.$eivo-brand !important; }
+.text-eivo-accent { color: t.$eivo-accent !important; }
+
+.bg-eivo-brand { background-color: t.$eivo-brand !important; color: #fff !important; }
+
+// 密集表單：壓縮直向間距
+.eivo-dense .form-control,
+.eivo-dense .form-select {
+  padding-top: .2rem;
+  padding-bottom: .2rem;
+}

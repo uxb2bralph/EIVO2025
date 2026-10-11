@@ -40,9 +40,9 @@
             <td>
                 @if (_profile.IsSystemAdmin())
                 {
-                    <div class="btn-group dropdown" data-toggle="dropdown">
-                        <button class="btn bg-color-blueLight" data-toggle="dropdown" aria-expanded="false">匯入相對營業人</button>
-                        <button class="btn bg-color-blueLight dropdown-toggle" data-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
+                    <div class="btn-group dropdown" data-bs-toggle="dropdown">
+                        <button class="btn bg-color-blueLight" data-bs-toggle="dropdown" aria-expanded="false">匯入相對營業人</button>
+                        <button class="btn bg-color-blueLight dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true"><span class="caret"></span></button>
                         <ul class="dropdown-menu" style="min-width:auto;">
                             <li><button type="button" class="btn" onclick="window.location.href='@(Url.Action("ImportCounterpartBusiness", "BusinessRelationship"))';">匯入分店相對營業人</button></li>
                             <li><button type="button" class="btn" onclick="window.location.href='@(Url.Action("ImportCounterpartBusinessXml", "BusinessRelationship"))';">匯入商務關係相對營業人</button></li>

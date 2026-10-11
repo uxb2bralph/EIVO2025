@@ -88,18 +88,19 @@
     <None Remove="wwwroot\ts\index.ts" />
   </ItemGroup>
   <!--
-    Optional TypeScript build hook. To enable automatic TypeScript build during MSBuild,
-    invoke msbuild with -p:TypeScriptBuild=true or set the property in your IDE.
-    This keeps the default build unchanged unless you explicitly enable it.
+    Optional frontend build hook (SCSS -> wwwroot/css/site.css, TS -> wwwroot/js/main.js,
+    node_modules -> wwwroot/vendor). Enable with -p:TypeScriptBuild=true.
+
+    The build products are committed to the repo, so the default build stays unchanged and
+    neither node nor npm is required to build or publish WebHome. Run this (or `npm run build`)
+    after editing anything under wwwroot/scss or wwwroot/ts.
   -->
-  <Target Name="BuildTypeScript" BeforeTargets="Build" Condition="'$(TypeScriptBuild)'=='true'">
-    <!-- Run npm install (only once per machine/project) -->
-    <Message Importance="high" Text="TypeScript build enabled: running npm install..." />
+  <Target Name="BuildFrontend" BeforeTargets="Build" Condition="'$(TypeScriptBuild)'=='true'">
+    <Message Importance="high" Text="Frontend build enabled: running npm install..." />
     <Exec Command="npm install" WorkingDirectory="$(ProjectDir)" />
 
-    <!-- Run TypeScript compilation using package.json scripts -->
-    <Message Importance="high" Text="Running npm run build:ts" />
-    <Exec Command="npm run build:ts" WorkingDirectory="$(ProjectDir)" />
+    <Message Importance="high" Text="Running npm run build (vendor + scss + ts)" />
+    <Exec Command="npm run build" WorkingDirectory="$(ProjectDir)" />
   </Target>
 
 </Project>

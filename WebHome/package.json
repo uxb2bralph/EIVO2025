@@ -4,18 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build:ts": "tsc -p tsconfig.json",
     "watch:ts": "tsc -p tsconfig.json --watch",
     "build:es": "esbuild wwwroot/ts/index.ts --bundle --sourcemap --outfile=wwwroot/js/main.js",
-    "watch:es": "esbuild wwwroot/ts/index.ts --bundle --sourcemap --outfile=wwwroot/js/main.js --watch"
+    "watch:es": "esbuild wwwroot/ts/index.ts --bundle --sourcemap --outfile=wwwroot/js/main.js --watch",
+    "build:css": "sass --load-path=node_modules --quiet-deps --style=compressed wwwroot/scss/site.scss wwwroot/css/site.css",
+    "watch:css": "sass --load-path=node_modules --quiet-deps --watch wwwroot/scss/site.scss wwwroot/css/site.css",
+    "copy:vendor": "node tools/copy-vendor.js",
+    "build": "npm run copy:vendor && npm run build:css && npm run build:es",
+    "watch": "npm run watch:css"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "bootstrap": "^5.3.8",
     "esbuild": "^0.27.3",
+    "jquery-ui-dist": "^1.13.3",
+    "sass": "^1.105.1",
     "typescript": "^5.9.3"
   }
 }
