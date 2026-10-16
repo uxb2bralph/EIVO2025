@@ -556,10 +556,13 @@ namespace ModelCore.InvoiceManagement
             InvoiceCancellation cancelItem = new InvoiceCancellation
             {
                 Invoice = invoice,
+                InvoiceID = invoice.InvoiceID,
                 CancellationNo = String.Format("{0}{1}",invoice.TrackCode,invoice.No),
                 Remark = remark,
                 CancelDate = DateTime.Now
             };
+            //EF Core 不會因為設定 Invoice 導覽就追蹤新實體，必須明確加入資料表才會寫入
+            this.GetTable<InvoiceCancellation>().Add(cancelItem);
 
             var doc = new DerivedDocument
             {

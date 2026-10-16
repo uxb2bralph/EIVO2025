@@ -149,6 +149,8 @@ namespace WebHome.Helper
                             CurrentLevel = (int)Naming.MemberStatusDefinition.Checked,
 
                         };
+                        //EF Core 不會因為設定 Relative/Company 導覽就追蹤新實體，必須明確加入資料表
+                        this.GetTable<BusinessRelationship>().Add(relationship);
 
                         if (MasterGroup != null && MasterGroup.Length > 0)
                         {
@@ -164,6 +166,7 @@ namespace WebHome.Helper
                                     MasterID = masterID,
                                     CurrentLevel = (int)Naming.MemberStatusDefinition.Checked
                                 };
+                                this.GetTable<BusinessRelationship>().Add(relationship);
                             }
                         }
 
@@ -172,6 +175,7 @@ namespace WebHome.Helper
                             Company = item.Entity,
                             CategoryID = (int)CategoryDefinition.CategoryEnum.相對營業人,
                         };
+                        this.GetTable<OrganizationCategory>().Add(orgaCate);
 
                         this.EntityList.Add(item.Entity);
 

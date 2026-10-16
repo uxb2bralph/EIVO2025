@@ -502,6 +502,88 @@ namespace WebHome.Controllers
 
         }
 
+        protected async Task<string> GetAllowancePDFAsync(InvoiceAllowance item, RenderStyleViewModel viewModel)
+        {
+            String outputFile = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogPath.GetDateStylePath(item.AllowanceDate ?? DateTime.Today),
+                    $"{item.AllowanceNumber ?? item.AllowanceID.ToString()}.pdf");
+            if (viewModel.CreateNew != true && System.IO.File.Exists(outputFile))
+            {
+
+            }
+            else
+            {
+                String[]? useThermalPOSArgs;
+                this.TempData["viewModel"] = viewModel.JsonStringify();
+                String? pdfFile = await this.CreateContentAsPDFAsync(getAllowanceViewPath(item, out useThermalPOSArgs, viewModel.PaperStyle), item, Properties.Settings.Default.SessionTimeoutInMinutes, useThermalPOSArgs);
+                if (pdfFile != null)
+                {
+                    if (System.IO.File.Exists(outputFile))
+                    {
+                        System.IO.File.Delete(outputFile);
+                    }
+                    System.IO.File.Move(pdfFile, outputFile);
+                }
+            }
+
+            return outputFile;
+        }
+
+        [Authorize]
+        public async Task<ActionResult> ZipAllowancePDFAsync([FromJsonOrForm] RenderStyleViewModel viewModel)
+        {
+            if (viewModel == null || !ModelState.IsValid)
+            {
+                return Json(new { result = false, message = ModelState.ErrorMessage() });
+            }
+
+            ViewBag.ViewModel = viewModel;
+
+            var profile = HttpContext.GetUser();
+
+            String outFile = Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".zip");
+
+            var items = models!.GetTable<DocumentPrintQueue>()
+                .Where(i => i.UID == profile.Entity.UID)
+                .Join(models.GetTable<CDS_Document>()
+                        .Where(d => d.DocType == (int)Naming.DocumentTypeDefinition.E_Allowance),
+                    i => i.DocID, d => d.DocID, (i, d) => i);
+
+            viewModel.FileDownloadToken = viewModel.FileDownloadToken.GetEfficientString();
+            if (viewModel.FileDownloadToken != null)
+            {
+                Response.Cookies.Append("FileDownloadToken", viewModel.FileDownloadToken);
+            }
+
+            using (var zipOut = System.IO.File.Create(outFile))
+            {
+                using (ZipArchive zip = new ZipArchive(zipOut, ZipArchiveMode.Create))
+                {
+                    foreach (var doc in items.ToArray())
+                    {
+                        InvoiceAllowance item = doc.Doc.InvoiceAllowance;
+                        if (item == null)
+                        {
+                            continue;
+                        }
+
+                        var pdfFile = await GetAllowancePDFAsync(item, viewModel);
+                        if (!System.IO.File.Exists(pdfFile))
+                        {
+                            continue;
+                        }
+
+                        models.MarkPrintedLog(item, profile.Entity);
+
+                        zip.CreateEntryFromFile(pdfFile, Path.GetFileName(pdfFile));
+                    }
+                }
+            }
+
+            var result = new PhysicalFileResult(outFile, "application/octet-stream");
+            result.FileDownloadName = "折讓單列印下載.zip";
+            return result;
+        }
+
         public ActionResult ShowInvoicePageView([FromJsonOrForm] DocumentQueryViewModel viewModel, [FromJsonOrForm] InquireInvoiceViewModel queryModel)
         {
             ViewBag.ViewModel = viewModel;

@@ -170,12 +170,15 @@ namespace WebHome.Helper
                         MasterID = _masterID.Value,
                         CurrentLevel = (int)Naming.MemberStatusDefinition.Checked
                     };
+                    //EF Core 不會因為設定 Relative/Company 導覽就追蹤新實體，必須明確加入資料表
+                    this.GetTable<BusinessRelationship>().Add(relationship);
 
                     var orgaCate = new OrganizationCategory
                     {
                         Company = item.Entity,
                         CategoryID = (int)CategoryDefinition.CategoryEnum.相對營業人
                     };
+                    this.GetTable<OrganizationCategory>().Add(orgaCate);
 
                     this.EntityList.Add(item.Entity);
 
@@ -217,6 +220,7 @@ namespace WebHome.Helper
                         BusinessID = (int)BusinessType,
                         MasterID = _masterID.Value
                     };
+                    this.GetTable<BusinessRelationship>().Add(relationship);
                 }
 
                 //var currentUser = this.GetTable<UserProfile>().Where(u => u.PID == viewModel.ReceiptNo).FirstOrDefault();

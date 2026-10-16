@@ -21,11 +21,24 @@
 @{
     RenderStyleViewModel _viewModel;
     _viewModel = (RenderStyleViewModel)ViewBag.ViewModel;
+    _viewModel.CreateNew = true;
+    _viewModel.IsPDF = true;
+
+    _viewModel.PaperStyle = "B2B";
+    var zipB2BViewModel = _viewModel.JsonStringify();
+
+    _viewModel.PaperStyle = "POS";
+    var zipPOSViewModel = _viewModel.JsonStringify();
+
+    _viewModel.PaperStyle = null;
+    _viewModel.IsPDF = false;
 }
 <div>
     <a href="@(Url.Action("PrintB0401AsPDF","DataView"))" target="_blank">列印資料下載(B2B)</a>
+    <a href='javascript:$("").launchDownload("@(Url.Action("ZipAllowancePDF","DataView"))", @Html.Raw(zipB2BViewModel), "_blank", true);'>列印資料下載(B2B ZIP)</a>
     <br />
     <a href="@(Url.Action("PrintD0401AsPDF","DataView"))" target="_blank">列印資料下載(POS)</a>
+    <a href='javascript:$("").launchDownload("@(Url.Action("ZipAllowancePDF", "DataView"))", @Html.Raw(zipPOSViewModel), "_blank", true);'>列印資料下載(POS ZIP)</a>
     <br />
     <a href="@(Url.Action("PrintB0401","DataView"))" target="_blank">網頁列印(B2B)</a>
     <br />

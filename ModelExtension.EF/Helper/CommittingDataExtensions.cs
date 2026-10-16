@@ -97,11 +97,10 @@ namespace ModelCore.Helper
             orgaCate = item.OrganizationCategory.FirstOrDefault();
             if (orgaCate == null)
             {
-                orgaCate = new OrganizationCategory
-                {
-                    Company = item
-                };
-
+                orgaCate = new OrganizationCategory { };
+                //EF Core 不會因為設定 orgaCate.Company = item 就把新實體納入追蹤，
+                //必須加入父實體的集合導覽，SaveChanges 時才會一併新增並回填 CompanyID。
+                item.OrganizationCategory.Add(orgaCate);
             }
 
             orgaCate.CategoryID = (int)viewModel.CategoryID;

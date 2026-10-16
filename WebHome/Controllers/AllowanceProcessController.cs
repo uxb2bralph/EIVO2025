@@ -28,6 +28,9 @@ using WebHome.Helper;
 using WebHome.Models;
 using WebHome.Models.ViewModel;
 using WebHome.Properties;
+using WebHome.Infrastructure.BackgroundTasks;
+using Microsoft.EntityFrameworkCore;
+using ModelCore.DataEntityWrapper;
 
 namespace WebHome.Controllers
 {
@@ -181,69 +184,81 @@ namespace WebHome.Controllers
         {
             ViewBag.ViewModel = viewModel;
 
-            //DataLoadOptions ops = new DataLoadOptions();
-            //ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceBuyer);
-            //ops.LoadWith<InvoiceAllowance>(i => i.InvoiceAllowanceSeller);
-            //models.DataContext.LoadOptions = ops;
-
             ModelSource<InvoiceAllowance> modelSource = new ModelSource<InvoiceAllowance>(models);
 
             var profile = HttpContext.GetUser();
             modelSource.Inquiry = viewModel.CreateAllowanceInquiry(profile);
             modelSource.BuildQuery();
 
-            var prodItems = models.GetTable<InvoiceAllowance>()
-                                .SelectMany(a => a.InvoiceAllowanceDetails, (a, p) => new { a.AllowanceID, p.InvoiceNo, p.Amount, p.Tax, p.Remark })
-                                .GroupBy(a => new { a.AllowanceID, a.InvoiceNo, a.Remark })
-                                .Select(g => new { g.Key, TotalAmt = g.Sum(v => v.Amount), TotalTax = g.Sum(v => v.Tax) });
-
+            //原本以匿名型別投影 + SqlDataAdapter.Fill 依資料行名稱對應；
+            //投影內含字串插值（狀態）會讓 EF Core 轉為用戶端計算，產生的 SQL 不會加上
+            //中文資料行別名，Fill 對應不到預先建立的資料行，匯出就會整張表空白。
+            //改為直接載入實體後逐列填值。
             var items = modelSource.Items
-                .OrderBy(i => i.AllowanceID)
-                .Join(prodItems, i => i.AllowanceID, g => g.Key.AllowanceID, (i, g) => new
-                {
-                    折讓單號碼 = i.AllowanceNumber,
-                    原發票號碼 = g.Key.InvoiceNo,
-                    折讓日期 = i.AllowanceDate,
-                    客戶ID = i.InvoiceAllowanceBuyer.CustomerID,
-                    發票開立人 = i.InvoiceAllowanceSeller.CustomerName,
-                    開立人統編 = i.InvoiceAllowanceSeller.ReceiptNo,
-                    未稅金額 = g.TotalAmt,
-                    稅額 = g.TotalTax,
-                    含稅金額 = i.TotalAmount + i.TaxAmount,
-                    買受人名稱 = i.InvoiceAllowanceBuyer.CustomerName,
-                    買受人統編 = i.InvoiceAllowanceBuyer.ReceiptNo,
-                    連絡人名稱 = i.InvoiceAllowanceBuyer.ContactName,
-                    連絡人地址 = i.InvoiceAllowanceBuyer.Address,
-                    買受人EMail = i.InvoiceAllowanceBuyer.EMail,
-                    狀態 = i.InvoiceAllowanceCancellation !=null ? $"已作廢({i.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})" : "",
-                    備註 = g.Key.Remark
-                });
+                .Include(a => a.InvoiceAllowanceDetails)
+                .Include(a => a.InvoiceAllowanceBuyer)
+                .Include(a => a.InvoiceAllowanceSeller)
+                .Include(a => a.InvoiceAllowanceCancellation)
+                .OrderBy(i => i.AllowanceID);
 
             using (DataSet ds = new DataSet())
             {
                 DataTable table = new DataTable("折讓資料明細");
                 ds.Tables.Add(table);
-                table.Columns.Add("折讓單號碼");
-                table.Columns.Add("原發票號碼");
-                table.Columns.Add("折讓日期");
-                table.Columns.Add("客戶ID");
-                table.Columns.Add("發票開立人");
-                table.Columns.Add("開立人統編");
-                table.Columns.Add("未稅金額");
-                table.Columns.Add("稅額");
-                table.Columns.Add("含稅金額");
-                table.Columns.Add("買受人名稱");
-                table.Columns.Add("買受人統編");
-                table.Columns.Add("連絡人名稱");
-                table.Columns.Add("連絡人地址");
-                table.Columns.Add("買受人EMail");
-                table.Columns.Add("狀態");
-                table.Columns.Add("備註");
+                table.Columns.Add("折讓單號碼", typeof(String));
+                table.Columns.Add("原發票號碼", typeof(String));
+                table.Columns.Add("折讓日期", typeof(String));
+                table.Columns.Add("客戶ID", typeof(String));
+                table.Columns.Add("發票開立人", typeof(String));
+                table.Columns.Add("開立人統編", typeof(String));
+                table.Columns.Add("未稅金額", typeof(decimal));
+                table.Columns.Add("稅額", typeof(decimal));
+                table.Columns.Add("含稅金額", typeof(decimal));
+                table.Columns.Add("買受人名稱", typeof(String));
+                table.Columns.Add("買受人統編", typeof(String));
+                table.Columns.Add("連絡人名稱", typeof(String));
+                table.Columns.Add("連絡人地址", typeof(String));
+                table.Columns.Add("買受人EMail", typeof(String));
+                table.Columns.Add("狀態", typeof(String));
+                table.Columns.Add("備註", typeof(String));
 
-                DataSource.GetDataSetResult(items, table);
-                foreach (var r in table.Select("買受人統編 = '0000000000'"))
+                foreach (var item in await items.ToListAsync())
                 {
-                    r["買受人統編"] = "";
+                    //原以 SQL GROUP BY (AllowanceID, InvoiceNo, Remark) 彙總明細，維持每張原發票一列。
+                    var details = item.InvoiceAllowanceDetails
+                        .GroupBy(d => new { d.InvoiceNo, d.Remark })
+                        .Select(g => new
+                        {
+                            g.Key.InvoiceNo,
+                            g.Key.Remark,
+                            TotalAmt = g.Sum(v => v.Amount ?? 0m),
+                            TotalTax = g.Sum(v => v.Tax ?? 0m),
+                        });
+
+                    foreach (var d in details)
+                    {
+                        DataRow r = table.NewRow();
+                        r["折讓單號碼"] = item.AllowanceNumber;
+                        r["原發票號碼"] = d.InvoiceNo;
+                        r["折讓日期"] = $"{item.AllowanceDate:yyyy/MM/dd}";
+                        r["客戶ID"] = item.InvoiceAllowanceBuyer?.CustomerID;
+                        r["發票開立人"] = item.InvoiceAllowanceSeller?.CustomerName;
+                        r["開立人統編"] = item.InvoiceAllowanceSeller?.ReceiptNo;
+                        r["未稅金額"] = d.TotalAmt;
+                        r["稅額"] = d.TotalTax;
+                        r["含稅金額"] = (item.TotalAmount ?? 0m) + (item.TaxAmount ?? 0m);
+                        r["買受人名稱"] = item.InvoiceAllowanceBuyer?.CustomerName;
+                        r["買受人統編"] = item.InvoiceAllowanceBuyer?.ReceiptNo == "0000000000"
+                                            ? "" : item.InvoiceAllowanceBuyer?.ReceiptNo;
+                        r["連絡人名稱"] = item.InvoiceAllowanceBuyer?.ContactName;
+                        r["連絡人地址"] = item.InvoiceAllowanceBuyer?.Address;
+                        r["買受人EMail"] = item.InvoiceAllowanceBuyer?.EMail;
+                        r["狀態"] = item.InvoiceAllowanceCancellation != null
+                                        ? $"已作廢({item.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})" : "";
+                        r["備註"] = d.Remark;
+
+                        table.Rows.Add(r);
+                    }
                 }
 
                 await ds.SaveAsExcelAsync(Response, String.Format("attachment;filename={0}", HttpUtility.UrlEncode("折讓資料明細.xlsx")));
@@ -259,41 +274,12 @@ namespace WebHome.Controllers
                 return Json(new { result = false, message = ModelState.ErrorMessage() });
             }
 
-            ViewResult result = (ViewResult)Inquire(viewModel);
-            IQueryable<InvoiceAllowance> allowanceItems = result.Model as IQueryable<InvoiceAllowance>;
+            ViewBag.ViewModel = viewModel;
 
-            var prodItems = models.GetTable<InvoiceAllowance>()
-                                .SelectMany(a => a.InvoiceAllowanceDetails, (a, p) => new { a.AllowanceID, p.InvoiceNo, p.Amount, p.Tax, p.Remark })
-                                .GroupBy(a => new { a.AllowanceID, a.InvoiceNo, a.Remark })
-                                .Select(g => new { g.Key, TotalAmt = g.Sum(v => v.Amount), TotalTax = g.Sum(v => v.Tax) });
-
-            var items = allowanceItems
-                .OrderBy(i => i.AllowanceID)
-                .Join(prodItems, i => i.AllowanceID, g => g.Key.AllowanceID, (i, g) => new
-                {
-                    折讓單號碼 = i.AllowanceNumber,
-                    原發票號碼 = g.Key.InvoiceNo,
-                    折讓日期 = i.AllowanceDate,
-                    客戶ID = i.InvoiceAllowanceBuyer.CustomerID,
-                    發票開立人 = i.InvoiceAllowanceSeller.CustomerName,
-                    開立人統編 = i.InvoiceAllowanceSeller.ReceiptNo,
-                    未稅金額 = g.TotalAmt,
-                    稅額 = g.TotalTax,
-                    含稅金額 = g.TotalAmt + g.TotalTax, //i.TotalAmount + i.TaxAmount,
-                    幣別 = i.CurrencyID.HasValue ? i.Currency.AbbrevName : null,
-                    買受人名稱 = i.InvoiceAllowanceBuyer.CustomerName,
-                    買受人統編 = i.InvoiceAllowanceBuyer.ReceiptNo,
-                    連絡人名稱 = i.InvoiceAllowanceBuyer.ContactName,
-                    連絡人地址 = i.InvoiceAllowanceBuyer.Address,
-                    買受人EMail = i.InvoiceAllowanceBuyer.EMail,
-                    狀態 = i.InvoiceAllowanceCancellation != null ? $"已作廢({i.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})" : "",
-                    備註 = g.Key.Remark
-                });
-
-
+            var profile = HttpContext.GetUser();
             ProcessRequest processItem = new ProcessRequest
             {
-                Sender = HttpContext.GetUser()?.Entity.UID,
+                Sender = profile?.Entity.UID,
                 SubmitDate = DateTime.Now,
                 ProcessStart = DateTime.Now,
                 ResponsePath = System.IO.Path.Combine(CommonLib.Core.Utility.FileLogger.Logger.LogDailyPath, Guid.NewGuid().ToString() + ".xlsx"),
@@ -301,8 +287,15 @@ namespace WebHome.Controllers
             models.GetTable<ProcessRequest>().Add(processItem);
             models.SubmitChanges();
 
-            SqlCommand sqlCmd = (SqlCommand)models.GetCommand(items);
-            saveAsExcel(processItem.TaskID, processItem.ResponsePath, sqlCmd, viewModel.Attachment != 0);
+            //原本以 models.GetCommand(items) 取出 SqlCommand 丟給背景執行緒填 DataTable；
+            //EF Core 產生的 SQL 不會以匿名型別成員名稱（折讓單號碼…）當作資料行別名，
+            //SqlDataAdapter.Fill 依名稱對應不到預先建立的資料行，結果就是整張表沒有資料。
+            //改為與 InvoiceProcess/CreateXlsx2024 相同做法：背景作業自建 DbContext 重建查詢，逐列填值。
+            int taskID = processItem.TaskID;
+            String resultFile = processItem.ResponsePath;
+            var (jobUID, jobRoleIndex) = profile.ForBackgroundWork();
+            HttpContext.EnqueueBackgroundWork("AllowanceProcess/CreateXlsx2021",
+                _ => saveAsExcel(taskID, resultFile, viewModel, jobUID, jobRoleIndex));
 
             return View("~/Views/Shared/Module/PromptCheckDownload.cshtml",
                     new AttachmentViewModel
@@ -314,86 +307,150 @@ namespace WebHome.Controllers
 
         }
 
-        static void saveAsExcel(int taskID, String resultFile, SqlCommand sqlCmd, bool hasAttachment)
+        //背景作業：不可沿用請求的 models／profile，改以 viewModel + uid/roleIndex 重建查詢。
+        static void saveAsExcel(int taskID, String resultFile, InquireInvoiceViewModel viewModel, int? uid, int? roleIndex)
         {
-            Task.Run(() =>
+            try
             {
-                try
+                using (ModelSource<InvoiceAllowance> db = new ModelSource<InvoiceAllowance>())
+                using (DataSet ds = new DataSet())
                 {
-                    using (DataSet ds = new DataSet())
+                    UserProfileWrapper? profile = db.ReloadProfile(uid, roleIndex);
+
+                    //與 Inquire 相同的查詢條件還原（含 Status 對應 Cancelled）。
+                    viewModel.Status = viewModel.Status.GetEfficientString();
+                    switch (viewModel.Status)
+                    {
+                        case "Normal":
+                            viewModel.Cancelled = false;
+                            break;
+                        case "Voided":
+                            viewModel.Cancelled = true;
+                            break;
+                    }
+
+                    db.Inquiry = viewModel.CreateAllowanceInquiry(profile);
+                    db.BuildQuery();
+
+                    if (viewModel.Status == "ReadyToMIG")
+                    {
+                        var d0401Ready = db.GetTable<DataProcessQueue>()
+                            .Where(s => s.StepID == (int)Naming.InvoiceStepDefinition.待批次傳送);
+                        db.Items = db.Items.Where(a => d0401Ready.Any(d => d.DocID == a.AllowanceID));
+                    }
+
+                    //輸出每一列會用到的導覽屬性一次載入，避免逐筆 lazy loading。
+                    IQueryable<InvoiceAllowance> items = db.Items
+                        .Include(a => a.InvoiceAllowanceDetails)
+                        .Include(a => a.InvoiceAllowanceBuyer)
+                        .Include(a => a.InvoiceAllowanceSeller)
+                        .Include(a => a.Currency)
+                        .Include(a => a.InvoiceAllowanceCancellation);
+
+                    Exception? exception = null;
+
+                    try
                     {
                         DataTable table = new DataTable("折讓資料明細");
                         ds.Tables.Add(table);
-                        table.Columns.Add("折讓單號碼");
-                        table.Columns.Add("原發票號碼");
-                        table.Columns.Add("折讓日期");
-                        table.Columns.Add("客戶ID");
-                        table.Columns.Add("發票開立人");
-                        table.Columns.Add("開立人統編");
-                        table.Columns.Add("未稅金額");
-                        table.Columns.Add("稅額");
-                        table.Columns.Add("含稅金額");
-                        table.Columns.Add("幣別");
-                        table.Columns.Add("買受人名稱");
-                        table.Columns.Add("買受人統編");
-                        table.Columns.Add("連絡人名稱");
-                        table.Columns.Add("連絡人地址");
-                        table.Columns.Add("買受人EMail");
-                        table.Columns.Add("狀態");
-                        table.Columns.Add("備註");
+                        table.Columns.Add("折讓單號碼", typeof(String));
+                        table.Columns.Add("原發票號碼", typeof(String));
+                        table.Columns.Add("折讓日期", typeof(String));
+                        table.Columns.Add("客戶ID", typeof(String));
+                        table.Columns.Add("發票開立人", typeof(String));
+                        table.Columns.Add("開立人統編", typeof(String));
+                        table.Columns.Add("未稅金額", typeof(decimal));
+                        table.Columns.Add("稅額", typeof(decimal));
+                        table.Columns.Add("含稅金額", typeof(decimal));
+                        table.Columns.Add("幣別", typeof(String));
+                        table.Columns.Add("買受人名稱", typeof(String));
+                        table.Columns.Add("買受人統編", typeof(String));
+                        table.Columns.Add("連絡人名稱", typeof(String));
+                        table.Columns.Add("連絡人地址", typeof(String));
+                        table.Columns.Add("買受人EMail", typeof(String));
+                        table.Columns.Add("狀態", typeof(String));
+                        table.Columns.Add("備註", typeof(String));
 
-                        using (ModelSource<InvoiceItem> db = new ModelSource<InvoiceItem>())
+                        foreach (var item in items.OrderBy(a => a.AllowanceID).ToList())
                         {
-                            Exception exception = null;
-
-                            try
-                            {
-                                CommonLib.Core.Utility.FileLogger.Logger.Debug($"save excel sql cmd: {sqlCmd.CommandText}");
-                                db.GetDataSetResult(sqlCmd, table);
-                                foreach (var r in table.Select("買受人統編 = '0000000000'"))
+                            //原本以 SQL GROUP BY (AllowanceID, InvoiceNo, Remark) 彙總明細，
+                            //這裡於記憶體內以相同鍵值分組，維持每張原發票一列。
+                            var details = item.InvoiceAllowanceDetails
+                                .GroupBy(d => new { d.InvoiceNo, d.Remark })
+                                .Select(g => new
                                 {
-                                    r["買受人統編"] = "";
-                                }
+                                    g.Key.InvoiceNo,
+                                    g.Key.Remark,
+                                    TotalAmt = g.Sum(v => v.Amount ?? 0m),
+                                    TotalTax = g.Sum(v => v.Tax ?? 0m),
+                                });
 
-                                using (var xls = ds.ConvertToExcel())
-                                {
-                                    xls.SaveAs(resultFile);
-                                }
-                                CommonLib.Core.Utility.FileLogger.Logger.Debug($"save excel file: {resultFile}");
-                            }
-                            catch (Exception ex)
+                            foreach (var d in details)
                             {
-                                CommonLib.Core.Utility.FileLogger.Logger.Error(ex);
-                                exception = ex;
+                                DataRow r = table.NewRow();
+                                r["折讓單號碼"] = item.AllowanceNumber;
+                                r["原發票號碼"] = d.InvoiceNo;
+                                r["折讓日期"] = $"{item.AllowanceDate:yyyy/MM/dd}";
+                                r["客戶ID"] = item.InvoiceAllowanceBuyer?.CustomerID;
+                                r["發票開立人"] = item.InvoiceAllowanceSeller?.CustomerName;
+                                r["開立人統編"] = item.InvoiceAllowanceSeller?.ReceiptNo;
+                                r["未稅金額"] = d.TotalAmt;
+                                r["稅額"] = d.TotalTax;
+                                r["含稅金額"] = d.TotalAmt + d.TotalTax;
+                                r["幣別"] = item.CurrencyID.HasValue ? item.Currency?.AbbrevName : DBNull.Value;
+                                r["買受人名稱"] = item.InvoiceAllowanceBuyer?.CustomerName;
+                                r["買受人統編"] = item.InvoiceAllowanceBuyer?.ReceiptNo == "0000000000"
+                                                    ? "" : item.InvoiceAllowanceBuyer?.ReceiptNo;
+                                r["連絡人名稱"] = item.InvoiceAllowanceBuyer?.ContactName;
+                                r["連絡人地址"] = item.InvoiceAllowanceBuyer?.Address;
+                                r["買受人EMail"] = item.InvoiceAllowanceBuyer?.EMail;
+                                r["狀態"] = item.InvoiceAllowanceCancellation != null
+                                                ? $"已作廢({item.InvoiceAllowanceCancellation.CancelDate:yyyy/MM/dd})" : "";
+                                r["備註"] = d.Remark;
+
+                                table.Rows.Add(r);
                             }
-
-                            ProcessRequest taskItem = db.GetTable<ProcessRequest>()
-                                            .Where(t => t.TaskID == taskID).FirstOrDefault();
-
-                            if (taskItem != null)
-                            {
-                                if (exception != null)
-                                {
-                                    taskItem.ExceptionLog = new ExceptionLog
-                                    {
-                                        DataContent = exception.Message
-                                    };
-                                }
-                                taskItem.ProcessComplete = DateTime.Now;
-                                db.SubmitChanges();
-                            }
-
                         }
 
+                        using (var xls = ds.ConvertToExcel())
+                        {
+                            xls.SaveAs(resultFile);
+                        }
+                        CommonLib.Core.Utility.FileLogger.Logger.Debug($"save excel file: {resultFile}");
+                    }
+                    catch (Exception ex)
+                    {
+                        CommonLib.Core.Utility.FileLogger.Logger.Error($"{ex}\r\n{items}");
+                        exception = ex;
                     }
 
-                }
-                catch (Exception ex)
-                {
-                    CommonLib.Core.Utility.FileLogger.Logger.Error(ex);
-                }
-            });
+                    ProcessRequest? taskItem = db.GetTable<ProcessRequest>()
+                                    .Where(t => t.TaskID == taskID).FirstOrDefault();
 
+                    if (taskItem != null)
+                    {
+                        if (exception != null)
+                        {
+                            var logItem = new ExceptionLog
+                            {
+                                DataContent = exception.Message,
+                                LogTime = DateTime.Now,
+                            };
+                            db.GetTable<ExceptionLog>().Add(logItem);
+                            db.SubmitChanges();
+
+                            taskItem.LogID = logItem.LogID;
+                        }
+
+                        taskItem.ProcessComplete = DateTime.Now;
+                        db.SubmitChanges();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonLib.Core.Utility.FileLogger.Logger.Error(ex);
+            }
         }
 
 
@@ -436,6 +493,9 @@ namespace WebHome.Controllers
             {
                 viewModel = await PrepareViewModelAsync<RenderStyleViewModel>();
             }
+
+            viewModel ??= new RenderStyleViewModel();
+            ViewBag.ViewModel = viewModel;
 
             var profile = HttpContext.GetUser();
             if (dataModel.ChkItem?.Count > 0 && profile.EnqueueDocumentPrint(models, dataModel.ChkItem))
